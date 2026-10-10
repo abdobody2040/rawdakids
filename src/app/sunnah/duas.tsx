@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { contentService } from '@/services/contentService';
 import { audioService } from '@/services/audioService';
@@ -96,7 +96,7 @@ export default function DuaLibraryScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
         <Header showBack title={t.sunnah} />
         <SunnahHeroHeader activeTab="duas" />

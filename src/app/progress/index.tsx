@@ -5,9 +5,9 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
-  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
@@ -56,7 +56,7 @@ export default function MyProgressScreen() {
 
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header showBack title={t.progress} />
 
       <ScrollView

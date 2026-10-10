@@ -1,4 +1,5 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -61,45 +62,47 @@ export default function RootLayout() {
   }, [incrementTimeSpent]);
 
   return (
-    <GestureHandlerRootView style={styles.rootContainer}>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: COLORS.background },
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="quran/index" />
-        <Stack.Screen name="quran/[surahId]" />
-        <Stack.Screen name="quran/repeat" />
-        <Stack.Screen name="sunnah/index" />
-        <Stack.Screen name="sunnah/[hadithId]" />
-        <Stack.Screen name="sunnah/duas" />
-        <Stack.Screen name="sunnah/cards" />
-        <Stack.Screen name="prophets/index" />
-        <Stack.Screen name="prophets/[prophetId]" />
-        <Stack.Screen name="manners/index" />
-        <Stack.Screen name="manners/[valueId]" />
-        <Stack.Screen name="manners/journal" />
-        <Stack.Screen name="rewards/index" />
-        <Stack.Screen name="progress/index" />
-        <Stack.Screen name="parents/index" />
-      </Stack>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <GestureHandlerRootView style={styles.rootContainer}>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: COLORS.background },
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="quran/index" />
+          <Stack.Screen name="quran/[surahId]" />
+          <Stack.Screen name="quran/repeat" />
+          <Stack.Screen name="sunnah/index" />
+          <Stack.Screen name="sunnah/[hadithId]" />
+          <Stack.Screen name="sunnah/duas" />
+          <Stack.Screen name="sunnah/cards" />
+          <Stack.Screen name="prophets/index" />
+          <Stack.Screen name="prophets/[prophetId]" />
+          <Stack.Screen name="manners/index" />
+          <Stack.Screen name="manners/[valueId]" />
+          <Stack.Screen name="manners/journal" />
+          <Stack.Screen name="rewards/index" />
+          <Stack.Screen name="progress/index" />
+          <Stack.Screen name="parents/index" />
+        </Stack>
 
-      {/* In-App Splash Screen Transition */}
-      {splashVisible && (
-        <AppSplashScreen
-          onFinish={() => setSplashVisible(false)}
-          minDurationMs={1500}
-        />
-      )}
+        {/* In-App Splash Screen Transition */}
+        {splashVisible && (
+          <AppSplashScreen
+            onFinish={() => setSplashVisible(false)}
+            minDurationMs={1500}
+          />
+        )}
 
-      {/* Fallback Loading Screen if store hydration takes longer */}
-      {!isHydrated && !splashVisible && <AppLoadingScreen />}
-    </GestureHandlerRootView>
+        {/* Fallback Loading Screen if store hydration takes longer */}
+        {!isHydrated && !splashVisible && <AppLoadingScreen />}
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

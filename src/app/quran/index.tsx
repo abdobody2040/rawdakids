@@ -7,10 +7,10 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  SafeAreaView,
   Image,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -120,7 +120,7 @@ export default function QuranGardenScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
         <Header showBack title={t.quran} />
 

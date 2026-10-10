@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   TextInput,
   Switch,
-  SafeAreaView,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
@@ -89,7 +89,7 @@ export default function ParentsCornerScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header showBack title={t.parents} />
 
       <ScrollView

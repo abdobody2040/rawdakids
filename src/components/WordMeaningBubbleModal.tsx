@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     padding: 22,
     borderWidth: 2,
     borderColor: '#e8f4ec',
+    overflow: 'hidden',
     ...SHADOWS.medium,
   },
   headerRow: {

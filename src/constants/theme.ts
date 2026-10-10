@@ -1,4 +1,5 @@
 // Theme and Design Tokens for Noor Kids (نور للأطفال)
+import { Platform } from 'react-native';
 
 export const COLORS = {
   // Brand & Foundation
@@ -114,32 +115,73 @@ export const TYPOGRAPHY = {
 };
 
 export const SHADOWS = {
-  soft: {
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  medium: {
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 6,
-  },
-  strong: {
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.18,
-    shadowRadius: 32,
-    elevation: 12,
-  },
-  glow: (color: string) => ({
-    shadowColor: color,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 8,
-  }),
+  soft: Platform.select({
+    ios: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+    },
+    android: {
+      elevation: 0,
+    },
+    default: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+    },
+  }) as { shadowColor?: string; shadowOffset?: any; shadowOpacity?: number; shadowRadius?: number; elevation?: number },
+  medium: Platform.select({
+    ios: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 18,
+    },
+    android: {
+      elevation: 0,
+    },
+    default: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 18,
+    },
+  }) as { shadowColor?: string; shadowOffset?: any; shadowOpacity?: number; shadowRadius?: number; elevation?: number },
+  strong: Platform.select({
+    ios: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 16 },
+      shadowOpacity: 0.18,
+      shadowRadius: 32,
+    },
+    android: {
+      elevation: 0,
+    },
+    default: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 16 },
+      shadowOpacity: 0.18,
+      shadowRadius: 32,
+    },
+  }) as { shadowColor?: string; shadowOffset?: any; shadowOpacity?: number; shadowRadius?: number; elevation?: number },
+  glow: (color: string) =>
+    Platform.select({
+      ios: {
+        shadowColor: color,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 14,
+      },
+      android: {
+        elevation: 0,
+      },
+      default: {
+        shadowColor: color,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 14,
+      },
+    }) as { shadowColor?: string; shadowOffset?: any; shadowOpacity?: number; shadowRadius?: number; elevation?: number },
 };

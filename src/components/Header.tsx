@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
@@ -93,7 +94,7 @@ export default function Header({
             activeOpacity={0.7}
           >
             <View style={styles.headerMascotBox}>
-              <Image source={MASCOT_NOOR_IMG} style={styles.headerMascotBadge} resizeMode="cover" />
+              <Image source={MASCOT_NOOR_IMG} style={styles.headerMascotBadge} contentFit="cover" transition={150} />
             </View>
             <Text style={styles.profileName} numberOfLines={1}>
               {activeProfile?.name || 'البطل'}
@@ -121,7 +122,7 @@ export default function Header({
           onPress={() => router.push('/rewards')}
           activeOpacity={0.7}
         >
-          <Image source={ICON_STAR_IMG} style={styles.headerChipImg} resizeMode="contain" />
+          <Image source={ICON_STAR_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
           <Text style={styles.statText}>{stars}</Text>
         </TouchableOpacity>
 
@@ -131,7 +132,7 @@ export default function Header({
           onPress={() => router.push('/rewards')}
           activeOpacity={0.7}
         >
-          <Image source={ICON_GEM_IMG} style={styles.headerChipImg} resizeMode="contain" />
+          <Image source={ICON_GEM_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
           <Text style={styles.statText}>{gems}</Text>
         </TouchableOpacity>
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Image, Text, ImageStyle, ViewStyle, StyleProp } from 'react-native';
+import { View, Text, ViewStyle, StyleProp } from 'react-native';
+import { Image, ImageStyle } from 'expo-image';
 
 const AVATAR_IMAGES: Record<string, any> = {
   'av-boy1': require('../../assets/images/avatar-boy-1.jpg'),
@@ -157,7 +158,7 @@ export default function KidAvatar({
   if (isCustomUri) {
     return (
       <View style={[containerStyle, style]}>
-        <Image source={{ uri: avatar }} style={imgStyle} resizeMode="cover" />
+        <Image source={{ uri: avatar }} style={imgStyle} contentFit="cover" transition={150} />
       </View>
     );
   }
@@ -165,7 +166,7 @@ export default function KidAvatar({
   if (presetImg) {
     return (
       <View style={[containerStyle, style]}>
-        <Image source={presetImg} style={imgStyle} resizeMode="cover" />
+        <Image source={presetImg} style={imgStyle} contentFit="cover" transition={150} />
       </View>
     );
   }

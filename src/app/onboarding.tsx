@@ -7,10 +7,10 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  SafeAreaView,
   Platform,
-  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
@@ -116,7 +116,7 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Step Indicator */}
         <View style={styles.stepIndicatorRow}>
@@ -159,7 +159,8 @@ export default function OnboardingScreen() {
                     <Image
                       source={LANG_ARABIC_IMG}
                       style={styles.langImage}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={150}
                     />
                   </View>
                   <Text style={styles.langTitle}>العربية</Text>
@@ -178,7 +179,8 @@ export default function OnboardingScreen() {
                     <Image
                       source={LANG_ENGLISH_IMG}
                       style={styles.langImage}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={150}
                     />
                   </View>
                   <Text style={styles.langTitle}>English</Text>
@@ -240,7 +242,8 @@ export default function OnboardingScreen() {
                     <Image
                       source={AGE_SPROUT_IMG}
                       style={styles.ageBandImg}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={150}
                     />
                   </View>
                   <View style={styles.ageBandTextCol}>
@@ -263,7 +266,8 @@ export default function OnboardingScreen() {
                     <Image
                       source={AGE_ROCKET_IMG}
                       style={styles.ageBandImg}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={150}
                     />
                   </View>
                   <View style={styles.ageBandTextCol}>
@@ -286,7 +290,8 @@ export default function OnboardingScreen() {
                     <Image
                       source={AGE_SCHOLAR_IMG}
                       style={styles.ageBandImg}
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={150}
                     />
                   </View>
                   <View style={styles.ageBandTextCol}>
@@ -428,17 +433,23 @@ export default function OnboardingScreen() {
                     key={w.id}
                     style={[
                       styles.worldPreviewCard,
-                      { borderColor: isSelected ? w.themeColor : COLORS.border },
+                      { borderColor: isSelected ? w.themeColor : '#E2E8F0' },
                       isSelected && {
-                        backgroundColor: w.themeColor + '15',
-                        borderWidth: 2.5,
-                        ...SHADOWS.soft,
+                        backgroundColor:
+                          w.id === 'quran'
+                            ? '#ECFDF5'
+                            : w.id === 'sunnah'
+                            ? '#FEF3C7'
+                            : w.id === 'prophets'
+                            ? '#EEF2FF'
+                            : '#F0F9FF',
+                        borderWidth: 2,
                       },
                     ]}
                     onPress={() => setSelectedDestination(w.route)}
                     activeOpacity={0.85}
                   >
-                    <Image source={w.image} style={styles.worldThumb} resizeMode="cover" />
+                    <Image source={w.image} style={styles.worldThumb} contentFit="cover" transition={150} />
                     <View style={{ flex: 1 }}>
                       <Text
                         style={[
@@ -559,17 +570,17 @@ const styles = StyleSheet.create({
   },
   langCard: {
     flex: 1,
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.border,
-    ...SHADOWS.soft,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
   },
   langCardSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '22',
+    backgroundColor: '#ECFDF5',
   },
   langImageContainer: {
     width: 68,
@@ -580,7 +591,6 @@ const styles = StyleSheet.create({
     borderColor: '#FBBF24',
     marginBottom: 8,
     backgroundColor: '#FFFFFF',
-    ...SHADOWS.soft,
   },
   langImage: {
     width: '100%',
@@ -616,16 +626,18 @@ const styles = StyleSheet.create({
   ageBandCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     padding: SPACING.md,
     borderRadius: RADIUS.lg,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
+    borderColor: '#E2E8F0',
     gap: SPACING.sm,
+    overflow: 'hidden',
   },
   ageBandCardSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '22',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 2,
   },
   ageBandImgContainer: {
     width: 52,
@@ -660,6 +672,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#F59E0B',
     padding: 12,
+    overflow: 'hidden',
   },
   tonePreviewHeader: {
     flexDirection: 'row',
@@ -688,10 +701,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: COLORS.primaryLight + '28',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
   },
   uploadPhotoBtnText: {
     fontSize: 12,
@@ -707,15 +722,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 8,
     borderRadius: RADIUS.lg,
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#E2E8F0',
     minWidth: 84,
     position: 'relative',
+    overflow: 'hidden',
   },
   avatarCard3DSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '20',
+    backgroundColor: '#ECFDF5',
   },
   avatarCardName: {
     fontSize: 11,
@@ -740,11 +756,12 @@ const styles = StyleSheet.create({
   worldPreviewCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     padding: SPACING.md,
     borderRadius: RADIUS.lg,
     borderWidth: 1.5,
     gap: SPACING.sm + 4,
+    overflow: 'hidden',
   },
   worldThumb: {
     width: 52,
