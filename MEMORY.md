@@ -692,7 +692,35 @@
   - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
   - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
 
+### Milestone 40: Category Menus & Tab UI Overhaul (Icons, Count Badges, Alignment, Bottom Nav & Sub-Header Spacing)
+- **User Reported Issue ("ui بتاع القوايم لازم ميبقاش الكتابة والايوكنات مش مظبوطة صلحها"):**
+  - In `/sunnah` screenshot: Category tabs inside the orange hero banner were squeezed into 70px `flex: 1` buttons without icons. Arabic labels wrapped into 2 lines (`الأحاديث` on line 1, `(100)` on line 2), producing an uneven, squished white box.
+  - In `AppBottomNav`: Active tab had an irregular outer rectangular border box that warped layout and alignment relative to the other 5 tabs.
+  - In `Header`: Sub-screens with back navigation were crowded by having `Streak + Stars + Gems + Language Switch + Lock` on a single row, squeezing the screen title down to ~70px.
+  - In Hadith cards: Hadith grade was duplicated (rendered twice on same card), and RTL arrow button was improperly aligned.
+- **Architectural Solution:**
+  1. **Sunnah Category Tab Menu Bar (`src/components/SunnahHeroHeader.tsx`):**
+     - Extracted tabs out of the cramped hero banner into a dedicated horizontal scrollable menu bar (`ScrollView horizontal showsHorizontalScrollIndicator={false}`).
+     - Added dedicated, vibrant vector icons for each tab (`📜 الأحاديث النبوية`, `🌱 سنن اليوم`, `🤲 الأدعية المباركة`, `🎴 بطاقات الحفظ`).
+     - Added single-line label enforcement (`numberOfLines={1}`) and a standalone count badge pill (`styles.tabCountPill`), completely preventing text wrapping.
+     - Modern active/inactive state styling with soft shadows and theme-colored active pills.
+  2. **Quran Category Tabs Enhancement (`src/app/quran/index.tsx`):**
+     - Updated Juz Amma, All Quran, and Featured tabs with standalone count pills (`38`, `114`), single-line labels, and RTL `row-reverse` support.
+  3. **AppBottomNav Uniform Alignment (`src/components/AppBottomNav.tsx`):**
+     - Replaced clunky rectangular outer box with a refined icon-highlight pill ring (`transform: [{ scale: 1.1 }]`, theme-colored border, pastel background) and an active indicator dot.
+     - Upgraded to `expo-image` for crisp 3D icon rendering and set uniform typography (`10.5px`, `fontWeight: 800`).
+  4. **Sub-Screen Header De-cluttering (`src/components/Header.tsx`):**
+     - On screens with `showBack={true}`, hid the redundant language toggle and parent lock, dedicating full breathing room to the Back button and Title while preserving kid rewards (Stars & Gems).
+  5. **Hadith Cards RTL & Action Pill (`src/app/sunnah/index.tsx`):**
+     - Removed redundant duplicate grade badge.
+     - Styled a dedicated interactive action pill (`تدبر وتعلّم` / `Learn`) with properly oriented RTL arrow (`arrow-back` for Arabic, `arrow-forward` for English).
+- **Verification:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
+  - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
+
 ---
+
 
 
 
