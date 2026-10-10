@@ -6,31 +6,20 @@ let ModernExpoAudio: any = null;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   ModernExpoAudio = require('expo-audio');
-} catch (e) {
-  // fallback if not available
+} catch {
+  // Graceful fallback if expo-audio native module is unavailable
 }
 
-// Safe dynamic resolution of Expo AV to prevent crash if ExponentAV native module is missing in Expo Go
-let ExpoAudio: any = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const avModule = require('expo-av');
-  ExpoAudio = avModule?.Audio || null;
-} catch (e) {
-  console.warn('[AudioService] Native ExponentAV module unavailable in current environment:', e);
-}
-
-// Safe dynamic resolution of Expo Speech
+// Safe dynamic resolution of Expo Speech for TTS fallback
 let ExpoSpeech: any = null;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   ExpoSpeech = require('expo-speech');
-} catch (e) {
-  console.warn('[AudioService] Native ExpoSpeech module unavailable in current environment:', e);
+} catch {
+  // Graceful fallback if expo-speech native module is unavailable
 }
 
 class AudioService {
-  private sound: any = null;
   private modernPlayer: any = null;
   private modernSubscription: any = null;
   private currentUri: string | null = null;
@@ -46,15 +35,13 @@ class AudioService {
 
   private async initAudioMode() {
     try {
-      if (Platform.OS !== 'web' && ExpoAudio?.setAudioModeAsync) {
-        await ExpoAudio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          shouldDuckAndroid: true,
+      if (Platform.OS !== 'web' && ModernExpoAudio?.setAudioModeAsync) {
+        await ModernExpoAudio.setAudioModeAsync({
+          playsInSilentMode: true,
         });
       }
-    } catch (e) {
-      console.warn('Failed to set audio mode:', e);
+    } catch {
+      // Audio mode set safely
     }
   }
 
@@ -70,6 +57,7 @@ class AudioService {
       // Stop any background Dua or Tafsir TTS
       await this.stopDua();
 
+      // 1. Web Platform Playback
       if (Platform.OS === 'web') {
         if (typeof window !== 'undefined' && (window as any).Audio) {
           // If repeating the exact same audio URI, rewind and replay instantly without recreation
@@ -141,7 +129,7 @@ class AudioService {
         return;
       }
 
-      // 1. Native Modern Expo Audio (expo-audio SDK 53+)
+      // 2. Native Modern Expo Audio (expo-audio SDK 53+)
       if (ModernExpoAudio?.createAudioPlayer) {
         try {
           if (this.modernPlayer) {
@@ -177,46 +165,12 @@ class AudioService {
           this.onPlaybackStatusUpdate?.({ isPlaying: true, didJustFinish: false });
           return;
         } catch (modernErr) {
-          console.warn('[AudioService] expo-audio failed, attempting expo-av fallback:', modernErr);
+          console.warn('[AudioService] expo-audio play error:', modernErr);
         }
-      }
-
-      // 2. Legacy Native Expo AV fallback
-      if (ExpoAudio?.Sound) {
-        if (this.sound) {
-          if (this.currentUri === uri) {
-            await this.sound.setPositionAsync(0);
-            await this.sound.setRateAsync(speed, true);
-            await this.sound.playAsync();
-            this.isPlaying = true;
-            return;
-          }
-          await this.sound.stopAsync();
-          await this.sound.unloadAsync();
-          this.sound = null;
-        }
-
-        this.currentUri = uri;
-        const { sound } = await ExpoAudio.Sound.createAsync(
-          { uri },
-          { shouldPlay: true, rate: speed, shouldCorrectPitch: true },
-          (status: any) => {
-            if (status.isLoaded) {
-              this.isPlaying = status.isPlaying;
-              this.onPlaybackStatusUpdate?.(status);
-            }
-          }
-        );
-
-        this.sound = sound;
-        this.isPlaying = true;
-        return;
       }
 
       // 3. Fallback: Native audio unavailable in current runtime
-      console.warn('Native audio player (expo-audio / expo-av) not available. Audio cannot play in this environment.');
       this.isPlaying = false;
-      // Do NOT send didJustFinish: true when audio failed to play!
       this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true, unavailable: true });
     } catch (err) {
       console.warn('Error playing audio from uri:', uri, err);
@@ -234,11 +188,6 @@ class AudioService {
       }
       if (this.modernPlayer) {
         this.modernPlayer.pause?.();
-        this.isPlaying = false;
-        return;
-      }
-      if (this.sound) {
-        await this.sound.pauseAsync();
         this.isPlaying = false;
       }
     } catch (e) {
@@ -258,10 +207,6 @@ class AudioService {
         this.isPlaying = true;
         return;
       }
-      if (this.sound) {
-        await this.sound.playAsync();
-        this.isPlaying = true;
-      }
     } catch (e) {
       console.warn('Error resuming audio:', e);
     }
@@ -277,9 +222,6 @@ class AudioService {
       if (this.modernPlayer) {
         this.modernPlayer.playbackRate = speed;
         return;
-      }
-      if (this.sound) {
-        await this.sound.setRateAsync(speed, true);
       }
     } catch (e) {
       console.warn('Error setting rate:', e);
@@ -346,23 +288,18 @@ class AudioService {
         return;
       }
 
-      // 2. Native Expo AV Audio playback
-      if (ExpoAudio?.Sound) {
+      // 2. Native Modern Expo Audio playback
+      if (ModernExpoAudio?.createAudioPlayer) {
         try {
-          const { sound } = await ExpoAudio.Sound.createAsync(
-            { uri: googleFallbackUrl },
-            { shouldPlay: true, rate: 0.95 },
-            (status: any) => {
-              if (status.isLoaded) {
-                this.isPlaying = status.isPlaying;
-                if (status.didJustFinish) {
-                  this.isPlaying = false;
-                  onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
-                }
-              }
+          const player = ModernExpoAudio.createAudioPlayer({ uri: googleFallbackUrl });
+          this.modernPlayer = player;
+          this.modernSubscription = player.addListener?.('playbackStatusUpdate', (status: any) => {
+            if (status.didJustFinish) {
+              this.isPlaying = false;
+              onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
             }
-          );
-          this.sound = sound;
+          });
+          player.play();
           this.isPlaying = true;
           return;
         } catch {
@@ -386,10 +323,9 @@ class AudioService {
         });
       } else {
         this.isPlaying = false;
-        onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+        onStatusUpdate?.({ isPlaying: false, error: true });
       }
-    } catch (err) {
-      console.warn('Error playing dua:', err);
+    } catch {
       this.isPlaying = false;
       onStatusUpdate?.({ isPlaying: false, error: true });
     }
@@ -472,12 +408,6 @@ class AudioService {
           this.modernPlayer.release?.();
         } catch {}
         this.modernPlayer = null;
-        this.isPlaying = false;
-      }
-      if (this.sound) {
-        await this.sound.stopAsync();
-        await this.sound.unloadAsync();
-        this.sound = null;
         this.isPlaying = false;
       }
       this.isPlaying = false;
