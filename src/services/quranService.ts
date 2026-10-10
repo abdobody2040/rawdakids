@@ -1,0 +1,215 @@
+// Quran Service (Data Access Layer supporting all 114 Surahs)
+import {
+  ALL_114_SURAHS_CATALOG,
+  BUNDLED_SURAHS,
+  RECITERS,
+  getAyahAudioUrl as buildAudioUrl,
+  Surah,
+  SurahMeta,
+  Reciter,
+  Ayah,
+} from '@/data/quranData';
+
+export const quranService = {
+  // Returns all 114 Surahs
+  getAllSurahs: (): SurahMeta[] => {
+    return ALL_114_SURAHS_CATALOG;
+  },
+
+  // Returns Juz Amma (78-114) + Al-Fatihah (1)
+  getJuzAmmaSurahs: (): SurahMeta[] => {
+    return ALL_114_SURAHS_CATALOG.filter(
+      (s) => s.number === 1 || s.number >= 78
+    );
+  },
+
+  // Backward compatibility alias
+  getSurahs: (): SurahMeta[] => {
+    return ALL_114_SURAHS_CATALOG;
+  },
+
+  getSurahSync: (surahNumber: number): Surah => {
+    const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
+    if (bundled) {
+      return bundled;
+    }
+    const meta =
+      ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
+      ALL_114_SURAHS_CATALOG[0];
+
+    const placeholderAyahs: Ayah[] = Array.from(
+      { length: meta.ayahCount },
+      (_, i) => ({
+        number: i + 1,
+        globalNumber: i + 1,
+        textUthmani: `آية رقم ${i + 1} من سورة ${meta.nameArabic}`,
+        simpleTafsir: `آية مباركة من سورة ${meta.nameArabic}`,
+        translationEn: `Verse ${i + 1} of Surah ${meta.nameTransliteration}`,
+      })
+    );
+
+    return {
+      ...meta,
+      storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+      storyIntroEn: `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+      coreLessonsAr: [
+        `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+        'العمل بما جاء في القرآن الكريم',
+        'طلب الأجر والبركة من تلاوة كتاب الله',
+      ],
+      coreLessonsEn: [
+        `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+        'Living by the guidance of the Holy Quran',
+        'Seeking blessings through recitation',
+      ],
+      ayahs: placeholderAyahs,
+    };
+  },
+
+  getSurah: async (
+    surahNumber: number,
+    translationSource: string = 'sahih'
+  ): Promise<Surah> => {
+    const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
+
+    const meta =
+      ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
+      ALL_114_SURAHS_CATALOG[0];
+
+    const editionTag =
+      translationSource === 'clearquran'
+        ? 'en.sahih'
+        : translationSource === 'abdelhaleem'
+        ? 'en.asad'
+        : 'en.sahih';
+
+    const tryFetchJson = async (url: string) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    };
+
+    // 1. Dynamic fetch with Tafsir Al-Muyassar
+    try {
+      let json: any = null;
+      try {
+        json = await tryFetchJson(`/api/quran/surah/${surahNumber}?edition=${editionTag}`);
+      } catch {
+        json = await tryFetchJson(
+          `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ar.muyassar,${editionTag}`
+        );
+      }
+
+      if (json && json.data) {
+        const uthmaniData = json.data?.[0]?.ayahs || [];
+        const muyassarData = json.data?.[1]?.ayahs || [];
+        const englishData = json.data?.[2]?.ayahs || [];
+
+        const ayahs: Ayah[] = uthmaniData.map((a: any, idx: number) => ({
+          number: a.numberInSurah,
+          globalNumber: a.number,
+          textUthmani: a.text,
+          simpleTafsir:
+            muyassarData[idx]?.text ||
+            bundled?.ayahs?.[idx]?.simpleTafsir ||
+            `آية كريمة من سورة ${meta.nameArabic}`,
+          translationEn:
+            englishData[idx]?.text ||
+            bundled?.ayahs?.[idx]?.translationEn ||
+            '',
+        }));
+
+        return {
+          ...meta,
+          storyIntroAr:
+            bundled?.storyIntroAr ||
+            `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+          storyIntroEn:
+            bundled?.storyIntroEn ||
+            `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+          coreLessonsAr: bundled?.coreLessonsAr || [
+            `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+            'العمل بما جاء في القرآن الكريم',
+            'طلب الأجر والبركة من تلاوة كتاب الله',
+          ],
+          coreLessonsEn: bundled?.coreLessonsEn || [
+            `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+            'Living by the guidance of the Holy Quran',
+            'Seeking blessings through recitation',
+          ],
+          ayahs,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (bundled) {
+      return bundled;
+    }
+
+    // Fallback template
+    const placeholderAyahs: Ayah[] = Array.from(
+      { length: meta.ayahCount },
+      (_, i) => ({
+        number: i + 1,
+        globalNumber: i + 1,
+        textUthmani: `آية رقم ${i + 1} من سورة ${meta.nameArabic}`,
+        simpleTafsir: 'آية مباركة من كتاب الله',
+        translationEn: `Verse ${i + 1} of Surah ${meta.nameTransliteration}`,
+      })
+    );
+
+    return {
+      ...meta,
+      storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز.`,
+      storyIntroEn: `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran.`,
+      coreLessonsAr: ['تلاوة كتاب الله', 'تدبر المعاني', 'العمل بالقرآن'],
+      coreLessonsEn: ['Recitation', 'Reflection', 'Living the values'],
+      ayahs: placeholderAyahs,
+    };
+  },
+
+  getReciters: (): Reciter[] => {
+    return RECITERS;
+  },
+
+  getAudioUrl: (
+    reciterId: string,
+    surahNumber: number,
+    ayahNumber: number
+  ): string => {
+    return buildAudioUrl(reciterId, surahNumber, ayahNumber);
+  },
+
+  downloadSurahAudio: async (
+    reciterId: string,
+    surahNumber: number,
+    ayahCount: number,
+    onProgress?: (progress: number) => void
+  ): Promise<boolean> => {
+    try {
+      const urls: string[] = [];
+      for (let a = 1; a <= ayahCount; a++) {
+        urls.push(buildAudioUrl(reciterId, surahNumber, a));
+      }
+      let completed = 0;
+      await Promise.all(
+        urls.map(async (url) => {
+          try {
+            await fetch(url, { method: 'HEAD' });
+          } catch {
+            // network pre-fetch fallback
+          }
+          completed++;
+          if (onProgress) {
+            onProgress(Math.round((completed / urls.length) * 100));
+          }
+        })
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  },
+};

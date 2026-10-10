@@ -1,3 +1,10 @@
+# Noor Kids — AI Agent Instructions & Context
+
+> **IMPORTANT**: Before beginning any task in this codebase, read the master documents:
+> - [`CONTEXT.md`](file:///g:/quran%20app%20for%20kids/CONTEXT.md): Master technical architecture, datasets, audio pipeline, and design tokens.
+> - [`MEMORY.md`](file:///g:/quran%20app%20for%20kids/MEMORY.md): Chronological history of milestones, resolved bugs (Dua audio, 27 reciters, UI), and active server tasks.
+> - [`prd.md`](file:///g:/quran%20app%20for%20kids/prd.md): Original Product Requirements Document and pedagogical/theological guidelines.
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data

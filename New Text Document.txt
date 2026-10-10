@@ -1,0 +1,22 @@
+Server-side app with user login
+Use the Client ID and Client Secret only on your backend. Never ship the Client Secret in browser or mobile code.
+
+Client ID
+a3d434ba-80b6-4ae0-8957-5686b9ff000d
+Copy this Client Secret now
+This is the only time this Client Secret will be shown. After you leave or refresh this page, QF cannot display it again.
+
+Client Secret
+qfcs_b23bb9a93cc542d7a5d18e0eac6e1c3c26a1c62c1419478d89616f9c89172102
+
+
+
+
+Assalāmu `alaykum warahmatullāh
+
+Thank you for submitting an API key request. Your API key is QG3gM2a4jZ5nCV4qk6WDA2JpkqWflJ3H8M47JaoQ.
+You can find documentation at sunnah.stoplight.io/docs/api/ along with instructions on how to access the endpoint https://api.sunnah.com. You may also download a snapshot of the available data as a SQL dump.
+
+Our API is not designed to be used in a production environment for other mobile or website apps. Your current usage plan is capped at 5 requests/second and 5,000 requests/day. If you need more temporarily, please get back to us. If you are planning to use this data in a mobile or web app of your own, we recommend that you use this key to fetch data and make your own cache or database to serve your app. Please do not bundle this API key with your app.
+
+Please use the service responsibly and refresh the data at least once a month to get the latest corrections and most fresh data (if you're using an offline cache). Let us know if you have any questions.

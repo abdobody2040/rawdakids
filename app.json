@@ -1,22 +1,30 @@
 {
   "expo": {
-    "name": "noor-kids",
+    "name": "Noor Kids - نور للأطفال",
     "slug": "noor-kids",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "noorkids",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.noorkids.app",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+      "package": "com.noorkids.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#064E3B",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundImage": "./assets/images/android-icon-background.png"
       },
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -28,15 +36,21 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#064E3B",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 220,
+          "resizeMode": "contain"
         }
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ad554aa7-4c0c-4db6-98b2-babc488e3a33"
+      }
     }
   }
 }

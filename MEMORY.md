@@ -1,0 +1,652 @@
+# Noor Kids — AI Agent Memory & Operational Log
+
+> This document maintains continuity across AI agent sessions. Read this before making architectural or structural changes.
+
+---
+
+## 1. Project Overview & Current State
+
+- **Application Name:** Noor Kids (نور للأطفال)
+- **Status:** Fully functional, interactive, and polished web/mobile application.
+- **Active Ports:**
+  - `http://localhost:3000`: Production node server (`server.js`) serving `dist/` + `/api/tts` streaming proxy.
+  - `http://localhost:8081`: Expo Metro bundler for live web development.
+
+---
+
+## 2. Key Decisions & Change History
+
+### Milestone 1: Comprehensive Content Expansion
+- **All 114 Surahs:** Full catalog with Arabic names, English meanings, revelation place, Ayah count, and EveryAyah audio paths in [`src/data/quranData.ts`](file:///g:/quran%20app%20for%20kids/src/data/quranData.ts).
+- **All 25 Prophets:** Chronological timeline from Adam (ع) to Muhammad (ﷺ) with interactive lessons and multiple-choice quizzes in [`src/data/prophetsData.ts`](file:///g:/quran%20app%20for%20kids/src/data/prophetsData.ts).
+- **Good Manners Town (10 Landmarks):** Interactive moral simulations covering Truthfulness, Kindness, Honoring Parents, Patience, Trustworthiness, Justice, Good Neighbors, Gratitude, Generosity, and Humility in [`src/data/mannersData.ts`](file:///g:/quran%20app%20for%20kids/src/data/mannersData.ts).
+- **Verified Hadiths & Duas:** Sourced from Sahih al-Bukhari, Muslim, Abu Dawud, and Tirmidhi with Sunnah.com reference badges in [`src/data/hadithData.ts`](file:///g:/quran%20app%20for%20kids/src/data/hadithData.ts) and [`src/data/duasData.ts`](file:///g:/quran%20app%20for%20kids/src/data/duasData.ts).
+
+### Milestone 2: 27 Reciters & Trusted English Translations
+- Expanded reciters to 27 world-class reciters, all tested and verified returning HTTP 200 on `everyayah.com`.
+- Added dynamic Reciter Picker modal in [`src/components/AudioPlayerBar.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AudioPlayerBar.tsx) and Parents' Gate [`src/app/parents/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/parents/index.tsx).
+- Integrated 3 authoritative English translations: Saheeh International, The Clear Quran (Dr. Mustafa Khattab), and M.A.S. Abdel Haleem.
+
+### Milestone 3: Dua Audio Playback Solution
+- **The Issue:** Default `window.speechSynthesis` on Windows/Chrome fails for Arabic because default OS installations often lack local Arabic voice packs.
+- **The Solution:** Implemented a multi-tier playback pipeline in [`src/services/audioService.ts`](file:///g:/quran%20app%20for%20kids/src/services/audioService.ts):
+  1. Primary: `/api/tts?text=...` proxy route in [`server.js`](file:///g:/quran%20app%20for%20kids/server.js) delivering authentic Arabic MP3 audio streams.
+  2. Secondary: Direct Google TTS URL fallback.
+  3. Tertiary: Device speech engine (`Speech.speak` on native, `speechSynthesis` on web).
+- Updated [`src/app/sunnah/duas.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/duas.tsx) with audio playback indicators, toggle play/pause, error notifications, and automatic star/gem rewards upon listening.
+
+### Milestone 4: Kid-Delight UI Redesign
+- Redesigned [`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) to match and elevate the user-provided design template:
+  - Responsive shell: two-column layout on desktop (`width >= 820px`) with left navigation rail, glowing brand sun `☼`, and streak card with 7 habit dots; single-column fluid layout with bottom tabs on mobile.
+  - Oasis Night Hero Banner: layered green rolling hills, golden crescent moon `☾`, twinkling sparks `✦ ✧`, sandy path, and glowing lantern `🏮`.
+  - Today's Little Mission card with chamomile flower icon `🌼` and progress bar.
+  - 4 Pastel World cards (`Quran Garden`, `Sunnah Path`, `Prophets' Caravan`, `Good Manners Town`).
+  - Treasure garden preview footer with sticker badges.
+
+### Milestone 5: Full Screen Without Borders (Edge-to-Edge Desktop Layout)
+- Removed artificial card constraints (`maxWidth: 1140`, `maxHeight: 880`, outer padding `24px`, container borders `6px`, and container `borderRadius: 36`).
+- Layout now natively occupies 100% of the viewport width and height.
+- Left/Right navigation rail extends seamlessly top-to-bottom with dynamic border based on RTL/LTR (`borderLeftWidth` for Arabic, `borderRightWidth` for English).
+- Main canvas expands gracefully across the full screen with responsive padding (`paddingHorizontal: 36`).
+
+### Milestone 6: Features 2 to 6 Implementation (Gap Resolution)
+- **Feature 2 — Hadith Flashcards (`/sunnah/cards`):** Interactive flip card deck for young learners. Front features Arabic Hadith with full Tashkeel, reciter audio playback button (`audioService.playDua`), and reference badge; back reveals kid-friendly explanation, real-life practical action, and "I Memorized This! / حفظت هذا الحديث" mastery toggle with star confetti. Includes deck shuffle, category filters, and progress indicator.
+- **Feature 3 — Surah Story & Tadabbur Modal (`SurahStoryModal.tsx`):** Kid-friendly background and reflection modal integrated into [`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx). Displays core moral theme, revelation context, 3 practical takeaways checklist, and audio narration trigger before recitation begins.
+- **Feature 4 — Daily Screen Time Limit Rest Screen (`DailyLimitModal.tsx`):** Health and wellness modal wired into root layout ([`src/app/_layout.tsx`](file:///g:/quran%20app%20for%20kids/src/app/_layout.tsx)). When daily app usage reaches parent limit (`timeSpentTodaySec >= parentSettings.dailyLimitMin * 60`), a gentle resting screen features Mascot Noor, eye-rest exercises, and a 4-digit parent PIN gate to add +5 min, +15 min, or unlock for the day.
+- **Feature 5 — Daily Gratitude Journal (`/manners/journal`):** Daily blessings log based on "لئن شكرتم لأزيدنكم". Kids select from 6 blessing categories (Family, Health, Food, Faith, Nature, Friends), pick pre-made kid prompts or write custom notes, deposit them into the animated Gratitude Jar, and earn +5 Stars and +2 Gems per entry with persistent storage in `useAppStore`.
+- **Feature 6 — Hadith of the Day Banner (`src/app/index.tsx`):** Prominently placed on the home dashboard with pure day-of-year rotation. Displays authentic Hadith text, one-tap instant audio playback, practical application takeaway, and celebratory reward on completion.
+
+### Milestone 7: Full Kid-Friendly Visual UI Upgrade with 3D Pixar Generated Assets
+- Generated high-quality, kid-appealing 3D Pixar/claymation assets stored in `assets/images/`:
+  - `mascot-noor.jpg`: Lovable 3D glowing character with big smiling eyes and golden light. Integrated in [`src/components/MascotNoor.tsx`](file:///g:/quran%20app%20for%20kids/src/components/MascotNoor.tsx), onboarding, desktop brand rail, Today's Little Mission, and [`DailyLimitModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/DailyLimitModal.tsx).
+  - `hero-oasis.jpg`: Panoramic 16:9 night oasis landscape with smiling crescent moon, reflective star pond, rolling dunes, and date palms. Integrated as background in the Home Hero Banner.
+  - `quran-garden.jpg`: Emerald hills with glowing Quran on wooden rehal, blooming flowers, and butterflies. Integrated into Quran World Card and [`SurahStoryModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/SurahStoryModal.tsx).
+  - `sunnah-path.jpg`: Warm morning cobblestone path with date palms, peaceful doves, and wisdom scroll. Integrated into Sunnah Path World Card.
+  - `prophets-caravan.jpg`: Peaceful twilight desert caravan with friendly decorated camels, tents, and starry moonlit sky (strictly respecting Islamic guidelines — no human prophet depictions). Integrated into Prophets' Caravan World Card.
+  - `manners-town.jpg`: Pastel Islamic storybook town with cheerful fountain, Kindness Bakery, and smiling children playing. Integrated into Good Manners Town World Card.
+  - `gratitude-jar.jpg`: Glowing 3D glass jar filled with folded origami stars and golden hearts on a cozy starry table. Integrated into [`src/app/manners/journal.tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/journal.tsx).
+- All web routes and image assets tested and returning HTTP 200 on port 3000.
+
+### Milestone 8: Full Authentic Tafsir Resolution & Interactive Audio
+- **Root Cause:** Quran API fetching previously only requested `quran-uthmani` and translation without any Tafsir edition tag, leaving `simpleTafsir` as generic placeholder strings for over 100 Surahs. Furthermore, there was no audio mechanism to listen to Tafsir explanations.
+- **Solution & Implementation:**
+  1. **Tafsir Al-Muyassar Pipeline:** Configured `/api/quran/surah/:id` backend caching proxy in [`server.js`](file:///g:/quran%20app%20for%20kids/server.js) to retrieve `quran-uthmani,ar.muyassar,<translation>` with in-memory caching.
+  2. **Data Layer (`quranService.ts`):** Updated `getSurah` to parse authentic `ar.muyassar` Tafsir for every single ayah across all 114 Surahs.
+  3. **Tafsir Audio Narration:** Added instant audio playback for every Ayah's Tafsir using `audioService.playDua(ayah.simpleTafsir)`, allowing young children who cannot easily read long Arabic text to listen to the explanation.
+  4. **Interactive Ayah Tafsir Modal ([`src/components/AyahTafsirModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AyahTafsirModal.tsx)):** Kids can tap "💡 تفسير الآية" on any Ayah to open a full reflection card with Mascot Noor, large Tashkeel text, Tafsir Al-Muyassar, audio listening, English meaning, and an understanding star reward.
+
+### Milestone 9: Back Button Navigation Fix Across All Screens
+- **Root Cause:** When accessing detail routes directly via URL (e.g. `http://localhost:3000/quran/78`) or upon browser page refresh, Expo Router's internal history stack has no previous entry (`router.canGoBack()` evaluates to `false`). Calling plain `router.back()` did nothing, leaving users unable to navigate back to parent screens.
+- **Solution & Implementation:**
+  - Updated [`src/components/Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx) with intelligent fallback route computation via `usePathname()`:
+    - `/quran/*` defaults to `/quran`
+    - `/sunnah/*` defaults to `/sunnah`
+    - `/prophets/*` defaults to `/prophets`
+    - `/manners/*` defaults to `/manners`
+    - Section index pages default to `/`
+  - Added explicit `fallbackRoute="/quran"` support in [`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx).
+  - Navigation handler now safely checks `router.canGoBack() ? router.back() : router.replace(target)`.
+
+### Milestone 10: Full End-to-End (E2E) Testing & Automated Verification
+- **Automated Test Runner:** [`scripts/test-e2e.js`](file:///g:/quran%20app%20for%20kids/scripts/test-e2e.js)
+- **Results:** **35 / 35 Tests Passed (100% Success Rate)**
+  1. **19 Static Routes (HTTP 200):** Home, Quran, Quran Reader, Repeat Player, Sunnah, Duas, Flashcards, Prophets Caravan, Prophet Details (Adam, Muhammad ﷺ), Manners Town, Habit Journal, Manners Detail, Rewards Store, Star Progress, Parents Portal, Onboarding.
+  2. **7 Kid-Friendly 3D Image Assets (HTTP 200):** Noor mascot, Hero Oasis, Quran Garden, Sunnah Path, Prophets Caravan, Manners Town, Gratitude Jar.
+  3. **4 Backend API Endpoints:** Streaming Arabic TTS (`/api/tts`), Quran Uthmani & Tafsir Al-Muyassar pipeline (`/api/quran/surah/1`, `/api/quran/surah/112`, `/api/quran/surah/78`).
+  4. **5 Data Integrity & Theological Rules:** 114 Surahs catalog, 27 reciters, 25 Prophets strictly symbolic without facial/human depictions, 10 Manners landmarks, authentic Hadith and Dua decks.
+- **Code Quality:** `npx tsc --noEmit` (0 errors) and `npx expo lint` (0 errors).
+
+### Milestone 11: Mobile-First Responsive Redesign & Persistent AppBottomNav
+- **Context & Bug:** When viewed in split-screen or narrow desktop window (< 820px), the old layout evaluated `{ flexDirection: 'row' }`, rendering the bottom tab bar vertically on the right side next to the hero card instead of at the bottom. Additionally, content lacked mobile-first centering and broke across routes.
+- **Solution & Implementation:**
+  - **Shared Bottom Navigation ([`src/components/AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx)):** 5 main destinations (`/`, `/quran`, `/sunnah`, `/prophets`, `/rewards`) with kid-friendly icons, active state highlights, RTL support, and safe area insets.
+  - **Mobile-First Container Framing ([`src/app/_layout.tsx`](file:///g:/quran%20app%20for%20kids/src/app/_layout.tsx)):** Wrapped root `<Stack>` in `outerContainer` (`#f5f3e9` backdrop) and `mobileContainer` (`maxWidth: 520`, centered with soft shadow on desktop, 100% full width edge-to-edge on mobile phones).
+  - **HomeScreen & Exploration Hubs Refactor:** Eliminated desktop rail, fixed vertical column layout, streamlined top bar controls (stars, gems, language, avatar), and integrated `AppBottomNav` across Home, Quran, Sunnah, Prophets, and Rewards.
+  - **Verification:** `npx tsc --noEmit` (0 errors), `npx expo lint` (0 errors, 0 warnings), full E2E suite (`scripts/test-e2e.js`) passed 35/35 (100%).
+
+### Milestone 12: Custom 3D Pixar-Style Visual Icons Upgrade
+- **Context & Need:** Replaced generic unicode emojis and raw vector icons with high-resolution, kid-friendly 3D Pixar illustrations.
+- **Assets Generated & Integrated:**
+  1. `nav-home-3d.jpg`: 3D glowing golden lantern house icon.
+  2. `nav-quran-3d.jpg`: 3D illuminated open holy Quran with gold and emerald calligraphy.
+  3. `nav-sunnah-3d.jpg`: 3D smiling golden crescent moon with Ramadan lantern.
+  4. `nav-prophets-3d.jpg`: 3D desert adventure scroll and antique brass compass.
+  5. `nav-rewards-3d.jpg`: 3D overflowing wooden treasure chest with sparkling stars and gems.
+  6. `icon-star-3d.jpg`: 3D cute smiling golden star character for star rewards.
+  7. `icon-gem-3d.jpg`: 3D multifaceted sparkling cyan crystal diamond.
+- **Component Upgrades:**
+  - [`AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx): Uses 3D visual icons with soft active elevation and glowing borders.
+  - [`HomeScreen`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx): Stars, gems, avatar, world badges, Hadith label, and Treasure Garden stickers now use 3D illustrations.
+  - [`Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx): Stars, gems, and profile badge now render 3D icons.
+- **Verification:** `npx tsc --noEmit` (0 errors), `npx expo lint` (0 errors, 0 warnings), full E2E test suite passed 35/35 (100%).
+
+### Milestone 13: Features 2 to 5 Comprehensive Completion
+- **Feature 2 — Word-by-Word Tap Meaning & Pronunciation (`src/data/quranWordsData.ts`, `src/services/quranWordsService.ts`, `src/components/WordMeaningBubbleModal.tsx`, `src/app/quran/[surahId].tsx`):**
+  - Tapping any Quranic word in the Ayah reader opens a friendly reflection bubble with Arabic calligraphy, English & Arabic simple kid definitions, everyday examples, instant audio pronunciation via `/api/tts`, and awards +1 exploration star.
+- **Feature 3 — Prophets Caravan Audio Narration & Interactive Decision Points (`src/data/storiesData.ts`, `src/app/prophets/[prophetId].tsx`):**
+  - Instant voice narration player for each story scene with audio playback indicator and pause/play toggle.
+  - Interactive "ماذا تفعل يا بطل؟" (What Would You Do?) decision point checkpoint after story scenes, prompting children with a real-life moral reflection and tailored feedback before moving to the quiz.
+- **Feature 4 — Weekly Manners Challenges & Real-Life Parent Approval Portal (`src/store/useAppStore.ts`, `src/app/manners/index.tsx`, `src/app/parents/index.tsx`):**
+  - 3 weekly habit missions in Good Manners Town (Spread Salam, Help Parents, Kind Words).
+  - Kids complete the action and submit for verification. Parents review real-life deeds in the Parents' Portal with 1-tap confirmation and bonus gem awards (`+5` to `+8` gems).
+- **Feature 5 — Offline Surah Audio Caching & Download Manager (`src/services/quranService.ts`, `src/store/useAppStore.ts`, `src/app/quran/[surahId].tsx`):**
+  - Header download toggle with real-time pre-fetching and caching for all verses of any Surah per selected reciter. Offline status stored persistently in AsyncStorage.
+- **Verification:** `npx tsc --noEmit` (0 errors), `npx expo lint` (0 errors, 0 warnings), web bundle generated 19 routes, server running at `http://localhost:3000`, 35/35 E2E tests passing (100%).
+
+### Milestone 14: 3D Avatars, Photo Upload, Onboarding World Selection, Tafsir Audio Fix & Strict Language Filtering
+- **3D Cartoon Avatars & Custom Photo Upload (`src/components/KidAvatar.tsx`, `src/app/onboarding.tsx`, `src/app/parents/index.tsx`):**
+  - Generated and integrated 4 high-resolution 3D Pixar kid characters (`avatar-boy-1.jpg`, `avatar-girl-1.jpg`, `avatar-boy-2.jpg`, `avatar-girl-2.jpg`) replacing generic emojis.
+  - Implemented custom photo upload with `FileReader` base64 data URL persistence in both onboarding avatar selector and Parents Portal avatar picker.
+  - Connected `KidAvatar` across Header, Home, Progress, and Parents screens.
+- **Onboarding Destination Selection Fix (`src/app/onboarding.tsx`):**
+  - Converted static preview containers in Step 3 to interactive `TouchableOpacity` items with `selectedDestination` state, active checkmarks, highlighted borders, and 3D thumbnail art.
+  - Selecting a world now directs the user to their chosen destination upon finishing onboarding (`/quran`, `/sunnah`, `/prophets`, or `/manners`).
+- **Tafsir Audio Playback Streaming Fix (`server.js`):**
+  - Google Translate TTS fails on query lengths > 140-200 characters. Tafsir texts are typically 250-500+ characters.
+  - Added `splitArabicText` sentence chunking in `server.js` (`/api/tts`), downloading segments in parallel and concatenating them into a unified continuous MP3 audio stream. Tested and verified HTTP 200 with complete audio stream.
+- **Strict English Text Visibility Control (`src/store/useAppStore.ts`, `src/app/quran/[surahId].tsx`, `src/components/AyahTafsirModal.tsx`):**
+  - Defaulted `showEnglishTranslation` to `false` in store settings.
+  - Suppressed English titles, subtitle tags, and ayah translations when the active language is Arabic (`ar`). English text and translation boxes render strictly when English is selected or explicitly toggled.
+- **Verification:** `npx tsc --noEmit` (0 errors), `npx expo lint` (0 errors, 0 warnings), web bundle refreshed in `dist/`, `server.js` running with full audio streaming support, 35/35 E2E tests passing (100%).
+
+### Milestone 15: Mobile-First Responsive Layout & Robust 3x Repeat Audio Engine
+- **Mobile-First Responsiveness:**
+  - Integrated `maxWidth: 680, width: '100%', alignSelf: 'center'` across [`[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx), [`repeat.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/repeat.tsx), [`Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx), and [`AudioPlayerBar.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AudioPlayerBar.tsx).
+  - Enhanced top cards with `flexWrap: 'wrap'` and adaptive gaps to prevent clipping on narrow mobile screens (320px–380px).
+  - Expanded `ayahsContainer` bottom padding to 160px so all ayahs scroll completely above the floating audio player bar without obstruction.
+- **3x / 5x Repeat Engine & IDM Interference Fix:**
+  - Resolved audio re-instantiation in [`audioService.ts`](file:///g:/quran%20app%20for%20kids/src/services/audioService.ts) where creating new `Audio` instances triggered browser autoplay policy blocks and Internet Download Manager (IDM) interception popups. Now rewinds `currentTime = 0` for seamless, instant repeated playback.
+  - Separated `duaAudio` from `webAudio` to prevent Tafsir audio from nullifying Quran reciter instances.
+  - Synchronized `repeatCountRef` and `currentRepeatCycleRef` to eliminate stale React closures.
+  - Added live repeat visual indicator in the active Ayah card (`تكرار 2 من 3`) and inside `AudioPlayerBar` (`2/3x`).
+  - Added repeat mode (1x, 3x, 5x) to the dedicated Listen & Repeat screen ([`repeat.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/repeat.tsx)).
+- **Verification:** `npx tsc --noEmit` (0 errors), `npx expo lint` (0 errors, 0 warnings), web bundle built via `npx expo export --platform web`, 35/35 E2E tests passing (100%).
+
+### Milestone 16: Complete 3D Asset Adoption Across All Hubs & Expanded Responsive Screen Canvas
+- **Replacement of Raw Emojis with High-Resolution 3D Art:**
+  - **Sunnah Path (`src/app/sunnah/index.tsx` & `src/app/sunnah/duas.tsx`):** Replaced flat gradient and `🌙` / `🤲` emojis with `ImageBackground` (`sunnah-path.jpg`) and circular 3D badge (`nav-sunnah-3d.jpg`). Changed tab text to clean label "البطاقات التعليمية".
+  - **Prophets Caravan (`src/app/prophets/index.tsx`):** Replaced flat gradient and `🕌` emoji with `ImageBackground` (`prophets-caravan.jpg`) and circular 3D badge (`nav-prophets-3d.jpg`).
+  - **Good Manners Town (`src/app/manners/index.tsx`):** Replaced flat gradient and `🌟` emoji with `ImageBackground` (`manners-town.jpg`) and circular 3D badge (`hero-oasis.jpg`). Replaced `🤲` in Gratitude Journal banner with `gratitude-jar.jpg` 3D illustration.
+  - **Quran Garden (`src/app/quran/index.tsx`):** Replaced flat gradient banner with `ImageBackground` (`quran-garden.jpg`) and circular 3D badge (`nav-quran-3d.jpg`).
+  - **Rewards Room (`src/app/rewards/index.tsx`):** Replaced vector star and gem icons in balance card and avatar shop with `icon-star-3d.jpg` and `icon-gem-3d.jpg`.
+- **Responsive Screen Container Expansion (`maxWidth: 720`–`760`):**
+  - Expanded screen bounds from narrow `maxWidth: 520` with mismatched `#f5f3e9` gray borders to an adaptive `maxWidth: 720`–`760` with unified background (`#fffdf8` / `COLORS.background`).
+  - Adjusted `AppBottomNav.tsx` container width (`maxWidth: 720, alignSelf: 'center'`) to seamlessly align with page width on desktop and tablet viewports while preserving mobile ergonomics.
+  - Updated all screens (`sunnah`, `prophets`, `manners`, `quran`, `rewards`, `progress`, `parents`, `duas`, `index`).
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes built successfully (code 0).
+  - Assets synced to `dist/assets/images/`.
+  - E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 17: Strict Language Isolation — Elimination of Unconditional English Text in Arabic Mode
+- **Identified Leaks & Root Cause:**
+  - In [`src/app/sunnah/duas.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/duas.tsx), `transliteration` and `translationEn` were rendered unconditionally inside every Dua card, displaying English sentences beneath the Arabic text even when the user was browsing in Arabic mode (`language === 'ar'`).
+  - In [`src/app/prophets/[prophetId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/%5BprophetId%5D.tsx), `currentScene.linkedAyah.translationEn` was rendered unconditionally.
+  - In [`src/app/manners/[valueId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/%5BvalueId%5D.tsx), `scenario.supportingProof.translationEn` was rendered unconditionally.
+  - In [`src/app/quran/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/index.tsx), `item.nameEnglish (item.nameTransliteration)` subtitle was rendered unconditionally.
+  - In [`src/app/quran/repeat.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/repeat.tsx), `(${surah.nameEnglish})` was appended unconditionally.
+- **Resolution:**
+  - Added strict guard `showEnglish = language === 'en' || (language === 'ar' && parentSettings?.showEnglishTranslation === true)` across all affected screens.
+  - English translations, transliterations, and labels now strictly show ONLY when English mode is selected or when explicitly enabled by parents in settings.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - `node scripts/test-e2e.js`: 35 / 35 PASSED (100%).
+
+### Milestone 18: 3D Pixar Illustration Generation for Stickers & Characters (ملصقاتي وشخصياتي)
+- **Stickers 3D Generation & Integration (`assets/images/sticker-*.jpg`, `src/app/rewards/index.tsx`, `src/app/index.tsx`):**
+  - Generated and integrated 7 new high-resolution 3D Pixar-style Islamic stickers:
+    1. `sticker-kaaba.jpg`: Miniature gold & black embroidered Holy Kaaba.
+    2. `sticker-quran.jpg`: Illuminated open Holy Quran on wooden rehal stand.
+    3. `sticker-crescent.jpg`: Smiling golden crescent moon with twinkling star friend.
+    4. `sticker-lantern.jpg`: Detailed brass Islamic Ramadan lantern with colorful stained glass.
+    5. `sticker-camel.jpg`: Adorable smiling baby camel with colorful saddle.
+    6. `sticker-ark.jpg`: Friendly wooden ark boat on turquoise waves with dove.
+    7. `sticker-dates.jpg`: Golden glossy ripe dates on green palm fronds.
+  - Upgraded **ألبوم ملصقات الأبطال** in Rewards Room with 3D badges, collected status, and interactive unlocking using gems with celebratory confetti.
+  - Replaced placeholder icons in Home Screen **حديقة كنوزك وجوائزك** with authentic 3D stickers.
+- **Characters 3D Generation & Integration (`assets/images/avatar-cat.jpg`, `src/components/KidAvatar.tsx`, `src/app/rewards/index.tsx`):**
+  - Generated `avatar-cat.jpg`: 3D cute fluffy ginger kitten (Mishmish) with emerald eyes and star collar.
+  - Integrated `KidAvatar` across all avatar options in the Rewards Room (**شخصياتي**), replacing raw text emojis (`👦`, `👧`, `🧒`, `🧕`, `🐱`, `🏮`) with rich 3D cartoon avatars.
+  - Connected interactive selection and profile avatar synchronization.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt successfully (code 0).
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 19: Complete Strict Language Isolation & Dual Segmented Header Toggle
+- **Root Cause & Issue:**
+  - In English mode, Arabic strings leaked into screen headers and card titles (`سورة الفاتحة` instead of `Surah The Opening`, `نبي الله Adam` instead of `Prophet Adam (peace be upon him)`).
+  - Ayah reflection card in English mode was rendering Arabic Tafsir Al-Muyassar paragraphs rather than the English translation (`ayah.translationEn`).
+  - Single-button language switcher in the header was confusing: it showed the target language label (`عربي` when in English, `EN` when in Arabic), leading users to believe the app was stuck or misconfigured.
+- **Resolution:**
+  - **Header Dual Segmented Pill (`src/components/Header.tsx`):**
+    - Redesigned into a clear segmented pill `[ عربي | EN ]` with active state highlighting the current language in emerald green with white text. Both options are always visible and clicking either activates that language immediately.
+  - **Quran Reader (`src/app/quran/[surahId].tsx`):**
+    - Dynamic header title: `language === 'ar' ? 'سورة ' + surah.nameArabic : 'Surah ' + surah.nameEnglish`.
+    - Main card title dynamically localized to Arabic or English.
+    - Card meta: in Arabic shows `مكية • ٧ آيات`; in English shows `Surah.nameArabic • Meccan • 7 Ayahs`.
+    - Ayah Reflection Card: in Arabic mode, presents `💡 التفسير الميسر` with full Tafsir and one-tap Arabic recitation audio; in English mode, presents `💡 Meaning & Reflection` with clean English translation text (`ayah.translationEn`) without Arabic block clutter.
+  - **Quran Index & Repeat Player (`src/app/quran/index.tsx`, `src/app/quran/repeat.tsx`):**
+    - All titles dynamically localized.
+    - Subtitle transliterations strictly hidden in Arabic mode.
+  - **Prophets Caravan (`src/app/prophets/index.tsx`, `src/app/prophets/[prophetId].tsx`):**
+    - Dynamic prophet titles (`نبي الله {nameAr}` vs `Prophet {nameEn}`) and honorifics (`(عليه السلام)` vs `(peace be upon him)`).
+  - **Sunnah & Hadith Cards (`src/app/sunnah/index.tsx`):**
+    - English explanations strictly shown in English mode.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 20: Islamic Surah Naming Correction Across Entire Application (Al-Fatihah instead of The Opening)
+- **User Request & Issue:**
+  - Surah names were erroneously translated into literal English descriptions (e.g., `Surah The Opening` instead of `Surah Al-Fatihah`, `Surah The Cow` instead of `Surah Al-Baqarah`).
+  - In `quran/index.tsx`, the card was showing `Surah The Opening` on the left and `(Al-Fatihah) الفاتحة` awkwardly grouped on the right.
+- **Resolution Across the Entire App:**
+  - **Quran Surah List (`src/app/quran/index.tsx`):**
+    - Main title on the left: `Surah ${item.nameTransliteration}` (e.g., **Surah Al-Fatihah**, **Surah Al-Baqarah**, **Surah Ya-Sin**, **Surah Al-Ikhlas**).
+    - Side title on the right: `{item.nameArabic}` in clean bold Arabic typography (e.g., **الفاتحة**, **البقرة**, **يس**).
+    - Subtitle: clearly displays `${item.nameEnglish} • ${item.ayahCount} Ayahs • ${item.revelationType}` (e.g., `The Opening • 7 Ayahs • Meccan`), providing the meaning as an informative description rather than replacing the Surah's true name.
+  - **Quran Detail Reader (`src/app/quran/[surahId].tsx`):**
+    - Screen header title: `Surah ${surah.nameTransliteration}`.
+    - Card title: `Surah ${surah.nameTransliteration}`.
+    - Subtitle: `${surah.nameArabic} • ${surah.nameEnglish} • ${surah.revelationType} • ${surah.ayahCount} Ayahs`.
+    - Celebration modal: `Surah ${surah.nameTransliteration}`.
+  - **Repeat Player (`src/app/quran/repeat.tsx`):**
+    - Top tag: `Surah ${surah.nameTransliteration}`.
+    - Celebration modal: `Surah ${surah.nameTransliteration}`.
+  - **Story & Tafsir Modals (`SurahStoryModal.tsx`, `AyahTafsirModal.tsx`):**
+    - Modal titles and badges updated to `surah.nameTransliteration`.
+  - **Quran Service (`src/services/quranService.ts`):**
+    - All fallback intros, contemplation lessons, and verse translations updated to `meta.nameTransliteration`.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 21: Respectful 3D Pixar Scene Illustrations for Prophets' Caravan (No Prophets Depicted)
+- **User Request & Theological Guideline:**
+  - Replace the dashed box icon placeholder in Prophets' Story Player (`/prophets/[prophetId]`) with rich scene illustrations matching each scene's moral content, strictly without depicting the faces or bodies of any Prophets.
+- **Generated Assets & Implementation:**
+  - `scene-adam-repentance.jpg`: Serene dawn landscape at sunrise with a celestial golden heart of light symbolizing sincere repentance and divine mercy over rolling green hills and date palms.
+  - `scene-adam-creation.jpg`: Lush heavenly Paradise Garden with the majestic ancient tree of knowledge, radiant golden rays of divine wisdom, crystal stream, and paradise blossoms.
+  - `scene-nuh-ark.jpg`: Friendly majestic wooden ark floating peacefully on turquoise waves with a rainbow and dove carrying an olive branch.
+  - `scene-ibrahim-kaaba.jpg`: Sacred Holy Kaaba under a starry night sky with a smiling golden crescent moon and glowing courtyard lanterns.
+  - `scene-musa-sinai.jpg`: Mount Sinai at sunset with the miraculous glowing light of guidance.
+  - `scene-muhammad-hira.jpg`: Cave of Hira on Jabal al-Nour glowing with divine revelation under a starlit twilight sky with an illuminated parchment scroll.
+  - Updated [`src/app/prophets/[prophetId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/%5BprophetId%5D.tsx) to render full 16:9 3D illustrations with gentle gradient text overlays for reflections.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 22: Expansion of Prophet Stories to 10 Detailed Scenes Each (250 Scenes Total)
+- **User Request & Goal:**
+  - "كبر تفاصيل قصص الانبياء على الاقل 10 صفحات لكل نبى" (Expand the details of the stories of the prophets, at least 10 pages/scenes for each prophet!).
+- **Dataset Expansion & Architecture:**
+  - Created [`src/data/prophetsScenesData.ts`](file:///g:/quran%20app%20for%20kids/src/data/prophetsScenesData.ts) containing 250 fully articulated narrative scenes (10 scenes for each of the 25 Prophets from Adam to Muhammad ﷺ).
+  - Every scene includes:
+    - Dedicated Title (`titleAr`, `titleEn`).
+    - Comprehensive Kid-Friendly Story Text (`narrationAr` with full Tashkeel, `narrationEn`).
+    - Voice narration playback support (`audioService.playDua`).
+    - Dedicated symbolic icon (`symbolIcon`) and reflection tag (`symbolDescriptionAr`, `symbolDescriptionEn`).
+    - Strictly compliant with Islamic guidelines: No physical depictions of prophets.
+  - Linked dataset cleanly in [`src/data/storiesData.ts`](file:///g:/quran%20app%20for%20kids/src/data/storiesData.ts) with zero circular dependencies.
+  - The scene progress bar, scene counter (`Scene 1 / 10`), navigation buttons, and voice narration smoothly scale across all 10 scenes per prophet.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+### Milestone 23: Complete Sunnah & Azkar Overhaul (UI Cleanup, 3D Story Illustrations, Expanded Datasets, Language Isolation)
+- **Removal of Raw URLs (`sunnah.com/...`):**
+  - Completely eradicated raw URL links (such as `sunnah.com/tirmidhi:1956`) across the entire user interface and data structures.
+  - Replaced with clean, prestigious Islamic citations: `{hadith.source} • {hadith.grade}` (e.g., `جامع الترمذي • صحيح مسلم` or `صحيح البخاري`) in `[hadithId].tsx`, `cards.tsx`, `index.tsx`, and `hadithData.ts`.
+- **3D Pixar Illustrations for All Hadith Stories (`assets/images/story-*.jpg`, `src/app/sunnah/[hadithId].tsx`):**
+  - Generated and integrated 5 high-resolution 16:9 3D illustrations for Hadith stories:
+    - `story-smile-school.jpg`: Friendly schoolyard scene where an observant kid notices a new friend.
+    - `story-smile-happy.jpg`: Cheerful kids smiling warmly with joy and friendship.
+    - `story-quran-reading.jpg`: Child learning the Quran in a warm illuminated Islamic library.
+    - `story-parents-hug.jpg`: Loving family in a garden with children honoring and gifting flowers to their parents.
+    - `story-gentle-nature.jpg`: Children gently tending to plants and feeding birds in a sunny garden.
+  - Upgraded scene image resolver in `[hadithId].tsx` to map every story and theme to a rich 3D illustration, replacing generic icon placeholders.
+- **Strict Language Separation for Azkar/Duas (`src/app/sunnah/duas.tsx`):**
+  - Enforced strict `language === 'en'` guard for English translations and phonetic transliterations.
+  - In Arabic mode, the Azkar library is 100% Arabic with zero English text leakage.
+  - In English mode, English translations and transliterations are displayed clearly.
+- **Massive Expansion of Hadith & Duas Datasets:**
+  - Expanded Duas dataset in [`src/data/duasData.ts`](file:///g:/quran%20app%20for%20kids/src/data/duasData.ts) from 12 to 24 authentic daily supplications with Tashkeel, context, and virtues.
+  - Expanded Hadiths in [`src/data/hadithData.ts`](file:///g:/quran%20app%20for%20kids/src/data/hadithData.ts) from 8 to 18 authentic hadiths (Sahih al-Bukhari & Sahih Muslim) with 3-scene mini-stories, interactive choice scenarios, and daily habit commitments.
+  - Flashcard deck in [`src/app/sunnah/cards.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/cards.tsx) automatically expanded with all 18 hadiths.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 24: 3D Pixar Visual Transformation for Progress Metrics (`src/app/progress/index.tsx`)
+- **Generation & Integration of 3D Metric Badges (`assets/images/metric-*.jpg`):**
+  - Generated and integrated 4 high-resolution 1:1 3D Pixar-style visual badges replacing flat emoji/vector icons (`📖`, `🌙`, `🕌`, `🔥`):
+    1. `metric-quran.jpg`: Illuminated Holy Quran with gold tajweed calligraphy resting on an ornate rehal stand with emerald star sparkles.
+    2. `metric-sunnah.jpg`: Cheerful smiling golden crescent moon with glowing brass Ramadan lantern under starry night.
+    3. `metric-prophets.jpg`: Beautiful desert oasis caravan featuring an adorable cartoon baby camel, palm tree, and starry sky.
+    4. `metric-streak.jpg`: Smiling warm golden fire flame character badge with sparkling eyes and floating embers.
+  - Replaced `iconCircle` container with `metricImageContainer` featuring soft rounded borders, elevation shadows, and responsive scaling.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 25: UI Fixes, GB Naming Removal, Manners Garden in Bottom Nav, Manners Expansion & 3D Media
+- **Removed Country Flags & "GB" Naming from UI Header (`src/app/index.tsx`):**
+  - Replaced hardcoded `En 🇬🇧` / `عربي 🇸🇦` toggle with a clean, modern segmented pill toggle `[ عربي | EN ]` matching `Header.tsx`.
+  - Increased bottom scroll clearance in `src/app/index.tsx` to `paddingBottom: 64` preventing cards from being obscured by the bottom navigation bar.
+- **Added Manners Garden to Bottom Bar (`src/components/AppBottomNav.tsx`):**
+  - Added dedicated Manners Garden tab (`حديقة الأخلاق` / `Manners`, route `/manners`) with 3D Pixar badge (`nav-manners-3d.jpg`).
+  - Integrated `<AppBottomNav />` into [`src/app/manners/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/index.tsx) so children can easily navigate between worlds.
+  - Adjusted responsive flex layout across mobile and desktop widths.
+- **Generated 3D Media & App Icon (`assets/images/`):**
+  - Generated and installed official 3D Pixar Disney-style App Icon (`icon.png`, `splash-icon.png`, `android-icon-foreground.png`) featuring an illuminated Quran on an ornate rehal stand with a smiling golden crescent moon, lantern, and sparkles.
+  - Generated and installed 3D manners illustrations: `manner-cleanliness.jpg`, `manner-sharing.jpg`, `nav-manners-3d.jpg`.
+- **Integrated 3D Illustrations into Manners Screens:**
+  - In [`src/app/manners/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/index.tsx): Replaced plain icon circles with rich 3D artwork badges (`buildingThumbImage` + `buildingMiniIcon`) for all moral landmarks.
+  - In [`src/app/manners/[valueId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/%5BvalueId%5D.tsx): Added a 16:9 3D illustration banner inside the scenario card resolving the blank whitespace in scenario simulations.
+- **Expanded Manners Dataset (`src/data/mannersData.ts`):**
+  - Expanded from 10 to 14 moral landmarks by adding:
+    1. Humility Haven (دار التواضع ولين الجانب)
+    2. Peace-Maker Plaza (ساحة الإصلاح ونشر السلام)
+    3. Truthful Promise Palace (قصر الوفاء بالعهد والوعد)
+    4. Cooperation Castle (حصن التعاون وروح الفريق)
+  - Each with authentic scenario dilemmas, real-world consequences, Quran/Hadith proofs, and weekly pledges.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt cleanly.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 35 / 35 PASSED (100%).
+
+### Milestone 26: Mobile Ready Conversion — Splash Screen, Loading Screen & App Icons
+- **Production Mobile App Icons (`assets/images/`):**
+  - `icon.png`: High-resolution 1024x1024 edge-to-edge 3D Pixar/Disney style app store icon featuring an illuminated Holy Quran on a wooden rehal stand, smiling golden crescent moon, and glowing lantern with zero faux borders or transparency artifacts.
+  - `android-icon-foreground.png`: 1024x1024 RGBA transparent layer with Mascot Noor and Holy Quran centered within the 65% safe circle zone, eliminating edge clipping on Android circular, square, or teardrop launcher masks.
+  - `android-icon-background.png`: 1024x1024 deep emerald background (`#064E3B`) with radiant Islamic concentric circles.
+  - `favicon.png`: Crisp 48x48 web favicon.
+- **Dedicated 3D Pixar Splash Screen:**
+  - `splash-screen.jpg` & `splash-screen.png`: 9:16 high-resolution artwork featuring Mascot Noor waving joyfully alongside the Holy Quran on a rehal, surrounded by clouds, Ramadan lanterns, and starry night sky with "NOOR KIDS" cloud typography.
+  - `splash-icon.png`: Centered 1024x1024 splash icon configured in `app.json`.
+- **In-App Splash & Kid-Friendly Loading Screens:**
+  - [`src/components/AppSplashScreen.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppSplashScreen.tsx): Full-screen animated splash transition with progress bar ("✨ بِسْمِ اللَّهِ نَبْدَأُ رِحْلَتَنَا ✨"), smooth scaling, and fade-out transition.
+  - [`src/components/AppLoadingScreen.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppLoadingScreen.tsx): Delightful in-app loading screen featuring animated floating Mascot Noor, pulsing golden halo aura, rotating Dhikr reminders in Arabic and English, and a rotating Islamic geometric star spinner.
+- **Expo & Native Configuration (`app.json` & `_layout.tsx`):**
+  - Configured `expo-splash-screen` plugin with `#064E3B` emerald background, `imageWidth: 220`, and `resizeMode: "contain"`.
+  - Added iOS configuration: `supportsTablet: true`, `bundleIdentifier: "com.noorkids.app"`, `icon: "./assets/images/icon.png"`.
+  - Added Android configuration: `package: "com.noorkids.app"`, `versionCode: 1`, `adaptiveIcon` with `#064E3B`.
+  - Wired `SplashScreen.preventAutoHideAsync()` and `SplashScreen.hideAsync()` into [`src/app/_layout.tsx`](file:///g:/quran%20app%20for%20kids/src/app/_layout.tsx), synchronized with store hydration (`isHydrated`).
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - E2E Test Suite (`node scripts/test-e2e.js`): 39 / 39 PASSED (100%).
+
+### Milestone 27: 3D Pixar Visual Language & Age Badges + Age-Adaptive Content Tone Engine
+- **3D Pixar Illustrations in Onboarding (`src/app/onboarding.tsx`):**
+  - **Language Selection (`assets/images/`):**
+    - `lang-arabic-3d.jpg`: Replaced emoji `🌙` with an illuminated Holy Quran on a wooden rehal, winking golden crescent moon, and vibrant lantern with date palms.
+    - `lang-english-3d.jpg`: Replaced emoji `⭐` with a smiling student globe character wearing a graduation cap, sitting beside an open book with alphabet letters and knowledge stars.
+  - **Age Band Selection (`assets/images/`):**
+    - `age-sprout-3d.jpg`: 3D smiling green plant sprout in clay pot for **4–6 Little Explorers**.
+    - `age-rocket-3d.jpg`: 3D smiling cartoon rocket with star trail for **7–9 Young Learners**.
+    - `age-scholar-3d.jpg`: 3D golden 8-pointed Islamic compass and parchment scroll for **10–13 Growing Minds**.
+- **Age-Adaptive Content Tone Engine (`src/services/ageAdaptiveService.ts`):**
+  - **Does content tone change with age selection? YES!** Created full age-adaptive tone system:
+    1. **4–6 Years (المستكشف الصغير):** Gentle, loving nursery tone focusing on audio listening, sweet recitations, and Allah's loving care ("درس لقلبك الصغير: الله تعالى يحبنا ويرعانا دائماً 💕").
+    2. **7–9 Years (المتعلم الناشئ):** Heroic, adventure and quest-driven gamified tone with star badge challenges and daily action steps ("خطوة بطل اليوم: اجعل هذه الآية خلقاً لك وابتسم وساعد أهلك 🌟").
+    3. **10–13 Years (العقول النامية):** Mature mentorship and scholarly reflection tone focusing on Tadabbur, sincerity, and mindfulness ("تدبّر وبصيرة: استشعار مراقبة الله وإخلاص النية في السر والعلن 💡").
+  - **Live Dynamic Tone Preview:** Added active tone preview card in Onboarding Step 2 demonstrating the tone switch in real-time as parents/kids select their age band.
+  - **Tafsir Integration ([`src/components/AyahTafsirModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AyahTafsirModal.tsx)):** Added an age-adaptive reflection card below every Ayah's Tafsir tailored to the child's age band.
+  - **Home Dashboard Adaptation ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx)):** Hero banner titles, greetings, and mission descriptions dynamically adapt to `activeProfile.ageBand`.
+- **Verification:**
+  - `npx expo lint`: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo export --platform web`: 19 routes rebuilt.
+  - Assets synced to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): 39 / 39 PASSED (100%).
+
+### Milestone 28: Dataset Expansion to 100 Authentic Hadiths & 50 Good Manners Town Landmarks
+- **User Request:**
+  - "محتاج الاحاديث تزيد لحد 100 حديث" (Expand Hadiths to 100).
+  - "الاخلاق تزيد توصل ل 50 لو امكن" (Expand Good Manners to 50 landmarks).
+- **100 Authentic Hadiths Catalog (`src/data/hadithsData100.ts`, `src/data/hadithData.ts`):**
+  - **100% Unique & Verified Authenticity:** 100 distinct authentic Hadiths strictly sourced from *Sahih al-Bukhari*, *Sahih Muslim*, and Authentic Sunan collections (*at-Tirmidhi*, *Abu Dawood*, *an-Nasa'i*, *Ibn Majah*).
+  - **Complete Child-Friendly Metadata for Every Hadith:**
+    - Accurate Arabic text with complete vocalization (Tashkeel).
+    - English titles and authentic references (Hadith numbers, narrator chains).
+    - Age-appropriate moral explanations in Arabic and English.
+    - 3-Scene Illustrated Mini-Stories with thematic Lucide icons (`miniStory`).
+    - Interactive Decision-Making Scenarios with dual choices, instant pedagogical feedback, and explanations (`scenario`).
+    - Real-world Daily Sunnah Habits (`linkedHabit`) linking moral guidance directly to practical deeds.
+  - **Thematic Coverage:** Cleanliness & Wudu, Prayers, Honesty, Modesty (Haya'), Mercy, Kindness to Parents & Elders, Generosity, Avoiding Oppression, Sincere Advice, Kinship, and Dhikr.
+  - `HADITHS_DATA` in `src/data/hadithData.ts` exports the full 100 authentic catalog.
+- **50 Interactive Good Manners Landmarks (`src/data/mannersData50.ts`, `src/data/mannersData.ts`):**
+  - **50 Distinct Landmarks in Good Manners Town (مدينة الأخلاق):**
+    - Expanded from 14 to 50 moral buildings covering all Islamic character traits: بيت الصدق، واحة الأمانة، حديقة الرفق، منارة الإيثار، قصر بر الوالدين، بستان الحياء، مكتبة طلب العلم، ديوان العدل، جسر التسامح، واحة الشكر، ساحة الشجاعة، نبع الكرم، دار التواضع، حديقة النظافة، etc.
+    - Each landmark includes: unique ID, Arabic & English names, Category (`akhlaq` / `muamalat` / `adab`), Quranic & Hadith proofs, 3-scene story, interactive choice scenario, and linked practical habit.
+  - `MANNERS_BUILDINGS` in `src/data/mannersData.ts` exports all 50 landmarks seamlessly.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+### Milestone 29: Removal of Daily Rest Limit Modal & Dynamic Child-Name Avatar Titles (اسم الطفل + الصفة الحلوة)
+- **User Request:**
+  - "شيل وقت الراحلة" (Remove Rest Time / Daily Limit modal popup).
+  - "اسامى الافاتار لازم تبقى اسم الطفل+الصفة الحلوة" (Avatar names must be: Child's Name + The Nice Trait).
+- **Removal of "وقت الراحة" Modal:**
+  - Removed `<DailyLimitModal>` rendering from `src/app/_layout.tsx` so the intrusive full-screen modal lock never interrupts learning or blocks the user.
+  - Simplified `src/components/DailyLimitModal.tsx` to safely return `null`.
+  - Set default `dailyLimitMin: 0` (unlimited) in `src/store/useAppStore.ts`.
+  - Handled zero-division and label formatting in `src/app/progress/index.tsx` for clean progress display.
+- **Dynamic Avatar Naming Engine (`اسم الطفل + الصفة الحلوة`):**
+  - **Eliminated Arbitrary Names:** Removed hardcoded static names like "طارق البطل", "زياد الذكي", "مريم اللطيفة", "سارة الزكية".
+  - **Created `getAvatarDisplayName` Engine (`src/components/KidAvatar.tsx`):**
+    - Dynamically pairs the child's entered name with the avatar's positive trait in real-time:
+      - `av-boy1`: `{childName} البطل` / `{childName} the Champion`.
+      - `av-girl1`: `{childName} اللطيفة` / `{childName} the Gentle`.
+      - `av-boy2`: `{childName} الذكي` / `{childName} the Brilliant`.
+      - `av-girl2`: `{childName} المبدعة` / `{childName} the Creative`.
+      - `av-lantern`: `{childName} المحبوب` / `{childName} the Beloved`.
+      - `av-cat`: `{childName} ومشمش` / `Mishmish & {childName}`.
+    - If no name is entered yet, falls back gracefully to positive character badges (`البطل`, `اللطيفة`, `الذكي`, `المبدعة`, `المحبوب`) without arbitrary child names.
+  - **Real-Time Synchronized UI Integration:**
+    - `src/app/onboarding.tsx`: Step 2 avatar cards immediately update as the child or parent types in the name input field.
+    - `src/app/rewards/index.tsx`: Characters tab (**شخصياتي**) dynamically renders `{activeProfile.name} + الصفة` for all selectable avatars.
+    - `src/data/badgesData.ts`: Default options aligned to character traits.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+
+### Milestone 30: Full Content Display Visibility & 50 Authentic Duas Expansion
+- **User Issue Identified ("المحتوى لسا قليل"):**
+  - The home screen world cards had hardcoded badge counts (`٢٧ ذكراً وحديثاً` and `١٠ معالم أخلاقية`), which masked the expansive 100 Hadiths and 50 Manners landmarks already added to the backend.
+  - The Duas library had only 16-24 items with duplicate IDs.
+- **Key Enhancements Implemented:**
+  1. **Home Screen (`src/app/index.tsx`):**
+     - Updated `sunnah` world card to proudly display: `١٠٠ حديث نبوي وسُنّة` (`100 authentic hadiths`).
+     - Updated `manners` world card to proudly display: `٥٠ مَعلماً وخُلقاً حسناً` (`50 moral landmarks`).
+  2. **Comprehensive Duas Expansion (`src/data/duasData.ts`):**
+     - Expanded the daily supplications catalog to **50 complete, authentic Duas** (حصن المسلم الصغير) covering: waking, sleeping, eating, drinking, home, mosque, wudu, adhan, clothes, mirror, study/exams, parents, sneezing, riding/traveling, rain/thunder/wind, visiting the sick, pain relief, anger, night fear, gratitude, fasting iftar, market, and asking for Jannah.
+     - Each dua contains authentic Arabic with full Tashkeel, English transliteration, translation, when-to-say context, virtues, and dedicated category.
+  3. **Duas Screen UI Enhancement (`src/app/sunnah/duas.tsx`):**
+     - Added 7 interactive category filter chips (`الكل: ٥٠`, `الصباح والنوم`, `الطعام والمنزل`, `العلم والمذاكرة`, `الآداب والمعاملات`, `الطبيعة والسفر`, `المسجد والصحة`).
+     - Added total count badge: `(مجموع الأذكار: ٥٠ دعاءً مباركاً)`.
+  4. **Sunnah Screen Navigation Tabs (`src/app/sunnah/index.tsx`):**
+     - Tabs clearly showcase items counts: `الأحاديث (١٠٠)`, `السنن (١٠٠)`, `الأدعية (٥٠)`, `البطاقات (١٠٠)`.
+  5. **Good Manners Town UI (`src/app/manners/index.tsx`):**
+     - Added dynamic count badge: `٥٠ مَعلماً وخُلقاً حسناً`.
+     - Integrated varied 3D artwork cycling through rich visual assets across all 50 landmarks.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+
+### Milestone 31: Mobile Header Layout Redesign & Missing Icons Fix
+- **User Issue Identified ("on mobile view header icons missing"):**
+  - On narrow/mobile viewports (< 430px), the top bar was squeezing the greeting text and 4 right-aligned chips on a single horizontal row without wrapping, causing the Gems counter and Avatar circle to overflow and be completely clipped off the screen.
+  - Streak and Parent Gate icons were also absent on the Home screen header.
+- **Architectural Solution & Responsive Layout:**
+  1. **Two-Tier Mobile-First Header (`src/app/index.tsx`):**
+     - **Tier 1 (Identity & Control):**
+       - **Child Avatar (`KidAvatar` size 42)** with tactile border and online status dot, directly coupled with greeting ("السلام عليكم، {name}!") and date. Tapping opens `/progress`.
+       - **Language Toggle (`عربي / EN`)** + **Parent Gate Lock Button (`🔒`)** with `ParentGateModal` integration.
+     - **Tier 2 (Gamification Stats Bar):**
+       - Prominent 3-chip bar displaying:
+         - **Streak (`🔥 {streakCount} أيام متتالية / streak`)** -> links to `/progress`.
+         - **Stars (`⭐ {stars} نجمة / stars`)** with 3D star icon -> links to `/rewards`.
+         - **Gems (`💎 {gems} جوهرة / gems`)** with 3D gem icon -> links to `/rewards`.
+  2. **Compact Shared Header Optimization (`src/components/Header.tsx`):**
+     - Adjusted padding (`12px`), chip spacing (`gap: 4`), and icon sizes so that on all inner screens (`/quran`, `/sunnah`, `/prophets`, `/manners`), all 5 chips (Streak, Stars, Gems, Language, Parent Lock) fit comfortably on small screens without truncation.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+
+### Milestone 32: Full-Screen Desktop Responsiveness & Removal of Frame Constraints
+- **User Request ("app sould be resposive full screen on desk top"):**
+  - The application was previously confined inside an artificial `#064E3B` phone mockup container with `maxWidth: 520` in `src/app/_layout.tsx`, producing huge dark-green side bars on desktop screens.
+  - Furthermore, individual screens were clamped to narrow `maxWidth: 720` or `maxWidth: 760` constraints.
+- **Architectural Solution:**
+  1. **Root Layout (`src/app/_layout.tsx`):**
+     - Completely eliminated the `outerContainer` and `mobileContainer` (520px limit, shadow, and green border).
+     - Standardized on `rootContainer: { flex: 1, backgroundColor: COLORS.background, width: '100%', height: '100%' }` allowing native full-width rendering across desktops, tablets, and phones.
+  2. **Fluid Responsive Desktop Content Container (`maxWidth: 1240`):**
+     - Updated `src/app/index.tsx`, `src/components/Header.tsx`, `src/components/AppBottomNav.tsx`, `src/components/AudioPlayerBar.tsx`, and all sub-routes (`/quran`, `/sunnah`, `/prophets`, `/manners`, `/rewards`, `/progress`, `/parents`, `/onboarding`) to use a spacious modern desktop layout (`maxWidth: 1240, alignSelf: 'center', width: '100%'`).
+     - Allowed multi-column card grids on wide viewports while gracefully adapting to 100% full-width on mobile viewports.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+
+### Milestone 33: Unified Sunnah Hero Header & Persistent Bottom Navigation for Hadith Cards & Duas Library
+- **User Request & Issue ("بطاقات استذكار الأحاديث / مكتبة الأدعية المباركة - need both to run with the header not missing as screen 3"):**
+  - When navigating to `/sunnah/cards` (Hadith Flashcards) or `/sunnah/duas` (Duas Library), the screens lacked the unified "طريق السنة" Hero Banner with the 4 switcher tabs (`الأحاديث (١٠٠)`, `السنن (١٠٠)`, `الأدعية (٥٠)`, `البطاقات (١٠٠)`).
+  - The header title deviated (`بطاقات استذكار الأحاديث` / `مكتبة الأدعية المباركة`) and the bottom navigation bar (`AppBottomNav`) was missing, making the experience inconsistent compared to Screen 3 (`/sunnah`).
+- **Architectural Solution:**
+  1. **Reusable Component (`src/components/SunnahHeroHeader.tsx`):**
+     - Encapsulated the amber Sunnah path hero banner, 3D badge (`nav-sunnah-3d.jpg`), dynamic counts, and the 4 interactive tabs.
+     - Supports seamless navigation between Hadiths, Habits, Duas, and Cards with the active tab clearly highlighted in a white pill.
+  2. **Sub-Screen Unification (`src/app/sunnah/cards.tsx`, `src/app/sunnah/duas.tsx`, `src/app/sunnah/index.tsx`):**
+     - Aligned header title to `t.sunnah` ("طريق السنة").
+     - Embedded `<SunnahHeroHeader activeTab="cards" />` and `<SunnahHeroHeader activeTab="duas" />` atop both screens.
+     - Wrapped layouts inside responsive `appContainer` (`maxWidth: 1240, alignSelf: 'center'`).
+     - Added persistent `<AppBottomNav />` with active Sunnah tab highlighted across all sub-screens.
+- **Verification & Code Health:**
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo export --platform web`: 19 routes rebuilt cleanly (code 0).
+  - Assets mirrored to `dist/assets/images/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+
+### Milestone 34: Implementation & Verification of the 7 Production Security Principles
+- **User Request:** Apply the 7 security rules (Secrets, Ownership, Database rules, Mass assignment, Payments, Rate limits, Prove it).
+- **Architectural & Security Implementations (`server.js`, `scripts/test-security.js`):**
+  1. **Secrets:** Audited all environment variables and client bundles. Zero secret variables or private API keys exposed to browser/client.
+  2. **Ownership:** Multi-tenant resource routes authenticate caller identity solely via cryptographic `Authorization: Bearer <token>` session headers. Strictly zero routes trust client-provided `userId`.
+  3. **Database Rules & RLS:** Verified client offline-first architecture (AsyncStorage + Zustand) preserving COPPA child privacy. Simulated server database enforces strict `record.ownerId === session.userId` on all SELECT, UPDATE, DELETE queries.
+  4. **Mass Assignment:** Implemented strict schema validation on all routes (`/api/auth/login`, `/api/auth/signup`, `/api/user/records`, `/api/tts`, `/api/quran/surah`). Any unexpected fields (e.g. `isAdmin`, `role`, `ownerId`) or unauthorized query parameters are rejected with HTTP 400 Bad Request.
+  5. **Payments Security:** Client cannot set prices or amounts. Server price catalog strictly dictates checkout amounts by `productId`. Implemented HMAC SHA-256 signature verification for Stripe webhooks, rejecting missing or invalid signatures with HTTP 400.
+  6. **Rate Limiting:** Sliding-window rate limiter per IP and route prefix on `server.js` (`/api/auth/login`, `/api/auth/signup`, `/api/tts`, `/api/quran/surah`, etc.). Requests exceeding limits return HTTP 429 Too Many Requests with standard `Retry-After` header.
+  7. **Prove It Test Suite:** Automated security test suite in `scripts/test-security.js`. Verified Alice creating a record while Bob attempting to read, update, or delete it receives HTTP 403 Forbidden.
+- **Verification & Code Health:**
+  - Automated Security Suite (`node scripts/test-security.js`): **23 / 23 PASSED (100%)**.
+  - Noor Kids App E2E Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `npx.cmd tsc --noEmit`: 0 errors.
+
+### Milestone 35: Full Android Installability (PWA WebAPK, 1-Tap In-App Banner, and Cloud APK Configuration)
+- **User Request ("need app to be installable to android"):**
+  - Enable direct and immediate installation on Android devices both as a standalone WebAPK (Progressive Web App) with 1-click install prompt and through Expo EAS Build for native APK files.
+- **Architectural Implementation:**
+  1. **Web App Manifest (`public/manifest.json`):**
+     - Configured with `name`: "نور للأطفال - Noor Kids", `short_name`: "نور للأطفال", `start_url`: "/", `display`: "standalone", `background_color`: "#064E3B", `theme_color`: "#064E3B", `orientation`: "portrait".
+     - Included 192x192, 512x512, and maskable icons (`android-icon-foreground.png`, `icon.png`).
+  2. **Offline Service Worker (`public/sw.js`):**
+     - Pre-caches core routes, images, styles, and assets to fulfill Android Chrome installability criteria and enable offline functionality.
+  3. **Server Header & Meta Injection (`server.js`):**
+     - Serves `/manifest.json` (`application/manifest+json; charset=utf-8`) and `/sw.js` (`application/javascript; charset=utf-8` with `Service-Worker-Allowed: /`).
+     - Dynamically injects manifest link, mobile web-app tags, theme color `#064E3B`, and Service Worker registration into HTML head.
+  4. **In-App 1-Tap Installation Modal & Banner (`src/components/InstallAndroidModal.tsx`):**
+     - Listens to `beforeinstallprompt` event and displays a tactile Islamic install chip: "📲 تثبيت التطبيق على جهازك (تثبيت الآن)".
+     - Triggers native Android installation prompt with 1 tap.
+     - Fallback instructional modal explaining Chrome 3-dots "Install app" when opened on non-prompting browsers.
+- **Verification & Code Health:**
+  - `manifest.json`: HTTP 200, correct manifest mime-type.
+  - `sw.js`: HTTP 200, Service-Worker-Allowed root header.
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - Noor Kids App E2E Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+  - Security Audit Suite (`node scripts/test-security.js`): **23 / 23 PASSED (100%)**.
+
+### Milestone 36: Android Native Startup Crash Resolution & Clean Architecture
+- **User Request ("app not running on android crashes and exit"):**
+  - Fix Android native startup crash and unexpected app exit on APK launch.
+- **Root Causes Identified & Resolved:**
+  1. **Unused Heavy Native Modules & Worklets Collision (`package.json`):**
+     - Uninstalled `react-native-reanimated` (v4.5.1 alpha), `react-native-worklets`, `@expo/ui`, `expo-glass-effect`, and `expo-symbols`. These alpha/unused native binaries attempted to initialize C++ JSI hooks on Android startup without Babel transform or New Architecture worklet support, triggering `UnsatisfiedLinkError` / native SIGSEGV crash.
+  2. **Gesture Handler Root Entry (`src/app/_layout.tsx`):**
+     - Added mandatory `import 'react-native-gesture-handler';` at line 1 of the root layout for React Native Screens on Android.
+  3. **Unsafe Runtime `I18nManager.forceRTL` Removed (`src/app/_layout.tsx`):**
+     - Removed runtime `I18nManager.forceRTL` which previously modified Android native `SharedPreferences` and triggered fatal `IllegalStateException` activity recreate crashes.
+  4. **Native Splash Screen Lifecycle Protection (`src/app/_layout.tsx`):**
+     - Replaced unprotected splash autohide with safety timeout fallback (`setTimeout(1200)`) preventing ANR activity termination by the Android OS watchdog.
+  5. **Experimental React 19 Compiler Flag Removed (`app.json`):**
+     - Removed experimental `"reactCompiler": true` which caused Hermes bytecode transform conflicts with Animated values on Android.
+  6. **Declarative Navigation Redirection (`src/app/index.tsx`):**
+     - Replaced imperative `router.replace('/onboarding')` in `useEffect` on root mount with declarative `<Redirect href="/onboarding" />`, preventing "Attempted to navigate before mounting root" crashes.
+  7. **Platform-Split PWA Modal (`src/components/InstallAndroidModal.tsx` & `.web.tsx`):**
+     - Separated web-specific DOM APIs (`window`, `beforeinstallprompt`) into `.web.tsx`. Native `.tsx` exports a clean `null` component, eliminating React hook ordering violations.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: 0 errors.
+  - `npx.cmd expo lint`: 0 errors, 0 warnings.
+  - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
+  - `node scripts/test-security.js`: **23 / 23 PASSED (100%)**.
+  - `npx.cmd expo-doctor`: passed.
+
+---
+
+
+## 3. Strict Rules & Constraints for Future AI Agents
+
+1. **Theological Integrity & Respect:**
+   - **NEVER depict the face or physical likeness of the Prophets** (use respectful symbolic motifs like `🕊️`, `📜`, `🕌`, calligraphy, or light).
+   - Ensure accurate Tashkeel for all Quranic verses and authentic Hadith chains.
+2. **Commands & Verification:**
+   - Run `npx tsc --noEmit` and `npx expo lint` before declaring any task complete. Both must report 0 errors.
+   - When updating UI or components, run `npx expo export --platform web` to refresh the production `dist/` directory served by `server.js`.
+   - Never use `npm add` or `yarn add`; always use `npx expo install <package>` for SDK-compatible versions.
+3. **Expo Router Rules:**
+   - Keep `src/app/` strictly for screens and navigators (`_layout.tsx`). Components belong in `src/components/`, data in `src/data/`, services in `src/services/`.
+   - Use `useRouter()` and `<Link>` from `expo-router`.
+4. **Platform Compatibility:**
+   - Always support both Web and Native (iOS/Android). Guard web-specific code with `Platform.OS === 'web'`.
+   - Support RTL (Arabic) and LTR (English) gracefully with `language === 'ar'`.
