@@ -629,8 +629,26 @@
   - `npx.cmd tsc --noEmit`: 0 errors.
   - `npx.cmd expo lint`: 0 errors, 0 warnings.
   - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
-  - `node scripts/test-security.js`: **23 / 23 PASSED (100%)**.
   - `npx.cmd expo-doctor`: passed.
+
+### Milestone 37: Resolution of 'Cannot find native module ExponentAV' & Expo Router Route Resolution
+- **User Log ("ERROR [Error: Cannot find native module 'ExponentAV']", "TypeError: Cannot read property 'ErrorBoundary' of undefined", "Route ./index.tsx is missing required default export"):**
+  - **Root Cause Analysis:**
+    1. `src/services/audioService.ts` was executing static top-level `import { Audio } from 'expo-av';`.
+    2. When running in Expo Go (or environments where the native `ExponentAV` module version is mismatched or not installed), `expo-av` threw `[Error: Cannot find native module 'ExponentAV']` synchronously at module import time.
+    3. Because `audioService.ts` threw on module evaluation, every screen that imported it (`index.tsx`, `quran/[surahId].tsx`, `quran/repeat.tsx`, `sunnah/cards.tsx`, `sunnah/duas.tsx`, `prophets/[prophetId].tsx`) failed evaluation and exported `undefined`.
+    4. Expo Router logged warnings that those routes lacked default exports and crashed inside `<Stack>` with `TypeError: Cannot read property 'ErrorBoundary' of undefined`.
+  - **Architectural Solution:**
+    1. **Dynamic Safe Module Resolution (`src/services/audioService.ts`):** Wrapped `require('expo-av')` and `require('expo-speech')` inside safe `try/catch` handlers. The module now resolves dynamically at runtime without ever throwing on file evaluation.
+    2. **Graceful Fallbacks:** If `ExpoAudio` is unavailable, audio safely falls back to native speech or silent mode with zero crashes.
+    3. **GestureHandlerRootView & ErrorBoundary:** Wrapped root layout in `<GestureHandlerRootView>` and added an app-level `ErrorBoundary` component to capture any future runtime errors cleanly.
+    4. **Git State Synchronization:** Committed all 148 files to Git (`3386712`) so EAS builds and Expo CLI have full repository context.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo lint`: **0 errors, 0 warnings**.
+  - `npx.cmd expo export --platform web`: 19 routes built cleanly (code 0).
+  - Noor Kids App E2E Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
+  - Security Audit Suite (`node scripts/test-security.js`): **23 / 23 PASSED (100%)**.
 
 ---
 
