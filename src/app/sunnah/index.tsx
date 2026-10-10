@@ -66,15 +66,16 @@ export default function SunnahPathScreen() {
                   onPress={() => router.push(`/sunnah/${hadith.id}`)}
                   activeOpacity={0.8}
                 >
-                  <View style={styles.hadithCardTop}>
+                  <View style={[styles.hadithCardTop, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
                     <View style={styles.gradeBadge}>
+                      <Ionicons name="ribbon" size={12} color={COLORS.secondaryDark} />
                       <Text style={styles.gradeBadgeText}>{hadith.grade}</Text>
                     </View>
                     {isCompleted && (
                       <View style={styles.doneBadge}>
                         <Ionicons
                           name="checkmark-circle"
-                          size={16}
+                          size={15}
                           color={COLORS.success}
                         />
                         <Text style={styles.doneBadgeText}>{t.habitDone}</Text>
@@ -82,33 +83,30 @@ export default function SunnahPathScreen() {
                     )}
                   </View>
 
-                  <Text style={styles.hadithTitle}>
+                  <Text style={[styles.hadithTitle, { textAlign: language === 'ar' ? 'right' : 'left' }]}>
                     {language === 'ar' ? hadith.titleAr : hadith.titleEn}
                   </Text>
-                  <Text style={styles.hadithArabicText}>{hadith.arabicText}</Text>
+                  <Text style={[styles.hadithArabicText, { textAlign: 'right' }]}>{hadith.arabicText}</Text>
                   {language === 'en' && (
                     <Text style={styles.hadithExplanationEn}>{hadith.explanationEn}</Text>
                   )}
 
-                  <View style={styles.hadithFooter}>
-                    <View style={{ flex: 1, gap: 4 }}>
+                  <View style={[styles.hadithFooter, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                    <View style={{ flex: 1, alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }}>
                       <Text style={styles.hadithSourceText}>
                         {hadith.source} ({hadith.hadithNumber})
                       </Text>
-                      {hadith.grade && (
-                        <View style={styles.sunnahBadgePill}>
-                          <Ionicons name="shield-checkmark" size={11} color="#0284C7" />
-                          <Text style={styles.sunnahBadgePillText}>
-                            {hadith.grade}
-                          </Text>
-                        </View>
-                      )}
                     </View>
-                    <Ionicons
-                      name={language === 'ar' ? 'arrow-back-circle' : 'arrow-forward-circle'}
-                      size={24}
-                      color={COLORS.secondaryDark}
-                    />
+                    <View style={styles.hadithActionBtn}>
+                      <Text style={styles.hadithActionBtnText}>
+                        {language === 'ar' ? 'تدبر وتعلّم' : 'Learn'}
+                      </Text>
+                      <Ionicons
+                        name={language === 'ar' ? 'arrow-back' : 'arrow-forward'}
+                        size={13}
+                        color="#B45309"
+                      />
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -325,8 +323,25 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.sm,
   },
   hadithSourceText: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.textMuted,
+    fontWeight: '600',
+  },
+  hadithActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  hadithActionBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#B45309',
   },
   habitsIntro: {
     fontSize: 14,

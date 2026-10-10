@@ -136,36 +136,39 @@ export default function Header({
           <Text style={styles.statText}>{gems}</Text>
         </TouchableOpacity>
 
-        {/* Language switch */}
-        <View style={styles.langSwitchPill}>
-          <TouchableOpacity
-            style={[styles.langOption, language === 'ar' && styles.langOptionActive]}
-            onPress={() => setLanguage('ar')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.langOptionText, language === 'ar' && styles.langOptionTextActive]}>
-              عربي
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.langOption, language === 'en' && styles.langOptionActive]}
-            onPress={() => setLanguage('en')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.langOptionText, language === 'en' && styles.langOptionTextActive]}>
-              EN
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* Language switch & Parent Lock (only on screens without back navigation) */}
+        {!showBack && (
+          <>
+            <View style={styles.langSwitchPill}>
+              <TouchableOpacity
+                style={[styles.langOption, language === 'ar' && styles.langOptionActive]}
+                onPress={() => setLanguage('ar')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.langOptionText, language === 'ar' && styles.langOptionTextActive]}>
+                  عربي
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.langOption, language === 'en' && styles.langOptionActive]}
+                onPress={() => setLanguage('en')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.langOptionText, language === 'en' && styles.langOptionTextActive]}>
+                  EN
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Parent Gate Lock */}
-        <TouchableOpacity
-          style={styles.parentLockButton}
-          onPress={() => setParentGateVisible(true)}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="lock-closed" size={16} color={COLORS.primary} />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.parentLockButton}
+              onPress={() => setParentGateVisible(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="lock-closed" size={16} color={COLORS.primary} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       <ParentGateModal

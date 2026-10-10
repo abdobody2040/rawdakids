@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
 import { SHADOWS } from '@/constants/theme';
@@ -32,9 +33,9 @@ export default function AppBottomNav() {
       image: NAV_HOME_IMG,
       route: '/',
       isActive: isHomeActive,
-      color: '#1a7550',
-      activeBg: '#e8f7ee',
-      borderColor: '#bbf0d0',
+      color: '#16A34A',
+      activeBg: '#DCFCE7',
+      borderColor: '#86EFAC',
     },
     {
       id: 'quran',
@@ -43,9 +44,9 @@ export default function AppBottomNav() {
       image: NAV_QURAN_IMG,
       route: '/quran',
       isActive: isQuranActive,
-      color: '#0d9488',
-      activeBg: '#e2f8f6',
-      borderColor: '#a7f3d0',
+      color: '#0D9488',
+      activeBg: '#CCFBF1',
+      borderColor: '#5EEAD4',
     },
     {
       id: 'sunnah',
@@ -54,9 +55,9 @@ export default function AppBottomNav() {
       image: NAV_SUNNAH_IMG,
       route: '/sunnah',
       isActive: isSunnahActive,
-      color: '#d97706',
-      activeBg: '#fef3c7',
-      borderColor: '#fde68a',
+      color: '#D97706',
+      activeBg: '#FEF3C7',
+      borderColor: '#FDE68A',
     },
     {
       id: 'prophets',
@@ -65,9 +66,9 @@ export default function AppBottomNav() {
       image: NAV_PROPHETS_IMG,
       route: '/prophets',
       isActive: isProphetsActive,
-      color: '#7c3aed',
-      activeBg: '#ede9fe',
-      borderColor: '#ddd6fe',
+      color: '#7C3AED',
+      activeBg: '#EDE9FE',
+      borderColor: '#DDD6FE',
     },
     {
       id: 'manners',
@@ -76,9 +77,9 @@ export default function AppBottomNav() {
       image: NAV_MANNERS_IMG,
       route: '/manners',
       isActive: isMannersActive,
-      color: '#0284c7',
-      activeBg: '#e0f2fe',
-      borderColor: '#bae6fd',
+      color: '#0284C7',
+      activeBg: '#E0F2FE',
+      borderColor: '#BAE6FD',
     },
     {
       id: 'rewards',
@@ -87,9 +88,9 @@ export default function AppBottomNav() {
       image: NAV_REWARDS_IMG,
       route: '/rewards',
       isActive: isRewardsActive,
-      color: '#e11d48',
-      activeBg: '#ffe4e6',
-      borderColor: '#fecdd3',
+      color: '#E11D48',
+      activeBg: '#FFE4E6',
+      borderColor: '#FECDD3',
     },
   ];
 
@@ -105,14 +106,7 @@ export default function AppBottomNav() {
           return (
             <TouchableOpacity
               key={tab.id}
-              style={[
-                styles.tabButton,
-                tab.isActive && {
-                  backgroundColor: tab.activeBg,
-                  borderColor: tab.borderColor,
-                  borderWidth: 1.5,
-                },
-              ]}
+              style={styles.tabButton}
               onPress={() => {
                 if (pathname !== tab.route) {
                   router.push(tab.route as any);
@@ -123,11 +117,22 @@ export default function AppBottomNav() {
               <View
                 style={[
                   styles.iconBadge,
-                  tab.isActive && styles.iconBadgeActive,
+                  tab.isActive && {
+                    borderColor: tab.color,
+                    borderWidth: 2,
+                    backgroundColor: tab.activeBg,
+                    transform: [{ scale: 1.1 }],
+                  },
                 ]}
               >
-                <Image source={tab.image} style={styles.tabImage} resizeMode="cover" />
+                <Image
+                  source={tab.image}
+                  style={styles.tabImage}
+                  contentFit="cover"
+                  transition={150}
+                />
               </View>
+
               <Text
                 style={[
                   styles.tabLabel,
@@ -137,6 +142,10 @@ export default function AppBottomNav() {
               >
                 {isAr ? tab.labelAr : tab.labelEn}
               </Text>
+
+              {tab.isActive && (
+                <View style={[styles.activeDot, { backgroundColor: tab.color }]} />
+              )}
             </TouchableOpacity>
           );
         })}
@@ -148,9 +157,9 @@ export default function AppBottomNav() {
 const styles = StyleSheet.create({
   navWrapper: {
     width: '100%',
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1.5,
-    borderTopColor: '#ebe7dc',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
     ...SHADOWS.soft,
     zIndex: 999,
   },
@@ -161,44 +170,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 6,
-    paddingHorizontal: 6,
-    paddingBottom: Platform.OS === 'ios' ? 22 : 8,
-    backgroundColor: '#ffffff',
+    paddingHorizontal: 4,
+    paddingBottom: Platform.OS === 'ios' ? 22 : 6,
+    backgroundColor: '#FFFFFF',
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 2,
-    borderRadius: 16,
-    marginHorizontal: 1,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    gap: 2,
+    paddingVertical: 3,
+    minHeight: 52,
   },
   iconBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#f6f3eb',
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  iconBadgeActive: {
-    transform: [{ scale: 1.08 }],
-    ...SHADOWS.soft,
   },
   tabImage: {
     width: '100%',
     height: '100%',
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: '700',
-    color: '#768780',
+    color: '#6B7280',
     textAlign: 'center',
-    marginTop: 1,
+    marginTop: 2,
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginTop: 2,
   },
 });

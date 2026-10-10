@@ -179,10 +179,11 @@ export default function QuranGardenScreen() {
       </View>
 
       {/* Category Tabs */}
-      <View style={styles.tabsRow}>
+      <View style={[styles.tabsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
         <TouchableOpacity
           style={[styles.filterTab, selectedTab === 'juz_amma' && styles.filterTabActive]}
           onPress={() => setSelectedTab('juz_amma')}
+          activeOpacity={0.75}
         >
           <Ionicons
             name="book"
@@ -194,14 +195,21 @@ export default function QuranGardenScreen() {
               styles.filterTabText,
               selectedTab === 'juz_amma' && styles.filterTabTextActive,
             ]}
+            numberOfLines={1}
           >
-            {language === 'ar' ? 'جزء عمَّ (38)' : 'Juz Amma (38)'}
+            {language === 'ar' ? 'جزء عمَّ' : 'Juz Amma'}
           </Text>
+          <View style={[styles.quranCountPill, selectedTab === 'juz_amma' && styles.quranCountPillActive]}>
+            <Text style={[styles.quranCountPillText, selectedTab === 'juz_amma' && styles.quranCountPillTextActive]}>
+              38
+            </Text>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.filterTab, selectedTab === 'all' && styles.filterTabActive]}
           onPress={() => setSelectedTab('all')}
+          activeOpacity={0.75}
         >
           <Ionicons
             name="library"
@@ -213,14 +221,21 @@ export default function QuranGardenScreen() {
               styles.filterTabText,
               selectedTab === 'all' && styles.filterTabTextActive,
             ]}
+            numberOfLines={1}
           >
-            {language === 'ar' ? 'كل القرآن (114)' : 'All 114 Surahs'}
+            {language === 'ar' ? 'كل القرآن' : 'All Quran'}
           </Text>
+          <View style={[styles.quranCountPill, selectedTab === 'all' && styles.quranCountPillActive]}>
+            <Text style={[styles.quranCountPillText, selectedTab === 'all' && styles.quranCountPillTextActive]}>
+              114
+            </Text>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.filterTab, selectedTab === 'favorites' && styles.filterTabActive]}
           onPress={() => setSelectedTab('favorites')}
+          activeOpacity={0.75}
         >
           <Ionicons
             name="heart"
@@ -232,6 +247,7 @@ export default function QuranGardenScreen() {
               styles.filterTabText,
               selectedTab === 'favorites' && styles.filterTabTextActive,
             ]}
+            numberOfLines={1}
           >
             {language === 'ar' ? 'المختارة' : 'Featured'}
           </Text>
@@ -452,6 +468,23 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   filterTabTextActive: {
+    color: '#FFFFFF',
+  },
+  quranCountPill: {
+    backgroundColor: '#E5E7EB',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: RADIUS.full,
+  },
+  quranCountPillActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
+  },
+  quranCountPillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+  },
+  quranCountPillTextActive: {
     color: '#FFFFFF',
   },
 });

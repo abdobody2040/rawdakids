@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
@@ -22,8 +24,56 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
   const router = useRouter();
   const { language } = useAppStore();
   const t = TRANSLATIONS[language];
+  const isAr = language === 'ar';
   const hadiths = hadithService.getAll();
   const duas = contentService.getDuas();
+
+  const tabs: {
+    id: SunnahTab;
+    labelAr: string;
+    labelEn: string;
+    icon: keyof typeof Ionicons.glyphMap;
+    count: number;
+    color: string;
+    activeBg: string;
+  }[] = [
+    {
+      id: 'hadiths',
+      labelAr: 'الأحاديث النبوية',
+      labelEn: 'Hadiths',
+      icon: 'book',
+      count: hadiths.length,
+      color: '#B45309',
+      activeBg: '#FEF3C7',
+    },
+    {
+      id: 'habits',
+      labelAr: 'سنن اليوم',
+      labelEn: 'Daily Habits',
+      icon: 'sparkles',
+      count: hadiths.length,
+      color: '#059669',
+      activeBg: '#D1FAE5',
+    },
+    {
+      id: 'duas',
+      labelAr: 'الأدعية المباركة',
+      labelEn: 'Duas',
+      icon: 'heart',
+      count: duas.length,
+      color: '#E11D48',
+      activeBg: '#FFE4E6',
+    },
+    {
+      id: 'cards',
+      labelAr: 'بطاقات الحفظ',
+      labelEn: 'Flashcards',
+      icon: 'albums',
+      count: hadiths.length,
+      color: '#7C3AED',
+      activeBg: '#EDE9FE',
+    },
+  ];
 
   const handlePressTab = (tab: SunnahTab) => {
     if (activeTab === tab) return;
@@ -43,19 +93,20 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
   };
 
   return (
-    <View style={styles.heroBannerContainer}>
-      <ImageBackground
-        source={SUNNAH_PATH_IMG}
-        style={styles.heroBannerImage}
-        imageStyle={{ borderRadius: RADIUS.xl }}
-        resizeMode="cover"
-      >
+    <View style={styles.headerWrapper}>
+      {/* 1. Hero Visual Banner */}
+      <View style={styles.heroBannerContainer}>
+        <Image
+          source={SUNNAH_PATH_IMG}
+          style={styles.heroBannerImage}
+          contentFit="cover"
+        />
         <LinearGradient
           colors={['rgba(180, 83, 9, 0.88)', 'rgba(217, 119, 6, 0.94)']}
           style={styles.heroBannerOverlay}
         >
           <View style={styles.heroRow}>
-            <View style={{ flex: 1 }}>
+            <View style={styles.heroTextCol}>
               <Text style={styles.heroTitle}>{t.sunnah}</Text>
               <Text style={styles.heroDesc}>{t.sunnahDesc}</Text>
             </View>
@@ -63,93 +114,108 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
               <Image
                 source={NAV_SUNNAH_IMG}
                 style={styles.hero3dBadgeImg}
-                resizeMode="cover"
+                contentFit="cover"
               />
             </View>
           </View>
-
-          {/* 4 Tabs Switcher */}
-          <View style={styles.tabsRow}>
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === 'hadiths' && styles.tabBtnActive]}
-              onPress={() => handlePressTab('hadiths')}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabBtnText,
-                  activeTab === 'hadiths' && styles.tabBtnTextActive,
-                ]}
-              >
-                {language === 'ar' ? `الأحاديث (${hadiths.length})` : `Hadiths (${hadiths.length})`}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === 'habits' && styles.tabBtnActive]}
-              onPress={() => handlePressTab('habits')}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabBtnText,
-                  activeTab === 'habits' && styles.tabBtnTextActive,
-                ]}
-              >
-                {language === 'ar' ? `السنن (${hadiths.length})` : `Habits (${hadiths.length})`}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === 'duas' && styles.tabBtnActive]}
-              onPress={() => handlePressTab('duas')}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabBtnText,
-                  activeTab === 'duas' && styles.tabBtnTextActive,
-                ]}
-              >
-                {language === 'ar' ? `الأدعية (${duas.length})` : `Duas (${duas.length})`}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === 'cards' && styles.tabBtnActive]}
-              onPress={() => handlePressTab('cards')}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabBtnText,
-                  activeTab === 'cards' && styles.tabBtnTextActive,
-                ]}
-              >
-                {language === 'ar' ? `البطاقات (${hadiths.length})` : `Cards (${hadiths.length})`}
-              </Text>
-            </TouchableOpacity>
-          </View>
         </LinearGradient>
-      </ImageBackground>
+      </View>
+
+      {/* 2. Dedicated Kid-Friendly Category Tabs Menu with Icons & Count Badges */}
+      <View style={styles.tabsMenuContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.tabsScrollContent,
+            { flexDirection: isAr ? 'row-reverse' : 'row' },
+          ]}
+        >
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <TouchableOpacity
+                key={tab.id}
+                style={[
+                  styles.tabCard,
+                  isActive
+                    ? { backgroundColor: tab.activeBg, borderColor: tab.color, borderWidth: 1.5 }
+                    : styles.tabCardInactive,
+                ]}
+                onPress={() => handlePressTab(tab.id)}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.tabIconBadge,
+                    { backgroundColor: isActive ? tab.color : '#F3F4F6' },
+                  ]}
+                >
+                  <Ionicons
+                    name={tab.icon}
+                    size={16}
+                    color={isActive ? '#FFFFFF' : '#6B7280'}
+                  />
+                </View>
+
+                <Text
+                  style={[
+                    styles.tabTitleText,
+                    isActive && { color: tab.color, fontWeight: '900' },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {isAr ? tab.labelAr : tab.labelEn}
+                </Text>
+
+                <View
+                  style={[
+                    styles.tabCountPill,
+                    { backgroundColor: isActive ? tab.color : '#E5E7EB' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tabCountText,
+                      { color: isActive ? '#FFFFFF' : '#4B5563' },
+                    ]}
+                  >
+                    {tab.count}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  headerWrapper: {
+    width: '100%',
+  },
   heroBannerContainer: {
     marginHorizontal: SPACING.md,
     marginTop: SPACING.sm,
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
+    position: 'relative',
     ...SHADOWS.medium,
   },
   heroBannerImage: {
+    ...StyleSheet.absoluteFill,
     width: '100%',
+    height: '100%',
   },
   heroBannerOverlay: {
     padding: SPACING.lg,
-    borderRadius: RADIUS.xl,
+  },
+  heroTextCol: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: SPACING.sm,
   },
   hero3dBadgeBox: {
     width: 58,
@@ -157,8 +223,8 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#fde68a',
-    backgroundColor: '#fffbeb',
+    borderColor: '#FDE68A',
+    backgroundColor: '#FFFBEB',
     ...SHADOWS.soft,
   },
   hero3dBadgeImg: {
@@ -169,7 +235,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
   },
   heroTitle: {
     fontSize: 22,
@@ -178,32 +243,54 @@ const styles = StyleSheet.create({
   },
   heroDesc: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'rgba(255, 255, 255, 0.95)',
     marginTop: 4,
+    lineHeight: 18,
   },
-  tabsRow: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: RADIUS.lg,
-    padding: 3,
-    gap: 4,
+  tabsMenuContainer: {
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: RADIUS.md,
+  tabsScrollContent: {
+    paddingHorizontal: SPACING.md,
+    gap: 8,
     alignItems: 'center',
   },
-  tabBtnActive: {
+  tabCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.full,
     backgroundColor: COLORS.card,
     ...SHADOWS.soft,
   },
-  tabBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.textLight,
+  tabCardInactive: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  tabBtnTextActive: {
-    color: COLORS.secondaryDark,
+  tabIconBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabTitleText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  tabCountPill: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+  },
+  tabCountText: {
+    fontSize: 11,
+    fontWeight: '800',
   },
 });
+
