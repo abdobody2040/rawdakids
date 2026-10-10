@@ -1,6 +1,15 @@
 // Unified Audio Service for Noor Kids
 import { Platform } from 'react-native';
 
+// Safe dynamic resolution of modern Expo Audio (SDK 53+)
+let ModernExpoAudio: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  ModernExpoAudio = require('expo-audio');
+} catch (e) {
+  // fallback if not available
+}
+
 // Safe dynamic resolution of Expo AV to prevent crash if ExponentAV native module is missing in Expo Go
 let ExpoAudio: any = null;
 try {
@@ -22,6 +31,8 @@ try {
 
 class AudioService {
   private sound: any = null;
+  private modernPlayer: any = null;
+  private modernSubscription: any = null;
   private currentUri: string | null = null;
   private isPlaying: boolean = false;
   private currentSpeed: number = 1.0;
@@ -130,7 +141,47 @@ class AudioService {
         return;
       }
 
-      // Native Expo AV
+      // 1. Native Modern Expo Audio (expo-audio SDK 53+)
+      if (ModernExpoAudio?.createAudioPlayer) {
+        try {
+          if (this.modernPlayer) {
+            try {
+              this.modernSubscription?.remove?.();
+              this.modernPlayer.pause?.();
+              this.modernPlayer.release?.();
+            } catch {}
+            this.modernPlayer = null;
+          }
+
+          this.currentUri = uri;
+          const player = ModernExpoAudio.createAudioPlayer({ uri });
+          this.modernPlayer = player;
+          if (typeof player.playbackRate === 'number') {
+            player.playbackRate = speed;
+          }
+
+          this.modernSubscription = player.addListener?.('playbackStatusUpdate', (status: any) => {
+            if (status.playing !== undefined) {
+              this.isPlaying = status.playing;
+            }
+            if (status.didJustFinish) {
+              this.isPlaying = false;
+              this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+            } else {
+              this.onPlaybackStatusUpdate?.({ isPlaying: status.playing, didJustFinish: false });
+            }
+          });
+
+          player.play();
+          this.isPlaying = true;
+          this.onPlaybackStatusUpdate?.({ isPlaying: true, didJustFinish: false });
+          return;
+        } catch (modernErr) {
+          console.warn('[AudioService] expo-audio failed, attempting expo-av fallback:', modernErr);
+        }
+      }
+
+      // 2. Legacy Native Expo AV fallback
       if (ExpoAudio?.Sound) {
         if (this.sound) {
           if (this.currentUri === uri) {
@@ -159,12 +210,17 @@ class AudioService {
 
         this.sound = sound;
         this.isPlaying = true;
-      } else {
-        console.warn('Native audio player (expo-av) not available. Running safely in silent fallback mode.');
-        this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+        return;
       }
+
+      // 3. Fallback: Native audio unavailable in current runtime
+      console.warn('Native audio player (expo-audio / expo-av) not available. Audio cannot play in this environment.');
+      this.isPlaying = false;
+      // Do NOT send didJustFinish: true when audio failed to play!
+      this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true, unavailable: true });
     } catch (err) {
       console.warn('Error playing audio from uri:', uri, err);
+      this.isPlaying = false;
       this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
     }
   }
@@ -173,6 +229,11 @@ class AudioService {
     try {
       if (Platform.OS === 'web' && this.webAudio) {
         this.webAudio.pause();
+        this.isPlaying = false;
+        return;
+      }
+      if (this.modernPlayer) {
+        this.modernPlayer.pause?.();
         this.isPlaying = false;
         return;
       }
@@ -192,6 +253,11 @@ class AudioService {
         this.isPlaying = true;
         return;
       }
+      if (this.modernPlayer) {
+        this.modernPlayer.play?.();
+        this.isPlaying = true;
+        return;
+      }
       if (this.sound) {
         await this.sound.playAsync();
         this.isPlaying = true;
@@ -206,6 +272,10 @@ class AudioService {
     try {
       if (Platform.OS === 'web' && this.webAudio) {
         this.webAudio.playbackRate = speed;
+        return;
+      }
+      if (this.modernPlayer) {
+        this.modernPlayer.playbackRate = speed;
         return;
       }
       if (this.sound) {
@@ -393,6 +463,15 @@ class AudioService {
       if (Platform.OS === 'web' && this.webAudio) {
         this.webAudio.pause();
         this.webAudio.currentTime = 0;
+        this.isPlaying = false;
+      }
+      if (this.modernPlayer) {
+        try {
+          this.modernSubscription?.remove?.();
+          this.modernPlayer.pause?.();
+          this.modernPlayer.release?.();
+        } catch {}
+        this.modernPlayer = null;
         this.isPlaying = false;
       }
       if (this.sound) {

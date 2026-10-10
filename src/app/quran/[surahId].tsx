@@ -175,6 +175,11 @@ export default function SurahDetailScreen() {
     isPlayingRef.current = true;
 
     await audioService.playAyah(audioUrl, speed, (status) => {
+      if (status.error) {
+        setIsPlaying(false);
+        isPlayingRef.current = false;
+        return;
+      }
       if (status.didJustFinish) {
         const targetRepeat = repeatCountRef.current;
         const currentCycle = currentRepeatCycleRef.current;
@@ -250,54 +255,95 @@ export default function SurahDetailScreen() {
         title={language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
       />
 
-      {/* Surah Header Card with Story Button */}
+      {/* Surah Header Card with Rich Story & Tadabbur */}
       <View style={styles.topCard}>
+        {/* Row 1: Surah Title + Revelation Type + Compact Offline Download */}
         <View style={styles.topCardRow}>
-          <View>
-            <Text style={styles.surahTitleArabic}>
-              {language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
-            </Text>
-            <Text style={styles.surahSubtitle}>
-              {language === 'ar'
-                ? `${surah.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} • ${surah.ayahCount} ${t.ayahs}`
-                : `${surah.nameArabic} • ${surah.nameEnglish} • ${surah.revelationType} • ${surah.ayahCount} ${t.ayahs}`}
-            </Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {/* Offline Download Button */}
-            <TouchableOpacity
-              style={[styles.downloadBtn, isDownloaded && styles.downloadBtnActive]}
-              onPress={handleToggleDownload}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
-                size={14}
-                color={isDownloaded ? COLORS.success : '#0d9488'}
-              />
-              <Text style={[styles.downloadBtnText, isDownloaded && { color: COLORS.success }]}>
-                {isDownloading
-                  ? `${downloadProgress}%`
-                  : isDownloaded
-                  ? language === 'ar'
-                    ? 'بدون نت'
-                    : 'Offline'
-                  : language === 'ar'
-                  ? 'تحميل'
-                  : 'Download'}
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Text style={styles.surahTitleArabic}>
+                {language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.storyCardBtn}
-              onPress={() => setShowStoryModal(true)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="sparkles" size={16} color={COLORS.secondaryDark} />
-              <Text style={styles.storyCardBtnText}>{t.surahStory}</Text>
-            </TouchableOpacity>
+              <View style={styles.revelationTypeBadge}>
+                <Text style={styles.revelationTypeText}>
+                  {surah.revelationType === 'Meccan'
+                    ? (language === 'ar' ? 'مكية' : 'Meccan')
+                    : (language === 'ar' ? 'مدنية' : 'Medinan')}
+                </Text>
+              </View>
+            </View>
           </View>
+
+          {/* Compact Download Button */}
+          <TouchableOpacity
+            style={[styles.downloadBtn, isDownloaded && styles.downloadBtnActive]}
+            onPress={handleToggleDownload}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
+              size={13}
+              color={isDownloaded ? '#047857' : '#0d9488'}
+            />
+            <Text style={[styles.downloadBtnText, isDownloaded && { color: '#047857' }]}>
+              {isDownloading
+                ? `${downloadProgress}%`
+                : isDownloaded
+                ? (language === 'ar' ? 'محفوظة' : 'Saved')
+                : (language === 'ar' ? 'تنزيل' : 'Save')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Row 2: Rich Surah Story & Tadabbur Showcase Card */}
+        <View style={styles.storyShowcaseCard}>
+          <View style={[styles.storyShowcaseHead, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons name="sparkles" size={15} color="#d97706" />
+              <Text style={styles.storyShowcaseTitle}>
+                {language === 'ar' ? 'قصة السورة وعبرها المباركة:' : 'Surah Story & Wisdom:'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Story Intro Text */}
+          <Text
+            style={[styles.storyShowcaseText, language === 'ar' && { textAlign: 'right' }]}
+            numberOfLines={2}
+          >
+            {language === 'ar' ? surah.storyIntroAr : surah.storyIntroEn}
+          </Text>
+
+          {/* Golden Lesson Pill */}
+          {((language === 'ar' ? surah.coreLessonsAr : surah.coreLessonsEn) || []).length > 0 && (
+            <View style={[styles.goldenLessonRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.goldenLessonTag}>
+                {language === 'ar' ? '🌱 العبرة الذهبية:' : '🌱 Core Lesson:'}
+              </Text>
+              <Text style={styles.goldenLessonText} numberOfLines={1}>
+                {language === 'ar' ? surah.coreLessonsAr[0] : surah.coreLessonsEn[0]}
+              </Text>
+            </View>
+          )}
+
+          {/* Button to open complete interactive Story Modal */}
+          <TouchableOpacity
+            style={styles.storyCardBtn}
+            onPress={() => setShowStoryModal(true)}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="book-outline" size={15} color="#b45309" />
+            <Text style={styles.storyCardBtnText}>
+              {language === 'ar'
+                ? 'اقرأ القصة وتدبّر عِبرها كاملة مع نور 📖✨'
+                : 'Read Full Story & Reflections with Noor 📖✨'}
+            </Text>
+            <Ionicons
+              name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
+              size={13}
+              color="#b45309"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Toggles Row */}
@@ -619,41 +665,104 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
+  revelationTypeBadge: {
+    backgroundColor: '#ecfdf5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+  },
+  revelationTypeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#047857',
+  },
+  storyShowcaseCard: {
+    backgroundColor: '#fffbeb',
+    borderRadius: 16,
+    padding: 12,
+    marginTop: 8,
+    marginBottom: 4,
+    borderWidth: 1.5,
+    borderColor: '#fde68a',
+    gap: 6,
+    overflow: 'hidden',
+  },
+  storyShowcaseHead: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  storyShowcaseTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#b45309',
+  },
+  storyShowcaseText: {
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: '600',
+    color: '#78350f',
+  },
+  goldenLessonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fde68a',
+  },
+  goldenLessonTag: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#047857',
+  },
+  goldenLessonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#15803d',
+    flex: 1,
+  },
   storyCardBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.secondaryLight,
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: COLORS.secondary,
+    borderColor: '#fcd34d',
+    marginTop: 2,
   },
   storyCardBtnText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.secondaryDark,
+    fontWeight: '900',
+    color: '#92400e',
   },
   downloadBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#e6f7f3',
+    backgroundColor: '#f0fdf4',
     paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: RADIUS.full,
     borderWidth: 1,
     borderColor: '#a7f3d0',
   },
   downloadBtnActive: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#6ee7b7',
+    backgroundColor: '#d1fae5',
+    borderColor: '#34d399',
   },
   downloadBtnText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#0d9488',
+    color: '#047857',
   },
   uthmaniWord: {
     color: COLORS.text,

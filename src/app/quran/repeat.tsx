@@ -56,6 +56,10 @@ export default function ListenAndRepeatScreen() {
       currentAyah.number
     );
     await audioService.playAyah(audioUrl, 1.0, (status) => {
+      if (status.error) {
+        setIsPlaying(false);
+        return;
+      }
       if (status.didJustFinish) {
         const targetRepeat = repeatCountRef.current;
         const currentCycle = currentRepeatCycleRef.current;

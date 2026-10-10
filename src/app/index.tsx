@@ -185,38 +185,20 @@ export default function HomeScreen() {
         >
             {/* Top Bar Header (Mobile First & Fully Responsive) */}
             <View style={styles.headerContainer}>
-              {/* Row 1: Profile Avatar + Greeting & Name (Left) | Language Switch + Parent Lock (Right) */}
+              {/* Top Utility Row: Date on one side, Language Switch + Parent Gate on other */}
               <View
                 style={[
-                  styles.headerMainRow,
+                  styles.headerUtilityRow,
                   { flexDirection: isAr ? 'row-reverse' : 'row' },
                 ]}
               >
-                {/* Profile Avatar & Greeting */}
-                <TouchableOpacity
-                  style={[
-                    styles.profileGreetingTouch,
-                    { flexDirection: isAr ? 'row-reverse' : 'row' },
-                  ]}
-                  onPress={() => router.push('/progress')}
-                  activeOpacity={0.85}
-                >
-                  <View style={styles.avatarWrapper}>
-                    <KidAvatar avatar={activeProfile.avatar} size={42} />
-                    <View style={styles.avatarBadgeDot} />
-                  </View>
-                  <View style={[styles.greetingTextWrap, isAr && { alignItems: 'flex-end' }]}>
-                    <Text style={[styles.dateText, isAr && { textAlign: 'right' }]} numberOfLines={1}>
-                      {todayDateStr}
-                    </Text>
-                    <Text style={[styles.greetingText, isAr && { textAlign: 'right' }]} numberOfLines={1}>
-                      {isAr ? 'السلام عليكم، ' : 'As-salamu alaykum, '}
-                      <Text style={styles.greetingName}>{activeProfile.name}!</Text>
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                {/* Date Badge */}
+                <View style={styles.datePill}>
+                  <Ionicons name="calendar-outline" size={13} color="#059669" />
+                  <Text style={styles.dateText}>{todayDateStr}</Text>
+                </View>
 
-                {/* Top Right Actions: Language Switch & Parent Gate Lock */}
+                {/* Top Actions: Language Switch & Clear Parent Gate */}
                 <View
                   style={[
                     styles.headerActionBtns,
@@ -261,16 +243,44 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Parent Gate Lock */}
+                  {/* Parent Gate Lock Button (Clearly labeled so parents know what it is) */}
                   <TouchableOpacity
-                    style={styles.parentLockButton}
+                    style={styles.parentGateBtn}
                     onPress={() => setParentGateVisible(true)}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="lock-closed" size={16} color="#059669" />
+                    <Ionicons name="lock-closed" size={13} color="#047857" />
+                    <Text style={styles.parentGateBtnText}>
+                      {isAr ? 'منطقة الأهل' : 'Parents'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
+
+              {/* Child Profile & Greeting Row (Full width - never truncated!) */}
+              <TouchableOpacity
+                style={[
+                  styles.profileGreetingBanner,
+                  { flexDirection: isAr ? 'row-reverse' : 'row' },
+                ]}
+                onPress={() => router.push('/progress')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.avatarWrapper}>
+                  <KidAvatar avatar={activeProfile.avatar} size={46} />
+                  <View style={styles.avatarBadgeDot} />
+                </View>
+                <View style={[styles.greetingTextWrap, isAr && { alignItems: 'flex-end' }]}>
+                  <Text style={[styles.greetingSub, isAr && { textAlign: 'right' }]}>
+                    {isAr ? 'السلام عليكم ورحمة الله 🌿' : 'As-salamu alaykum 🌿'}
+                  </Text>
+                  <Text style={[styles.greetingMain, isAr && { textAlign: 'right' }]}>
+                    {isAr ? 'أهلاً يا ' : 'Welcome, '}
+                    <Text style={styles.greetingName}>{activeProfile.name}</Text>
+                    {' 🌟'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
 
               {/* Row 2: Gamification Stats Bar (Streak, Stars, Gems) */}
               <View
@@ -755,37 +765,52 @@ const styles = StyleSheet.create({
 
   // TOP BAR & HEADER (RESPONSIVE)
   headerContainer: {
-    gap: 10,
+    gap: 8,
     marginBottom: 4,
     width: '100%',
   },
-  headerMainRow: {
+  headerUtilityRow: {
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 8,
     width: '100%',
   },
-  profileGreetingTouch: {
+  datePill: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    flex: 1,
-    minWidth: 0,
+    gap: 5,
+    backgroundColor: '#ecfdf5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#d1fae5',
+  },
+  dateText: {
+    fontSize: 11,
+    color: '#047857',
+    fontWeight: '700',
+  },
+  profileGreetingBanner: {
+    alignItems: 'center',
+    gap: 12,
+    width: '100%',
+    paddingVertical: 4,
   },
   avatarWrapper: {
     position: 'relative',
     borderWidth: 2,
     borderColor: '#fed7aa',
-    borderRadius: 24,
+    borderRadius: 26,
     padding: 1,
     backgroundColor: '#ffffff',
-    ...SHADOWS.soft,
   },
   avatarBadgeDot: {
     position: 'absolute',
     bottom: -1,
     right: -1,
-    width: 11,
-    height: 11,
+    width: 12,
+    height: 12,
     borderRadius: 6,
     backgroundColor: '#22c55e',
     borderWidth: 2,
@@ -793,26 +818,26 @@ const styles = StyleSheet.create({
   },
   greetingTextWrap: {
     flex: 1,
-    minWidth: 0,
   },
-  dateText: {
-    fontSize: 11,
-    color: '#789087',
-    fontWeight: '600',
+  greetingSub: {
+    fontSize: 12,
+    color: '#059669',
+    fontWeight: '700',
   },
-  greetingText: {
-    fontSize: 17,
+  greetingMain: {
+    fontSize: 19,
     fontWeight: '900',
     color: '#183c38',
     letterSpacing: -0.3,
-    marginTop: 1,
+    marginTop: 2,
   },
   greetingName: {
-    color: '#f09f48',
+    color: '#d97706',
   },
   headerActionBtns: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     flexShrink: 0,
   },
   langSwitchPill: {
@@ -840,16 +865,21 @@ const styles = StyleSheet.create({
   langSegmentTextActive: {
     color: '#ffffff',
   },
-  parentLockButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  parentGateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    height: 28,
+    paddingHorizontal: 9,
+    borderRadius: 14,
     backgroundColor: '#ecfdf5',
     borderWidth: 1,
     borderColor: '#a7f3d0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...SHADOWS.soft,
+  },
+  parentGateBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#047857',
   },
   statsChipsRow: {
     flexDirection: 'row',

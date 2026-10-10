@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   ScrollView,
   useWindowDimensions,
-  Image,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Surah } from '@/data/quranData';
 import { audioService } from '@/services/audioService';
-import { SHADOWS } from '@/constants/theme';
+import { SHADOWS, RADIUS } from '@/constants/theme';
 
 const QURAN_GARDEN_IMG = require('../../assets/images/quran-garden.jpg');
 
@@ -43,6 +43,44 @@ export default function SurahStoryModal({
   const title = isAr ? surah.nameArabic : surah.nameTransliteration;
   const storyIntro = isAr ? surah.storyIntroAr : surah.storyIntroEn;
   const lessons = isAr ? surah.coreLessonsAr : surah.coreLessonsEn;
+
+  // Rich Reflection Prompts tailored to Surah theme
+  const getSurahVirtue = () => {
+    if (surah.number === 1) {
+      return isAr
+        ? 'أم الكتاب والسبع المثاني والشفاء التام، نناجي بها الله تعالى في كل ركعة صلاة.'
+        : 'The Mother of the Book and the greatest Surah in the Quran, recited in every unit of prayer.';
+    }
+    if (surah.number === 112) {
+      return isAr
+        ? 'تعدل ثلث القرآن الكريم، وتعلّمنا توحيد الله الأحد الصمد الذي لم يلد ولم يولد.'
+        : 'Equivalent to one-third of the Quran, establishing pure monotheism of Allah.';
+    }
+    if (surah.number === 113 || surah.number === 114) {
+      return isAr
+        ? 'المعوذتان المباركتان، حصن المسلم الصغير من كل شر وسواس وخوف.'
+        : 'The twin protectors: a heavenly shield for young Muslims against all fear and evil.';
+    }
+    return isAr
+      ? 'سورة مباركة فيها هداية ونور ينير عقولنا وقلوبنا بالخير والإيمان.'
+      : 'A blessed Surah offering divine guidance, filling our young hearts with light and faith.';
+  };
+
+  const getReflectionQuestion = () => {
+    if (surah.number === 1) {
+      return isAr
+        ? 'كيف نشكر الله تعالى اليوم على نعمة الهداية والرحمة؟'
+        : 'How can we thank Allah today for the blessings of guidance and mercy?';
+    }
+    if (surah.number === 112) {
+      return isAr
+        ? 'لماذا نتوجه بالدعاء لله وحده دون سواه؟'
+        : 'Why do we make dua and turn in prayer to Allah alone?';
+    }
+    return isAr
+      ? 'ما أجمل درس تعلمته من هذه السورة وستطبقه مع أسرتك اليوم؟'
+      : 'What is the most beautiful lesson you will practice with your family today?';
+  };
 
   const handlePlayAudioIntro = async () => {
     if (isPlayingAudio) {
@@ -96,7 +134,7 @@ export default function SurahStoryModal({
             </TouchableOpacity>
 
             <View style={styles.iconCircle}>
-              <Image source={QURAN_GARDEN_IMG} style={styles.iconImage} />
+              <Image source={QURAN_GARDEN_IMG} style={styles.iconImage} contentFit="cover" transition={150} />
             </View>
 
             <Text style={styles.eyebrow}>
@@ -210,6 +248,32 @@ export default function SurahStoryModal({
                 ))}
               </View>
             </View>
+
+            {/* Virtues & Blessings (فضل السورة) */}
+            <View style={styles.virtueBox}>
+              <View style={[styles.sectionHeadRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.sectionHeadEmoji}>🌟</Text>
+                <Text style={styles.virtueHeadTitle}>
+                  {isAr ? 'فضل وبركة هذه السورة المباركة:' : 'Virtue & Blessing of this Surah:'}
+                </Text>
+              </View>
+              <Text style={[styles.virtueText, isAr && { textAlign: 'right' }]}>
+                {getSurahVirtue()}
+              </Text>
+            </View>
+
+            {/* Daily Reflection Question for Kids (سؤال التأمل اليومي) */}
+            <View style={styles.reflectionBox}>
+              <View style={[styles.sectionHeadRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.sectionHeadEmoji}>💭</Text>
+                <Text style={styles.reflectionHeadTitle}>
+                  {isAr ? 'سؤال اليوم للأبطال للتفكر والتدبر:' : 'Today’s Reflection Question for Champions:'}
+                </Text>
+              </View>
+              <Text style={[styles.reflectionText, isAr && { textAlign: 'right' }]}>
+                {getReflectionQuestion()}
+              </Text>
+            </View>
           </ScrollView>
 
           {/* Action Footer */}
@@ -314,6 +378,44 @@ const styles = StyleSheet.create({
   bodyContent: {
     padding: 22,
     gap: 16,
+  },
+  virtueBox: {
+    backgroundColor: '#ecfdf5',
+    borderRadius: RADIUS.lg,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#a7f3d0',
+    gap: 6,
+  },
+  virtueHeadTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#047857',
+  },
+  virtueText: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#065f46',
+    fontWeight: '600',
+  },
+  reflectionBox: {
+    backgroundColor: '#fff7ed',
+    borderRadius: RADIUS.lg,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#fed7aa',
+    gap: 6,
+  },
+  reflectionHeadTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#c2410c',
+  },
+  reflectionText: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#9a3412',
+    fontWeight: '700',
   },
   sectionBox: {
     backgroundColor: '#ffffff',
