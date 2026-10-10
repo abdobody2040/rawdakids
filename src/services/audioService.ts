@@ -1,10 +1,27 @@
 // Unified Audio Service for Noor Kids
-import { Audio } from 'expo-av';
 import { Platform } from 'react-native';
-import * as Speech from 'expo-speech';
+
+// Safe dynamic resolution of Expo AV to prevent crash if ExponentAV native module is missing in Expo Go
+let ExpoAudio: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const avModule = require('expo-av');
+  ExpoAudio = avModule?.Audio || null;
+} catch (e) {
+  console.warn('[AudioService] Native ExponentAV module unavailable in current environment:', e);
+}
+
+// Safe dynamic resolution of Expo Speech
+let ExpoSpeech: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  ExpoSpeech = require('expo-speech');
+} catch (e) {
+  console.warn('[AudioService] Native ExpoSpeech module unavailable in current environment:', e);
+}
 
 class AudioService {
-  private sound: Audio.Sound | null = null;
+  private sound: any = null;
   private currentUri: string | null = null;
   private isPlaying: boolean = false;
   private currentSpeed: number = 1.0;
@@ -18,8 +35,8 @@ class AudioService {
 
   private async initAudioMode() {
     try {
-      if (Platform.OS !== 'web') {
-        await Audio.setAudioModeAsync({
+      if (Platform.OS !== 'web' && ExpoAudio?.setAudioModeAsync) {
+        await ExpoAudio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: false,
           shouldDuckAndroid: true,
@@ -114,33 +131,38 @@ class AudioService {
       }
 
       // Native Expo AV
-      if (this.sound) {
-        if (this.currentUri === uri) {
-          await this.sound.setPositionAsync(0);
-          await this.sound.setRateAsync(speed, true);
-          await this.sound.playAsync();
-          this.isPlaying = true;
-          return;
-        }
-        await this.sound.stopAsync();
-        await this.sound.unloadAsync();
-        this.sound = null;
-      }
-
-      this.currentUri = uri;
-      const { sound } = await Audio.Sound.createAsync(
-        { uri },
-        { shouldPlay: true, rate: speed, shouldCorrectPitch: true },
-        (status) => {
-          if (status.isLoaded) {
-            this.isPlaying = status.isPlaying;
-            this.onPlaybackStatusUpdate?.(status);
+      if (ExpoAudio?.Sound) {
+        if (this.sound) {
+          if (this.currentUri === uri) {
+            await this.sound.setPositionAsync(0);
+            await this.sound.setRateAsync(speed, true);
+            await this.sound.playAsync();
+            this.isPlaying = true;
+            return;
           }
+          await this.sound.stopAsync();
+          await this.sound.unloadAsync();
+          this.sound = null;
         }
-      );
 
-      this.sound = sound;
-      this.isPlaying = true;
+        this.currentUri = uri;
+        const { sound } = await ExpoAudio.Sound.createAsync(
+          { uri },
+          { shouldPlay: true, rate: speed, shouldCorrectPitch: true },
+          (status: any) => {
+            if (status.isLoaded) {
+              this.isPlaying = status.isPlaying;
+              this.onPlaybackStatusUpdate?.(status);
+            }
+          }
+        );
+
+        this.sound = sound;
+        this.isPlaying = true;
+      } else {
+        console.warn('Native audio player (expo-av) not available. Running safely in silent fallback mode.');
+        this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+      }
     } catch (err) {
       console.warn('Error playing audio from uri:', uri, err);
       this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
@@ -255,25 +277,32 @@ class AudioService {
       }
 
       // 2. Native Expo AV Audio playback
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: googleFallbackUrl },
-          { shouldPlay: true, rate: 0.95 },
-          (status) => {
-            if (status.isLoaded) {
-              this.isPlaying = status.isPlaying;
-              if (status.didJustFinish) {
-                this.isPlaying = false;
-                onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+      if (ExpoAudio?.Sound) {
+        try {
+          const { sound } = await ExpoAudio.Sound.createAsync(
+            { uri: googleFallbackUrl },
+            { shouldPlay: true, rate: 0.95 },
+            (status: any) => {
+              if (status.isLoaded) {
+                this.isPlaying = status.isPlaying;
+                if (status.didJustFinish) {
+                  this.isPlaying = false;
+                  onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+                }
               }
             }
-          }
-        );
-        this.sound = sound;
-        this.isPlaying = true;
-      } catch {
-        // Fallback to Native expo-speech
-        Speech.speak(arabicText, {
+          );
+          this.sound = sound;
+          this.isPlaying = true;
+          return;
+        } catch {
+          // Fall through to expo-speech
+        }
+      }
+
+      // Fallback to Native expo-speech
+      if (ExpoSpeech?.speak) {
+        ExpoSpeech.speak(arabicText, {
           language: 'ar-SA',
           rate: 0.85,
           onDone: () => {
@@ -285,6 +314,9 @@ class AudioService {
             onStatusUpdate?.({ isPlaying: false, error: true });
           },
         });
+      } else {
+        this.isPlaying = false;
+        onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
       }
     } catch (err) {
       console.warn('Error playing dua:', err);
@@ -347,8 +379,8 @@ class AudioService {
         'speechSynthesis' in window
       ) {
         window.speechSynthesis.cancel();
-      } else {
-        Speech.stop();
+      } else if (ExpoSpeech?.stop) {
+        ExpoSpeech.stop();
       }
     } catch {
       // ignore
