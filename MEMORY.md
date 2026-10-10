@@ -719,7 +719,26 @@
   - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
   - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
 
+### Milestone 41: Complete Elimination of Legacy expo-av & ExponentAV Missing Module Warning
+- **User Question:** "why this error persistent? [AudioService] Native ExponentAV module unavailable in current environment: [Error: Cannot find native module 'ExponentAV']"
+- **Root Cause Analysis:**
+  1. In Expo SDK 54+, Expo deprecated `expo-av` and removed the legacy C++/Java `ExponentAV` native module from standard Expo Go builds in favor of `expo-audio`.
+  2. Because `"expo-av"` was still listed in `package.json`, Metro Bundler printed deprecation notices.
+  3. More importantly, `src/services/audioService.ts` still had an active `require('expo-av')` fallback attempt inside a `try/catch` block that was explicitly executing `console.warn('[AudioService] Native ExponentAV module unavailable...', e)`. Thus, on every app bootstrap, the failed lookup was logged to the terminal.
+- **Architectural Solution:**
+  1. **Uninstalled Legacy Package:** Ran `npm.cmd uninstall expo-av`, removing it from `package.json` and `node_modules`.
+  2. **Modernized Audio Service (`src/services/audioService.ts`):**
+     - Completely removed `require('expo-av')` and its noisy `console.warn`.
+     - Standardized on `expo-audio` (`ModernExpoAudio.createAudioPlayer`) for native playback on iOS & Android.
+     - Standardized on HTML5 `Audio` for Web browser execution.
+     - Kept `expo-speech` as the secondary fallback for Dua text-to-speech.
+- **Verification:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)** with zero deprecation warnings.
+  - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
+
 ---
+
 
 
 
