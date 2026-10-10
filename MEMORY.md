@@ -650,6 +650,26 @@
   - Noor Kids App E2E Suite (`node scripts/test-e2e.js`): **39 / 39 PASSED (100%)**.
   - Security Audit Suite (`node scripts/test-security.js`): **23 / 23 PASSED (100%)**.
 
+### Milestone 38: Android Shadow Box Removal, Full-Screen Safe Area Insets, and Fast Local Asset Acceleration
+- **Issues Identified in User Screenshots:**
+  1. **Android Selection Shadow Box Artifacts:** In Onboarding language selection, age band cards, character cards, destination cards, and modal bubble, selection cards rendered an unclipped rectangular grey/dark box on Android because of `elevation: 3-8` combined with semi-transparent alpha background hexes (`#2DD4BF22`) without `overflow: 'hidden'`.
+  2. **Status Bar Collision & Deprecated SafeAreaView:** The status bar (clock, wifi, battery) directly overlapped the headers and text inputs across screens because built-in `react-native` `SafeAreaView` does not support Android status bar insets.
+  3. **Local Assets Performance:** Assets needed to load instantly without blank flashes or remote dependencies.
+- **Architectural Solution:**
+  1. **Theme Shadows (`src/constants/theme.ts`):** Set `elevation: 0` on Android across `SHADOWS.soft`, `SHADOWS.medium`, `SHADOWS.strong`, and `SHADOWS.glow`.
+  2. **Solid Pastel Selection Fills (`src/app/onboarding.tsx`, `src/components/WordMeaningBubbleModal.tsx`):**
+     - Replaced all semi-transparent hex backgrounds (`#2DD4BF22`, `w.themeColor + '15'`) with solid `#FFFFFF` (unselected) and solid `#ECFDF5` / `#FEF3C7` / `#EEF2FF` / `#F0F9FF` (selected).
+     - Added `overflow: 'hidden'` to all card containers (`langCard`, `ageBandCard`, `avatarCard3D`, `worldPreviewCard`, `bubbleCard`).
+  3. **Universal SafeAreaView Migration Across All Screens:**
+     - Replaced deprecated `react-native` `SafeAreaView` with `react-native-safe-area-context` across all 16 screen routes (`quran/[surahId]`, `index`, `onboarding`, `sunnah`, `prophets`, `manners`, `rewards`, `progress`, `parents`).
+     - Added `edges={['top', 'bottom', 'left', 'right']}` to guarantee Android edge-to-edge layout with full protection against status bar / notch overlap.
+  4. **Fast Local Hardware-Accelerated Assets:**
+     - Migrated `KidAvatar.tsx`, `Header.tsx`, `onboarding.tsx`, `sunnah/[hadithId].tsx`, `prophets/[prophetId].tsx`, `manners/[valueId].tsx`, `manners/journal.tsx`, `rewards/index.tsx`, `progress/index.tsx` to `expo-image` with `contentFit="cover"` / `contentFit="contain"` and `transition={150}` for local cached GPU rendering.
+- **Verification:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
+  - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
+
 ---
 
 
