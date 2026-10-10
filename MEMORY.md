@@ -668,9 +668,32 @@
 - **Verification:**
   - `npx.cmd tsc --noEmit`: **0 errors**.
   - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
+### Milestone 39: Modern expo-audio Engine, False Completion Bug Elimination, Enriched Surah Story & Wisdom, and Header Name Layout
+- **User Reported Issues:**
+  1. **Audio Recitation & False Reward Bug:** Pressing recitation button failed with warning `[Error: Cannot find native module 'ExponentAV']` and falsely triggered completion stars/rewards without any audio playing.
+  2. **Surah Story & Wisdom Showcase:** Request for richer content ("قصة السورة وعبرها") in place of verse count and download buttons, plus deeper reflections.
+  3. **Header Name Truncation ("السلام عليكم، رؤ..."):** In Arabic, child names were truncated by `numberOfLines={1}` in a cramped single-row header.
+  4. **Lock Icon Ambiguity:** User asked what the standalone `🔒` icon in the header was.
+- **Architectural Solution:**
+  1. **Dual Audio Engine (`src/services/audioService.ts`):**
+     - Installed and integrated modern `expo-audio` (`createAudioPlayer`) for SDK 57 native compatibility.
+     - Provided runtime fallback chain: `expo-audio` -> legacy `expo-av` -> HTML5 Audio -> graceful error reporting.
+     - **ELIMINATED FALSE REWARD CASCADE:** Replaced `didJustFinish: true` on fallback with `{ isPlaying: false, error: true, unavailable: true }`. In `src/app/quran/[surahId].tsx` and `src/app/quran/repeat.tsx`, added strict guards against `status.error` to never auto-advance or grant unearned stars.
+  2. **Surah Story & Wisdom Showcase Card (`src/app/quran/[surahId].tsx`):**
+     - Replaced the bulky top header row with a story showcase card displaying revelation context, a 2-line story preview, the golden lesson pill (`🌱 العبرة الذهبية`), and an interactive action button: "اقرأ القصة وتدبّر عِبرها كاملة مع نور 📖✨".
+     - Expanded `SurahStoryModal.tsx` with **فضل وبركة هذه السورة المباركة** (Authentic Surah virtues) and **سؤال اليوم للأبطال للتفكر والتدبر** (Reflection question for kids).
+  3. **Two-Tier Header Layout (`src/app/index.tsx`):**
+     - Separated header into a top utility row (Date badge, Language toggle, labeled `[ 🔒 منطقة الأهل ]` button) and a dedicated full-width Child Greeting banner (`السلام عليكم ورحمة الله 🌿`, `أهلاً يا [الاسم]! 🌟`).
+     - Removed `numberOfLines={1}` and `maxWidth` constraints; child names render cleanly in Arabic and English.
+  4. **Labeled Parent Gate Button:**
+     - Replaced bare `🔒` icon with an explicit labeled pill `[ 🔒 منطقة الأهل ]` (or `[ 🔒 Parents ]`) to clarify its purpose (parental gate with arithmetic safety question).
+- **Verification:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **All 19 static routes exported cleanly (code 0)**.
   - `node scripts/test-e2e.js`: **39 / 39 PASSED (100%)**.
 
 ---
+
 
 
 ## 3. Strict Rules & Constraints for Future AI Agents
