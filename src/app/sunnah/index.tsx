@@ -40,6 +40,8 @@ export default function SunnahPathScreen() {
           onTabChange={(tab) => {
             if (tab === 'hadiths' || tab === 'habits') {
               setSelectedTab(tab);
+            } else if (tab === 'adhkar') {
+              router.replace('/sunnah/adhkar');
             } else if (tab === 'duas') {
               router.replace('/sunnah/duas');
             } else if (tab === 'cards') {

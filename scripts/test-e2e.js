@@ -64,6 +64,7 @@ async function runRouteTests() {
     { path: '/sunnah/duas', expectedContent: 'html' },
     { path: '/sunnah/cards', expectedContent: 'html' },
     { path: '/sunnah/tasbih', expectedContent: 'html' },
+    { path: '/sunnah/adhkar', expectedContent: 'html' },
     { path: '/prophets', expectedContent: 'html' },
     { path: '/prophets/1', expectedContent: 'html' },
     { path: '/prophets/25', expectedContent: 'html' },
@@ -326,6 +327,17 @@ async function runDataIntegrityTests() {
       'Wudu (Ablution) 8-step interactive simulator loaded with authentic steps & Duas',
       hasWuduSteps,
       'Wudu steps missing or incomplete'
+    );
+
+    // Morning & Evening Adhkar Dataset
+    const adhkarCode = fs.readFileSync(path.join(__dirname, '../src/data/adhkarData.ts'), 'utf-8');
+    const hasMorningAdhkar = adhkarCode.includes('MORNING_ADHKAR') && (adhkarCode.match(/period:\s*['"]morning['"]/g) || []).length >= 10;
+    const hasEveningAdhkar = adhkarCode.includes('EVENING_ADHKAR') && (adhkarCode.match(/period:\s*['"]evening['"]/g) || []).length >= 9;
+    recordTest(
+      'Dataset Integrity',
+      'Morning & Evening Adhkar dataset populated with authentic Hadith sources & repetitions',
+      hasMorningAdhkar && hasEveningAdhkar,
+      'Adhkar dataset missing morning or evening items'
     );
 
     // Service Integrations Sanity Check

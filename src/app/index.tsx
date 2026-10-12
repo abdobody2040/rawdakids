@@ -620,6 +620,16 @@ export default function HomeScreen() {
 
                   <TouchableOpacity
                     style={styles.hodCardsLink}
+                    onPress={() => router.push('/sunnah/adhkar' as any)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hodCardsLinkText}>
+                      {isAr ? '☀️ الأذكار' : '☀️ Adhkar'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.hodCardsLink}
                     onPress={() => router.push('/sunnah/cards')}
                     activeOpacity={0.8}
                   >

@@ -10,7 +10,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 const SUNNAH_PATH_IMG = require('../../assets/images/sunnah-path.jpg');
 const NAV_SUNNAH_IMG = require('../../assets/images/nav-sunnah-3d.jpg');
 
-export type SunnahTab = 'hadiths' | 'habits' | 'duas' | 'cards' | 'tasbih';
+export type SunnahTab = 'hadiths' | 'habits' | 'adhkar' | 'duas' | 'cards' | 'tasbih';
 
 interface SunnahHeroHeaderProps {
   activeTab: SunnahTab;
@@ -43,6 +43,13 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
       labelEn: 'Daily Habits',
       icon: 'sparkles',
       color: '#059669',
+    },
+    {
+      id: 'adhkar',
+      labelAr: 'أذكار الصباح والمساء',
+      labelEn: 'Adhkar',
+      icon: 'sunny',
+      color: '#D97706',
     },
     {
       id: 'duas',
@@ -78,6 +85,8 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
       router.replace('/sunnah');
     } else if (tab === 'habits') {
       router.replace({ pathname: '/sunnah', params: { tab: 'habits' } });
+    } else if (tab === 'adhkar') {
+      router.replace('/sunnah/adhkar');
     } else if (tab === 'duas') {
       router.replace('/sunnah/duas');
     } else if (tab === 'cards') {

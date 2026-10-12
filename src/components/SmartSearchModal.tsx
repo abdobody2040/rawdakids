@@ -215,6 +215,21 @@ export default function SmartSearchModal({
     });
 
     items.push({
+      id: 'feature-adhkar',
+      category: 'sunnah',
+      categoryLabelAr: 'أذكار الصباح والمساء',
+      categoryLabelEn: 'Morning & Evening Adhkar',
+      categoryColor: '#F59E0B',
+      categoryIcon: 'sunny',
+      titleAr: 'أذكار الصباح والمساء المباركة للأطفال',
+      titleEn: 'Morning & Evening Daily Adhkar',
+      subtitleAr: 'حصن المسلم الصغير، آية الكرسي، المعوذات، وسيد الاستغفار',
+      subtitleEn: 'Ayat al-Kursi, Muawwidhat, Sayyid al-Istighfar with Audio',
+      route: '/sunnah/adhkar',
+      keywords: ['اذكار', 'أذكار', 'صباح', 'مساء', 'الصباح', 'المساء', 'استغفار', 'كرسي', 'حصن المسلم', 'adhkar', 'morning', 'evening'],
+    });
+
+    items.push({
       id: 'feature-arkan',
       category: 'arkan',
       categoryLabelAr: 'أكاديمية الأركان',
@@ -273,6 +288,8 @@ export default function SmartSearchModal({
   ];
 
   const quickSuggestionKeywords = [
+    { labelAr: 'أذكار الصباح والمساء', labelEn: 'Adhkar', query: 'أذكار' },
+    { labelAr: 'مسبحة الأذكار', labelEn: 'Tasbih', query: 'مسبحة' },
     { labelAr: 'الفاتحة', labelEn: 'Al-Fatihah', query: 'الفاتحة' },
     { labelAr: 'الكهف', labelEn: 'Al-Kahf', query: 'الكهف' },
     { labelAr: 'دعاء النوم', labelEn: 'Sleep Dua', query: 'النوم' },
