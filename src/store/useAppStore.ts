@@ -33,6 +33,44 @@ export interface WeeklyChallenge {
   confirmedByParent: boolean;
 }
 
+export interface ChildProgressData {
+  surahProgress: Record<number, SurahProgressItem>;
+  hadithProgress: Record<string, { completed: boolean; stars: number }>;
+  storyProgress: Record<string, { completed: boolean; quizScore: number; lessonCardUnlocked: boolean }>;
+  scenarioProgress: Record<string, { completed: boolean }>;
+  dailyHabitsDone: Record<string, boolean>;
+  stars: number;
+  gems: number;
+  streakCount: number;
+  lastActiveDate: string;
+  unlockedStickers: string[];
+  unlockedBadges: string[];
+  selectedAvatarId: string;
+  gratitudeEntries: {
+    id: string;
+    date: string;
+    category: string;
+    emoji: string;
+    text: string;
+  }[];
+}
+
+export const createDefaultChildProgress = (avatar: string): ChildProgressData => ({
+  surahProgress: {},
+  hadithProgress: {},
+  storyProgress: {},
+  scenarioProgress: {},
+  dailyHabitsDone: {},
+  stars: 5,
+  gems: 10,
+  streakCount: 1,
+  lastActiveDate: new Date().toISOString().split('T')[0],
+  unlockedStickers: ['st-kaaba', 'st-quran'],
+  unlockedBadges: ['badge-reciter'],
+  selectedAvatarId: avatar,
+  gratitudeEntries: [],
+});
+
 export interface AppState {
   // Localization
   language: Language;
@@ -42,11 +80,14 @@ export interface AppState {
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
 
-  // Profiles
+  // Profiles (Local on-device only)
   profiles: ChildProfile[];
   activeProfileId: string;
+  profilesProgress: Record<string, ChildProgressData>;
   setActiveProfile: (id: string) => void;
   addProfile: (profile: Omit<ChildProfile, 'id'>) => string;
+  deleteProfile: (id: string) => boolean;
+  getChildProgress: (id: string) => ChildProgressData;
 
   // Hifz & Quran Progress
   surahProgress: Record<number, SurahProgressItem>;
@@ -134,11 +175,32 @@ const STORAGE_KEY = '@noor_kids_app_state_v1';
 
 const persistState = async (state: AppState) => {
   try {
+    const currentActiveProgress: ChildProgressData = {
+      surahProgress: state.surahProgress,
+      hadithProgress: state.hadithProgress,
+      storyProgress: state.storyProgress,
+      scenarioProgress: state.scenarioProgress,
+      dailyHabitsDone: state.dailyHabitsDone,
+      stars: state.stars,
+      gems: state.gems,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      unlockedStickers: state.unlockedStickers,
+      unlockedBadges: state.unlockedBadges,
+      selectedAvatarId: state.selectedAvatarId,
+      gratitudeEntries: state.gratitudeEntries,
+    };
+    const updatedProfilesProgress = {
+      ...state.profilesProgress,
+      [state.activeProfileId]: currentActiveProgress,
+    };
+
     const stateToSave = {
       language: state.language,
       hasCompletedOnboarding: state.hasCompletedOnboarding,
       profiles: state.profiles,
       activeProfileId: state.activeProfileId,
+      profilesProgress: updatedProfilesProgress,
       surahProgress: state.surahProgress,
       hadithProgress: state.hadithProgress,
       storyProgress: state.storyProgress,
@@ -155,6 +217,7 @@ const persistState = async (state: AppState) => {
       parentSettings: state.parentSettings,
       downloadedSurahs: state.downloadedSurahs,
       weeklyChallenges: state.weeklyChallenges,
+      gratitudeEntries: state.gratitudeEntries,
     };
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
   } catch {
@@ -184,19 +247,198 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
   ],
   activeProfileId: 'default-child',
-  setActiveProfile: (activeProfileId) => {
-    set({ activeProfileId });
+  profilesProgress: {
+    'default-child': {
+      surahProgress: {},
+      hadithProgress: {},
+      storyProgress: {},
+      scenarioProgress: {},
+      dailyHabitsDone: {},
+      stars: 12,
+      gems: 25,
+      streakCount: 3,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      unlockedStickers: ['st-kaaba', 'st-quran', 'st-crescent', 'st-lantern'],
+      unlockedBadges: ['badge-reciter'],
+      selectedAvatarId: 'av-boy1',
+      gratitudeEntries: [
+        {
+          id: 'gratitude-1',
+          date: new Date().toISOString().split('T')[0],
+          category: 'أهلي وأسرتي',
+          emoji: '👨‍👩‍👧',
+          text: 'الحمد لله على نعمة أمي وأبي اللذين يهتمان بي ويحبانني',
+        },
+      ],
+    },
+  },
+
+  getChildProgress: (id) => {
+    const state = get();
+    if (state.activeProfileId === id) {
+      return {
+        surahProgress: state.surahProgress,
+        hadithProgress: state.hadithProgress,
+        storyProgress: state.storyProgress,
+        scenarioProgress: state.scenarioProgress,
+        dailyHabitsDone: state.dailyHabitsDone,
+        stars: state.stars,
+        gems: state.gems,
+        streakCount: state.streakCount,
+        lastActiveDate: state.lastActiveDate,
+        unlockedStickers: state.unlockedStickers,
+        unlockedBadges: state.unlockedBadges,
+        selectedAvatarId: state.selectedAvatarId,
+        gratitudeEntries: state.gratitudeEntries,
+      };
+    }
+    return state.profilesProgress[id] || createDefaultChildProgress('av-boy1');
+  },
+
+  setActiveProfile: (nextId) => {
+    const state = get();
+    if (state.activeProfileId === nextId) return;
+
+    // Snapshot current active child
+    const currentSnapshot: ChildProgressData = {
+      surahProgress: state.surahProgress,
+      hadithProgress: state.hadithProgress,
+      storyProgress: state.storyProgress,
+      scenarioProgress: state.scenarioProgress,
+      dailyHabitsDone: state.dailyHabitsDone,
+      stars: state.stars,
+      gems: state.gems,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      unlockedStickers: state.unlockedStickers,
+      unlockedBadges: state.unlockedBadges,
+      selectedAvatarId: state.selectedAvatarId,
+      gratitudeEntries: state.gratitudeEntries,
+    };
+
+    const updatedProgressMap = {
+      ...state.profilesProgress,
+      [state.activeProfileId]: currentSnapshot,
+    };
+
+    const targetChild = state.profiles.find((p) => p.id === nextId);
+    const targetProgress =
+      updatedProgressMap[nextId] ||
+      createDefaultChildProgress(targetChild?.avatar || 'av-boy1');
+
+    set({
+      activeProfileId: nextId,
+      profilesProgress: updatedProgressMap,
+      surahProgress: targetProgress.surahProgress,
+      hadithProgress: targetProgress.hadithProgress,
+      storyProgress: targetProgress.storyProgress,
+      scenarioProgress: targetProgress.scenarioProgress,
+      dailyHabitsDone: targetProgress.dailyHabitsDone,
+      stars: targetProgress.stars,
+      gems: targetProgress.gems,
+      streakCount: targetProgress.streakCount,
+      lastActiveDate: targetProgress.lastActiveDate,
+      unlockedStickers: targetProgress.unlockedStickers,
+      unlockedBadges: targetProgress.unlockedBadges,
+      selectedAvatarId: targetProgress.selectedAvatarId,
+      gratitudeEntries: targetProgress.gratitudeEntries,
+    });
     persistState(get());
   },
+
   addProfile: (newProfile) => {
     const id = 'child_' + Date.now();
     const profile: ChildProfile = { ...newProfile, id };
-    set((state) => ({
+    const state = get();
+
+    // Snapshot current active child
+    const currentSnapshot: ChildProgressData = {
+      surahProgress: state.surahProgress,
+      hadithProgress: state.hadithProgress,
+      storyProgress: state.storyProgress,
+      scenarioProgress: state.scenarioProgress,
+      dailyHabitsDone: state.dailyHabitsDone,
+      stars: state.stars,
+      gems: state.gems,
+      streakCount: state.streakCount,
+      lastActiveDate: state.lastActiveDate,
+      unlockedStickers: state.unlockedStickers,
+      unlockedBadges: state.unlockedBadges,
+      selectedAvatarId: state.selectedAvatarId,
+      gratitudeEntries: state.gratitudeEntries,
+    };
+
+    const newChildProgress = createDefaultChildProgress(newProfile.avatar);
+
+    const updatedProgressMap = {
+      ...state.profilesProgress,
+      [state.activeProfileId]: currentSnapshot,
+      [id]: newChildProgress,
+    };
+
+    set({
       profiles: [...state.profiles, profile],
       activeProfileId: id,
-    }));
+      profilesProgress: updatedProgressMap,
+      surahProgress: newChildProgress.surahProgress,
+      hadithProgress: newChildProgress.hadithProgress,
+      storyProgress: newChildProgress.storyProgress,
+      scenarioProgress: newChildProgress.scenarioProgress,
+      dailyHabitsDone: newChildProgress.dailyHabitsDone,
+      stars: newChildProgress.stars,
+      gems: newChildProgress.gems,
+      streakCount: newChildProgress.streakCount,
+      lastActiveDate: newChildProgress.lastActiveDate,
+      unlockedStickers: newChildProgress.unlockedStickers,
+      unlockedBadges: newChildProgress.unlockedBadges,
+      selectedAvatarId: newChildProgress.selectedAvatarId,
+      gratitudeEntries: newChildProgress.gratitudeEntries,
+    });
     persistState(get());
     return id;
+  },
+
+  deleteProfile: (id) => {
+    const { profiles, activeProfileId, profilesProgress } = get();
+    if (profiles.length <= 1) return false;
+
+    const remaining = profiles.filter((p) => p.id !== id);
+    const updatedProgressMap = { ...profilesProgress };
+    delete updatedProgressMap[id];
+
+    if (activeProfileId === id) {
+      const nextActiveId = remaining[0].id;
+      const targetProgress =
+        updatedProgressMap[nextActiveId] ||
+        createDefaultChildProgress(remaining[0].avatar);
+
+      set({
+        profiles: remaining,
+        activeProfileId: nextActiveId,
+        profilesProgress: updatedProgressMap,
+        surahProgress: targetProgress.surahProgress,
+        hadithProgress: targetProgress.hadithProgress,
+        storyProgress: targetProgress.storyProgress,
+        scenarioProgress: targetProgress.scenarioProgress,
+        dailyHabitsDone: targetProgress.dailyHabitsDone,
+        stars: targetProgress.stars,
+        gems: targetProgress.gems,
+        streakCount: targetProgress.streakCount,
+        lastActiveDate: targetProgress.lastActiveDate,
+        unlockedStickers: targetProgress.unlockedStickers,
+        unlockedBadges: targetProgress.unlockedBadges,
+        selectedAvatarId: targetProgress.selectedAvatarId,
+        gratitudeEntries: targetProgress.gratitudeEntries,
+      });
+    } else {
+      set({
+        profiles: remaining,
+        profilesProgress: updatedProgressMap,
+      });
+    }
+
+    persistState(get());
+    return true;
   },
 
   surahProgress: {},
@@ -515,7 +757,26 @@ export const useAppStore = create<AppState>((set, get) => ({
       const data = await AsyncStorage.getItem(STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data);
-        set({ ...parsed, isHydrated: true });
+        const activeId = parsed.activeProfileId || 'default-child';
+        let profilesProgress = parsed.profilesProgress || {};
+        if (!profilesProgress[activeId]) {
+          profilesProgress[activeId] = {
+            surahProgress: parsed.surahProgress || {},
+            hadithProgress: parsed.hadithProgress || {},
+            storyProgress: parsed.storyProgress || {},
+            scenarioProgress: parsed.scenarioProgress || {},
+            dailyHabitsDone: parsed.dailyHabitsDone || {},
+            stars: parsed.stars ?? 12,
+            gems: parsed.gems ?? 25,
+            streakCount: parsed.streakCount ?? 3,
+            lastActiveDate: parsed.lastActiveDate || new Date().toISOString().split('T')[0],
+            unlockedStickers: parsed.unlockedStickers || ['st-kaaba', 'st-quran', 'st-crescent', 'st-lantern'],
+            unlockedBadges: parsed.unlockedBadges || ['badge-reciter'],
+            selectedAvatarId: parsed.selectedAvatarId || 'av-boy1',
+            gratitudeEntries: parsed.gratitudeEntries || [],
+          };
+        }
+        set({ ...parsed, profilesProgress, isHydrated: true });
         return;
       }
     } catch {

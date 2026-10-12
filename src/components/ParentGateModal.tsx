@@ -83,6 +83,15 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
           <Text style={styles.title}>{t.parentGateTitle}</Text>
           <Text style={styles.subtitle}>{t.parentGateSub}</Text>
 
+          <View style={styles.localSecurityBadge}>
+            <Ionicons name="shield-checkmark" size={14} color="#059669" />
+            <Text style={styles.localSecurityBadgeText}>
+              {language === 'ar'
+                ? 'حماية محلية برمز PIN (محفوظ على هذا الجهاز فقط)'
+                : 'Local on-device PIN protection'}
+            </Text>
+          </View>
+
           <View style={styles.questionContainer}>
             <Text style={styles.questionText}>
               {question.a} × {question.b} = ?
@@ -91,7 +100,11 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
 
           <TextInput
             style={styles.input}
-            placeholder={language === 'ar' ? 'اكتب الإجابة هنا' : 'Enter answer'}
+            placeholder={
+              language === 'ar'
+                ? `اكتب رمز PIN (${parentSettings.pin ? '••••' : '1234'}) أو ناتج الضرب`
+                : 'Enter local PIN or math answer'
+            }
             placeholderTextColor={COLORS.textMuted}
             keyboardType="number-pad"
             value={inputAnswer}
@@ -164,7 +177,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    marginBottom: SPACING.xs,
+  },
+  localSecurityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
     marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  localSecurityBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#065F46',
   },
   questionContainer: {
     backgroundColor: COLORS.cardAlt,

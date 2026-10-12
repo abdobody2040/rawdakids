@@ -30,6 +30,8 @@ export default function ParentsCornerScreen() {
     activeProfileId,
     setActiveProfile,
     addProfile,
+    deleteProfile,
+    getChildProgress,
     parentSettings,
     updateParentSettings,
     weeklyChallenges,
@@ -45,6 +47,32 @@ export default function ParentsCornerScreen() {
 
   const [pinInput, setPinInput] = useState(parentSettings.pin);
   const [testNotificationSent, setTestNotificationSent] = useState(false);
+
+  const handleDeleteChild = (id: string, name: string) => {
+    if (profiles.length <= 1) {
+      Alert.alert(
+        language === 'ar' ? 'تنبيه' : 'Notice',
+        language === 'ar'
+          ? 'يجب أن يبقى ملف طفل واحد على الأقل في التطبيق.'
+          : 'At least one child profile must remain in the app.'
+      );
+      return;
+    }
+    Alert.alert(
+      language === 'ar' ? 'حذف ملف الطفل' : 'Delete Child Profile',
+      language === 'ar'
+        ? `هل أنت متأكد من حذف ملف "${name}" وجميع إنجازاته وتقدمه المحفوظ على هذا الجهاز نهائياً؟`
+        : `Are you sure you want to permanently delete "${name}" and all progress saved on this device?`,
+      [
+        { text: language === 'ar' ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        {
+          text: language === 'ar' ? 'حذف نهائي' : 'Delete',
+          style: 'destructive',
+          onPress: () => deleteProfile(id),
+        },
+      ]
+    );
+  };
 
   const handleTestNotification = async () => {
     const granted = await notificationService.requestPermission();
@@ -115,6 +143,72 @@ export default function ParentsCornerScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
+        {/* Strict Local Privacy Guarantee Banner */}
+        <View style={styles.privacyCard}>
+          <View style={styles.privacyHeader}>
+            <View style={styles.privacyIconCircle}>
+              <Ionicons name="shield-checkmark" size={24} color="#059669" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.privacyTitle}>
+                {language === 'ar'
+                  ? 'الخصوصية التامة والتخزين المحلي 🛡️'
+                  : 'Strict On-Device Privacy 🛡️'}
+              </Text>
+              <Text style={styles.privacyTagline}>
+                {language === 'ar'
+                  ? '«تُحفظ ملفات الأطفال وتقدمهم على هذا الجهاز فقط، ولا تتم مزامنتها مع أجهزة أخرى»'
+                  : '«Child profiles and progress are saved strictly on this device only and are never synced with other devices»'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.privacyBadgesList}>
+            <View style={styles.privacyBadgeItem}>
+              <Ionicons name="lock-closed" size={15} color="#059669" />
+              <Text style={styles.privacyBadgeText}>
+                {language === 'ar'
+                  ? 'لا توجد خوادم سحابية أو قواعد بيانات خارجية أو حسابات مستخدمين.'
+                  : 'No cloud servers, external databases, or user accounts.'}
+              </Text>
+            </View>
+            <View style={styles.privacyBadgeItem}>
+              <Ionicons name="eye-off" size={15} color="#059669" />
+              <Text style={styles.privacyBadgeText}>
+                {language === 'ar'
+                  ? 'لا نرسل أي بيانات إلى الإنترنت (أسماء، أعمار، تقدم، نتائج، سجل).'
+                  : 'No personal data is sent online (names, ages, scores, or activity).'}
+              </Text>
+            </View>
+            <View style={styles.privacyBadgeItem}>
+              <Ionicons name="ban" size={15} color="#059669" />
+              <Text style={styles.privacyBadgeText}>
+                {language === 'ar'
+                  ? 'تطبيق مجاني بالكامل وخالٍ من الإعلانات وأدوات التتبع والتحليلات.'
+                  : '100% Free: Zero ads, zero trackers, and zero analytics telemetry.'}
+              </Text>
+            </View>
+            <View style={styles.privacyBadgeItem}>
+              <Ionicons name="key" size={15} color="#059669" />
+              <Text style={styles.privacyBadgeText}>
+                {language === 'ar'
+                  ? 'رمز PIN وقفل الأهل محفوظان محلياً داخل ذاكرة هذا الهاتف فقط.'
+                  : 'Parent PIN and lock stored strictly in local device memory.'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Local Storage Loss Warning */}
+          <View style={styles.privacyWarningBox}>
+            <Ionicons name="warning" size={18} color="#D97706" />
+            <Text style={styles.privacyWarningText}>
+              {language === 'ar'
+                ? 'تنبيه هام: نظراً لأن التطبيق لا يستخدم خوادم سحابية لحماية خصوصية أسرتك، فإن مسح بيانات التطبيق أو إلغاء تثبيته سيؤدي إلى حذف ملفات الأطفال والتقدم المحفوظين نهائياً.'
+                : 'Notice: Because the app uses no cloud servers to protect privacy, clearing app data or uninstalling the app will permanently erase all saved child profiles and progress.'}
+            </Text>
+          </View>
+        </View>
+
         {/* Child Profiles Section (PA1) */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -122,39 +216,64 @@ export default function ParentsCornerScreen() {
             <Text style={styles.sectionTitle}>{t.childProfiles}</Text>
           </View>
 
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'يمكنك إنشاء ملف لطفل أو أكثر على هذا الجهاز. تقدم كل طفل منفصل تماماً عن الآخر.'
+              : 'You can create one or more child profiles on this device. Each child has isolated progress.'}
+          </Text>
+
           <View style={styles.profilesList}>
             {profiles.map((p) => {
               const isActive = p.id === activeProfileId;
 
               return (
-                <TouchableOpacity
+                <View
                   key={p.id}
                   style={[
                     styles.profileCard,
                     isActive && styles.profileCardActive,
                   ]}
-                  onPress={() => setActiveProfile(p.id)}
-                  activeOpacity={0.8}
                 >
-                  <KidAvatar avatar={p.avatar} size={42} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.profileNameText}>{p.name}</Text>
-                    <Text style={styles.profileAgeText}>
-                      {p.ageBand === '4-6'
-                        ? t.ageBandExplorers
-                        : p.ageBand === '7-9'
-                        ? t.ageBandLearners
-                        : t.ageBandMinds}
-                    </Text>
-                  </View>
-                  {isActive ? (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={24}
-                      color={COLORS.primary}
-                    />
-                  ) : null}
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: SPACING.md }}
+                    onPress={() => setActiveProfile(p.id)}
+                    activeOpacity={0.8}
+                  >
+                    <KidAvatar avatar={p.avatar} size={42} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.profileNameText}>{p.name}</Text>
+                      <Text style={styles.profileAgeText}>
+                        {p.ageBand === '4-6'
+                          ? t.ageBandExplorers
+                          : p.ageBand === '7-9'
+                          ? t.ageBandLearners
+                          : t.ageBandMinds}
+                      </Text>
+                    </View>
+                    {isActive ? (
+                      <View style={styles.activeProfileBadge}>
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={18}
+                          color="#059669"
+                        />
+                        <Text style={styles.activeProfileBadgeText}>
+                          {language === 'ar' ? 'النشط حالياً' : 'Active'}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </TouchableOpacity>
+
+                  {profiles.length > 1 && (
+                    <TouchableOpacity
+                      style={styles.deleteProfileIconBtn}
+                      onPress={() => handleDeleteChild(p.id, p.name)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                    </TouchableOpacity>
+                  )}
+                </View>
               );
             })}
           </View>
@@ -253,6 +372,136 @@ export default function ParentsCornerScreen() {
               </TouchableOpacity>
             </View>
           )}
+        </View>
+
+        {/* Children Progress Reports Section (Isolated per child on this device) */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="stats-chart" size={20} color="#0284c7" />
+            <Text style={styles.sectionTitle}>
+              {language === 'ar'
+                ? 'سجل إنجازات وتقدم الأطفال (مستقل لكل طفل على هذا الجهاز)'
+                : 'Children Progress Reports (Independent per child)'}
+            </Text>
+          </View>
+
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'تُعرض هنا إنجازات كل طفل بشكل منفصل بناءً على البيانات المخزنة محلياً على هذا الجهاز فقط، دون مزامنة مع أي جهاز آخر.'
+              : 'Each child’s progress is tracked independently and saved locally on this device only without cross-device sync.'}
+          </Text>
+
+          <View style={styles.childReportsList}>
+            {profiles.map((p) => {
+              const childProg = getChildProgress(p.id);
+              const isActive = p.id === activeProfileId;
+              const surahsCount = Object.values(childProg.surahProgress || {}).filter(
+                (s) => s.isCompleted
+              ).length;
+              const hadithsCount = Object.values(childProg.hadithProgress || {}).filter(
+                (h) => h.completed
+              ).length;
+              const storiesCount = Object.values(childProg.storyProgress || {}).filter(
+                (st) => st.completed
+              ).length;
+
+              return (
+                <View
+                  key={`report-${p.id}`}
+                  style={[
+                    styles.childReportCard,
+                    isActive && styles.childReportCardActive,
+                  ]}
+                >
+                  <View style={styles.childReportHeader}>
+                    <KidAvatar avatar={p.avatar} size={46} />
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={styles.childReportName}>{p.name}</Text>
+                        {isActive && (
+                          <View style={styles.activePillBadge}>
+                            <Text style={styles.activePillText}>
+                              {language === 'ar' ? 'الملف النشط' : 'Active'}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.childReportAge}>
+                        {p.ageBand === '4-6'
+                          ? t.ageBandExplorers
+                          : p.ageBand === '7-9'
+                          ? t.ageBandLearners
+                          : t.ageBandMinds}
+                      </Text>
+                    </View>
+
+                    {!isActive && (
+                      <TouchableOpacity
+                        style={styles.switchChildBtn}
+                        onPress={() => setActiveProfile(p.id)}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.switchChildBtnText}>
+                          {language === 'ar' ? 'تفعيل ↺' : 'Switch ↺'}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  {/* Stats Grid */}
+                  <View style={styles.childStatsGrid}>
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>⭐</Text>
+                      <Text style={styles.childStatValue}>{childProg.stars}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'النجوم' : 'Stars'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>💎</Text>
+                      <Text style={styles.childStatValue}>{childProg.gems}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'الجواهر' : 'Gems'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>🔥</Text>
+                      <Text style={styles.childStatValue}>{childProg.streakCount}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'أيام متتالية' : 'Streak'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>📖</Text>
+                      <Text style={styles.childStatValue}>{surahsCount}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'سور مكتملة' : 'Surahs'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>📜</Text>
+                      <Text style={styles.childStatValue}>{hadithsCount}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'أحاديث' : 'Hadiths'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.childStatBox}>
+                      <Text style={styles.childStatEmoji}>🕌</Text>
+                      <Text style={styles.childStatValue}>{storiesCount}</Text>
+                      <Text style={styles.childStatLabel}>
+                        {language === 'ar' ? 'قصص الأنبياء' : 'Stories'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         {/* Daily Time Limit (PA3) */}
@@ -638,6 +887,12 @@ export default function ParentsCornerScreen() {
             <Text style={styles.sectionTitle}>{t.parentPin}</Text>
           </View>
 
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'رمز الحماية (PIN) يُحفظ محلياً على هذا الجهاز فقط لحماية قسم الأهل، ولا يتم إرساله أو تخزينه خارج الجهاز إطلاقاً.'
+              : 'Your security PIN is saved strictly in local storage on this device only and is never transmitted externally.'}
+          </Text>
+
           <View style={styles.pinRow}>
             <TextInput
               style={styles.pinInput}
@@ -712,6 +967,53 @@ export default function ParentsCornerScreen() {
           </Text>
 
           <InstallAndroidModal />
+        </View>
+
+        {/* Offline Mode & External Features Transparency */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="cloud-offline" size={20} color="#059669" />
+            <Text style={styles.sectionTitle}>
+              {language === 'ar'
+                ? 'العمل دون إنترنت وشفافية الميزات الخارجية'
+                : 'Offline First & External Services Transparency'}
+            </Text>
+          </View>
+
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'يعمل التطبيق وجميع محتوياته التعليمية دون اتصال بالإنترنت، لحماية طفلك وتوفير بيئة تعليمية هادئة وآمنة.'
+              : 'The app and all its educational content work offline without internet, ensuring a calm, safe environment for your child.'}
+          </Text>
+
+          <View style={styles.offlineFeaturesBox}>
+            <Text style={styles.offlineBoxHeading}>
+              {language === 'ar' ? '✨ يعمل ١٠٠٪ دون اتصال بالإنترنت (Offline):' : '✨ 100% Offline Features:'}
+            </Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'سور جزء عمّ كاملة وسورة الفاتحة وآية الكرسي' : 'All Juz Amma Surahs, Al-Fatiha, and Ayat Al-Kursi'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'الأحاديث النبوية الشريفة الـ ٥٠ والـ ١٠٠ مع المعاني اللطيفة' : 'Noble Hadiths (50 & 100 collections) with kid-friendly meanings'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'قصص الأنبياء المصورة والاختبارات التفاعلية' : 'Prophets stories and quizzes'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'محاكي الوضوء ومحاكي الصلاة ثلاثي الأبعاد وأكاديمية الأركان' : '3D Wudu Simulator, 3D Salah Simulator, and Pillars Academy'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'المسبحة الذكية والأذكار اليومية ومولد الشهادات' : 'Kid Tasbih, daily adhkar, and certificate generator'}</Text>
+          </View>
+
+          <View style={[styles.offlineFeaturesBox, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD', marginTop: SPACING.sm }]}>
+            <Text style={[styles.offlineBoxHeading, { color: '#0369A1' }]}>
+              {language === 'ar' ? '🌐 ميزات خارجية تتطلب اتصالاً بالإنترنت:' : '🌐 External Features Requiring Internet:'}
+            </Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'استماع تلاوة القراء (بث صوتي مباشر من أرشيف EveryAyah المفتوح)' : 'Streaming audio recitations (from open EveryAyah CDN)'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'تحميل سور القرآن الكريم الكاملة خارج جزء عمّ (من AlQuran Cloud)' : 'Loading Surah texts outside Juz Amma (from AlQuran Cloud)'}</Text>
+            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'النطق الصوتي السحابي البديل في حال عدم توفر محرك أندرويد الصوتي' : 'Cloud TTS fallback if local Android voice synthesis engine is absent'}</Text>
+
+            <View style={styles.privacyAssurancePill}>
+              <Ionicons name="shield-checkmark" size={14} color="#059669" />
+              <Text style={styles.privacyAssurancePillText}>
+                {language === 'ar'
+                  ? 'تأكيد صارم: لا نرسل أي بيانات شخصية أو معلومات عن طفلك مع أي من هذه الطلبات الخارجية.'
+                  : 'Strict Guarantee: No personal data or child info is ever sent with these external requests.'}
+              </Text>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -1215,5 +1517,216 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     color: '#FFFFFF',
+  },
+  privacyCard: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1.5,
+    borderColor: '#A7F3D0',
+    ...SHADOWS.soft,
+    gap: SPACING.md,
+  },
+  privacyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  privacyIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#D1FAE5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  privacyTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#065F46',
+  },
+  privacyTagline: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047857',
+    marginTop: 2,
+    lineHeight: 17,
+  },
+  privacyBadgesList: {
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#D1FAE5',
+  },
+  privacyBadgeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  privacyBadgeText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#065F46',
+    lineHeight: 16,
+  },
+  privacyWarningBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#FFFBEB',
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm + 2,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  privacyWarningText: {
+    flex: 1,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#92400E',
+    lineHeight: 16,
+  },
+  activeProfileBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  activeProfileBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  deleteProfileIconBtn: {
+    padding: 8,
+    borderRadius: RADIUS.md,
+    backgroundColor: '#FEE2E2',
+    marginLeft: 6,
+  },
+  childReportsList: {
+    gap: SPACING.md,
+  },
+  childReportCard: {
+    backgroundColor: COLORS.cardAlt,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    gap: SPACING.md,
+  },
+  childReportCardActive: {
+    borderColor: '#0284c7',
+    backgroundColor: '#F0F9FF',
+  },
+  childReportHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+  },
+  childReportName: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: COLORS.text,
+  },
+  activePillBadge: {
+    backgroundColor: '#E0F2FE',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#7DD3FC',
+  },
+  activePillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#0369A1',
+  },
+  childReportAge: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  switchChildBtn: {
+    backgroundColor: '#0284c7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+  },
+  switchChildBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  childStatsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  childStatBox: {
+    flex: 1,
+    minWidth: '30%',
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    padding: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+  },
+  childStatEmoji: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  childStatValue: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: COLORS.text,
+  },
+  childStatLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  offlineFeaturesBox: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    gap: 6,
+  },
+  offlineBoxHeading: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#166534',
+    marginBottom: 2,
+  },
+  offlineBullet: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.text,
+    lineHeight: 18,
+  },
+  privacyAssurancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#DCFCE7',
+    padding: 8,
+    borderRadius: RADIUS.md,
+    marginTop: 6,
+  },
+  privacyAssurancePillText: {
+    flex: 1,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#15803D',
+    lineHeight: 16,
   },
 });

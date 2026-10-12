@@ -134,6 +134,14 @@ export const TRANSLATIONS = {
     parentPin: 'رمز الحماية (PIN)',
     changeLanguage: 'تغيير لغة التطبيق',
 
+    // Local Privacy & Multi-Child Progress (Strict on-device)
+    localStorageNotice: 'تُحفظ ملفات الأطفال وتقدمهم على هذا الجهاز فقط، ولا تتم مزامنتها مع أجهزة أخرى.',
+    localStorageWarning: 'تنبيه: حذف التطبيق أو مسح بياناته يؤدي إلى حذف ملفات الأطفال والتقدم المحفوظين نهائياً.',
+    childrenProgressReports: 'تقارير إنجازات وتقدم الأطفال (مستقل لكل طفل)',
+    localPinNotice: 'رمز PIN محلي بالكامل يُحفظ على هذا الجهاز لحماية قسم الأهل دون إرساله لأي جهة.',
+    offlineNoticeTitle: 'العمل دون إنترنت وشفافية الميزات الخارجية',
+    offlineNoticeDesc: 'يعمل محتوى التطبيق الأساسي (جزء عم، الأحاديث، القصص، محاكي الوضوء والصلاة، المسبحة) دون إنترنت. التلاوات الصوتية فقط تُبث من خوادم EveryAyah دون إرسال أي بيانات شخصية.',
+
     // Common
     continue: 'متابعة',
     start: 'ابدأ الآن',
@@ -275,6 +283,14 @@ export const TRANSLATIONS = {
     contentSettings: 'Content & Recitation Settings',
     parentPin: 'Security PIN',
     changeLanguage: 'Change Language',
+
+    // Local Privacy & Multi-Child Progress (Strict on-device)
+    localStorageNotice: 'Child profiles and progress are saved strictly on this device only and are never synced with other devices.',
+    localStorageWarning: 'Notice: Deleting the app or clearing its data will permanently delete all stored child profiles and progress.',
+    childrenProgressReports: 'Children Progress Reports (Independent per child)',
+    localPinNotice: 'Local security PIN stored on this device only to protect parent settings, never sent to external servers.',
+    offlineNoticeTitle: 'Offline Mode & External Services Transparency',
+    offlineNoticeDesc: 'Core educational content (Juz Amma, Hadiths, Stories, Wudu & Salah simulators, Tasbih) works 100% offline. Audio recitations stream directly from EveryAyah without sending any personal data.',
 
     // Common
     continue: 'Continue',
