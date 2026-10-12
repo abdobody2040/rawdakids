@@ -1,5 +1,4 @@
-// Kid-Friendly 3D Tasbih Counter Modal (مسبحة الأذكار التفاعلية للأطفال)
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -108,64 +107,68 @@ const DHIKR_LIST: DhikrItem[] = [
   },
 ];
 
-// Web Audio API Synthesizer (Zero external dependencies)
-type WindowWithWebAudio = {
-  AudioContext?: new () => AudioContext;
-  webkitAudioContext?: new () => AudioContext;
-};
+// Web Audio API Synthesizer (Singleton)
+let sharedAudioCtx: any = null;
+
+function getSharedAudioContext(): any {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
+  try {
+    const win = window as any;
+    const AudioCtx = win.AudioContext || win.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new AudioCtx();
+    }
+    if (sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume().catch(() => {});
+    }
+    return sharedAudioCtx;
+  } catch {
+    return null;
+  }
+}
 
 function playBeadClickSound() {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    try {
-      const win = window as WindowWithWebAudio;
-      const AudioCtx = win.AudioContext || win.webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.09);
-      }
-    } catch (_err) {
-      // AudioContext not allowed or unsupported in current environment
-    }
-  }
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(620, now);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.linearRampToValueAtTime(0.001, now + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.06);
+  } catch (_) {}
 }
 
 function playCompletionChimeSound() {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    try {
-      const win = window as WindowWithWebAudio;
-      const AudioCtx = win.AudioContext || win.webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
-        const chords = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-        chords.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
-          gain.gain.setValueAtTime(0.25, ctx.currentTime + idx * 0.12);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.4);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + idx * 0.12);
-          osc.stop(ctx.currentTime + idx * 0.12 + 0.45);
-        });
-      }
-    } catch (_err) {
-      // AudioContext not allowed or unsupported
-    }
-  }
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
+    const chords = [523.25, 659.25, 783.99, 1046.5];
+    const now = ctx.currentTime;
+    chords.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = now + idx * 0.09;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.linearRampToValueAtTime(0.001, t + 0.32);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.35);
+    });
+  } catch (_) {}
 }
 
-interface Props {
+export interface Props {
   visible: boolean;
   onDismiss: () => void;
   initialDhikrId?: string;
@@ -187,9 +190,9 @@ export default function KidTasbihModal({
   const [completedRounds, setCompletedRounds] = useState<number>(0);
   const [justCompletedTarget, setJustCompletedTarget] = useState<boolean>(false);
 
-  // Animation values (useState initialized once to comply with react-hooks rules)
-  const [scaleAnim] = useState(() => new Animated.Value(1));
-  const [pulseAnim] = useState(() => new Animated.Value(1));
+  // Animation values
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const target = activeDhikr.defaultTarget;
   const progressPercent = Math.min(100, Math.round((count / target) * 100));
@@ -207,19 +210,13 @@ export default function KidTasbihModal({
     }
 
     // 2. Button Bounce Animation
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.92,
-        duration: 70,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 4,
-        tension: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    scaleAnim.setValue(0.92);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      tension: 120,
+      useNativeDriver: false,
+    }).start();
 
     // 3. Counter increment
     const nextCount = count + 1;
@@ -239,12 +236,12 @@ export default function KidTasbihModal({
         Animated.timing(pulseAnim, {
           toValue: 1.25,
           duration: 180,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
         Animated.spring(pulseAnim, {
           toValue: 1,
           friction: 4,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
       ]).start();
 
@@ -303,6 +300,7 @@ export default function KidTasbihModal({
           </View>
 
           <ScrollView
+            style={{ flex: 1 }}
             contentContainerStyle={styles.scrollBody}
             showsVerticalScrollIndicator={false}
           >
