@@ -2,6 +2,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const zlib = require('zlib');
+
+const gzipStaticCache = new Map();
 
 const PORT = 3000;
 const DIST_DIR = path.join(__dirname, 'dist');
@@ -643,6 +646,9 @@ const server = http.createServer(async (req, res) => {
 
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  const acceptEncoding = (req.headers['accept-encoding'] || '').toLowerCase();
+  const supportsGzip = acceptEncoding.includes('gzip');
+  const isCompressible = ['.html', '.js', '.css', '.json', '.svg'].includes(ext);
 
   fs.readFile(filePath, (err, content) => {
     if (err) {
@@ -674,17 +680,47 @@ if ('serviceWorker' in navigator) {
         if (htmlStr.includes('</head>')) {
           htmlStr = htmlStr.replace('</head>', pwaHeadTags + '</head>');
         }
-        res.writeHead(200, {
-          'Content-Type': contentType,
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        });
-        res.end(htmlStr, 'utf-8');
+
+        const htmlBuffer = Buffer.from(htmlStr, 'utf-8');
+        if (supportsGzip) {
+          const gzipped = zlib.gzipSync(htmlBuffer);
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Encoding': 'gzip',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          });
+          res.end(gzipped);
+        } else {
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          });
+          res.end(htmlBuffer);
+        }
       } else {
-        res.writeHead(200, {
-          'Content-Type': contentType,
-          'Cache-Control': ext === '.js' || ext === '.css' ? 'public, max-age=31536000, immutable' : 'public, max-age=86400',
-        });
-        res.end(content);
+        const cacheControl = ext === '.js' || ext === '.css'
+          ? 'public, max-age=31536000, immutable'
+          : 'public, max-age=86400';
+
+        if (supportsGzip && isCompressible) {
+          let gzipped = gzipStaticCache.get(filePath);
+          if (!gzipped) {
+            gzipped = zlib.gzipSync(content);
+            gzipStaticCache.set(filePath, gzipped);
+          }
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Encoding': 'gzip',
+            'Cache-Control': cacheControl,
+          });
+          res.end(gzipped);
+        } else {
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': cacheControl,
+          });
+          res.end(content);
+        }
       }
     }
   });

@@ -174,7 +174,10 @@ export interface AppState {
 
 const STORAGE_KEY = '@noor_kids_app_state_v1';
 
-const persistState = async (state: AppState) => {
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingPersistState: AppState | null = null;
+
+const executeSave = async (state: AppState) => {
   try {
     const currentActiveProgress: ChildProgressData = {
       surahProgress: state.surahProgress,
@@ -224,6 +227,19 @@ const persistState = async (state: AppState) => {
   } catch {
     // ignore
   }
+};
+
+const persistState = (state: AppState) => {
+  pendingPersistState = state;
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+  }
+  persistTimer = setTimeout(() => {
+    if (pendingPersistState) {
+      executeSave(pendingPersistState);
+      pendingPersistState = null;
+    }
+  }, 250);
 };
 
 export const useAppStore = create<AppState>((set, get) => ({

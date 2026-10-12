@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAppStore } from '@/store/useAppStore';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import AppSplashScreen from '@/components/AppSplashScreen';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
@@ -29,11 +29,9 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
 }
 
 export default function RootLayout() {
-  const {
-    hydrate,
-    isHydrated,
-    incrementTimeSpent,
-  } = useAppStore();
+  const hydrate = useAppStore((s) => s.hydrate);
+  const isHydrated = useAppStore((s) => s.isHydrated);
+  const incrementTimeSpent = useAppStore((s) => s.incrementTimeSpent);
 
   const [splashVisible, setSplashVisible] = useState(true);
 
@@ -46,10 +44,10 @@ export default function RootLayout() {
     if (isHydrated) {
       SplashScreen.hideAsync().catch(() => {});
     }
-    // Safety fallback timeout: never let native splash freeze longer than 1.2s
+    // Safety fallback timeout: never let native splash freeze longer than 800ms
     const timer = setTimeout(() => {
       SplashScreen.hideAsync().catch(() => {});
-    }, 1200);
+    }, 800);
     return () => clearTimeout(timer);
   }, [isHydrated]);
 
@@ -95,7 +93,7 @@ export default function RootLayout() {
         {splashVisible && (
           <AppSplashScreen
             onFinish={() => setSplashVisible(false)}
-            minDurationMs={1500}
+            minDurationMs={Platform.OS === 'web' ? 400 : 1000}
           />
         )}
 
