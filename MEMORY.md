@@ -1004,11 +1004,26 @@
   4. **Wudu & Salah Learning Card Copy Update:**
      - Title: «تعلَّم كيف تتوضأ وتصلي خطوة بخطوة»
      - Subtitle: «محاكي الوضوء (٨ خطوات) • محاكي الصلاة (١٠ خطوات) • أركان وسنن الصلاة»
+### Milestone 57: Morning & Evening Adhkar (أذكار الصباح والمساء) & Tasbih Counter Integration
+- **Context & Requirement:** Added dedicated Morning and Evening Adhkar with authentic Hadith references, full Tashkeel, interactive tap counters, virtues/rewards, and audio playback; clearly highlighted and integrated the 3D Tasbih Counter (`/sunnah/tasbih`) from multiple entry points.
+- **Implementation & Deliverables:**
+  1. **Dataset (`src/data/adhkarData.ts`):**
+     - Sourced authentic Morning Adhkar (Ayat al-Kursi, Al-Mu'awwidhat, Asbahna wa Asbahal-Mulk lillah, Sayyid al-Istighfar, Bismillahil-ladhi la yadurru..., Raditu billah, Ya Hayyu Ya Qayyum, Hasbiyallah x7, Subhanallahi wa bihamdih).
+     - Sourced authentic Evening Adhkar (Ayat al-Kursi, Al-Mu'awwidhat, Amsayna wa Amsal-Mulk lillah, Sayyid al-Istighfar, A'udhu bi-kalimatillahi al-tammati..., Bismillahil-ladhi..., Khawateem Al-Baqarah).
+     - Full Tashkeel, transliteration, English translation, authentic Hadith grading, and repetition counts.
+  2. **Dedicated Interactive Screen (`src/app/sunnah/adhkar.tsx`):**
+     - Morning tab ☀️ (golden sunrise gradient) & Evening tab 🌙 (twilight starry gradient).
+     - Per-dhikr tap counter with completion celebration, progress bar, audio playback (`audioService.playDua`), and reward celebration modal.
+     - Direct in-header shortcut button to the Tasbih Rosary (`/sunnah/tasbih`).
+  3. **Multi-Point Navigation Integration:**
+     - **Top Tabs in Sunnah Path (`SunnahHeroHeader.tsx`):** Added `adhkar` tab («أذكار الصباح والمساء»).
+     - **Home Screen (`src/app/index.tsx`):** Added direct action pill «☀️ الأذكار» alongside «🎴 البطاقات» and «📿 المسبحة».
+     - **Smart Search (`SmartSearchModal.tsx`):** Added searchable item `feature-adhkar` and quick suggestion pill «أذكار الصباح والمساء».
 - **Verification & Code Health:**
   - `npx.cmd tsc --noEmit`: **0 errors**.
-  - `npx.cmd expo export --platform web`: **Exported all 22 static routes cleanly (code 0)**.
-  - `node scripts/test-e2e.js`: **65 / 65 PASSED (100%)**.
-  - Git commit: `0a1b0de` (*fix(profiles): prevent duplicate profiles on onboarding, add delete button and quick cleanup in switcher*).
+  - `npx.cmd expo export --platform web`: **Exported all 23 static routes cleanly (code 0)**.
+  - `node scripts/test-e2e.js`: **67 / 67 PASSED (100%)**.
+  - Git commits: `68dd912`.
 
 ---
 
