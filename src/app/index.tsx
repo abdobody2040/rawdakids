@@ -17,12 +17,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
 import { HADITHS_DATA } from '@/data/hadithData';
 import { audioService } from '@/services/audioService';
-import { SHADOWS, RADIUS } from "@/constants/theme";
+import { SHADOWS, RADIUS, SPACING } from "@/constants/theme";
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar from '@/components/KidAvatar';
 import ParentGateModal from '@/components/ParentGateModal';
 import SmartSearchModal from '@/components/SmartSearchModal';
+import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
 
 const HERO_OASIS_IMG = require('../../assets/images/hero-oasis.jpg');
@@ -89,6 +90,7 @@ export default function HomeScreen() {
   const [showHadithReward, setShowHadithReward] = useState(false);
   const [parentGateVisible, setParentGateVisible] = useState(false);
   const [showSmartSearch, setShowSmartSearch] = useState(false);
+  const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
 
   // Rotating Hadith of the Day based on day of year
   const [hadithOfTheDay] = useState(() => {
@@ -281,30 +283,46 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              {/* Child Profile & Greeting Row (Full width - never truncated!) */}
-              <TouchableOpacity
+              {/* Child Profile & Greeting Row (Full width with Switch Child Option) */}
+              <View
                 style={[
                   styles.profileGreetingBanner,
                   { flexDirection: isAr ? 'row-reverse' : 'row' },
                 ]}
-                onPress={() => router.push('/progress')}
-                activeOpacity={0.85}
               >
-                <View style={styles.avatarWrapper}>
-                  <KidAvatar avatar={activeProfile.avatar} size={46} />
-                  <View style={styles.avatarBadgeDot} />
-                </View>
-                <View style={[styles.greetingTextWrap, isAr && { alignItems: 'flex-end' }]}>
-                  <Text style={[styles.greetingSub, isAr && { textAlign: 'right' }]}>
-                    {isAr ? 'السلام عليكم ورحمة الله 🌿' : 'As-salamu alaykum 🌿'}
+                <TouchableOpacity
+                  style={{ flexDirection: isAr ? 'row-reverse' : 'row', alignItems: 'center', flex: 1, gap: SPACING.md }}
+                  onPress={() => router.push('/progress')}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.avatarWrapper}>
+                    <KidAvatar avatar={activeProfile.avatar} size={46} />
+                    <View style={styles.avatarBadgeDot} />
+                  </View>
+                  <View style={[styles.greetingTextWrap, isAr && { alignItems: 'flex-end' }]}>
+                    <Text style={[styles.greetingSub, isAr && { textAlign: 'right' }]}>
+                      {isAr ? 'السلام عليكم ورحمة الله 🌿' : 'As-salamu alaykum 🌿'}
+                    </Text>
+                    <Text style={[styles.greetingMain, isAr && { textAlign: 'right' }]}>
+                      {isAr ? 'أهلاً يا ' : 'Welcome, '}
+                      <Text style={styles.greetingName}>{activeProfile.name}</Text>
+                      {' 🌟'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Switch Child Button */}
+                <TouchableOpacity
+                  style={styles.switchChildHeaderBtn}
+                  onPress={() => setShowProfileSwitcher(true)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="swap-horizontal" size={15} color="#047857" />
+                  <Text style={styles.switchChildHeaderBtnText}>
+                    {isAr ? 'تبديل ↺' : 'Switch ↺'}
                   </Text>
-                  <Text style={[styles.greetingMain, isAr && { textAlign: 'right' }]}>
-                    {isAr ? 'أهلاً يا ' : 'Welcome, '}
-                    <Text style={styles.greetingName}>{activeProfile.name}</Text>
-                    {' 🌟'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
 
               {/* Row 2: Gamification Stats Bar (Streak, Stars, Gems) */}
               <View
@@ -794,6 +812,12 @@ export default function HomeScreen() {
         visible={showSmartSearch}
         onDismiss={() => setShowSmartSearch(false)}
       />
+
+      {/* Switch Child Profile Modal */}
+      <ChildProfileSwitchModal
+        visible={showProfileSwitcher}
+        onClose={() => setShowProfileSwitcher(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -898,6 +922,22 @@ const styles = StyleSheet.create({
   },
   greetingName: {
     color: '#d97706',
+  },
+  switchChildHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  switchChildHeaderBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#047857',
   },
   headerActionBtns: {
     flexDirection: 'row',

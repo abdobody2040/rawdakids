@@ -973,9 +973,19 @@
   - Upgraded **Security PIN** protection note: PIN is stored purely in local memory on this device, never transmitted anywhere.
   - Added **Offline Mode & External Features Transparency Card**:
     - Discloses 100% offline educational modules vs external streaming requests (EveryAyah audio CDN & AlQuran Cloud), explicitly confirming that zero personal data is ever transmitted with external requests.
+### Milestone 55: Interactive Child Profile Switcher (`ChildProfileSwitchModal`) Across Home, Header & Progress
+- **Created `ChildProfileSwitchModal` (`src/components/ChildProfileSwitchModal.tsx`):**
+  - Instant interactive modal enabling children and parents to switch between active profiles with a single tap.
+  - Displays all child profiles on the device with 3D avatars, names, age categories, and active badge indicator.
+  - Includes stats previews (⭐ stars, 💎 gems, 📖 surahs) per child.
+  - Built-in quick child creator form with custom avatar upload/preset picker and age band selector.
+- **Screen Integrations:**
+  - **Home Screen (`src/app/index.tsx`):** Added a dedicated «تبديل ↺» pill button right on the top child greeting banner, and clicking the banner opens the switch modal.
+  - **Global Header (`src/components/Header.tsx`):** Tapping the child profile avatar/name chip in the header now opens `ChildProfileSwitchModal`.
+  - **Progress Screen (`src/app/progress/index.tsx`):** Added a «تبديل ↺» button directly on the child profile header banner.
 - **Verification:**
   - TypeScript zero errors (`npx.cmd tsc --noEmit` -> 0 errors).
-  - Security audit: **23 / 23 PASSED (100%)**.
+  - Web export build refreshed cleanly (`entry-0aeb676020ea216dc4b7e3ce76f6479a.js`).
   - E2E test suite: **65 / 65 PASSED (100%)**.
 
 ---

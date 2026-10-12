@@ -15,6 +15,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import KidAvatar from '@/components/KidAvatar';
 import AchievementCertificateModal from '@/components/AchievementCertificateModal';
+import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
 import { ALL_114_SURAHS_CATALOG, SurahMeta } from '@/data/quranData';
 
 const METRIC_IMAGES = {
@@ -58,6 +59,7 @@ export default function MyProgressScreen() {
       : 100;
 
   const [showCertModal, setShowCertModal] = useState<boolean>(false);
+  const [showProfileSwitcher, setShowProfileSwitcher] = useState<boolean>(false);
   const [certTitle, setCertTitle] = useState<string>(
     language === 'ar' ? 'رحلة الإيمان والقرآن' : 'Journey of Faith & Quran'
   );
@@ -99,6 +101,16 @@ export default function MyProgressScreen() {
                 : t.ageBandMinds}
             </Text>
           </View>
+          <TouchableOpacity
+            style={styles.switchChildProgressBtn}
+            onPress={() => setShowProfileSwitcher(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="swap-horizontal" size={15} color="#059669" />
+            <Text style={styles.switchChildProgressBtnText}>
+              {language === 'ar' ? 'تبديل ↺' : 'Switch ↺'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* 4 Achievements Counters with 3D Visual Badges */}
@@ -293,6 +305,12 @@ export default function MyProgressScreen() {
         title={certTitle}
         subtitle={certSub}
       />
+
+      {/* Switch Child Profile Modal */}
+      <ChildProfileSwitchModal
+        visible={showProfileSwitcher}
+        onClose={() => setShowProfileSwitcher(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -328,6 +346,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     color: COLORS.text,
+  },
+  switchChildProgressBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  switchChildProgressBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#065F46',
   },
   ageBandBadge: {
     fontSize: 12,

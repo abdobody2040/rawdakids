@@ -7,6 +7,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import ParentGateModal from './ParentGateModal';
 import SmartSearchModal from './SmartSearchModal';
+import ChildProfileSwitchModal from './ChildProfileSwitchModal';
 
 const ICON_STAR_IMG = require('../../assets/images/icon-star-3d.jpg');
 const ICON_GEM_IMG = require('../../assets/images/icon-gem-3d.jpg');
@@ -41,6 +42,7 @@ export default function Header({
 
   const [parentGateVisible, setParentGateVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [profileSwitcherVisible, setProfileSwitcherVisible] = useState(false);
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
 
@@ -96,7 +98,7 @@ export default function Header({
         ) : (
           <TouchableOpacity
             style={styles.profileBadge}
-            onPress={() => router.push('/progress')}
+            onPress={() => setProfileSwitcherVisible(true)}
             activeOpacity={0.7}
           >
             <View style={styles.headerMascotBox}>
@@ -105,6 +107,7 @@ export default function Header({
             <Text style={styles.profileName} numberOfLines={1}>
               {activeProfile?.name || 'البطل'}
             </Text>
+            <Ionicons name="swap-horizontal" size={12} color="#059669" style={{ marginLeft: 2 }} />
           </TouchableOpacity>
         )}
 
@@ -197,6 +200,11 @@ export default function Header({
       <SmartSearchModal
         visible={searchModalVisible}
         onDismiss={() => setSearchModalVisible(false)}
+      />
+
+      <ChildProfileSwitchModal
+        visible={profileSwitcherVisible}
+        onClose={() => setProfileSwitcherVisible(false)}
       />
     </View>
   );
