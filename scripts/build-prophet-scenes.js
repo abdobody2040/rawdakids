@@ -417,7 +417,7 @@ const PROPHET_DETAILED_STAGES = {
 };
 
 // Fill in other prophets with high-quality child-friendly themes if not explicitly custom
-PROPHET_METADATA_LIST.forEach((p, pIndex) => {
+PROPHET_METADATA_LIST.forEach((p, _pIndex) => {
   if (PROPHET_DATA.some(existing => existing.id === p.id)) {
     return;
   }

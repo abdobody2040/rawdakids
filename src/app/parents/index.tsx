@@ -1,5 +1,5 @@
 // Parents' Corner (Section 5.6 - ركن الوالدين)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,9 @@ import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
+import InstallAndroidModal from '@/components/InstallAndroidModal';
 import { RECITERS } from '@/data/quranData';
+import { notificationService, DEFAULT_KID_REMINDERS } from '@/services/notificationService';
 
 export default function ParentsCornerScreen() {
   const {
@@ -42,6 +44,23 @@ export default function ParentsCornerScreen() {
   const [newChildAvatar, setNewChildAvatar] = useState('av-girl1');
 
   const [pinInput, setPinInput] = useState(parentSettings.pin);
+  const [testNotificationSent, setTestNotificationSent] = useState(false);
+
+  const handleTestNotification = async () => {
+    const granted = await notificationService.requestPermission();
+    if (granted) {
+      const sent = await notificationService.sendNotification(
+        language === 'ar' ? '🌟 نور للأطفال' : '🌟 Noor Kids',
+        language === 'ar'
+          ? 'أهلاً بك يا بطل! حان وقت وردك القرآني ودعاء المساء المبارك 📖'
+          : 'Welcome, young champion! Time for your Quran Garden recitation and evening Dua 📖'
+      );
+      if (sent) {
+        setTestNotificationSent(true);
+        setTimeout(() => setTestNotificationSent(false), 4000);
+      }
+    }
+  };
 
   const handleUploadAvatarChild = () => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -552,6 +571,66 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
+        {/* Daily Kid Gentle Reminders Card (PA6 / Push Notifications) */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="notifications" size={20} color={COLORS.primaryDark} />
+            <Text style={styles.sectionTitle}>
+              {language === 'ar' ? 'التنبيهات اليومية اللطيفة للطفل' : 'Daily Gentle Reminders'}
+            </Text>
+          </View>
+
+          <Text style={styles.remindersSubtext}>
+            {language === 'ar'
+              ? 'تذكيرات محببة غير مزعجة في مواعيد مناسبة لتحفيز الطفل على ورد القرآن والأذكار اليومية:'
+              : 'Gentle, friendly reminders to encourage your child to learn and practice daily:'}
+          </Text>
+
+          <View style={styles.remindersList}>
+            {DEFAULT_KID_REMINDERS.map((rem) => (
+              <View
+                key={rem.id}
+                style={[
+                  styles.reminderItemRow,
+                  { flexDirection: language === 'ar' ? 'row-reverse' : 'row' },
+                ]}
+              >
+                <View style={styles.reminderTimeBadge}>
+                  <Text style={styles.reminderTimeText}>{rem.timeLabel}</Text>
+                </View>
+                <View style={[styles.reminderTextCol, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
+                  <Text style={styles.reminderItemTitle}>
+                    {language === 'ar' ? rem.titleAr : rem.titleEn}
+                  </Text>
+                  <Text style={styles.reminderItemBody}>
+                    {language === 'ar' ? rem.bodyAr : rem.bodyEn}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.testNotificationBtn,
+              testNotificationSent && styles.testNotificationBtnSuccess,
+            ]}
+            onPress={handleTestNotification}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={testNotificationSent ? 'checkmark-circle' : 'notifications-outline'}
+              size={18}
+              color="#FFFFFF"
+            />
+            <Text style={styles.testNotificationBtnText}>
+              {testNotificationSent
+                ? (language === 'ar' ? '✓ تم إرسال التنبيه التجريبي بنجاح!' : '✓ Test Notification Sent!')
+                : (language === 'ar' ? 'إرسال تنبيه تجريبي لهاتف الطفل الآن 🔔' : 'Send Test Notification Now 🔔')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Security PIN Setting */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -615,6 +694,24 @@ export default function ParentsCornerScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* App Installation on Child's Device (Android / PWA) */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="phone-portrait" size={20} color={COLORS.primary} />
+            <Text style={styles.sectionTitle}>
+              {language === 'ar' ? 'تثبيت التطبيق على جهاز الطفل' : 'Install App on Child’s Device'}
+            </Text>
+          </View>
+
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'يمكنك تثبيت تطبيق "نور للأطفال" كـ تطبيق أصلي مستقل على هاتف أو جهاز طفلك اللوحي (أندرويد) ليعمل مباشرة وبدون الحاجة لمتجر التطبيقات.'
+              : 'You can install Noor Kids as a standalone app on your child’s Android phone or tablet directly without an app store.'}
+          </Text>
+
+          <InstallAndroidModal />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -1054,5 +1151,69 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: COLORS.textLight,
+  },
+  remindersSubtext: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    marginBottom: SPACING.md,
+  },
+  remindersList: {
+    gap: 8,
+    marginBottom: SPACING.md,
+  },
+  reminderItemRow: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    gap: 10,
+  },
+  reminderTimeBadge: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  reminderTimeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  reminderTextCol: {
+    flex: 1,
+  },
+  reminderItemTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  reminderItemBody: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  testNotificationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: RADIUS.lg,
+    ...SHADOWS.soft,
+  },
+  testNotificationBtnSuccess: {
+    backgroundColor: '#059669',
+  },
+  testNotificationBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
 });

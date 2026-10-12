@@ -63,6 +63,7 @@ async function runRouteTests() {
     { path: '/sunnah', expectedContent: 'html' },
     { path: '/sunnah/duas', expectedContent: 'html' },
     { path: '/sunnah/cards', expectedContent: 'html' },
+    { path: '/sunnah/tasbih', expectedContent: 'html' },
     { path: '/prophets', expectedContent: 'html' },
     { path: '/prophets/1', expectedContent: 'html' },
     { path: '/prophets/25', expectedContent: 'html' },
@@ -73,6 +74,18 @@ async function runRouteTests() {
     { path: '/progress', expectedContent: 'html' },
     { path: '/parents', expectedContent: 'html' },
     { path: '/onboarding', expectedContent: 'html' },
+    { path: '/arkan', expectedContent: 'html' },
+    { path: '/arkan/shahada', expectedContent: 'html' },
+    { path: '/arkan/salah', expectedContent: 'html' },
+    { path: '/arkan/zakah', expectedContent: 'html' },
+    { path: '/arkan/sawm', expectedContent: 'html' },
+    { path: '/arkan/hajj', expectedContent: 'html' },
+    { path: '/arkan/iman_allah', expectedContent: 'html' },
+    { path: '/arkan/iman_angels', expectedContent: 'html' },
+    { path: '/arkan/iman_books', expectedContent: 'html' },
+    { path: '/arkan/iman_messengers', expectedContent: 'html' },
+    { path: '/arkan/iman_lastday', expectedContent: 'html' },
+    { path: '/arkan/iman_qadar', expectedContent: 'html' },
   ];
 
   for (const r of routes) {
@@ -106,6 +119,15 @@ async function runImageTests() {
     '/assets/images/splash-screen.jpg',
     '/assets/images/splash-icon.png',
     '/assets/images/android-icon-foreground.png',
+    '/assets/images/wudu-garden.jpg',
+    '/assets/images/salah-takbeer-3d.jpg',
+    '/assets/images/salah-tasleem-3d.jpg',
+    '/assets/images/wudu-mouth-boy.jpg',
+    '/assets/images/wudu-nose-girl.jpg',
+    '/assets/images/wudu-face-boy.jpg',
+    '/assets/images/wudu-arms-child.jpg',
+    '/assets/images/wudu-head-boy.jpg',
+    '/assets/images/wudu-feet-child.jpg',
   ];
 
   for (const img of images) {
@@ -284,8 +306,48 @@ async function runDataIntegrityTests() {
       has100Hadiths && hasDuaEntries,
       `Hadiths: ${uniqueHadiths.size}, Duas: ${duaCount}`
     );
+
+    // Arkan Academy & Simulator Tests
+    const arkanCode = fs.readFileSync(path.join(__dirname, '../src/data/arkanData.ts'), 'utf-8');
+    const hasIslamData = arkanCode.includes('ARKAN_ISLAM_DATA');
+    const hasImanData = arkanCode.includes('ARKAN_IMAN_DATA');
+    const hasWuduSteps = (arkanCode.match(/step:\s*\d+/g) || []).length >= 8;
+    const hasPillarsCount = (arkanCode.match(/id:\s*['"](?:shahada|salah|zakah|sawm|hajj|iman_allah|iman_angels|iman_books|iman_messengers|iman_lastday|iman_qadar)['"]/g) || []).length === 11;
+
+    recordTest(
+      'Dataset Integrity',
+      'Arkan Academy dataset populated with all 5 Pillars of Islam & 6 Pillars of Iman',
+      hasIslamData && hasImanData && hasPillarsCount,
+      'Pillars count mismatch'
+    );
+
+    recordTest(
+      'Dataset Integrity',
+      'Wudu (Ablution) 8-step interactive simulator loaded with authentic steps & Duas',
+      hasWuduSteps,
+      'Wudu steps missing or incomplete'
+    );
+
+    // Service Integrations Sanity Check
+    const voiceServiceCode = fs.readFileSync(path.join(__dirname, '../src/services/voiceRecordService.ts'), 'utf-8');
+    const hasVoiceRecordMethods = voiceServiceCode.includes('startRecording') && voiceServiceCode.includes('stopRecording') && voiceServiceCode.includes('playRecording');
+    recordTest(
+      'Service Integrity',
+      'Child Voice Recorder Service exports start, stop, and play recording APIs',
+      hasVoiceRecordMethods,
+      'Voice service missing required methods'
+    );
+
+    const notifServiceCode = fs.readFileSync(path.join(__dirname, '../src/services/notificationService.ts'), 'utf-8');
+    const hasNotifMethods = notifServiceCode.includes('sendNotification') && notifServiceCode.includes('requestPermission');
+    recordTest(
+      'Service Integrity',
+      'Local Push Notifications Service exports sendNotification and requestPermission APIs',
+      hasNotifMethods,
+      'Notification service missing required methods'
+    );
   } catch (e) {
-    recordTest('Dataset Integrity', `Hadiths and Duas parsed cleanly`, false, e.message);
+    recordTest('Dataset Integrity', `Data and Services parsed cleanly`, false, e.message);
   }
 }
 

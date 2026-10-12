@@ -1,5 +1,5 @@
 // Home Screen: Noor Kids — Magical Learning Journey (رحلة النور الإيمانية)
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -17,12 +17,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
 import { HADITHS_DATA } from '@/data/hadithData';
 import { audioService } from '@/services/audioService';
-import { SHADOWS } from '@/constants/theme';
+import { SHADOWS, RADIUS } from "@/constants/theme";
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar from '@/components/KidAvatar';
 import ParentGateModal from '@/components/ParentGateModal';
-import InstallAndroidModal from '@/components/InstallAndroidModal';
+import SmartSearchModal from '@/components/SmartSearchModal';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
 
 const HERO_OASIS_IMG = require('../../assets/images/hero-oasis.jpg');
@@ -44,6 +44,8 @@ const WORLD_IMAGES: Record<string, any> = {
   sunnah: require('../../assets/images/sunnah-path.jpg'),
   prophets: require('../../assets/images/prophets-caravan.jpg'),
   manners: require('../../assets/images/manners-town.jpg'),
+  arkan: require('../../assets/images/hero-oasis.jpg'),
+  wudu: require('../../assets/images/wudu-garden.jpg'),
 };
 
 const WORLD_BADGE_IMAGES: Record<string, any> = {
@@ -51,7 +53,18 @@ const WORLD_BADGE_IMAGES: Record<string, any> = {
   sunnah: NAV_SUNNAH_IMG,
   prophets: NAV_PROPHETS_IMG,
   manners: NAV_HOME_IMG,
+  arkan: NAV_HOME_IMG,
+  wudu: ICON_GEM_IMG,
 };
+
+function formatTodayDate(isAr: boolean): string {
+  if (isAr) return 'الأحد، ٤ ربيع الأول';
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,6 +88,7 @@ export default function HomeScreen() {
   const [isPlayingHadith, setIsPlayingHadith] = useState(false);
   const [showHadithReward, setShowHadithReward] = useState(false);
   const [parentGateVisible, setParentGateVisible] = useState(false);
+  const [showSmartSearch, setShowSmartSearch] = useState(false);
 
   // Rotating Hadith of the Day based on day of year
   const [hadithOfTheDay] = useState(() => {
@@ -105,6 +119,8 @@ export default function HomeScreen() {
     });
   };
 
+  const todayDateStr = useMemo(() => formatTodayDate(isAr), [isAr]);
+
   useEffect(() => {
     if (isHydrated && hasCompletedOnboarding) {
       recordDailyActivity();
@@ -123,18 +139,6 @@ export default function HomeScreen() {
     };
 
   const ageTone = getLocalizedAgeTone(activeProfile?.ageBand, language);
-
-  // Date formatting
-  const todayDateStr = isAr
-    ? 'الأحد، ٤ ربيع الأول'
-    : new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      });
-
-
-  // Content for the 4 worlds
   const worlds = [
     {
       id: 'quran',
@@ -171,6 +175,26 @@ export default function HomeScreen() {
       emoji: '🌟',
       gradient: ['#ffe8dc', '#fce3ed'] as const,
       route: '/manners',
+    },
+    {
+      id: 'arkan',
+      title: isAr ? 'أكاديمية الأركان' : 'Pillars Academy',
+      subtitle: isAr ? 'أركان الإسلام والإيمان الخمسة والستة' : 'Pillars of Islam & Iman',
+      count: isAr ? '١١ ركناً مباركاً' : '11 Pillars',
+      emoji: '🕌',
+      gradient: ['#fef3c7', '#fed7aa'] as const,
+      route: '/arkan',
+    },
+    {
+      id: 'wudu',
+      title: isAr ? 'تعلَّم كيف تتوضأ وتصلي خطوة بخطوة' : 'Learn How to Pray & Make Wudu',
+      subtitle: isAr
+        ? 'محاكي الوضوء (٨ خطوات) • محاكي الصلاة (١٠ خطوات) • أركان وسنن الصلاة'
+        : 'Wudu Simulator (8 steps) • Prayer Simulator (10 steps) • Pillars & Sunnahs',
+      count: isAr ? 'محاكي تفاعلي صوتي' : 'Audio Interactive Simulator',
+      emoji: '🌊',
+      gradient: ['#e0f2fe', '#bae6fd'] as const,
+      route: '/arkan/salah',
     },
   ];
 
@@ -327,8 +351,32 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {/* Android Install Banner (PWA 1-Tap Installation & Guidance) */}
-            <InstallAndroidModal />
+            {/* QUICK SMART SEARCH BAR (Feature 5) */}
+            <TouchableOpacity
+              style={[styles.homeSearchBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowSmartSearch(true)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.homeSearchIconWrap}>
+                <Ionicons name="search" size={18} color="#059669" />
+              </View>
+              <Text
+                style={[styles.homeSearchPlaceholder, { textAlign: isAr ? 'right' : 'left' }]}
+                numberOfLines={1}
+              >
+                {isAr
+                  ? 'ابحث في السور، الأحاديث، الأنبياء، الأدعية، والأخلاق...'
+                  : 'Search Surahs, Hadiths, Prophets, Duas & Manners...'}
+              </Text>
+              <View style={[styles.homeSearchActionBadge, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="sparkles" size={13} color="#D97706" />
+                <Text style={styles.homeSearchActionBadgeText}>
+                  {isAr ? 'بحث ذكي' : 'Search'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+
 
             {/* HERO BANNER: Oasis Night / Follow The Lantern */}
             <View style={styles.heroBannerWrapper}>
@@ -558,22 +606,33 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.hodCardsLinkText}>
-                      {isAr ? '🎴 كل البطاقات' : '🎴 Flashcards'}
+                      {isAr ? '🎴 البطاقات' : '🎴 Cards'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.hodCardsLink}
+                    onPress={() => router.push('/sunnah/tasbih')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hodCardsLinkText}>
+                      {isAr ? '📿 المسبحة' : '📿 Tasbih'}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </LinearGradient>
             </View>
 
-            {/* PICK A PATH: 4 WORLDS */}
+
+            {/* PICK A PATH: 5 WORLDS */}
             <View style={styles.worldsHeader}>
               <Text style={[styles.sectionTitle, isAr && { textAlign: 'right' }]}>
                 {isAr ? 'اختر مسارك يا بطل!' : 'Pick a path, little explorer!'}
               </Text>
               <Text style={[styles.worldsSubtitle, isAr && { textAlign: 'right' }]}>
                 {isAr
-                  ? 'أربعة عوالم مباركة بانتظار استكشافك!'
-                  : 'Four wonderful worlds are waiting for you!'}
+                  ? 'ستة عوالم مباركة بانتظار استكشافك!'
+                  : 'Six wonderful worlds are waiting for you!'}
               </Text>
             </View>
 
@@ -728,6 +787,12 @@ export default function HomeScreen() {
           setParentGateVisible(false);
           router.push('/parents');
         }}
+      />
+
+      {/* Instant Smart Search Modal (Feature 5) */}
+      <SmartSearchModal
+        visible={showSmartSearch}
+        onDismiss={() => setShowSmartSearch(false)}
       />
     </SafeAreaView>
   );
@@ -910,6 +975,47 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: '#334155',
+  },
+  homeSearchBar: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#A7F3D0',
+    borderRadius: RADIUS.xl,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    gap: 10,
+    width: '100%',
+    ...SHADOWS.soft,
+  },
+  homeSearchIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ECFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeSearchPlaceholder: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  homeSearchActionBadge: {
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+  },
+  homeSearchActionBadgeText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#92400E',
   },
   pillIcon: {
     width: 15,
@@ -1098,7 +1204,8 @@ const styles = StyleSheet.create({
     color: '#789087',
   },
 
-  // 4 WORLDS
+
+  // 5 WORLDS
   worldsHeader: {
     marginTop: 8,
   },

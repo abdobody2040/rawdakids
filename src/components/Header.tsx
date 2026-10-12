@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import ParentGateModal from './ParentGateModal';
+import SmartSearchModal from './SmartSearchModal';
 
 const ICON_STAR_IMG = require('../../assets/images/icon-star-3d.jpg');
 const ICON_GEM_IMG = require('../../assets/images/icon-gem-3d.jpg');
@@ -16,6 +17,7 @@ interface HeaderProps {
   title?: string;
   fallbackRoute?: string;
   onBack?: () => void;
+  showSearch?: boolean;
 }
 
 export default function Header({
@@ -23,6 +25,7 @@ export default function Header({
   title,
   fallbackRoute,
   onBack,
+  showSearch = true,
 }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,6 +40,7 @@ export default function Header({
   } = useAppStore();
 
   const [parentGateVisible, setParentGateVisible] = useState(false);
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
 
@@ -56,6 +60,8 @@ export default function Header({
     if (pathname === '/prophets') return '/';
     if (pathname.startsWith('/manners/')) return '/manners';
     if (pathname === '/manners') return '/';
+    if (pathname.startsWith('/arkan/')) return '/arkan';
+    if (pathname === '/arkan') return '/';
     return '/';
   };
 
@@ -136,6 +142,17 @@ export default function Header({
           <Text style={styles.statText}>{gems}</Text>
         </TouchableOpacity>
 
+        {/* Quick Smart Search Button */}
+        {showSearch && (
+          <TouchableOpacity
+            style={styles.searchHeaderBtn}
+            onPress={() => setSearchModalVisible(true)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="search" size={16} color="#059669" />
+          </TouchableOpacity>
+        )}
+
         {/* Language switch & Parent Lock (only on screens without back navigation) */}
         {!showBack && (
           <>
@@ -175,6 +192,11 @@ export default function Header({
         visible={parentGateVisible}
         onClose={() => setParentGateVisible(false)}
         onSuccess={onParentGateSuccess}
+      />
+
+      <SmartSearchModal
+        visible={searchModalVisible}
+        onDismiss={() => setSearchModalVisible(false)}
       />
     </View>
   );
@@ -304,6 +326,16 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: RADIUS.full,
     backgroundColor: COLORS.primaryLight + '22',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchHeaderBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
     alignItems: 'center',
     justifyContent: 'center',
   },

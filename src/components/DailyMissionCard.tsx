@@ -1,5 +1,4 @@
 // Daily Mission Card (≤ 10 min loop - Flow E)
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';

@@ -1,5 +1,5 @@
 // Good Manners Scenario Player & Value Pledge (E2, E3)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

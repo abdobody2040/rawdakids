@@ -1,18 +1,21 @@
-// My Progress Screen (Section 8 & 9 - إنجازاتي)
-import React from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import KidAvatar from '@/components/KidAvatar';
+import AchievementCertificateModal from '@/components/AchievementCertificateModal';
+import { ALL_114_SURAHS_CATALOG, SurahMeta } from '@/data/quranData';
 
 const METRIC_IMAGES = {
   quran: require('../../../assets/images/metric-quran.jpg'),
@@ -54,6 +57,26 @@ export default function MyProgressScreen() {
       ? Math.min(100, Math.round((timeSpentMin / parentSettings.dailyLimitMin) * 100))
       : 100;
 
+  const [showCertModal, setShowCertModal] = useState<boolean>(false);
+  const [certTitle, setCertTitle] = useState<string>(
+    language === 'ar' ? 'رحلة الإيمان والقرآن' : 'Journey of Faith & Quran'
+  );
+  const [certSub, setCertSub] = useState<string | undefined>(
+    language === 'ar' ? 'إتمام ومثابرة في حفظ كتاب الله والأخلاق' : 'Perseverance in Quran & Good Character'
+  );
+
+  const completedSurahsList = Object.entries(surahProgress)
+    .filter(([_, p]) => p.isCompleted)
+    .map(([numStr]) => {
+      const num = parseInt(numStr, 10);
+      const surahInfo = ALL_114_SURAHS_CATALOG.find((s: SurahMeta) => s.number === num);
+      return {
+        number: num,
+        nameArabic: surahInfo?.nameArabic || `سورة ${num}`,
+        nameTransliteration: surahInfo?.nameTransliteration || `Surah ${num}`,
+        totalAyahs: surahInfo?.ayahCount || 0,
+      };
+    });
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
@@ -185,7 +208,91 @@ export default function MyProgressScreen() {
             </View>
           </View>
         </View>
+
+        {/* Certificates of Honor & Achievement (شهادات التقدير والإنجاز) */}
+        <View style={styles.certSectionCard}>
+          <View style={[styles.certHeaderRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+            <View style={styles.certIconBadge}>
+              <Ionicons name="ribbon" size={24} color="#D97706" />
+            </View>
+            <View style={{ flex: 1, alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }}>
+              <Text style={styles.certSectionTitle}>
+                {language === 'ar' ? '📜 شهادات التقدير والإنجاز المباركة' : '📜 Certificates of Honor'}
+              </Text>
+              <Text style={styles.certSectionSubtitle}>
+                {language === 'ar'
+                  ? 'شهادات معتمدة باسم بطلك قابلة للعرض والطباعة أو الحفظ كـ PDF'
+                  : 'Downloadable & printable honor certificates for your champion'}
+              </Text>
+            </View>
+          </View>
+
+          {/* General Journey Certificate Button */}
+          <TouchableOpacity
+            style={styles.mainCertButton}
+            onPress={() => {
+              setCertTitle(language === 'ar' ? 'رحلة الإيمان والقرآن' : 'Journey of Faith & Quran');
+              setCertSub(
+                language === 'ar'
+                  ? `إتمام رائع ومثابرة بـ ${completedSurahs} سور محفوظة و ${streakCount} أيام مستمرة`
+                  : `Mastery of ${completedSurahs} Surahs & ${streakCount} day streak`
+              );
+              setShowCertModal(true);
+            }}
+            activeOpacity={0.85}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="sparkles" size={18} color="#FEF3C7" />
+              <Text style={styles.mainCertButtonText}>
+                {language === 'ar'
+                  ? 'عرض وطباعة شهادة التميز العام 🌟'
+                  : 'View General Honor Certificate 🌟'}
+              </Text>
+            </View>
+            <Ionicons name={language === 'ar' ? 'chevron-back' : 'chevron-forward'} size={18} color="#FEF3C7" />
+          </TouchableOpacity>
+
+          {/* Completed Surahs Certificates list */}
+          {completedSurahsList.length > 0 && (
+            <View style={styles.completedSurahsCertsBox}>
+              <Text style={[styles.completedCertsHeading, { textAlign: language === 'ar' ? 'right' : 'left' }]}>
+                {language === 'ar' ? 'شهادات السور المحفوظة:' : 'Surah Memorization Certificates:'}
+              </Text>
+              <View style={styles.certsChipsWrap}>
+                {completedSurahsList.map((cs) => (
+                  <TouchableOpacity
+                    key={cs.number}
+                    style={styles.surahCertChip}
+                    onPress={() => {
+                      setCertTitle(language === 'ar' ? cs.nameArabic : cs.nameTransliteration);
+                      setCertSub(
+                        language === 'ar'
+                          ? `حفظ كامل الآيات (${cs.totalAyahs} آيات) بإتقان وتجويد`
+                          : `Complete memorization of ${cs.totalAyahs} verses`
+                      );
+                      setShowCertModal(true);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="ribbon-outline" size={15} color="#047857" />
+                    <Text style={styles.surahCertChipText}>
+                      {language === 'ar' ? cs.nameArabic : cs.nameTransliteration}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
       </ScrollView>
+
+      {/* Achievement Certificate Modal (Feature 2) */}
+      <AchievementCertificateModal
+        visible={showCertModal}
+        onDismiss={() => setShowCertModal(false)}
+        title={certTitle}
+        subtitle={certSub}
+      />
     </SafeAreaView>
   );
 }
@@ -348,5 +455,88 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  certSectionCard: {
+    backgroundColor: '#FFFDF5',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    ...SHADOWS.medium,
+    gap: SPACING.md,
+  },
+  certHeaderRow: {
+    alignItems: 'center',
+    gap: 12,
+  },
+  certIconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderColor: '#F59E0B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  certSectionTitle: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#92400E',
+  },
+  certSectionSubtitle: {
+    fontSize: 12,
+    color: '#B45309',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  mainCertButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#047857',
+    paddingVertical: 14,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    ...SHADOWS.soft,
+  },
+  mainCertButtonText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  completedSurahsCertsBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  completedCertsHeading: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#475569',
+    marginBottom: 8,
+  },
+  certsChipsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  surahCertChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.full,
+  },
+  surahCertChipText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#065F46',
   },
 });

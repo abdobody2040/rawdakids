@@ -1,5 +1,5 @@
 // Surah Story & Tadabbur Modal (بطاقة قصة السورة وتدبرها للأطفال)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

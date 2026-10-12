@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -23,9 +23,10 @@ export default function InstallAndroidModal() {
 
   const isStandalone = () => {
     if (typeof window === 'undefined') return false;
+    const nav = window.navigator as Navigator & { standalone?: boolean };
     return (
       window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true
+      Boolean(nav.standalone)
     );
   };
 

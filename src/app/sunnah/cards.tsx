@@ -1,5 +1,5 @@
 // Hadith Flashcards Screen (بطاقات استذكار الأحاديث النبوية للأطفال)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
 import { HADITHS_DATA, KidHadith } from '@/data/hadithData';
@@ -21,6 +22,7 @@ import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { TRANSLATIONS } from '@/constants/i18n';
 
 export default function HadithFlashcardsScreen() {
+  const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const { width } = useWindowDimensions();
@@ -92,9 +94,21 @@ export default function HadithFlashcardsScreen() {
       <View style={styles.appContainer}>
         <Header
           showBack
+          fallbackRoute="/sunnah"
           title={t.sunnah}
         />
-        <SunnahHeroHeader activeTab="cards" />
+        <SunnahHeroHeader
+          activeTab="cards"
+          onTabChange={(tab) => {
+            if (tab === 'hadiths') {
+              router.replace('/sunnah');
+            } else if (tab === 'habits') {
+              router.replace({ pathname: '/sunnah', params: { tab: 'habits' } });
+            } else if (tab === 'duas') {
+              router.replace('/sunnah/duas');
+            }
+          }}
+        />
 
         <ScrollView
           style={{ flex: 1 }}

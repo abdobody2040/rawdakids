@@ -1,5 +1,5 @@
 // Ayah-by-Ayah Player Screen (Q1, Q2, Q3, Q4, Q5, Q10, Q11, Q13)
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,8 @@ import StarRewardCelebration from '@/components/StarRewardCelebration';
 import SurahStoryModal from '@/components/SurahStoryModal';
 import AyahTafsirModal from '@/components/AyahTafsirModal';
 import WordMeaningBubbleModal from '@/components/WordMeaningBubbleModal';
+import ChildVoiceRecorderModal from '@/components/ChildVoiceRecorderModal';
+import AchievementCertificateModal from '@/components/AchievementCertificateModal';
 import { quranWordsService } from '@/services/quranWordsService';
 import { WordMeaning } from '@/data/quranWordsData';
 
@@ -34,6 +36,9 @@ export default function SurahDetailScreen() {
     surahProgress,
     setAyahStatus,
     addSurahStars,
+    markSurahCompleted,
+    addStars,
+    addGems,
     parentSettings,
     downloadedSurahs,
     setSurahDownloaded,
@@ -88,6 +93,7 @@ export default function SurahDetailScreen() {
 
   const [showStoryModal, setShowStoryModal] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
+  const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
   const [selectedTafsirAyah, setSelectedTafsirAyah] = useState<Ayah | null>(null);
   const [playingTafsirAyahNum, setPlayingTafsirAyahNum] = useState<number | null>(null);
 
@@ -99,6 +105,9 @@ export default function SurahDetailScreen() {
   // Word-by-word tap meaning
   const [selectedWordMeaning, setSelectedWordMeaning] = useState<WordMeaning | null>(null);
   const [wordAyahNumber, setWordAyahNumber] = useState<number | undefined>(undefined);
+
+  // Child Voice Recording state
+  const [recordingAyah, setRecordingAyah] = useState<Ayah | null>(null);
 
   // Offline Audio Download
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -245,6 +254,30 @@ export default function SurahDetailScreen() {
       addSurahStars(surah.number, 1);
       setShowCelebration(true);
     }
+  };
+
+  const currentSurahProgress = surahProgress[surah.number];
+  const isSurahCompleted = !!currentSurahProgress?.isCompleted;
+  const memorizedAyahsCount = surah.ayahs.filter(
+    (a) => currentSurahProgress?.ayahsStatus?.[a.number] === 'memorized'
+  ).length;
+  const totalAyahsCount = surah.ayahs.length;
+  const isAllAyahsMemorized = totalAyahsCount > 0 && memorizedAyahsCount >= totalAyahsCount;
+
+  const handleCompleteSurahHifz = () => {
+    // 1. Mark all ayahs as memorized
+    surah.ayahs.forEach((a) => {
+      setAyahStatus(surah.number, a.number, 'memorized');
+    });
+    // 2. Mark the whole surah as completed
+    markSurahCompleted(surah.number);
+    // 3. Award completion stars & gems
+    addSurahStars(surah.number, 5);
+    addStars(15);
+    addGems(5);
+    // 4. Show celebratory modal & Certificate
+    setShowCelebration(true);
+    setShowCertificateModal(true);
   };
 
   return (
@@ -464,6 +497,21 @@ export default function SurahDetailScreen() {
                         : t.statusNew}
                     </Text>
                   </TouchableOpacity>
+
+                  {/* Child Voice Recording Button */}
+                  <TouchableOpacity
+                    style={styles.voiceRecordBtn}
+                    onPress={(e) => {
+                      e.stopPropagation?.();
+                      setRecordingAyah(ayah);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="mic" size={13} color="#059669" />
+                    <Text style={styles.voiceRecordBtnText}>
+                      {language === 'ar' ? 'سجّل صوتك' : 'Record'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -559,6 +607,113 @@ export default function SurahDetailScreen() {
             </TouchableOpacity>
           );
         })}
+
+        {/* Surah Memorization Completion Milestone Card */}
+        <View style={styles.surahHifzMilestoneCard}>
+          {isSurahCompleted ? (
+            <View style={styles.surahCompletedBox}>
+              <View style={styles.surahCompletedTrophyBadge}>
+                <Ionicons name="trophy" size={38} color="#D97706" />
+              </View>
+              <Text style={styles.surahCompletedTitle}>
+                {language === 'ar'
+                  ? `🎉 أتممت حفظ سورة ${surah.nameArabic} بحمد الله!`
+                  : `🎉 You Memorized Surah ${surah.nameTransliteration}!`}
+              </Text>
+              <Text style={styles.surahCompletedSubtitle}>
+                {language === 'ar'
+                  ? 'مبارك يا بطل القرآن! استمر في المراجعة وتثبيت الحفظ لنيل شفاعته 👑'
+                  : 'Congratulations, Quran champion! Keep reciting and reviewing to shine always 👑'}
+              </Text>
+              <View style={styles.surahCompletedPillsRow}>
+                <View style={styles.surahCompletedPill}>
+                  <Ionicons name="checkmark-circle" size={16} color="#059669" />
+                  <Text style={styles.surahCompletedPillText}>
+                    {language === 'ar'
+                      ? `تم إتمام وحفظ كامل الآيات (${totalAyahsCount} آيات)`
+                      : `All ${totalAyahsCount} verses memorized`}
+                  </Text>
+                </View>
+              </View>
+
+              {/* View / Print Certificate Button */}
+              <TouchableOpacity
+                style={styles.certificateOpenBtn}
+                onPress={() => setShowCertificateModal(true)}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="ribbon" size={20} color="#FFFFFF" />
+                <Text style={styles.certificateOpenBtnText}>
+                  {language === 'ar'
+                    ? '📜 عرض وطباعة شهادة التقدير والإنجاز ✨'
+                    : '📜 View & Print Honor Certificate ✨'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.surahPendingBox}>
+              <View
+                style={[
+                  styles.surahPendingHeaderRow,
+                  { flexDirection: language === 'ar' ? 'row-reverse' : 'row' },
+                ]}
+              >
+                <View style={styles.surahPendingIconCircle}>
+                  <Ionicons name="ribbon" size={24} color="#059669" />
+                </View>
+                <View style={[styles.surahPendingTextCol, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
+                  <Text style={styles.surahPendingTitle}>
+                    {language === 'ar'
+                      ? `إتمام حفظ سورة ${surah.nameArabic}`
+                      : `Memorizing Surah ${surah.nameTransliteration}`}
+                  </Text>
+                  <Text style={styles.surahPendingSub}>
+                    {language === 'ar'
+                      ? `تم حفظ ${memorizedAyahsCount} من ${totalAyahsCount} آيات`
+                      : `Memorized ${memorizedAyahsCount} of ${totalAyahsCount} verses`}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Progress Bar */}
+              <View style={styles.surahProgressBarTrack}>
+                <View
+                  style={[
+                    styles.surahProgressBarFill,
+                    {
+                      width: `${Math.min(
+                        100,
+                        Math.round((memorizedAyahsCount / Math.max(1, totalAyahsCount)) * 100)
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
+
+              <Text style={[styles.surahPendingNotice, { textAlign: language === 'ar' ? 'right' : 'left' }]}>
+                {language === 'ar'
+                  ? 'لحفظ السورة وتثبيتها: مر على جميع الآيات واستمع إليها واقرأها جيداً، ثم اضغط على زر إتمام الحفظ أدناه.'
+                  : 'To complete memorization: read and listen to all verses, then press the completion button below.'}
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.confirmHifzButton,
+                  isAllAyahsMemorized ? styles.confirmHifzButtonDone : styles.confirmHifzButtonActive,
+                ]}
+                onPress={handleCompleteSurahHifz}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="checkmark-done-circle" size={24} color="#FFFFFF" />
+                <Text style={styles.confirmHifzButtonText}>
+                  {language === 'ar'
+                    ? `✨ اضغط هنا: أتممت حفظ سورة ${surah.nameArabic} بحمد الله! 🌟`
+                    : `✨ Tap Here: I Completed Memorizing Surah ${surah.nameTransliteration}! 🌟`}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </ScrollView>
 
       {/* Floating Audio Player Bar */}
@@ -620,12 +775,49 @@ export default function SurahDetailScreen() {
         onDismiss={() => setShowCelebration(false)}
       />
 
+      {/* Achievement Certificate Modal (Feature 2) */}
+      <AchievementCertificateModal
+        visible={showCertificateModal}
+        onDismiss={() => setShowCertificateModal(false)}
+        certificateType="surah"
+        title={language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
+        subtitle={
+          language === 'ar'
+            ? `جميع آيات السورة الكريمة (${surah.ayahs.length} آيات)`
+            : `All ${surah.ayahs.length} Holy Verses`
+        }
+      />
+
       {/* Word-by-Word Kid Meaning Bubble Modal */}
       <WordMeaningBubbleModal
         visible={!!selectedWordMeaning}
         wordMeaning={selectedWordMeaning}
         ayahNumber={wordAyahNumber}
         onClose={() => setSelectedWordMeaning(null)}
+      />
+
+      {/* Child Voice Recording Modal */}
+      <ChildVoiceRecorderModal
+        visible={!!recordingAyah}
+        ayah={recordingAyah}
+        surahName={language === 'ar' ? surah.nameArabic : surah.nameTransliteration}
+        reciterAudioUrl={
+          recordingAyah
+            ? quranService.getAudioUrl(
+                parentSettings.reciterId,
+                surah.number,
+                recordingAyah.number
+              )
+            : undefined
+        }
+        language={language}
+        onClose={() => setRecordingAyah(null)}
+        onAwardReward={() => {
+          addSurahStars(surah.number, 1);
+          addStars(2);
+          addGems(1);
+          setShowCelebration(true);
+        }}
       />
     </SafeAreaView>
   );
@@ -863,6 +1055,22 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.textMuted,
   },
+  voiceRecordBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  voiceRecordBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+  },
   uthmaniText: {
     fontSize: TYPOGRAPHY.quranSize,
     lineHeight: TYPOGRAPHY.quranLineHeight,
@@ -1038,5 +1246,162 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
     color: COLORS.textLight,
+  },
+  // Hifz Completion Milestone Card Styles
+  surahHifzMilestoneCard: {
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.lg,
+    marginBottom: 100, // space above audio bar
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+  },
+  surahCompletedBox: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    alignItems: 'center',
+    ...SHADOWS.medium,
+  },
+  surahCompletedTrophyBadge: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.sm,
+    borderWidth: 2,
+    borderColor: '#FDE68A',
+  },
+  surahCompletedTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#92400E',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  surahCompletedSubtitle: {
+    fontSize: 13,
+    color: '#78350F',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: SPACING.md,
+  },
+  surahCompletedPillsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  surahCompletedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  surahCompletedPillText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  surahPendingBox: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    padding: SPACING.md,
+    ...SHADOWS.medium,
+  },
+  surahPendingHeaderRow: {
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: SPACING.sm,
+  },
+  surahPendingIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#ECFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  surahPendingTextCol: {
+    flex: 1,
+  },
+  surahPendingTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  surahPendingSub: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#059669',
+    marginTop: 2,
+  },
+  surahProgressBarTrack: {
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: SPACING.sm,
+  },
+  surahProgressBarFill: {
+    height: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 4,
+  },
+  surahPendingNotice: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    marginBottom: SPACING.md,
+  },
+  confirmHifzButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    ...SHADOWS.soft,
+  },
+  confirmHifzButtonActive: {
+    backgroundColor: '#059669',
+  },
+  confirmHifzButtonDone: {
+    backgroundColor: '#10B981',
+  },
+  confirmHifzButtonText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  certificateOpenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#047857',
+    paddingVertical: 14,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginTop: SPACING.md,
+    ...SHADOWS.medium,
+  },
+  certificateOpenBtnText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
 });

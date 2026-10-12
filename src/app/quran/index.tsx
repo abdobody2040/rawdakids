@@ -1,5 +1,5 @@
 // Quran Garden: Surahs List (حديقة القرآن - Q1)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

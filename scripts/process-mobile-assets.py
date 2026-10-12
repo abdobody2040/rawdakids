@@ -1,6 +1,5 @@
 import os
-import sys
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 BRAIN_DIR = r"C:\Users\ABDO\.gemini\antigravity-ide\brain\4b284fed-950f-49b8-92cc-f9db4874e3b2"
 APP_ICON_SRC = os.path.join(BRAIN_DIR, "mobile_app_icon_1791538772601.jpg")

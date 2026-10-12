@@ -54,70 +54,51 @@ class AudioService {
       this.currentSpeed = speed;
       this.onPlaybackStatusUpdate = onStatusUpdate || null;
 
-      // Stop any background Dua or Tafsir TTS
-      await this.stopDua();
+      // Stop any background Dua or Tafsir TTS synchronously
+      this.stopDua();
 
       // 1. Web Platform Playback
       if (Platform.OS === 'web') {
         if (typeof window !== 'undefined' && (window as any).Audio) {
-          // If repeating the exact same audio URI, rewind and replay instantly without recreation
-          if (this.webAudio && this.currentUri === uri) {
-            this.webAudio.currentTime = 0;
-            this.webAudio.playbackRate = speed;
-            this.isPlaying = true;
-            try {
-              const replayPromise = this.webAudio.play();
-              if (replayPromise !== undefined) {
-                replayPromise.catch((err: any) => {
-                  console.warn('Web audio replay error:', err);
-                  this.isPlaying = false;
-                  this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
-                });
-              }
-            } catch (err) {
-              console.warn('Web audio replay sync error:', err);
-            }
-            return;
-          }
-
-          // Different URI: pause previous
           if (this.webAudio) {
-            this.webAudio.pause();
-            this.webAudio.currentTime = 0;
+            try {
+              this.webAudio.pause();
+              this.webAudio.currentTime = 0;
+            } catch (_err) {
+              // Ignore pause error on uninitialized audio
+            }
           }
 
           this.currentUri = uri;
-          if (!this.webAudio) {
-            this.webAudio = new (window as any).Audio(uri);
-          } else {
-            this.webAudio.src = uri;
-            this.webAudio.load();
-          }
+          this.isPlaying = true;
+          const audio = new (window as any).Audio(uri);
+          this.webAudio = audio;
+          audio.playbackRate = speed;
 
-          this.webAudio.playbackRate = speed;
-          this.webAudio.onplay = () => {
+          audio.onplay = () => {
             this.isPlaying = true;
             this.onPlaybackStatusUpdate?.({ isPlaying: true, didJustFinish: false });
           };
-          this.webAudio.onpause = () => {
+          audio.onpause = () => {
+            if (audio.ended) return;
             this.isPlaying = false;
             this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: false });
           };
-          this.webAudio.onended = () => {
+          audio.onended = () => {
             this.isPlaying = false;
             this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
           };
-          this.webAudio.onerror = (e: any) => {
+          audio.onerror = (e: any) => {
             console.warn('Web audio playback error:', e);
             this.isPlaying = false;
             this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
           };
 
           try {
-            const playPromise = this.webAudio.play();
+            const playPromise = audio.play();
             if (playPromise !== undefined) {
               playPromise.catch((err: any) => {
-                console.warn('Web audio play error:', err);
+                console.warn('Web audio play rejected:', err);
                 this.isPlaying = false;
                 this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
               });
@@ -137,25 +118,30 @@ class AudioService {
               this.modernSubscription?.remove?.();
               this.modernPlayer.pause?.();
               this.modernPlayer.release?.();
-            } catch {}
+            } catch (_err) {
+              // Ignore teardown error on release
+            }
             this.modernPlayer = null;
           }
 
           this.currentUri = uri;
-          const player = ModernExpoAudio.createAudioPlayer({ uri });
+          // Must pass string uri directly - passing an object { uri } invokes Asset.fromURI which fails on remote streams
+          const player = ModernExpoAudio.createAudioPlayer(uri);
           this.modernPlayer = player;
           if (typeof player.playbackRate === 'number') {
             player.playbackRate = speed;
           }
 
           this.modernSubscription = player.addListener?.('playbackStatusUpdate', (status: any) => {
-            if (status.playing !== undefined) {
-              this.isPlaying = status.playing;
-            }
             if (status.didJustFinish) {
               this.isPlaying = false;
               this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
-            } else {
+            } else if (status.isBuffering || !status.isLoaded) {
+              // During initial buffer/load, keep playing state active so UI doesn't prematurely revert to stopped
+              this.isPlaying = true;
+              this.onPlaybackStatusUpdate?.({ isPlaying: true, isBuffering: true, didJustFinish: false });
+            } else if (status.playing !== undefined) {
+              this.isPlaying = status.playing;
               this.onPlaybackStatusUpdate?.({ isPlaying: status.playing, didJustFinish: false });
             }
           });
@@ -291,7 +277,7 @@ class AudioService {
       // 2. Native Modern Expo Audio playback
       if (ModernExpoAudio?.createAudioPlayer) {
         try {
-          const player = ModernExpoAudio.createAudioPlayer({ uri: googleFallbackUrl });
+          const player = ModernExpoAudio.createAudioPlayer(googleFallbackUrl);
           this.modernPlayer = player;
           this.modernSubscription = player.addListener?.('playbackStatusUpdate', (status: any) => {
             if (status.didJustFinish) {
@@ -372,7 +358,7 @@ class AudioService {
     }
   }
 
-  public async stopDua(): Promise<void> {
+  public stopDua(): void {
     try {
       if (Platform.OS === 'web' && this.duaAudio) {
         this.duaAudio.pause();
@@ -395,7 +381,7 @@ class AudioService {
 
   public async stop(): Promise<void> {
     try {
-      await this.stopDua();
+      this.stopDua();
       if (Platform.OS === 'web' && this.webAudio) {
         this.webAudio.pause();
         this.webAudio.currentTime = 0;
@@ -406,7 +392,9 @@ class AudioService {
           this.modernSubscription?.remove?.();
           this.modernPlayer.pause?.();
           this.modernPlayer.release?.();
-        } catch {}
+        } catch (_err) {
+          // Ignore teardown error on release
+        }
         this.modernPlayer = null;
         this.isPlaying = false;
       }

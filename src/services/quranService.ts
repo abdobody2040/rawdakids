@@ -66,11 +66,25 @@ export const quranService = {
     };
   },
 
+  // In-memory cache for surahs to ensure instant 0ms access
+  _cache: new Map<string, Surah>(),
+
   getSurah: async (
     surahNumber: number,
     translationSource: string = 'sahih'
   ): Promise<Surah> => {
+    const cacheKey = `${surahNumber}:${translationSource}`;
+    const cached = quranService._cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
+    // If bundled is available and default translation is used, return bundled instantly
+    if (bundled && translationSource === 'sahih') {
+      quranService._cache.set(cacheKey, bundled);
+      return bundled;
+    }
 
     const meta =
       ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
@@ -84,21 +98,24 @@ export const quranService = {
         : 'en.sahih';
 
     const tryFetchJson = async (url: string) => {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } catch (e) {
+        clearTimeout(timeoutId);
+        throw e;
+      }
     };
 
-    // 1. Dynamic fetch with Tafsir Al-Muyassar
+    // 1. Dynamic fetch with Tafsir Al-Muyassar for non-bundled surahs
     try {
-      let json: any = null;
-      try {
-        json = await tryFetchJson(`/api/quran/surah/${surahNumber}?edition=${editionTag}`);
-      } catch {
-        json = await tryFetchJson(
-          `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ar.muyassar,${editionTag}`
-        );
-      }
+      const json = await tryFetchJson(
+        `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ar.muyassar,${editionTag}`
+      );
 
       if (json && json.data) {
         const uthmaniData = json.data?.[0]?.ayahs || [];
@@ -119,7 +136,7 @@ export const quranService = {
             '',
         }));
 
-        return {
+        const fullSurah: Surah = {
           ...meta,
           storyIntroAr:
             bundled?.storyIntroAr ||
@@ -139,12 +156,15 @@ export const quranService = {
           ],
           ayahs,
         };
+        quranService._cache.set(cacheKey, fullSurah);
+        return fullSurah;
       }
     } catch {
       // Fallback
     }
 
     if (bundled) {
+      quranService._cache.set(cacheKey, bundled);
       return bundled;
     }
 

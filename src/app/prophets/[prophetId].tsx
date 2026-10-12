@@ -1,5 +1,5 @@
 // Prophet Story Player (P2, P3, P4, P5, P6)
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,

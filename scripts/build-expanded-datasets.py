@@ -5,7 +5,6 @@ Builder script to expand Noor Kids datasets:
 - 50 Moral Landmarks for Good Manners Town (مدينة الأخلاق)
 """
 import os
-import sys
 import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, ViewStyle, StyleProp } from 'react-native';
 import { Image, ImageStyle } from 'expo-image';
 

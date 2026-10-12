@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { contentService } from '@/services/contentService';
 import { audioService } from '@/services/audioService';
 import { useAppStore } from '@/store/useAppStore';
@@ -36,6 +37,7 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
 ];
 
 export default function DuaLibraryScreen() {
+  const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const duas = contentService.getDuas();
@@ -98,8 +100,19 @@ export default function DuaLibraryScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
-        <Header showBack title={t.sunnah} />
-        <SunnahHeroHeader activeTab="duas" />
+        <Header showBack fallbackRoute="/sunnah" title={t.sunnah} />
+        <SunnahHeroHeader
+          activeTab="duas"
+          onTabChange={(tab) => {
+            if (tab === 'hadiths') {
+              router.replace('/sunnah');
+            } else if (tab === 'habits') {
+              router.replace({ pathname: '/sunnah', params: { tab: 'habits' } });
+            } else if (tab === 'cards') {
+              router.replace('/sunnah/cards');
+            }
+          }}
+        />
 
         <ScrollView
           style={{ flex: 1 }}

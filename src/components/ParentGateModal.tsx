@@ -1,5 +1,5 @@
 // Parent Gate Modal (Simple Math Verification or PIN)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   Modal,
   View,
@@ -100,7 +100,6 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
               setErrorMessage('');
             }}
             onSubmitEditing={handleVerify}
-            autoFocus={true}
           />
 
           {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}

@@ -1,5 +1,4 @@
 // Prophets' Caravan: Timeline Map (P1)
-import React from 'react';
 import {
   View,
   Text,

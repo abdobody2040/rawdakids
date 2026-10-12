@@ -19,9 +19,6 @@ const MIME_TYPES = {
   '.mp3': 'audio/mpeg',
 };
 
-// ============================================================================
-// 1. RATE LIMITING ENGINE (Rule 6: Strict Sliding Window per Route & IP)
-// ============================================================================
 const RATE_LIMIT_RULES = {
   '/api/auth/login': { windowMs: 60000, maxRequests: 5 },
   '/api/auth/signup': { windowMs: 60000, maxRequests: 3 },
@@ -69,9 +66,6 @@ function checkRateLimit(ip, routePath) {
   };
 }
 
-// ============================================================================
-// 2. STRICT SCHEMA & MASS ASSIGNMENT VALIDATOR (Rule 4)
-// ============================================================================
 function validateStrict(data, allowedFields, requiredFields = []) {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) {
     return { valid: false, error: 'Request body must be a valid JSON object' };
@@ -103,9 +97,6 @@ function validateStrict(data, allowedFields, requiredFields = []) {
   return { valid: true };
 }
 
-// ============================================================================
-// 3. SERVER-SIDE PRICE CATALOG (Rule 5: Client NEVER controls prices)
-// ============================================================================
 const SERVER_PRICES = {
   'donation_tier_1': { id: 'donation_tier_1', amountCents: 500, currency: 'usd', name: 'Noor Supporter' },
   'donation_tier_2': { id: 'donation_tier_2', amountCents: 1500, currency: 'usd', name: 'Noor Patron' },
@@ -136,11 +127,6 @@ function parseJsonBody(req) {
   });
 }
 
-// ============================================================================
-// 4. USER IDENTITY & IN-MEMORY MULTI-TENANT STORE (Rules 2, 3, 7)
-// ============================================================================
-// In-memory record store representing database records
-// Key: recordId -> { id, ownerId, title, content, createdAt }
 const DATABASE_RECORDS = new Map();
 
 // Helper to verify caller authentication from Authorization header
@@ -162,14 +148,11 @@ function authenticateRequest(req) {
   return null;
 }
 
-// ============================================================================
-// 5. ARABIC TTS CHUNKER
-// ============================================================================
 function splitArabicText(text, maxLen = 120) {
   const clean = text.trim();
   if (clean.length <= maxLen) return [clean];
 
-  const phrases = clean.split(/([،\.\n\r؛!؟]+)/);
+  const phrases = clean.split(/([،.\n\r؛!؟]+)/);
   const chunks = [];
   let current = '';
 
@@ -227,9 +210,6 @@ function fetchGoogleTTSChunk(chunk) {
   });
 }
 
-// ============================================================================
-// HTTP SERVER HANDLER
-// ============================================================================
 const server = http.createServer(async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
   const urlPath = req.url.split('?')[0];
@@ -255,9 +235,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // --------------------------------------------------------------------------
-  // RATE LIMIT CHECK FOR ALL /api/ ROUTES (Rule 6)
-  // --------------------------------------------------------------------------
   if (urlPath.startsWith('/api/')) {
     const rateCheck = checkRateLimit(ip, urlPath);
     if (!rateCheck.allowed) {
@@ -273,9 +250,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // AUTH ROUTES (Rule 4, 6: Strict validation & Rate limited)
-  // --------------------------------------------------------------------------
   if (urlPath === '/api/auth/login' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -330,9 +304,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // USER RESOURCE ROUTES (Rules 2, 4, 7: Ownership verification & Mass Assignment)
-  // --------------------------------------------------------------------------
   if (urlPath === '/api/user/records' && req.method === 'POST') {
     try {
       const session = authenticateRequest(req);
@@ -414,9 +385,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // PAYMENTS & STRIPE WEBHOOK (Rule 5: Server price lookup & Signature verification)
-  // --------------------------------------------------------------------------
   if (urlPath === '/api/payments/create-checkout-session' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -468,9 +436,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // --------------------------------------------------------------------------
-  // TTS API PROXY (Rule 4, 6: Param validation & Rate limited)
-  // --------------------------------------------------------------------------
   if (urlPath.startsWith('/api/tts')) {
     try {
       const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost:3000'}`);
@@ -511,9 +476,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // QURAN SURAH API PROXY (Rule 4, 6: Parameter Whitelist & Rate limited)
-  // --------------------------------------------------------------------------
   if (urlPath.startsWith('/api/quran/surah/')) {
     try {
       const match = urlPath.match(/\/api\/quran\/surah\/(\d+)/);
@@ -586,9 +548,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // STATIC ASSETS & FILES SERVING
-  // --------------------------------------------------------------------------
   let reqPath = decodeURI(urlPath);
   if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
 
@@ -607,9 +566,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // PWA MANIFEST & SERVICE WORKER SERVING (Android Installability)
-  // --------------------------------------------------------------------------
   if (reqPath === '/manifest.json') {
     const manifestPath = path.join(__dirname, 'public/manifest.json');
     if (fs.existsSync(manifestPath)) {
@@ -636,34 +592,53 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // STATIC ASSETS & FILES SERVING
-  // --------------------------------------------------------------------------
   let filePath = path.join(DIST_DIR, reqPath);
+  const parsedExt = path.extname(reqPath).toLowerCase();
+  const isStaticFile = Boolean(parsedExt && parsedExt !== '.html');
 
-  try {
-    if (fs.existsSync(filePath)) {
-      const stat = fs.statSync(filePath);
-      if (stat.isDirectory()) {
-        if (fs.existsSync(path.join(filePath, 'index.html'))) {
-          filePath = path.join(filePath, 'index.html');
-        } else if (fs.existsSync(filePath + '.html')) {
+  // Intelligent fallback for stale entry JS bundle hashes
+  if (reqPath.startsWith('/_expo/static/js/web/entry-') && !fs.existsSync(filePath)) {
+    const webJsDir = path.join(DIST_DIR, '_expo/static/js/web');
+    if (fs.existsSync(webJsDir)) {
+      const files = fs.readdirSync(webJsDir).filter((f) => f.startsWith('entry-') && f.endsWith('.js'));
+      if (files.length > 0) {
+        filePath = path.join(webJsDir, files[0]);
+      }
+    }
+  }
+
+  if (isStaticFile) {
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+      return;
+    }
+  } else {
+    // Route / HTML resolution
+    try {
+      if (fs.existsSync(filePath)) {
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          if (fs.existsSync(path.join(filePath, 'index.html'))) {
+            filePath = path.join(filePath, 'index.html');
+          } else if (fs.existsSync(filePath + '.html')) {
+            filePath = filePath + '.html';
+          } else {
+            filePath = path.join(DIST_DIR, 'index.html');
+          }
+        }
+      } else {
+        if (fs.existsSync(filePath + '.html')) {
           filePath = filePath + '.html';
+        } else if (fs.existsSync(path.join(filePath, 'index.html'))) {
+          filePath = path.join(filePath, 'index.html');
         } else {
           filePath = path.join(DIST_DIR, 'index.html');
         }
       }
-    } else {
-      if (fs.existsSync(filePath + '.html')) {
-        filePath = filePath + '.html';
-      } else if (fs.existsSync(path.join(filePath, 'index.html'))) {
-        filePath = path.join(filePath, 'index.html');
-      } else {
-        filePath = path.join(DIST_DIR, 'index.html');
-      }
+    } catch {
+      filePath = path.join(DIST_DIR, 'index.html');
     }
-  } catch {
-    filePath = path.join(DIST_DIR, 'index.html');
   }
 
   const ext = path.extname(filePath).toLowerCase();
@@ -699,11 +674,17 @@ if ('serviceWorker' in navigator) {
         if (htmlStr.includes('</head>')) {
           htmlStr = htmlStr.replace('</head>', pwaHeadTags + '</head>');
         }
-        res.writeHead(200, { 'Content-Type': contentType });
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        });
         res.end(htmlStr, 'utf-8');
       } else {
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(content, 'utf-8');
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Cache-Control': ext === '.js' || ext === '.css' ? 'public, max-age=31536000, immutable' : 'public, max-age=86400',
+        });
+        res.end(content);
       }
     }
   });

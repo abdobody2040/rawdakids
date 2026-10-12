@@ -52,6 +52,7 @@ export interface AppState {
   surahProgress: Record<number, SurahProgressItem>;
   setAyahStatus: (surahNumber: number, ayahNumber: number, status: HifzStatus) => void;
   addSurahStars: (surahNumber: number, stars: number) => void;
+  markSurahCompleted: (surahNumber: number) => void;
   downloadedSurahs: Record<number, boolean>;
   setSurahDownloaded: (surahNumber: number, downloaded: boolean) => void;
 
@@ -232,11 +233,33 @@ export const useAppStore = create<AppState>((set, get) => ({
           [surahNumber]: {
             ...prevSurah,
             stars: Math.max(prevSurah.stars, stars),
-            isCompleted: true,
+            isCompleted: prevSurah.isCompleted,
           },
         },
         stars: state.stars + stars,
         gems: state.gems + stars * 2,
+      };
+    });
+    persistState(get());
+  },
+  markSurahCompleted: (surahNumber: number) => {
+    set((state) => {
+      const prevSurah = state.surahProgress[surahNumber] || {
+        ayahsStatus: {},
+        stars: 0,
+        isCompleted: false,
+      };
+      return {
+        surahProgress: {
+          ...state.surahProgress,
+          [surahNumber]: {
+            ...prevSurah,
+            stars: Math.max(prevSurah.stars, 3),
+            isCompleted: true,
+          },
+        },
+        stars: state.stars + 5,
+        gems: state.gems + 10,
       };
     });
     persistState(get());

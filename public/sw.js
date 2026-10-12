@@ -1,5 +1,5 @@
 // Noor Kids - PWA Service Worker for Android Installation & Offline Cache
-const CACHE_NAME = 'noor-kids-v1';
+const CACHE_NAME = 'noor-kids-v2';
 
 const STATIC_PRECACHE = [
   '/',
@@ -45,6 +45,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network First for HTML navigation requests (so new bundle hashes are loaded immediately)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -74,11 +90,6 @@ self.addEventListener('fetch', (event) => {
         }
 
         return networkResponse;
-      }).catch(() => {
-        // Fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
       });
     })
   );

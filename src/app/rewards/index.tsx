@@ -1,5 +1,5 @@
 // Rewards Room (Section 5.5 - غرفة المكافآت)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

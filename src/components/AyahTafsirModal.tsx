@@ -1,5 +1,5 @@
 // Ayah Tafsir & Tadabbur Modal (بطاقة تفسير وتدبر الآية الكريمة للأطفال)
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,

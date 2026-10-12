@@ -1,5 +1,5 @@
 // Sunnah Path Hub (طريق السنة - S1, S4, S7)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
@@ -41,9 +41,11 @@ export default function SunnahPathScreen() {
             if (tab === 'hadiths' || tab === 'habits') {
               setSelectedTab(tab);
             } else if (tab === 'duas') {
-              router.push('/sunnah/duas');
+              router.replace('/sunnah/duas');
             } else if (tab === 'cards') {
-              router.push('/sunnah/cards');
+              router.replace('/sunnah/cards');
+            } else if (tab === 'tasbih') {
+              router.push('/sunnah/tasbih');
             }
           }}
         />

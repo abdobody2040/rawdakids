@@ -1,5 +1,5 @@
 // Mascot Noor (فانوس نور المحبوب)
-import React, { useState } from 'react';
+import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { useAppStore } from '@/store/useAppStore';

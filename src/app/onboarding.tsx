@@ -1,5 +1,5 @@
 // Onboarding Screen (≤ 60 seconds - Flow 5.7)
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

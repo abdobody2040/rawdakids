@@ -1,5 +1,4 @@
 // Good Manners Town: Town Map (مدينة الأخلاق - E1)
-import React from 'react';
 import {
   View,
   Text,
