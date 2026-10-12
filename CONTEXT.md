@@ -45,15 +45,22 @@ g:/quran app for kids/
 │   │   ├── manners/
 │   │   │   ├── index.tsx       # Good Manners Town (10 Landmarks)
 │   │   │   └── [valueId].tsx   # Scenario Simulation & Ethical Choices
+│   │   ├── arkan/
+│   │   │   ├── index.tsx       # Arkan Academy (5 Pillars of Islam + 6 Pillars of Iman)
+│   │   │   └── [pillarId].tsx  # Interactive Wudu (8 steps) & Salah (10 steps) Simulator
 │   │   ├── rewards/index.tsx   # Badge Showcase & Sticker Album
 │   │   ├── progress/index.tsx  # Gamification Dashboard & Avatar Customizer
-│   │   └── parents/index.tsx   # Parental Gate, Reciters, Translations & PIN
+│   │   └── parents/index.tsx   # Parental Gate, Reciters, Data Privacy, PIN & Reports
 │   ├── components/             # Reusable UI Components
 │   │   ├── AudioPlayerBar.tsx  # Global Ayah recitation bar + 27 Reciters modal
-│   │   ├── Header.tsx          # Top bar with currency and avatar
-│   │   ├── MascotNoor.tsx      # Animated Noor guide character
+│   │   ├── Header.tsx          # Top bar with currency, avatar, and profile switcher
+│   │   ├── MascotNoor.tsx      # Animated 3D Noor mascot character
 │   │   ├── DailyMissionCard.tsx# Daily quest tracker with progress bar
-│   │   └── StarRewardCelebration.tsx # Confetti & reward modal
+│   │   ├── StarRewardCelebration.tsx # Confetti & reward modal
+│   │   ├── ChildProfileSwitchModal.tsx # Multi-child switcher, creator, delete & cleanup
+│   │   ├── DailyLimitModal.tsx # Screen time limiter & parent PIN rest screen
+│   │   ├── SurahStoryModal.tsx # Kid-friendly Surah context & takeaways
+│   │   └── AyahTafsirModal.tsx # Tafsir Al-Muyassar reflection & audio card
 │   ├── constants/
 │   │   ├── i18n.ts             # Bilingual strings (Arabic & English)
 │   │   └── theme.ts            # Palette, shadows, radii, typography
@@ -63,13 +70,16 @@ g:/quran app for kids/
 │   │   ├── duasData.ts         # Authentic daily prayers & context
 │   │   ├── prophetsData.ts     # 25 Prophets' stories & quizzes
 │   │   ├── mannersData.ts      # 10 Moral buildings & interactive dilemmas
+│   │   ├── arkanData.ts        # 5 Pillars of Islam, 6 Pillars of Iman, Wudu & Salah simulators
 │   │   └── avatarData.ts       # Kid avatar options, badges, stickers
 │   ├── services/
 │   │   ├── audioService.ts     # Audio playback engine (EveryAyah + TTS Proxy)
 │   │   └── contentService.ts  # Typed query helpers for content datasets
 │   └── store/
-│       └── useAppStore.ts      # Zustand root store with hydration & state
+│       └── useAppStore.ts      # Zustand root store (multi-child progress isolation & local storage)
 ├── server.js                   # Node static server + /api/tts streaming proxy
+├── scripts/
+│   └── test-e2e.js             # Automated E2E verification test suite (65 tests)
 ├── package.json
 ├── tsconfig.json
 ├── prd.md                      # Detailed Product Requirements Document
@@ -110,11 +120,33 @@ g:/quran app for kids/
   8. Park of Gratitude (منتزه الشكر والامتنان)
   9. Oasis of Generosity (واحة الكرم والإيثار)
   10. Library of Humility (مكتبة التواضع)
-- **Simulations:** Kids face real-life moral choices and earn stars for righteous decisions.
+### 5. Arkan Academy & Prayer Simulators (أكاديمية الأركان والعبادات)
+- **5 Pillars of Islam (أركان الإسلام الخمسة):** Shahada, Salah, Zakah, Sawm, Hajj with interactive kid explanations.
+- **6 Pillars of Iman (أركان الإيمان الستة):** Belief in Allah, Angels, Books, Messengers, Last Day, and Divine Decree.
+- **Wudu Simulator (محاكي الوضوء التفاعلي - ٨ خطوات):** Complete step-by-step interactive simulator with 3D Pixar visual cards, authentic Duas, and audio feedback.
+- **Salah Simulator (محاكي الصلاة - ١٠ خطوات):** Interactive step-by-step prayer simulator covering conditions, Takbeerat al-Ihram, Qiyam, Ruku', Sujud, and Tasleem.
+- **Card Title & Subtitle:**
+  - العنوان: «تعلَّم كيف تتوضأ وتصلي خطوة بخطوة»
+  - الشرح: «محاكي الوضوء (٨ خطوات) • محاكي الصلاة (١٠ خطوات) • أركان وسنن الصلاة»
 
 ---
 
-## 4. Audio Pipeline Architecture
+## 4. Multi-Child Profiles & Strict On-Device Privacy
+
+- **100% Free & No Accounts:** No registration, no login, no passwords, no cloud backend.
+- **Zero Tracking:** No analytics, telemetry, crashlytics, or advertising networks.
+- **Isolated Progress Per Child:**
+  - Multiple children can learn on the same device.
+  - Each child's stars, gems, streak, memorized surahs, completed hadiths, and moral choices are stored separately in `profilesProgress[childId]`.
+- **Switcher Modal (`ChildProfileSwitchModal.tsx`):**
+  - Instant one-tap profile switching across Home, Header, and Progress screens.
+  - In-modal child creation with custom avatar photo upload or presets.
+  - Safe profile deletion (with confirmation modal) and one-tap duplicate cleanup (`cleanupDuplicateProfiles`).
+  - Safeguard: Prevents deleting the last remaining child profile.
+
+---
+
+## 5. Audio Pipeline Architecture
 
 ```mermaid
 graph TD
@@ -129,7 +161,7 @@ graph TD
 
 ---
 
-## 5. UI & Design System
+## 6. UI & Design System
 
 - **Desktop Layout:** Two-column shell (`width >= 820px`) with left navigation rail, brand mark `☼ noor kids`, journey navigation, and 7-day habit streak widget.
 - **Mobile Layout:** Fluid single-column with top header and fixed bottom navigation bar (`Home`, `Learn`, `Duas`, `Treasures`, `Parents`).
@@ -142,7 +174,7 @@ graph TD
 
 ---
 
-## 6. Essential Dev Commands
+## 7. Essential Dev & Verification Commands
 
 ```bash
 # Start Web Dev Server (Port 8081)
@@ -153,6 +185,9 @@ node server.js
 
 # Export static production web bundle
 npx expo export --platform web
+
+# Run Full Automated E2E Test Suite (65 tests, 100% pass)
+node scripts/test-e2e.js
 
 # Code Health (MUST PASS BEFORE COMPLETING TASKS)
 npx tsc --noEmit

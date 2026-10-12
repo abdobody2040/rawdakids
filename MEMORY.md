@@ -988,6 +988,28 @@
   - Web export build refreshed cleanly (`entry-0aeb676020ea216dc4b7e3ce76f6479a.js`).
   - E2E test suite: **65 / 65 PASSED (100%)**.
 
+### Milestone 56: Child Profile Deduplication, Profile Deletion, and Smart Cleanup
+- **Root Cause Analysis:**
+  - Upon completing or re-running onboarding (`onboarding.tsx`), the action was invoking `addProfile` with the fallback name `"البطل"` (or `"Champion"`) alongside `default-child` ("طارق") instead of renaming/updating the initial default profile.
+  - Lack of a delete button or deduplication mechanism in the switcher modal caused multiple duplicate profiles to pile up in `AsyncStorage`.
+- **Implementation & Fixes:**
+  1. **Store Upgrade (`src/store/useAppStore.ts`):**
+     - Added `cleanupDuplicateProfiles()`: inspects existing child profiles, keeps the active profile and any with custom distinct names, and safely prunes redundant fallback `"البطل"` / `"Champion"` duplicates.
+  2. **Modal Controls (`src/components/ChildProfileSwitchModal.tsx`):**
+     - Added individual delete icon buttons (🗑️ `trash-outline`) with confirm dialogue (`window.confirm` on web, `Alert.alert` on native) when `profiles.length > 1`.
+     - Safeguard: Prevents deleting the sole remaining profile to ensure at least one active profile always exists.
+     - Added «تنظيف الملفات الزائدة والمكررة 🧹» banner button when `profiles.length > 2` for one-tap cleanup.
+  3. **Onboarding Safeguard (`src/app/onboarding.tsx`):**
+     - Updated `handleFinish`: If `default-child` is the only profile, it adds the new profile and cleanly deletes `default-child`, avoiding extra duplicate creation.
+  4. **Wudu & Salah Learning Card Copy Update:**
+     - Title: «تعلَّم كيف تتوضأ وتصلي خطوة بخطوة»
+     - Subtitle: «محاكي الوضوء (٨ خطوات) • محاكي الصلاة (١٠ خطوات) • أركان وسنن الصلاة»
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **Exported all 22 static routes cleanly (code 0)**.
+  - `node scripts/test-e2e.js`: **65 / 65 PASSED (100%)**.
+  - Git commit: `0a1b0de` (*fix(profiles): prevent duplicate profiles on onboarding, add delete button and quick cleanup in switcher*).
+
 ---
 
 

@@ -49,16 +49,17 @@ Age band is chosen at onboarding and changes content depth, UI density, and game
 
 ## 4. Product Structure
 
-Home is a **Journey Map** (adventure style) with 4 worlds:
+Home is a **Journey Map** (adventure style) with learning worlds:
 
 | World | Content | Core interaction |
 |---|---|---|
-| 📖 Quran Garden | Short surahs (Juz Amma first), ayah-by-ayah | Listen, repeat, word meanings, memorize, quiz |
-| 🌙 Sunnah Path | 40 kid-friendly authentic hadiths + daily sunnah habits | Mini-story, pick-the-action, habit tracker |
-| 🕌 Prophets' Caravan | 25 Prophets in order | Illustrated audio stories, timeline, choices, quiz |
-| 🌟 Good Manners Town | Adab & ethics scenarios (honesty, parents, neighbors, sharing, cleanliness, kindness, patience) | Scenario choices, role-play, dua cards |
+| 📖 Quran Garden | 114 Surahs (Juz Amma highlighted), ayah-by-ayah | Listen, repeat, Tafsir Al-Muyassar, memorize, 27 reciters |
+| 🌙 Sunnah Path | 118 authentic hadiths + 51 daily duas + habits | Mini-story, flashcards, habit tracker, instant audio |
+| 🕌 Prophets' Caravan | All 25 Prophets in chronological order | Illustrated audio stories, timeline, choices, quiz |
+| 🌟 Good Manners Town | 10 moral landmarks & interactive ethical dilemmas | Scenario choices, role-play, Gratitude Jar |
+| 🕋 Arkan Academy | 5 Pillars of Islam & 6 Pillars of Iman + Wudu & Salah | 8-step Wudu & 10-step Salah interactive 3D simulators |
 
-Plus: **Rewards Room** (avatar, stickers), **My Progress**, **Parents Corner**, **Settings**.
+Plus: **Rewards Room** (avatar, stickers), **My Progress & Profile Switcher**, **Parents Corner & Offline Privacy Guarantee**, **Settings**.
 
 ---
 
@@ -269,15 +270,15 @@ ParentSettings { dailyLimitMin, quietHours[], language, reciter, translation }
 
 ---
 
-## 12. Privacy, Safety & Compliance
+## 12. Privacy, Safety & Strict On-Device Offline Storage
 
-- Designed for children: COPPA, GDPR-K, Apple Kids Category and Google Play "Designed for Families" policies.
-- **No ads, no third-party trackers, no social features, no external links** without parent gate.
-- Collect minimum data: nickname + age band; local-first storage; parent account only for optional cloud sync.
-- No child voice recordings stored/uploaded (Q9 on-device only).
-- Parent gate for settings, purchases, external links.
-- Monetization (parent-facing only): free core (Fatiha + Juz Amma short surahs, 5 stories, 10 hadiths) + one-time or yearly "Family Premium" unlock via parent gate. No consumables, no loot boxes.
-- Privacy policy and content-sources page in plain Arabic/English.
+- **100% Free Forever:** No paywalls, no subscriptions, no in-app purchases, no locked modules.
+- **Strict On-Device Storage:** All child profiles, progress, audio settings, and scores are stored exclusively on the device running the app (`AsyncStorage`).
+- **No Cloud Database & No User Accounts:** No servers, no sign-ups, no logins, no cloud syncing between devices.
+- **Zero Telemetry or Tracking:** Absolutely zero third-party analytics, tracking libraries, ads, or behavioral profiling SDKs.
+- **Full Offline Capability:** Core educational content and simulations run completely without an internet connection. External connections are limited to verified audio streaming (EveryAyah CDN).
+- **Multi-Child Profile Isolation:** Supports multiple children on the same device with dedicated progress and safe deletion / duplicate cleanup.
+- **Transparent Data Governance:** Parents Corner explicitly discloses storage boundaries and warns that clearing app storage removes progress.
 
 ---
 
