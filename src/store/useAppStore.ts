@@ -88,6 +88,7 @@ export interface AppState {
   addProfile: (profile: Omit<ChildProfile, 'id'>) => string;
   deleteProfile: (id: string) => boolean;
   getChildProgress: (id: string) => ChildProgressData;
+  cleanupDuplicateProfiles: () => void;
 
   // Hifz & Quran Progress
   surahProgress: Record<number, SurahProgressItem>;
@@ -439,6 +440,41 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     persistState(get());
     return true;
+  },
+
+  cleanupDuplicateProfiles: () => {
+    const { profiles, activeProfileId, profilesProgress } = get();
+    if (profiles.length <= 1) return;
+
+    // Keep active profile and unique named profiles
+    const seenNames = new Set<string>();
+    const uniqueList: ChildProfile[] = [];
+
+    const active = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+    uniqueList.push(active);
+    seenNames.add(active.name.trim().toLowerCase());
+
+    for (const p of profiles) {
+      const normalized = p.name.trim().toLowerCase();
+      if (p.id !== active.id && !seenNames.has(normalized)) {
+        uniqueList.push(p);
+        seenNames.add(normalized);
+      }
+    }
+
+    const updatedProgressMap: Record<string, ChildProgressData> = {};
+    for (const p of uniqueList) {
+      if (profilesProgress[p.id]) {
+        updatedProgressMap[p.id] = profilesProgress[p.id];
+      }
+    }
+
+    set({
+      profiles: uniqueList,
+      activeProfileId: active.id,
+      profilesProgress: updatedProgressMap,
+    });
+    persistState(get());
   },
 
   surahProgress: {},

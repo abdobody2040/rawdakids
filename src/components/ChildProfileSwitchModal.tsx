@@ -9,6 +9,7 @@ import {
   ScrollView,
   TextInput,
   Platform,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
@@ -31,6 +32,8 @@ export default function ChildProfileSwitchModal({
     activeProfileId,
     setActiveProfile,
     addProfile,
+    deleteProfile,
+    cleanupDuplicateProfiles,
     getChildProgress,
   } = useAppStore();
 
@@ -45,6 +48,37 @@ export default function ChildProfileSwitchModal({
   const handleSelectChild = (id: string) => {
     setActiveProfile(id);
     onClose();
+  };
+
+  const handleDeleteChild = (e: any, id: string, name: string) => {
+    e?.stopPropagation?.();
+    if (profiles.length <= 1) return;
+
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const confirmed = window.confirm(
+        isAr
+          ? `هل تريد بالتأكيد حذف ملف "${name}" وإزالته نهائياً؟`
+          : `Permanently delete profile "${name}"?`
+      );
+      if (confirmed) {
+        deleteProfile(id);
+      }
+    } else {
+      Alert.alert(
+        isAr ? 'حذف ملف الطفل' : 'Delete Child Profile',
+        isAr
+          ? `هل تريد حذف ملف "${name}" وإزالته؟`
+          : `Delete profile "${name}"?`,
+        [
+          { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+          {
+            text: isAr ? 'حذف' : 'Delete',
+            style: 'destructive',
+            onPress: () => deleteProfile(id),
+          },
+        ]
+      );
+    }
   };
 
   const handleCreateNewChild = () => {
@@ -112,6 +146,22 @@ export default function ChildProfileSwitchModal({
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
+            {/* Quick cleanup banner if duplicate profiles exist */}
+            {profiles.length > 2 && (
+              <TouchableOpacity
+                style={[styles.cleanupDuplicatesBtn, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
+                onPress={() => cleanupDuplicateProfiles()}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="sparkles" size={14} color="#047857" />
+                <Text style={styles.cleanupDuplicatesText}>
+                  {isAr
+                    ? 'تنظيف الملفات الزائدة والمكررة 🧹'
+                    : 'Clean Up Duplicate Profiles 🧹'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
             {/* List of Children Profiles */}
             <View style={styles.profilesGrid}>
               {profiles.map((p) => {
@@ -168,6 +218,17 @@ export default function ChildProfileSwitchModal({
                         <Text style={styles.miniStatBadge}>📖 {surahsCount} {isAr ? 'سور' : 'surahs'}</Text>
                       </View>
                     </View>
+
+                    {/* Delete button if more than 1 profile exists */}
+                    {profiles.length > 1 && (
+                      <TouchableOpacity
+                        style={styles.deleteProfileIconBtn}
+                        onPress={(e) => handleDeleteChild(e, p.id, p.name)}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                      </TouchableOpacity>
+                    )}
 
                     <View style={styles.actionArrow}>
                       <Ionicons
@@ -593,5 +654,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#065F46',
     lineHeight: 16,
+  },
+  cleanupDuplicatesBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#F0FDF4',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    marginBottom: 4,
+  },
+  cleanupDuplicatesText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  deleteProfileIconBtn: {
+    padding: 8,
+    borderRadius: RADIUS.md,
+    backgroundColor: '#FEE2E2',
+    marginHorizontal: 4,
   },
 });

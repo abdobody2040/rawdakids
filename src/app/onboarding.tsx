@@ -33,7 +33,7 @@ const AGE_SCHOLAR_IMG = require('../../assets/images/age-scholar-3d.jpg');
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { language, setLanguage, addProfile, completeOnboarding } = useAppStore();
+  const { language, setLanguage, profiles, addProfile, deleteProfile, completeOnboarding } = useAppStore();
   const t = TRANSLATIONS[language];
 
   const [step, setStep] = useState<number>(1);
@@ -106,11 +106,21 @@ export default function OnboardingScreen() {
   };
 
   const handleFinish = () => {
-    addProfile({
-      name: childName.trim() || (language === 'ar' ? 'البطل' : 'Champion'),
-      ageBand: selectedAgeBand,
-      avatar: selectedAvatar,
-    });
+    const chosenName = childName.trim();
+    if (profiles.length === 1 && profiles[0].id === 'default-child') {
+      addProfile({
+        name: chosenName || (language === 'ar' ? 'البطل' : 'Champion'),
+        ageBand: selectedAgeBand,
+        avatar: selectedAvatar,
+      });
+      deleteProfile('default-child');
+    } else {
+      addProfile({
+        name: chosenName || (language === 'ar' ? 'البطل' : 'Champion'),
+        ageBand: selectedAgeBand,
+        avatar: selectedAvatar,
+      });
+    }
     completeOnboarding();
     router.replace(selectedDestination as any);
   };
