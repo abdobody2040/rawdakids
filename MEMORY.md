@@ -1019,11 +1019,23 @@
      - **Top Tabs in Sunnah Path (`SunnahHeroHeader.tsx`):** Added `adhkar` tab («أذكار الصباح والمساء»).
      - **Home Screen (`src/app/index.tsx`):** Added direct action pill «☀️ الأذكار» alongside «🎴 البطاقات» and «📿 المسبحة».
      - **Smart Search (`SmartSearchModal.tsx`):** Added searchable item `feature-adhkar` and quick suggestion pill «أذكار الصباح والمساء».
+### Milestone 58: Full-Screen Tasbih Architecture & Touch/Audio Engine Overhaul
+- **Root Cause Analysis:**
+  - The route `/sunnah/tasbih` was merely a wrapper around `<KidTasbihModal>`, rendering an absolute modal popup over an existing screen header with an overlay (`modalOverlay`) and duplicate close buttons, causing pointer-events traps.
+  - The modal card constrained content to `maxHeight: '94%'` without `flex: 1` on inner `<ScrollView>`, causing the large 220px button to overflow or become unscrollable on smaller screens.
+  - Web Audio API was creating an unclosed `new AudioContext()` on every single bead tap; modern browsers throw once hitting the 6-context hardware limit, freezing sound and event dispatch.
+  - Animations used `useNativeDriver: true` which conflicts with React Native Web.
+- **Fixes Applied:**
+  1. Rebuilt `src/app/sunnah/tasbih.tsx` as an authentic, full-screen interactive experience with zero modal traps.
+  2. Implemented singleton Web Audio context (`getSharedAudioCtx()`) with linear ramps and safe resume, preventing context exhaustion.
+  3. Integrated audio pronunciation (`audioService.playDua`) for every selected Dhikr.
+  4. Added interactive target selector (`33`, `100`, `∞`) and rounds tracker.
+  5. Fixed `KidTasbihModal.tsx` animations (`useNativeDriver: false`) and scroll view styles (`flex: 1`).
 - **Verification & Code Health:**
   - `npx.cmd tsc --noEmit`: **0 errors**.
-  - `npx.cmd expo export --platform web`: **Exported all 23 static routes cleanly (code 0)**.
+  - `npx.cmd expo export --platform web`: **Exported cleanly (code 0)**.
   - `node scripts/test-e2e.js`: **67 / 67 PASSED (100%)**.
-  - Git commits: `68dd912`.
+  - Git commit: `1ff0cb0`.
 
 ---
 
