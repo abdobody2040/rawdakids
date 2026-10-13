@@ -430,6 +430,98 @@ async function runSecuritySuite() {
   assert({}.isAdmin === undefined, 'Prototype pollution vector __proto__ was strictly scrubbed');
   assert(valResult.sanitizedData?.profilesProgress['child-1'].stars === 1000000, 'Extreme numbers safely clamped within bounds (1,000,000 max)\n');
 
+  // --------------------------------------------------------------------------
+  // TEST 10: JWT AUTHENTICATION & MULTI-TENANT CLOUD SYNC ISOLATION
+  // --------------------------------------------------------------------------
+  console.log('--- 10. JWT Authentication & Multi-Tenant Cloud Sync Isolation ---');
+
+  // 10.1 Issue JWT for Alice
+  const jwtResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/token',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }, { email: 'alice@example.com', password: TEST_PWD });
+  assert(jwtResAlice.statusCode === 200 && jwtResAlice.json?.token, 'JWT endpoint issues cryptographically signed token');
+
+  const aliceJwt = jwtResAlice.json.token;
+  const jwtParts = aliceJwt.split('.');
+  assert(jwtParts.length === 3, 'JWT has standard 3-part compact structure (header.payload.signature)');
+
+  const decodedPayload = JSON.parse(Buffer.from(jwtParts[1], 'base64').toString('utf8'));
+  assert(decodedPayload.sub === 'usr_001_alice' && decodedPayload.exp > decodedPayload.iat, 'JWT payload contains valid subject and expiration claims');
+
+  // 10.2 Anonymous sync access rejected
+  const anonSyncRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+  });
+  assert(anonSyncRes.statusCode === 401, 'Anonymous request to /api/sync/pull strictly rejected with HTTP 401');
+
+  // 10.3 Forged signature rejected
+  const forgedJwt = `${jwtParts[0]}.${jwtParts[1]}.invalid_tampered_signature_12345`;
+  const forgedRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${forgedJwt}` },
+  });
+  assert(forgedRes.statusCode === 401, 'Forged JWT with modified signature strictly rejected with HTTP 401');
+
+  // 10.4 User A pushes child snapshot
+  const aliceSyncPayload = {
+    profiles: [{ id: 'child_alice_1', name: 'Maryam', ageBand: '7-9', avatar: 'av-girl1' }],
+    activeProfileId: 'child_alice_1',
+    profilesProgress: { child_alice_1: { stars: 120, gems: 45 } },
+    parentSettings: { dailyLimitMin: 30, quietHoursEnabled: true, reciterId: 'alafasy', showEnglishTranslation: true, showSimpleTafsir: true, translationSource: 'clearquran', pin: '1234' },
+    gratitudeEntries: [],
+  };
+
+  const pushResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/push',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${aliceJwt}`,
+    },
+  }, aliceSyncPayload);
+  assert(pushResAlice.statusCode === 200 && pushResAlice.json?.profileCount === 1, 'User A securely pushes progress snapshot to cloud (HTTP 200)');
+
+  // 10.5 User A pulls snapshot
+  const pullResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${aliceJwt}` },
+  });
+  assert(pullResAlice.statusCode === 200 && pullResAlice.json?.hasData === true && pullResAlice.json?.snapshot?.activeProfileId === 'child_alice_1', 'User A retrieves own cloud snapshot successfully');
+
+  // 10.6 User B issues JWT and pulls -> MUST NOT see User A's data (Tenant Isolation)
+  const jwtResBob = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/token',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }, { email: 'bob@example.com', password: TEST_PWD });
+  const bobJwt = jwtResBob.json.token;
+
+  const pullResBob = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${bobJwt}` },
+  });
+  assert(pullResBob.statusCode === 200 && pullResBob.json?.hasData === false && pullResBob.json?.snapshot === null, 'User B receives 0 records when pulling (Tenant Isolation: User A data is 100% hidden)\n');
+
   console.log('=====================================================');
   console.log(`SECURITY SUITE SUMMARY: ${passed} / ${total} PASSED`);
   if (passed === total) {

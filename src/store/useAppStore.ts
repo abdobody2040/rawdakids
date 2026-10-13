@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '@/constants/i18n';
 import { securityCryptoService, EncryptedBackupEnvelope } from '@/services/securityCryptoService';
-import { backupValidationService } from '@/services/backupValidationService';
+import { backupValidationService, ValidatedBackupData } from '@/services/backupValidationService';
 
 export type AgeBand = '4-6' | '7-9' | '10-13';
 
@@ -196,6 +196,9 @@ export interface AppState {
     envelope: EncryptedBackupEnvelope,
     passphrase: string
   ) => { success: boolean; profileCount?: number; errorAr?: string; errorEn?: string };
+  restoreValidatedData: (
+    data: ValidatedBackupData
+  ) => { success: boolean; profileCount: number };
 }
 
 const STORAGE_KEY = '@noor_kids_app_state_v1';
@@ -1017,7 +1020,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     // 3. Hydrate state safely
-    const data = validationResult.sanitizedData;
+    return get().restoreValidatedData(validationResult.sanitizedData);
+  },
+
+  restoreValidatedData: (data: ValidatedBackupData) => {
     const activeId = data.activeProfileId;
     const activeProg = data.profilesProgress[activeId] || {};
 
