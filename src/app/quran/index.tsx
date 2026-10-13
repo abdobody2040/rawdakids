@@ -27,7 +27,7 @@ const NAV_QURAN_IMG = require('../../../assets/images/nav-quran-3d.jpg');
 
 export default function QuranGardenScreen() {
   const router = useRouter();
-  const { language, surahProgress } = useAppStore();
+  const { language, surahProgress, lastReadMushafPage } = useAppStore();
   const t = TRANSLATIONS[language];
 
   const [selectedTab, setSelectedTab] = useState<'juz_amma' | 'all' | 'favorites'>('juz_amma');
@@ -149,17 +149,62 @@ export default function QuranGardenScreen() {
                   />
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.memorizeHeroBtn}
-                onPress={() => router.push('/quran/repeat')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="headset" size={20} color={COLORS.primaryDark} />
-                <Text style={styles.memorizeHeroBtnText}>{t.memorizationMode}</Text>
-              </TouchableOpacity>
+              {/* Action Buttons: Repeat Player & Mushaf 604 Pages */}
+              <View style={[styles.heroActionsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                <TouchableOpacity
+                  style={styles.memorizeHeroBtn}
+                  onPress={() => router.push('/quran/repeat')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="headset" size={17} color={COLORS.primaryDark} />
+                  <Text style={styles.memorizeHeroBtnText}>{t.memorizationMode}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.mushafHeroBtn}
+                  onPress={() => router.push('/quran/mushaf')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="book" size={17} color="#92400E" />
+                  <Text style={styles.mushafHeroBtnText}>
+                    {language === 'ar' ? `المصحف (ص ${lastReadMushafPage || 1}) 📖` : `Mushaf (p. ${lastReadMushafPage || 1}) 📖`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </LinearGradient>
           </ImageBackground>
         </View>
+
+      {/* Featured Mushaf Page Reader Banner */}
+      <TouchableOpacity
+        style={styles.mushafFeatureCard}
+        onPress={() => router.push('/quran/mushaf')}
+        activeOpacity={0.85}
+      >
+        <LinearGradient
+          colors={['#FFFDF7', '#FEF3C7']}
+          style={[styles.mushafFeatureCardGradient, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}
+        >
+          <View style={styles.mushafIconBadge}>
+            <Ionicons name="book" size={24} color="#B45309" />
+          </View>
+          <View style={[styles.mushafFeatureInfo, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
+            <Text style={styles.mushafFeatureTitle}>
+              {language === 'ar' ? 'المصحف الشريف الإلكتروني (٦٠٤ صفحة) 📖' : 'Read Madinah Mushaf (604 Pages) 📖'}
+            </Text>
+            <Text style={styles.mushafFeatureSub}>
+              {language === 'ar'
+                ? `طبعة مجمع الملك فهد الأصلية • واصل من صفحة ${lastReadMushafPage || 1} 🔖`
+                : `Authentic Madinah Mushaf • Resume page ${lastReadMushafPage || 1} 🔖`}
+            </Text>
+          </View>
+          <Ionicons
+            name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
+            size={20}
+            color="#B45309"
+          />
+        </LinearGradient>
+      </TouchableOpacity>
 
       {/* Search Input */}
       <View style={styles.searchContainer}>
@@ -328,20 +373,88 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 4,
   },
+  heroActionsRow: {
+    gap: 8,
+    alignItems: 'center',
+    width: '100%',
+  },
   memorizeHeroBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.card,
-    paddingVertical: SPACING.sm + 2,
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: 8,
     borderRadius: RADIUS.lg,
     ...SHADOWS.soft,
   },
   memorizeHeroBtnText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
     color: COLORS.primaryDark,
+  },
+  mushafHeroBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: 8,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    ...SHADOWS.soft,
+  },
+  mushafHeroBtnText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#92400E',
+  },
+  mushafFeatureCard: {
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.xs,
+    marginBottom: SPACING.xs,
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    ...SHADOWS.medium,
+  },
+  mushafFeatureCardGradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  mushafIconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1.5,
+    borderColor: '#FCD34D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOWS.soft,
+  },
+  mushafFeatureInfo: {
+    flex: 1,
+  },
+  mushafFeatureTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#78350F',
+  },
+  mushafFeatureSub: {
+    fontSize: 11,
+    color: '#92400E',
+    marginTop: 2,
+    fontWeight: '600',
   },
   searchContainer: {
     flexDirection: 'row',

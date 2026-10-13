@@ -83,6 +83,7 @@ export default function HomeScreen() {
     streakCount,
     addStars,
     addGems,
+    lastReadMushafPage,
   } = useAppStore();
 
   const isAr = language === 'ar';
@@ -392,6 +393,56 @@ export default function HomeScreen() {
                   {isAr ? 'بحث ذكي' : 'Search'}
                 </Text>
               </View>
+            </TouchableOpacity>
+
+            {/* QUICK MUSHAF ACCESS CARD */}
+            <TouchableOpacity
+              style={styles.homeMushafBanner}
+              onPress={() => router.push('/quran/mushaf' as any)}
+              activeOpacity={0.88}
+            >
+              <LinearGradient
+                colors={['#FFFBEB', '#FEF3C7']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[
+                  styles.homeMushafBannerInner,
+                  { flexDirection: isAr ? 'row-reverse' : 'row' },
+                ]}
+              >
+                <View style={styles.homeMushafIconBox}>
+                  <Ionicons name="book" size={22} color="#B45309" />
+                </View>
+
+                <View style={[styles.homeMushafTextBox, isAr && { alignItems: 'flex-end' }]}>
+                  <View style={[styles.homeMushafTitleRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <Text style={styles.homeMushafTitle}>
+                      {isAr ? 'المصحف الشريف الإلكتروني' : 'The Holy Mushaf'}
+                    </Text>
+                    <View style={styles.homeMushafBadge}>
+                      <Text style={styles.homeMushafBadgeText}>
+                        {isAr ? `صفحة ${lastReadMushafPage || 1}` : `Page ${lastReadMushafPage || 1}`}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.homeMushafSubtitle, isAr && { textAlign: 'right' }]}>
+                    {isAr
+                      ? 'اقرأ القرآن الكريم بطبعة مصحف المدينة المنورة (٦٠٤ صفحة)'
+                      : 'Read the complete Madinah Mushaf with authentic pages'}
+                  </Text>
+                </View>
+
+                <View style={[styles.homeMushafActionBtn, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  <Text style={styles.homeMushafActionBtnText}>
+                    {isAr ? 'قراءة' : 'Read'}
+                  </Text>
+                  <Ionicons
+                    name={isAr ? 'chevron-back' : 'chevron-forward'}
+                    size={14}
+                    color="#92400E"
+                  />
+                </View>
+              </LinearGradient>
             </TouchableOpacity>
 
 
@@ -1063,6 +1114,73 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
   },
   homeSearchActionBadgeText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#92400E',
+  },
+  // QUICK MUSHAF ACCESS BANNER
+  homeMushafBanner: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    ...SHADOWS.soft,
+  },
+  homeMushafBannerInner: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    gap: 10,
+  },
+  homeMushafIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FDE68A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeMushafTextBox: {
+    flex: 1,
+  },
+  homeMushafTitleRow: {
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  homeMushafTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#78350F',
+  },
+  homeMushafBadge: {
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+  },
+  homeMushafBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  homeMushafSubtitle: {
+    fontSize: 11,
+    color: '#92400E',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  homeMushafActionBtn: {
+    alignItems: 'center',
+    gap: 2,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  homeMushafActionBtnText: {
     fontSize: 11,
     fontWeight: '900',
     color: '#92400E',

@@ -77,6 +77,36 @@ export default function SmartSearchModal({
   const allSearchableItems: SearchResultItem[] = useMemo(() => {
     const items: SearchResultItem[] = [];
 
+    // 0. Dedicated Full Mushaf (604 Pages Madinah Mushaf)
+    items.push({
+      id: 'mushaf-full',
+      category: 'quran',
+      categoryLabelAr: 'المصحف الشريف',
+      categoryLabelEn: 'Holy Mushaf',
+      categoryColor: '#D97706',
+      categoryIcon: 'book-outline',
+      titleAr: 'المصحف الشريف الإلكتروني (طبعة المدينة المنورة)',
+      titleEn: 'Electronic Madinah Mushaf (604 Pages)',
+      subtitleAr: 'قراءة القرآن الكريم كاملاً بصيغة المصحف الورقي مع الفهرس والعلامات • ٦٠٤ صفحة',
+      subtitleEn: 'Read the complete Quran page-by-page just like a physical Mushaf • 604 Pages',
+      route: '/quran/mushaf',
+      keywords: [
+        'مصحف',
+        'المصحف',
+        'مصحف المدينة',
+        'صفحات',
+        'صفحة',
+        'قراءة المصحف',
+        'تصفح',
+        'ختمة',
+        'mushaf',
+        'madinah',
+        'pages',
+        'quran pages',
+        'reading',
+      ],
+    });
+
     // 1. Quran Surahs (114 Surahs)
     ALL_114_SURAHS_CATALOG.forEach((s: SurahMeta) => {
       items.push({

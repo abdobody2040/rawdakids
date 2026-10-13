@@ -56,6 +56,7 @@ async function runRouteTests() {
   const routes = [
     { path: '/', expectedContent: 'noor kids' },
     { path: '/quran', expectedContent: 'html' },
+    { path: '/quran/mushaf', expectedContent: 'html' },
     { path: '/quran/1', expectedContent: 'html' },
     { path: '/quran/78', expectedContent: 'html' },
     { path: '/quran/112', expectedContent: 'html' },

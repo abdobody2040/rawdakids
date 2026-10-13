@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { MUSHAF_SURAHS } from '@/data/mushafData';
 import { quranService } from '@/services/quranService';
 import { audioService } from '@/services/audioService';
 import { useAppStore, HifzStatus } from '@/store/useAppStore';
@@ -28,6 +29,7 @@ import { quranWordsService } from '@/services/quranWordsService';
 import { WordMeaning } from '@/data/quranWordsData';
 
 export default function SurahDetailScreen() {
+  const router = useRouter();
   const { surahId } = useLocalSearchParams();
   const surahNumber = parseInt(String(surahId || '1'), 10);
 
@@ -395,6 +397,24 @@ export default function SurahDetailScreen() {
               style={[styles.toggleChipText, showTafsir && styles.toggleChipTextActive]}
             >
               {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.openInMushafChip}
+            onPress={() => {
+              const surahMeta = MUSHAF_SURAHS.find((s) => s.number === surah.number);
+              const startPage = surahMeta?.startPage || 1;
+              router.push({
+                pathname: '/quran/mushaf' as any,
+                params: { page: startPage.toString() },
+              });
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="book" size={13} color="#B45309" />
+            <Text style={styles.openInMushafChipText}>
+              {language === 'ar' ? 'عرض في المصحف 📄' : 'View in Mushaf 📄'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -983,6 +1003,22 @@ const styles = StyleSheet.create({
   },
   toggleChipTextActive: {
     color: COLORS.primaryDark,
+  },
+  openInMushafChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  openInMushafChipText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#B45309',
   },
   ayahsContainer: {
     padding: SPACING.md,

@@ -53,6 +53,8 @@ export interface ChildProgressData {
     emoji: string;
     text: string;
   }[];
+  lastReadMushafPage?: number;
+  mushafBookmarks?: number[];
 }
 
 export const createDefaultChildProgress = (avatar: string): ChildProgressData => ({
@@ -69,6 +71,8 @@ export const createDefaultChildProgress = (avatar: string): ChildProgressData =>
   unlockedBadges: ['badge-reciter'],
   selectedAvatarId: avatar,
   gratitudeEntries: [],
+  lastReadMushafPage: 1,
+  mushafBookmarks: [1],
 });
 
 export interface AppState {
@@ -97,6 +101,11 @@ export interface AppState {
   markSurahCompleted: (surahNumber: number) => void;
   downloadedSurahs: Record<number, boolean>;
   setSurahDownloaded: (surahNumber: number, downloaded: boolean) => void;
+  // Madinah Mushaf Page Reader (604 Pages)
+  lastReadMushafPage: number;
+  setLastReadMushafPage: (page: number) => void;
+  mushafBookmarks: number[];
+  toggleMushafBookmark: (page: number) => void;
 
   // Hadith Progress
   hadithProgress: Record<string, { completed: boolean; stars: number }>;
@@ -193,6 +202,8 @@ const executeSave = async (state: AppState) => {
       unlockedBadges: state.unlockedBadges,
       selectedAvatarId: state.selectedAvatarId,
       gratitudeEntries: state.gratitudeEntries,
+      lastReadMushafPage: state.lastReadMushafPage,
+      mushafBookmarks: state.mushafBookmarks,
     };
     const updatedProfilesProgress = {
       ...state.profilesProgress,
@@ -220,6 +231,8 @@ const executeSave = async (state: AppState) => {
       freezesLeft: state.freezesLeft,
       parentSettings: state.parentSettings,
       downloadedSurahs: state.downloadedSurahs,
+      lastReadMushafPage: state.lastReadMushafPage,
+      mushafBookmarks: state.mushafBookmarks,
       weeklyChallenges: state.weeklyChallenges,
       gratitudeEntries: state.gratitudeEntries,
     };
@@ -331,6 +344,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       unlockedBadges: state.unlockedBadges,
       selectedAvatarId: state.selectedAvatarId,
       gratitudeEntries: state.gratitudeEntries,
+      lastReadMushafPage: state.lastReadMushafPage,
+      mushafBookmarks: state.mushafBookmarks,
     };
 
     const updatedProgressMap = {
@@ -359,6 +374,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       unlockedBadges: targetProgress.unlockedBadges,
       selectedAvatarId: targetProgress.selectedAvatarId,
       gratitudeEntries: targetProgress.gratitudeEntries,
+      lastReadMushafPage: targetProgress.lastReadMushafPage ?? 1,
+      mushafBookmarks: targetProgress.mushafBookmarks ?? [1],
     });
     persistState(get());
   },
@@ -383,6 +400,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       unlockedBadges: state.unlockedBadges,
       selectedAvatarId: state.selectedAvatarId,
       gratitudeEntries: state.gratitudeEntries,
+      lastReadMushafPage: state.lastReadMushafPage,
+      mushafBookmarks: state.mushafBookmarks,
     };
 
     const newChildProgress = createDefaultChildProgress(newProfile.avatar);
@@ -410,6 +429,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       unlockedBadges: newChildProgress.unlockedBadges,
       selectedAvatarId: newChildProgress.selectedAvatarId,
       gratitudeEntries: newChildProgress.gratitudeEntries,
+      lastReadMushafPage: 1,
+      mushafBookmarks: [1],
     });
     persistState(get());
     return id;
@@ -567,6 +588,25 @@ export const useAppStore = create<AppState>((set, get) => ({
         [surahNumber]: downloaded,
       },
     }));
+    persistState(get());
+  },
+
+  lastReadMushafPage: 1,
+  setLastReadMushafPage: (page: number) => {
+    const validPage = Math.max(1, Math.min(604, page));
+    set({ lastReadMushafPage: validPage });
+    persistState(get());
+  },
+
+  mushafBookmarks: [1],
+  toggleMushafBookmark: (page: number) => {
+    const validPage = Math.max(1, Math.min(604, page));
+    const { mushafBookmarks } = get();
+    const exists = mushafBookmarks.includes(validPage);
+    const updated = exists
+      ? mushafBookmarks.filter((p) => p !== validPage)
+      : [...mushafBookmarks, validPage].sort((a, b) => a - b);
+    set({ mushafBookmarks: updated });
     persistState(get());
   },
 
@@ -826,9 +866,13 @@ export const useAppStore = create<AppState>((set, get) => ({
             unlockedBadges: parsed.unlockedBadges || ['badge-reciter'],
             selectedAvatarId: parsed.selectedAvatarId || 'av-boy1',
             gratitudeEntries: parsed.gratitudeEntries || [],
+            lastReadMushafPage: parsed.lastReadMushafPage ?? 1,
+            mushafBookmarks: parsed.mushafBookmarks ?? [1],
           };
         }
-        set({ ...parsed, profilesProgress, isHydrated: true });
+        const lastReadMushafPage = parsed.lastReadMushafPage ?? 1;
+        const mushafBookmarks = parsed.mushafBookmarks ?? [1];
+        set({ ...parsed, profilesProgress, lastReadMushafPage, mushafBookmarks, isHydrated: true });
         return;
       }
     } catch {

@@ -1077,10 +1077,34 @@
   - `npx.cmd tsc --noEmit`: **0 errors**.
   - `npx.cmd expo export --platform web`: **Exported cleanly (23 routes)**.
   - Server restart on port 3000: active with gzip support.
-  - Full E2E Test Suite (`node scripts/test-e2e.js`): **67 / 67 PASSED (100%)**.
-  - Git commit: `9e7a786`.
+### Milestone 61: Dedicated 604-Page Electronic Madinah Mushaf (/quran/mushaf)
+- **User Request & Theological Grounding:**
+  - "هل ممكن نضيف المصحف كاملا للاتطبيق بطعته الالكترونية من مصدر موثوق بحيث يقدر الطفل يقراء فيه اكنه بيقراء من المصحفعادى؟"
+  - Agreement on placement: Dedicated full-screen route `/quran/mushaf` within the Quran section, with quick-access cards/buttons on the Home screen (`/`), the Quran Hub (`/quran`), and inside every Surah detail screen (`/quran/[surahId]`), plus Smart Search indexing.
+- **Implementation & Architecture:**
+  1. **Dataset (`src/data/mushafData.ts`):**
+     - Sourced from King Fahd Glorious Quran Printing Complex (مجمع الملك فهد لطباعة المصحف الشريف بالمدينة المنورة) - standard 604-page Madinah Mushaf.
+     - Accurate mapping for all 114 Surahs with start pages, Ayah counts, revelation types, and authentic Juz (1-30) / Hizb (1-60) divisions.
+     - CDN delivery with Android Quran.com width_1260 high-resolution scans and reliable fallback mirrors.
+  2. **Dedicated Interactive Viewer (`src/app/quran/mushaf.tsx`):**
+     - Styled with an authentic golden paper frame (`mushafPaperFrame`), Surah/Juz/Hizb header banner, ribbon bookmarking (`🔖`), audio recitation playback via `audioService.playAyah`, and responsive bottom pagination controller (Previous/Next page, direct page input).
+     - Full 4-tab index modal (`MushafIndexModal`): Surahs (114), Ajzaa (30), Saved Bookmarks, and direct page keypad jump (1-604).
+  3. **Multi-Entry Access Architecture:**
+     - **Home Screen (`src/app/index.tsx`):** Quick-access golden banner with current reading badge (`صفحة X`), description, and direct "قراءة" button.
+     - **Quran Hub (`src/app/quran/index.tsx`):** Hero action button «المصحف (ص X) 📖» + featured golden card with resume indicator.
+     - **Surah Detail Screen (`src/app/quran/[surahId].tsx`):** Contextual «عرض في المصحف 📄» button in `togglesRow` jumping directly to that surah's starting page in the Mushaf.
+     - **Smart Search (`src/components/SmartSearchModal.tsx`):** Pre-indexed searchable item for `mushaf-full` with Arabic/English keywords.
+  4. **Per-Child Bookmarking & Reading State (`src/store/useAppStore.ts`):**
+     - `lastReadMushafPage` (number, default 1) and `mushafBookmarks` (number array).
+     - Deeply integrated into per-child profile snapshots (`ChildProgressData`, `createDefaultChildProgress`, `setActiveProfile`, `addProfile`, `executeSave`, and `hydrate`).
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **Exported cleanly (24 static routes, including `/quran/mushaf` 64KB)**.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **68 / 68 PASSED (100%)**.
+  - Server port 3000 actively serving latest build with gzip compression.
 
 ---
+
 
 
 
