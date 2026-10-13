@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedHadith } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -58,13 +59,14 @@ export default function HadithDetailScreen() {
   const hadith =
     hadithService.getById(String(hadithId)) || hadithService.getAll()[0];
 
+  const localized = getLocalizedHadith(hadith, language);
   const [activeStoryScene, setActiveStoryScene] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
 
-  const currentScene = hadith.miniStory[activeStoryScene];
+  const currentScene = localized.miniStory[activeStoryScene];
   const sceneImg = getSceneImage(hadith.id, activeStoryScene, hadith.theme);
-  const selectedChoice = hadith.scenario.choices.find((c) => c.id === selectedChoiceId);
+  const selectedChoice = localized.scenario.choices.find((c) => c.id === selectedChoiceId);
 
   const handleChoiceSelect = (choiceId: string) => {
     setSelectedChoiceId(choiceId);
@@ -79,7 +81,7 @@ export default function HadithDetailScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header
         showBack
-        title={language === 'ar' ? hadith.titleAr : hadith.titleEn}
+        title={localized.title}
       />
 
       <ScrollView
@@ -105,12 +107,12 @@ export default function HadithDetailScreen() {
           <View style={styles.narratorBox}>
             <Text style={styles.narratorText}>
               {t.narrator}:{' '}
-              {language === 'ar' ? hadith.narratorAr : hadith.narratorEn}
+              {localized.narrator}
             </Text>
           </View>
 
           <Text style={styles.explanationText}>
-            {language === 'ar' ? hadith.explanationAr : hadith.explanationEn}
+            {localized.explanation}
           </Text>
         </View>
 
@@ -119,14 +121,22 @@ export default function HadithDetailScreen() {
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="book" size={20} color={COLORS.secondaryDark} />
             <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'قصة مصورة عن الحديث' : 'Illustrated Mini-Story'}
+              {language === 'ar'
+                ? 'قصة مصورة عن الحديث'
+                : language === 'fr'
+                ? 'Mini-histoire illustrée'
+                : language === 'de'
+                ? 'Illustrierte Kurzgeschichte'
+                : language === 'es'
+                ? 'Mini-historia ilustrada'
+                : 'Illustrated Mini-Story'}
             </Text>
           </View>
 
           <View style={styles.storyCard}>
             <View style={styles.sceneHeader}>
               <Text style={styles.sceneTitle}>
-                {language === 'ar' ? currentScene.titleAr : currentScene.titleEn}
+                {currentScene.title}
               </Text>
               <Text style={styles.sceneCounter}>
                 {activeStoryScene + 1} / {hadith.miniStory.length}
@@ -142,7 +152,7 @@ export default function HadithDetailScreen() {
             </View>
 
             <Text style={styles.sceneText}>
-              {language === 'ar' ? currentScene.textAr : currentScene.textEn}
+              {currentScene.text}
             </Text>
 
             {/* Scene Navigation */}
@@ -193,13 +203,11 @@ export default function HadithDetailScreen() {
 
           <View style={styles.scenarioCard}>
             <Text style={styles.scenarioPrompt}>
-              {language === 'ar'
-                ? hadith.scenario.promptAr
-                : hadith.scenario.promptEn}
+              {localized.scenario.prompt}
             </Text>
 
             <View style={styles.choicesList}>
-              {hadith.scenario.choices.map((choice) => {
+              {localized.scenario.choices.map((choice) => {
                 const isSelected = selectedChoiceId === choice.id;
 
                 return (
@@ -233,7 +241,7 @@ export default function HadithDetailScreen() {
                       }
                     />
                     <Text style={styles.choiceText}>
-                      {language === 'ar' ? choice.textAr : choice.textEn}
+                      {choice.text}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -256,9 +264,7 @@ export default function HadithDetailScreen() {
                     : t.gentleWrongFeedback}
                 </Text>
                 <Text style={styles.feedbackExplanation}>
-                  {language === 'ar'
-                    ? selectedChoice.explanationAr
-                    : selectedChoice.explanationEn}
+                  {selectedChoice.explanation}
                 </Text>
               </View>
             )}
@@ -275,6 +281,12 @@ export default function HadithDetailScreen() {
         subtitle={
           language === 'ar'
             ? 'أحسنت اختيار السلوك النبوي الشريف!'
+            : language === 'fr'
+            ? 'Bravo ! Tu as choisi la noble voie prophétique !'
+            : language === 'de'
+            ? 'Gut gemacht! Du hast den edlen prophetischen Weg gewählt!'
+            : language === 'es'
+            ? '¡Bien hecho! ¡Elegiste el noble camino de la Sunnah!'
             : 'Well done choosing the noble Sunnah way!'
         }
         onDismiss={() => setShowCelebration(false)}

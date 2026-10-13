@@ -1,5 +1,4 @@
-// Parent Gate Modal (Simple Math Verification or PIN)
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -14,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { securityCryptoService } from '@/services/securityCryptoService';
 
 interface ParentGateModalProps {
   visible: boolean;
@@ -22,7 +22,13 @@ interface ParentGateModalProps {
 }
 
 export default function ParentGateModal({ visible, onClose, onSuccess }: ParentGateModalProps) {
-  const { language, parentSettings } = useAppStore();
+  const {
+    language,
+    parentSettings,
+    verifyParentPin,
+    recordFailedPinAttempt,
+    resetPinAttempts,
+  } = useAppStore();
   const t = TRANSLATIONS[language];
 
   const [question, setQuestion] = useState(() => ({
@@ -31,6 +37,33 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
   }));
   const [inputAnswer, setInputAnswer] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [lockoutSec, setLockoutSec] = useState(() => {
+    return securityCryptoService.checkLockout(
+      parentSettings.pinFailedAttempts || 0,
+      parentSettings.pinLockoutUntil || null
+    ).remainingSeconds;
+  });
+
+  useEffect(() => {
+    const status = securityCryptoService.checkLockout(
+      parentSettings.pinFailedAttempts || 0,
+      parentSettings.pinLockoutUntil || null
+    );
+    setLockoutSec(status.remainingSeconds);
+
+    if (status.remainingSeconds > 0) {
+      const interval = setInterval(() => {
+        setLockoutSec((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [parentSettings.pinLockoutUntil, parentSettings.pinFailedAttempts, visible]);
 
   const generateNewQuestion = () => {
     setQuestion({
@@ -42,16 +75,35 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
   };
 
   const handleVerify = () => {
+    if (lockoutSec > 0) {
+      return;
+    }
     const correctAnswer = question.a * question.b;
-    const isPinCorrect = inputAnswer.trim() === parentSettings.pin;
     const isMathCorrect = parseInt(inputAnswer.trim(), 10) === correctAnswer;
+    const isPinCorrect = verifyParentPin(inputAnswer.trim());
 
-    if (isMathCorrect || isPinCorrect) {
+    if (isPinCorrect || isMathCorrect) {
+      resetPinAttempts();
       setErrorMessage('');
       generateNewQuestion();
       onSuccess();
     } else {
-      setErrorMessage(t.wrongAnswer);
+      const lockStatus = recordFailedPinAttempt();
+      if (lockStatus.isLocked) {
+        setLockoutSec(lockStatus.remainingSeconds);
+        setErrorMessage(
+          language === 'ar'
+            ? `محاولات خاطئة متعددة! تم إيقاف الإدخال مؤقتاً لمدة ${lockStatus.remainingSeconds} ثانية.`
+            : `Too many failed attempts! Locked out for ${lockStatus.remainingSeconds} seconds.`
+        );
+      } else {
+        const remainingTries = 3 - (parentSettings.pinFailedAttempts || 0);
+        setErrorMessage(
+          language === 'ar'
+            ? `${t.wrongAnswer} (متبقي ${Math.max(1, remainingTries)} محاولات قبل القفل المؤقت)`
+            : `${t.wrongAnswer} (${Math.max(1, remainingTries)} attempts left before cooldown)`
+        );
+      }
     }
   };
 
@@ -76,21 +128,36 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
             <Ionicons name="close" size={22} color={COLORS.textSecondary} />
           </TouchableOpacity>
 
-          <View style={styles.iconCircle}>
-            <Ionicons name="shield-checkmark" size={32} color={COLORS.primary} />
+          <View style={[styles.iconCircle, lockoutSec > 0 && styles.iconCircleLocked]}>
+            <Ionicons
+              name={lockoutSec > 0 ? "lock-closed" : "shield-checkmark"}
+              size={32}
+              color={lockoutSec > 0 ? "#DC2626" : COLORS.primary}
+            />
           </View>
 
           <Text style={styles.title}>{t.parentGateTitle}</Text>
           <Text style={styles.subtitle}>{t.parentGateSub}</Text>
 
-          <View style={styles.localSecurityBadge}>
-            <Ionicons name="shield-checkmark" size={14} color="#059669" />
-            <Text style={styles.localSecurityBadgeText}>
-              {language === 'ar'
-                ? 'حماية محلية برمز PIN (محفوظ على هذا الجهاز فقط)'
-                : 'Local on-device PIN protection'}
-            </Text>
-          </View>
+          {lockoutSec > 0 ? (
+            <View style={styles.lockoutBanner}>
+              <Ionicons name="time" size={16} color="#DC2626" />
+              <Text style={styles.lockoutBannerText}>
+                {language === 'ar'
+                  ? `تم الإيقاف المؤقت للحماية: انتظر ${lockoutSec} ثانية`
+                  : `Security cooldown active: wait ${lockoutSec}s`}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.localSecurityBadge}>
+              <Ionicons name="shield-checkmark" size={14} color="#059669" />
+              <Text style={styles.localSecurityBadgeText}>
+                {language === 'ar'
+                  ? 'حماية مشفرة برمز PIN + منع التخمين'
+                  : 'Salted Hash PIN Protection'}
+              </Text>
+            </View>
+          )}
 
           <View style={styles.questionContainer}>
             <Text style={styles.questionText}>
@@ -99,15 +166,16 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
           </View>
 
           <TextInput
-            style={styles.input}
+            style={[styles.input, lockoutSec > 0 && styles.inputDisabled]}
             placeholder={
-              language === 'ar'
-                ? `اكتب رمز PIN (${parentSettings.pin ? '••••' : '1234'}) أو ناتج الضرب`
-                : 'Enter local PIN or math answer'
+              lockoutSec > 0
+                ? (language === 'ar' ? 'مغلق مؤقتاً...' : 'Temporarily locked...')
+                : (language === 'ar' ? 'اكتب رمز PIN أو ناتج الضرب' : 'Enter local PIN or math answer')
             }
             placeholderTextColor={COLORS.textMuted}
             keyboardType="number-pad"
             value={inputAnswer}
+            editable={lockoutSec === 0}
             onChangeText={(text) => {
               setInputAnswer(text);
               setErrorMessage('');
@@ -121,8 +189,16 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
             <TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
               <Text style={styles.cancelBtnText}>{t.cancel}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitBtn} onPress={handleVerify}>
-              <Text style={styles.submitBtnText}>{t.submitAnswer}</Text>
+            <TouchableOpacity
+              style={[styles.submitBtn, lockoutSec > 0 && styles.submitBtnDisabled]}
+              onPress={handleVerify}
+              disabled={lockoutSec > 0}
+            >
+              <Text style={styles.submitBtnText}>
+                {lockoutSec > 0
+                  ? (language === 'ar' ? `انتظر (${lockoutSec}ث)` : `Wait (${lockoutSec}s)`)
+                  : t.submitAnswer}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -261,5 +337,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: COLORS.textLight,
+  },
+  iconCircleLocked: {
+    backgroundColor: '#FEE2E2',
+  },
+  lockoutBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.md,
+  },
+  lockoutBannerText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#DC2626',
+  },
+  inputDisabled: {
+    backgroundColor: '#F1F5F9',
+    borderColor: '#CBD5E1',
+    opacity: 0.7,
+  },
+  submitBtnDisabled: {
+    backgroundColor: '#94A3B8',
+    shadowOpacity: 0,
+    elevation: 0,
   },
 });

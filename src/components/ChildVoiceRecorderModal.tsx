@@ -12,13 +12,14 @@ import { Ayah } from '@/data/quranData';
 import { voiceRecordService } from '@/services/voiceRecordService';
 import { audioService } from '@/services/audioService';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/theme';
+import { Language } from '@/constants/i18n';
 
 interface ChildVoiceRecorderModalProps {
   visible: boolean;
   ayah: Ayah | null;
   surahName: string;
   reciterAudioUrl?: string;
-  language: 'ar' | 'en';
+  language: Language;
   onClose: () => void;
   onAwardReward: () => void;
 }

@@ -220,7 +220,8 @@ class AudioService {
       isPlaying: boolean;
       didJustFinish?: boolean;
       error?: boolean;
-    }) => void
+    }) => void,
+    langCode: string = 'ar'
   ): Promise<void> {
     try {
       await this.stop();
@@ -228,12 +229,13 @@ class AudioService {
       onStatusUpdate?.({ isPlaying: true, didJustFinish: false });
 
       // Determine TTS audio URLs
+      const targetLang = langCode || 'ar';
       const encodedText = encodeURIComponent(arabicText.trim());
       const proxyUrl =
         Platform.OS === 'web' && typeof window !== 'undefined'
-          ? `/api/tts?text=${encodedText}`
-          : `https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodedText}`;
-      const googleFallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodedText}`;
+          ? `/api/tts?text=${encodedText}&tl=${targetLang}`
+          : `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
+      const googleFallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
 
       // 1. Try Web Audio element with proxyUrl or googleFallbackUrl
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -268,7 +270,7 @@ class AudioService {
           // Attempt 2: direct Google TTS
           tryPlayHtmlAudio(googleFallbackUrl, () => {
             // Attempt 3: SpeechSynthesis fallback
-            this.playSpeechSynthesisFallback(arabicText, onStatusUpdate);
+            this.playSpeechSynthesisFallback(arabicText, onStatusUpdate, targetLang);
           });
         });
         return;
@@ -295,8 +297,9 @@ class AudioService {
 
       // Fallback to Native expo-speech
       if (ExpoSpeech?.speak) {
+        const nativeLang = targetLang === 'ar' ? 'ar-SA' : targetLang === 'fr' ? 'fr-FR' : targetLang === 'de' ? 'de-DE' : targetLang === 'es' ? 'es-ES' : 'en-US';
         ExpoSpeech.speak(arabicText, {
-          language: 'ar-SA',
+          language: nativeLang,
           rate: 0.85,
           onDone: () => {
             this.isPlaying = false;
@@ -323,19 +326,21 @@ class AudioService {
       isPlaying: boolean;
       didJustFinish?: boolean;
       error?: boolean;
-    }) => void
+    }) => void,
+    langCode: string = 'ar'
   ) {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(arabicText);
-        utterance.lang = 'ar-SA';
+        const synthLang = langCode === 'ar' ? 'ar-SA' : langCode === 'fr' ? 'fr-FR' : langCode === 'de' ? 'de-DE' : langCode === 'es' ? 'es-ES' : 'en-US';
+        utterance.lang = synthLang;
         utterance.rate = 0.85;
 
         const voices = window.speechSynthesis.getVoices();
-        const arVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ar'));
-        if (arVoice) {
-          utterance.voice = arVoice;
+        const matchedVoice = voices.find((v) => v.lang.toLowerCase().startsWith(langCode));
+        if (matchedVoice) {
+          utterance.voice = matchedVoice;
         }
 
         utterance.onend = () => {

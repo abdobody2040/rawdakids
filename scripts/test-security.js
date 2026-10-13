@@ -336,10 +336,48 @@ async function runSecuritySuite() {
   assert(rateLimitHit === true, 'Login route triggered HTTP 429 Too Many Requests after threshold');
   assert(Number(retryAfterHeader) > 0, `Rate limit response includes Retry-After header: ${retryAfterHeader}s\n`);
 
+  // --------------------------------------------------------------------------
+  // TEST 8: PARENTAL GATE CRYPTOGRAPHIC PIN & BRUTE-FORCE LOCKOUT
+  // --------------------------------------------------------------------------
+  console.log('--- 8. Parental Gate Cryptographic Salt/Hash & Lockout Verification ---');
+
+  const { securityCryptoService } = require('../src/services/securityCryptoService.ts');
+
+  // 8.1 Input validation
+  const invalidPinA = securityCryptoService.validatePinFormat('12');
+  const invalidPinB = securityCryptoService.validatePinFormat('abcd');
+  const invalidPinC = securityCryptoService.validatePinFormat('1234567');
+  const validPin = securityCryptoService.validatePinFormat('1234');
+  assert(!invalidPinA.valid && !invalidPinB.valid && !invalidPinC.valid, 'PIN validator strictly rejects non-digits and lengths outside 4-6 digits');
+  assert(validPin.valid, 'PIN validator accepts valid 4-digit PIN');
+
+  // 8.2 Salted SHA-256 hashing
+  const cred1 = securityCryptoService.hashPin('5678');
+  const cred2 = securityCryptoService.hashPin('5678');
+  assert(cred1.hash !== '5678', 'PIN is never stored in plaintext');
+  assert(cred1.hash.length === 64, 'PIN is hashed with standard 256-bit (64 hex char) digest');
+  assert(cred1.salt !== cred2.salt, 'Unique random cryptographic salt generated per PIN hash');
+  assert(cred1.hash !== cred2.hash, 'Salts guarantee identical PINs produce distinct cryptographic hashes');
+
+  // 8.3 Constant-time verification
+  const isMatch = securityCryptoService.verifyPin('5678', cred1.hash, cred1.salt);
+  const isWrong = securityCryptoService.verifyPin('9999', cred1.hash, cred1.salt);
+  assert(isMatch === true, 'Constant-time verification authenticates correct PIN');
+  assert(isWrong === false, 'Constant-time verification rejects incorrect PIN');
+
+  // 8.4 Stepped brute-force lockout
+  const lockout3 = securityCryptoService.calculateNextLockout(3);
+  const status3 = securityCryptoService.checkLockout(3, lockout3);
+  assert(status3.isLocked === true && status3.remainingSeconds <= 30 && status3.remainingSeconds >= 29, '3 failed attempts trigger 30-second security cooldown');
+
+  const lockout5 = securityCryptoService.calculateNextLockout(5);
+  const status5 = securityCryptoService.checkLockout(5, lockout5);
+  assert(status5.isLocked === true && status5.remainingSeconds <= 300 && status5.remainingSeconds >= 298, '5 failed attempts trigger 300-second (5 min) security cooldown\n');
+
   console.log('=====================================================');
   console.log(`SECURITY SUITE SUMMARY: ${passed} / ${total} PASSED`);
   if (passed === total) {
-    console.log('ALL 7 SECURITY PRINCIPLES FULLY SATISFIED & VERIFIED! 🛡️');
+    console.log('ALL SECURITY PRINCIPLES & HARDENED CONTROLS VERIFIED! 🛡️');
   } else {
     console.log('SOME SECURITY TESTS FAILED.');
   }

@@ -15,13 +15,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Surah } from '@/data/quranData';
 import { audioService } from '@/services/audioService';
 import { SHADOWS, RADIUS } from '@/constants/theme';
+import { Language } from '@/constants/i18n';
 
 const QURAN_GARDEN_IMG = require('../../assets/images/quran-garden.jpg');
 
 interface SurahStoryModalProps {
   visible: boolean;
   surah: Surah | null;
-  language: 'ar' | 'en';
+  language: Language;
   onDismiss: () => void;
   onStartReciting: () => void;
 }

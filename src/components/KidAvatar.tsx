@@ -1,5 +1,6 @@
 import { View, Text, ViewStyle, StyleProp } from 'react-native';
 import { Image, ImageStyle } from 'expo-image';
+import { Language } from '@/constants/i18n';
 
 const AVATAR_IMAGES: Record<string, any> = {
   'av-boy1': require('../../assets/images/avatar-boy-1.jpg'),
@@ -50,7 +51,7 @@ export const PRESET_AVATARS: PresetAvatar[] = [
 export function getAvatarDisplayName(
   avatarId: string,
   childName?: string,
-  language: 'ar' | 'en' = 'ar'
+  language: Language = 'ar'
 ): string {
   const av = PRESET_AVATARS.find((a) => a.id === avatarId || a.key === avatarId);
   const trimmed = childName?.trim();

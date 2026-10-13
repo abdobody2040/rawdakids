@@ -52,7 +52,7 @@ export default function SurahDetailScreen() {
   useEffect(() => {
     let isMounted = true;
     quranService
-      .getSurah(surahNumber, parentSettings.translationSource)
+      .getSurah(surahNumber, parentSettings.translationSource, language)
       .then((data) => {
         if (isMounted && data) {
           setSurah(data);
@@ -64,7 +64,7 @@ export default function SurahDetailScreen() {
     return () => {
       isMounted = false;
     };
-  }, [surahNumber, parentSettings.translationSource]);
+  }, [surahNumber, parentSettings.translationSource, language]);
 
   const [activeAyahNum, setActiveAyahNum] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -302,8 +302,8 @@ export default function SurahDetailScreen() {
               <View style={styles.revelationTypeBadge}>
                 <Text style={styles.revelationTypeText}>
                   {surah.revelationType === 'Meccan'
-                    ? (language === 'ar' ? 'مكية' : 'Meccan')
-                    : (language === 'ar' ? 'مدنية' : 'Medinan')}
+                    ? t.meccan
+                    : t.medinan}
                 </Text>
               </View>
             </View>
@@ -324,8 +324,8 @@ export default function SurahDetailScreen() {
               {isDownloading
                 ? `${downloadProgress}%`
                 : isDownloaded
-                ? (language === 'ar' ? 'محفوظة' : 'Saved')
-                : (language === 'ar' ? 'تنزيل' : 'Save')}
+                ? (language === 'ar' ? 'محفوظة' : language === 'fr' ? 'Enregistrée' : language === 'de' ? 'Gespeichert' : language === 'es' ? 'Guardada' : 'Saved')
+                : (language === 'ar' ? 'تنزيل' : language === 'fr' ? 'Télécharger' : language === 'de' ? 'Laden' : language === 'es' ? 'Descargar' : 'Save')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -336,7 +336,15 @@ export default function SurahDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Ionicons name="sparkles" size={15} color="#d97706" />
               <Text style={styles.storyShowcaseTitle}>
-                {language === 'ar' ? 'قصة السورة وعبرها المباركة:' : 'Surah Story & Wisdom:'}
+                {language === 'ar'
+                  ? 'قصة السورة وعبرها المباركة:'
+                  : language === 'fr'
+                  ? 'Histoire et sagesse de la sourate :'
+                  : language === 'de'
+                  ? 'Geschichte und Weisheit der Sure:'
+                  : language === 'es'
+                  ? 'Historia y sabiduría de la sura:'
+                  : 'Surah Story & Wisdom:'}
               </Text>
             </View>
           </View>
@@ -353,7 +361,15 @@ export default function SurahDetailScreen() {
           {((language === 'ar' ? surah.coreLessonsAr : surah.coreLessonsEn) || []).length > 0 && (
             <View style={[styles.goldenLessonRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
               <Text style={styles.goldenLessonTag}>
-                {language === 'ar' ? '🌱 العبرة الذهبية:' : '🌱 Core Lesson:'}
+                {language === 'ar'
+                  ? '🌱 العبرة الذهبية:'
+                  : language === 'fr'
+                  ? '🌱 Leçon clé :'
+                  : language === 'de'
+                  ? '🌱 Wichtigste Lehre:'
+                  : language === 'es'
+                  ? '🌱 Lección clave:'
+                  : '🌱 Core Lesson:'}
               </Text>
               <Text style={styles.goldenLessonText} numberOfLines={1}>
                 {language === 'ar' ? surah.coreLessonsAr[0] : surah.coreLessonsEn[0]}

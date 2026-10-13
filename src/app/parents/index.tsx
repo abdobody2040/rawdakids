@@ -14,13 +14,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
-import { TRANSLATIONS } from '@/constants/i18n';
+import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
 import InstallAndroidModal from '@/components/InstallAndroidModal';
 import { RECITERS } from '@/data/quranData';
 import { notificationService, DEFAULT_KID_REMINDERS } from '@/services/notificationService';
+import { securityCryptoService } from '@/services/securityCryptoService';
 
 export default function ParentsCornerScreen() {
   const {
@@ -34,6 +35,7 @@ export default function ParentsCornerScreen() {
     getChildProgress,
     parentSettings,
     updateParentSettings,
+    setParentPin,
     weeklyChallenges,
     confirmWeeklyChallenge,
   } = useAppStore();
@@ -45,7 +47,9 @@ export default function ParentsCornerScreen() {
   const [newChildAgeBand, setNewChildAgeBand] = useState<AgeBand>('7-9');
   const [newChildAvatar, setNewChildAvatar] = useState('av-girl1');
 
-  const [pinInput, setPinInput] = useState(parentSettings.pin);
+  const [pinInput, setPinInput] = useState('');
+  const [pinErrorMessage, setPinErrorMessage] = useState('');
+  const [pinSuccessMessage, setPinSuccessMessage] = useState(false);
   const [testNotificationSent, setTestNotificationSent] = useState(false);
 
   const handleDeleteChild = (id: string, name: string) => {
@@ -126,11 +130,25 @@ export default function ParentsCornerScreen() {
   };
 
   const handleSavePin = () => {
-    if (pinInput.trim().length >= 4) {
-      updateParentSettings({ pin: pinInput.trim() });
+    setPinErrorMessage('');
+    const validation = securityCryptoService.validatePinFormat(pinInput);
+    if (!validation.valid) {
+      const err = language === 'ar' ? (validation.errorAr || 'رمز غير صالح') : (validation.errorEn || 'Invalid PIN');
+      setPinErrorMessage(err);
+      Alert.alert(language === 'ar' ? 'تنبيه' : 'Validation Error', err);
+      return;
+    }
+
+    const success = setParentPin(pinInput);
+    if (success) {
+      setPinInput('');
+      setPinSuccessMessage(true);
+      setTimeout(() => setPinSuccessMessage(false), 4000);
       Alert.alert(
-        language === 'ar' ? 'تم الحفظ' : 'Saved',
-        language === 'ar' ? 'تم تحديث رمز الحماية بنجاح' : 'PIN updated successfully'
+        language === 'ar' ? 'تم الحفظ بأمان! 🔒' : 'PIN Saved Securely! 🔒',
+        language === 'ar'
+          ? 'تم تشفير رمز PIN الجديد وحفظه محلياً بنجاح. سيُطلب هذا الرمز عند فتح قسم الوالدين.'
+          : 'Your new PIN has been cryptographically salted, hashed, and saved on this device.'
       );
     }
   };
@@ -883,28 +901,57 @@ export default function ParentsCornerScreen() {
         {/* Security PIN Setting */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="key" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="key" size={20} color={COLORS.primary} />
             <Text style={styles.sectionTitle}>{t.parentPin}</Text>
           </View>
 
           <Text style={styles.settingDesc}>
             {language === 'ar'
-              ? 'رمز الحماية (PIN) يُحفظ محلياً على هذا الجهاز فقط لحماية قسم الأهل، ولا يتم إرساله أو تخزينه خارج الجهاز إطلاقاً.'
-              : 'Your security PIN is saved strictly in local storage on this device only and is never transmitted externally.'}
+              ? 'رمز الحماية (PIN) يُحفظ محلياً بصيغة مشفرة (Salted SHA-256) على هذا الجهاز لحماية قسم الأهل ومنع تخمين الرمز بمؤقت أمان تصاعدي.'
+              : 'Your security PIN is stored locally using salted SHA-256 hashing on this device only, backed by exponential brute-force lockout.'}
           </Text>
 
-          <View style={styles.pinRow}>
+          <View style={styles.pinStatusRow}>
+            <Ionicons name="shield-checkmark" size={16} color="#059669" />
+            <Text style={styles.pinStatusText}>
+              {language === 'ar'
+                ? `الحماية الحالية: ${parentSettings.pinHash ? 'مشفر ومحمي بنجاح ✓' : 'الرمز الافتراضي (1234)'}`
+                : `Status: ${parentSettings.pinHash ? 'Encrypted & Active ✓' : 'Default PIN Active'}`}
+            </Text>
+          </View>
+
+          <View style={[styles.pinRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
             <TextInput
               style={styles.pinInput}
               value={pinInput}
-              onChangeText={setPinInput}
+              onChangeText={(text) => {
+                setPinInput(text);
+                setPinErrorMessage('');
+              }}
+              placeholder={language === 'ar' ? 'رمز جديد (٤-٦ أرقام)' : 'New PIN (4-6 digits)'}
+              placeholderTextColor={COLORS.textMuted}
               keyboardType="number-pad"
               maxLength={6}
+              secureTextEntry={true}
             />
-            <TouchableOpacity style={styles.pinSaveBtn} onPress={handleSavePin}>
+            <TouchableOpacity style={styles.pinSaveBtn} onPress={handleSavePin} activeOpacity={0.8}>
+              <Ionicons name="lock-closed" size={16} color="#FFFFFF" />
               <Text style={styles.pinSaveBtnText}>{t.save}</Text>
             </TouchableOpacity>
           </View>
+
+          {pinErrorMessage ? (
+            <Text style={styles.pinErrorText}>{pinErrorMessage}</Text>
+          ) : null}
+
+          {pinSuccessMessage ? (
+            <View style={styles.pinSuccessBadge}>
+              <Ionicons name="checkmark-circle" size={15} color="#065F46" />
+              <Text style={styles.pinSuccessBadgeText}>
+                {language === 'ar' ? '✓ تم تشفير وحفظ رمز PIN الجديد بنجاح!' : '✓ PIN updated and encrypted!'}
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Language switch */}
@@ -914,40 +961,45 @@ export default function ParentsCornerScreen() {
             <Text style={styles.sectionTitle}>{t.changeLanguage}</Text>
           </View>
 
-          <View style={styles.langSwitchRow}>
-            <TouchableOpacity
-              style={[
-                styles.langChoiceBtn,
-                language === 'ar' && styles.langChoiceBtnActive,
-              ]}
-              onPress={() => setLanguage('ar')}
-            >
-              <Text
-                style={[
-                  styles.langChoiceText,
-                  language === 'ar' && styles.langChoiceTextActive,
-                ]}
-              >
-                العربية (Arabic)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.langChoiceBtn,
-                language === 'en' && styles.langChoiceBtnActive,
-              ]}
-              onPress={() => setLanguage('en')}
-            >
-              <Text
-                style={[
-                  styles.langChoiceText,
-                  language === 'en' && styles.langChoiceTextActive,
-                ]}
-              >
-                English
-              </Text>
-            </TouchableOpacity>
+          <View style={styles.langGrid}>
+            {AVAILABLE_LANGUAGES.map((lang) => {
+              const isSelected = language === lang.code;
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[
+                    styles.langCardItem,
+                    isSelected && styles.langCardItemActive,
+                  ]}
+                  onPress={() => setLanguage(lang.code)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.langCodeBadge}>
+                    <Text style={styles.langCodeBadgeText}>{lang.code.toUpperCase()}</Text>
+                  </View>
+                  <View style={styles.langTextCol}>
+                    <Text
+                      style={[
+                        styles.langNameNative,
+                        isSelected && styles.langNameNativeActive,
+                      ]}
+                    >
+                      {lang.nameNative}
+                    </Text>
+                    <Text style={styles.langNameSub}>
+                      {LANGUAGE_LOCALIZED_NAMES[language]?.[lang.code] || lang.nameNative}
+                    </Text>
+                  </View>
+                  {isSelected && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={18}
+                      color={COLORS.primary}
+                    />
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -1247,57 +1299,89 @@ const styles = StyleSheet.create({
   },
   pinRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: SPACING.sm,
+    marginTop: 4,
   },
   pinInput: {
     flex: 1,
-    height: 44,
+    height: 48,
     backgroundColor: COLORS.cardAlt,
     borderRadius: RADIUS.md,
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '800',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
+    letterSpacing: 2,
   },
   pinSaveBtn: {
-    width: 80,
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    height: 48,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
+    ...SHADOWS.glow(COLORS.primary),
   },
   pinSaveBtnText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
     color: COLORS.textLight,
   },
-  langSwitchRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
+  langGrid: {
+    gap: 8,
   },
-  langChoiceBtn: {
-    flex: 1,
-    height: 44,
+  langCardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: RADIUS.md,
     backgroundColor: COLORS.cardAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: COLORS.border,
   },
-  langChoiceBtnActive: {
+  langCardItemActive: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '22',
+    backgroundColor: COLORS.primaryLight + '18',
   },
-  langChoiceText: {
+  langCodeBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 2,
+    borderColor: '#FBBF24',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  langCodeBadgeText: {
     fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: 0.5,
   },
-  langChoiceTextActive: {
-    color: COLORS.primaryDark,
+  langTextCol: {
+    flex: 1,
+  },
+  langNameNative: {
+    fontSize: 14,
     fontWeight: '800',
+    color: COLORS.text,
+  },
+  langNameNativeActive: {
+    color: COLORS.primaryDark,
+  },
+  langNameSub: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+    fontWeight: '600',
   },
   translationSourcesBox: {
     marginTop: SPACING.sm,
@@ -1728,5 +1812,45 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#15803D',
     lineHeight: 16,
+  },
+  pinStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.sm,
+  },
+  pinStatusText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#065F46',
+  },
+  pinErrorText: {
+    color: COLORS.error,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 6,
+  },
+  pinSuccessBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#D1FAE5',
+    borderWidth: 1,
+    borderColor: '#6EE7B7',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+    marginTop: 8,
+  },
+  pinSuccessBadgeText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#065F46',
   },
 });

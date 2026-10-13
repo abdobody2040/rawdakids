@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedProphetMeta } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
@@ -73,6 +74,7 @@ export default function ProphetsTimelineScreen() {
           {prophets.map((prophet, index) => {
             const progress = storyProgress[prophet.id];
             const isCompleted = progress?.completed;
+            const meta = getLocalizedProphetMeta(prophet, language);
 
             return (
               <View key={prophet.id} style={styles.timelineItemRow}>
@@ -98,11 +100,11 @@ export default function ProphetsTimelineScreen() {
                   <View style={styles.cardHeader}>
                     <View style={styles.nameRow}>
                       <Text style={styles.prophetName}>
-                        {language === 'ar' ? `نبي الله ${prophet.nameAr}` : `Prophet ${prophet.nameEn}`}
+                        {language === 'ar' ? `نبي الله ${meta.name}` : `${t.prophetPrefix} ${meta.name}`}
                       </Text>
                       <View style={styles.honorificBadge}>
                         <Text style={styles.honorificText}>
-                          {language === 'ar' ? prophet.honorificAr : prophet.honorificEn}
+                          {meta.honorific}
                         </Text>
                       </View>
                     </View>
@@ -120,17 +122,15 @@ export default function ProphetsTimelineScreen() {
                   </View>
 
                   <Text style={styles.titleBadge}>
-                    {language === 'ar'
-                      ? prophet.titleBadgeAr
-                      : prophet.titleBadgeEn}
+                    {meta.titleBadge}
                   </Text>
 
                   <View style={styles.metaRow}>
                     <Text style={styles.metaText}>
-                      📍 {language === 'ar' ? prophet.locationAr : prophet.locationEn}
+                      📍 {meta.location}
                     </Text>
                     <Text style={styles.metaText}>
-                      ⏳ {language === 'ar' ? prophet.eraAr : prophet.eraEn}
+                      ⏳ {meta.era}
                     </Text>
                   </View>
 

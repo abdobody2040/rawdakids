@@ -359,6 +359,27 @@ async function runDataIntegrityTests() {
       hasNotifMethods,
       'Notification service missing required methods'
     );
+
+    // Multilingual Integrity Check (Arabic, English, French, German, Spanish)
+    const i18nCode = fs.readFileSync(path.join(__dirname, '../src/constants/i18n.ts'), 'utf-8');
+    const hasAll5Languages =
+      i18nCode.includes("'ar'") &&
+      i18nCode.includes("'en'") &&
+      i18nCode.includes("'fr'") &&
+      i18nCode.includes("'de'") &&
+      i18nCode.includes("'es'");
+    const hasFlags =
+      i18nCode.includes('🇸🇦') &&
+      i18nCode.includes('🇬🇧') &&
+      i18nCode.includes('🇫🇷') &&
+      i18nCode.includes('🇩🇪') &&
+      i18nCode.includes('🇪🇸');
+    recordTest(
+      'Multilingual Integrity',
+      'i18n supports Arabic, English, French, German, and Spanish with accurate flags and native names',
+      hasAll5Languages && hasFlags,
+      'One or more languages or flags missing'
+    );
   } catch (e) {
     recordTest('Dataset Integrity', `Data and Services parsed cleanly`, false, e.message);
   }
