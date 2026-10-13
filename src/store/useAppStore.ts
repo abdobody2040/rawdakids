@@ -2,7 +2,8 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '@/constants/i18n';
-import { securityCryptoService } from '@/services/securityCryptoService';
+import { securityCryptoService, EncryptedBackupEnvelope } from '@/services/securityCryptoService';
+import { backupValidationService } from '@/services/backupValidationService';
 
 export type AgeBand = '4-6' | '7-9' | '10-13';
 
@@ -188,6 +189,13 @@ export interface AppState {
   // Offline Hydration
   isHydrated: boolean;
   hydrate: () => Promise<void>;
+
+  // Encrypted Backup & Restore (OWASP ASVS V8.2 / V8.3)
+  exportEncryptedBackup: (passphrase: string) => EncryptedBackupEnvelope;
+  importEncryptedBackup: (
+    envelope: EncryptedBackupEnvelope,
+    passphrase: string
+  ) => { success: boolean; profileCount?: number; errorAr?: string; errorEn?: string };
 }
 
 const STORAGE_KEY = '@noor_kids_app_state_v1';
@@ -960,5 +968,79 @@ export const useAppStore = create<AppState>((set, get) => ({
     } finally {
       set({ isHydrated: true });
     }
+  },
+
+  exportEncryptedBackup: (passphrase: string) => {
+    const state = get();
+    const payload = {
+      version: '1.0.0',
+      exportedAt: new Date().toISOString(),
+      profiles: state.profiles,
+      activeProfileId: state.activeProfileId,
+      profilesProgress: state.profilesProgress,
+      parentSettings: {
+        dailyLimitMin: state.parentSettings.dailyLimitMin,
+        quietHoursEnabled: state.parentSettings.quietHoursEnabled,
+        reciterId: state.parentSettings.reciterId,
+        showEnglishTranslation: state.parentSettings.showEnglishTranslation,
+        showSimpleTafsir: state.parentSettings.showSimpleTafsir,
+        translationSource: state.parentSettings.translationSource,
+        pin: '••••',
+        pinHash: state.parentSettings.pinHash,
+        pinSalt: state.parentSettings.pinSalt,
+      },
+      gratitudeEntries: state.gratitudeEntries,
+    };
+    const jsonStr = JSON.stringify(payload);
+    return securityCryptoService.encryptBackup(jsonStr, passphrase);
+  },
+
+  importEncryptedBackup: (envelope: EncryptedBackupEnvelope, passphrase: string) => {
+    // 1. Authenticated decryption
+    const decryptResult = securityCryptoService.decryptBackup(envelope, passphrase);
+    if (!decryptResult.success || !decryptResult.dataJson) {
+      return {
+        success: false,
+        errorAr: decryptResult.errorAr || 'فشل فك التشفير: كلمة المرور غير صحيحة.',
+        errorEn: decryptResult.errorEn || 'Decryption failed: Incorrect passphrase.',
+      };
+    }
+
+    // 2. Strict schema & prototype pollution validation
+    const validationResult = backupValidationService.validate(decryptResult.dataJson);
+    if (!validationResult.valid || !validationResult.sanitizedData) {
+      return {
+        success: false,
+        errorAr: validationResult.errorAr || 'ملف النسخة الاحتياطية غير صالح.',
+        errorEn: validationResult.errorEn || 'Invalid backup schema or corrupted data.',
+      };
+    }
+
+    // 3. Hydrate state safely
+    const data = validationResult.sanitizedData;
+    const activeId = data.activeProfileId;
+    const activeProg = data.profilesProgress[activeId] || {};
+
+    set((state) => ({
+      profiles: data.profiles,
+      activeProfileId: data.activeProfileId,
+      profilesProgress: data.profilesProgress,
+      parentSettings: {
+        ...state.parentSettings,
+        ...data.parentSettings,
+      },
+      gratitudeEntries: data.gratitudeEntries || [],
+      stars: activeProg.stars ?? state.stars,
+      gems: activeProg.gems ?? state.gems,
+      streakCount: activeProg.streakCount ?? state.streakCount,
+      lastReadMushafPage: activeProg.lastReadMushafPage ?? state.lastReadMushafPage,
+      mushafBookmarks: activeProg.mushafBookmarks ?? state.mushafBookmarks,
+    }));
+    persistState(get());
+
+    return {
+      success: true,
+      profileCount: data.profiles.length,
+    };
   },
 }));

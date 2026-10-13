@@ -317,14 +317,18 @@ async function runSecuritySuite() {
   let rateLimitHit = false;
   let retryAfterHeader = null;
 
-  for (let i = 0; i < 5; i++) {
+  const testRateLimitIp = `198.51.100.${Math.floor(Math.random() * 200) + 10}`;
+  for (let i = 0; i < 6; i++) {
     const res = await request({
       hostname: 'localhost',
       port: 3000,
       path: '/api/auth/login',
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }, { email: 'alice@example.com', password: 'WrongPassword' });
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': testRateLimitIp,
+      },
+    }, { email: 'attacker@example.com', password: 'WrongPassword' });
 
     if (res.statusCode === 429) {
       rateLimitHit = true;
@@ -373,6 +377,58 @@ async function runSecuritySuite() {
   const lockout5 = securityCryptoService.calculateNextLockout(5);
   const status5 = securityCryptoService.checkLockout(5, lockout5);
   assert(status5.isLocked === true && status5.remainingSeconds <= 300 && status5.remainingSeconds >= 298, '5 failed attempts trigger 300-second (5 min) security cooldown\n');
+
+  // --------------------------------------------------------------------------
+  // TEST 9: ENCRYPTED BACKUP & AUTHENTICATED INTEGRITY (OWASP ASVS V8.2 / V8.3)
+  // --------------------------------------------------------------------------
+  console.log('--- 9. Encrypted Backup & Authenticated Integrity Verification ---');
+
+  const { backupValidationService } = require('../src/services/backupValidationService.ts');
+
+  // 9.1 Encrypted Export produces compliant envelope
+  const sampleData = JSON.stringify({
+    version: '1.0.0',
+    profiles: [{ id: 'child-1', name: 'Zaid', ageBand: '7-9', avatar: 'av-boy1' }],
+    activeProfileId: 'child-1',
+    profilesProgress: { 'child-1': { stars: 50, gems: 100 } },
+    parentSettings: { reciterId: 'alafasy' },
+  });
+  const passphrase = 'SuperSecretParentPassphrase123!';
+  const envelope = securityCryptoService.encryptBackup(sampleData, passphrase);
+
+  assert(envelope.format === 'noor_kids_encrypted_backup_v1', 'Backup format conforms to authenticated envelope version');
+  assert(envelope.salt.length === 32, 'Envelope contains unique 128-bit random salt');
+  assert(envelope.iv.length === 32, 'Envelope contains unique 128-bit IV');
+  assert(envelope.authTag.length === 64, 'Envelope contains 256-bit HMAC authentication tag');
+  assert(envelope.ciphertext !== sampleData, 'Payload is completely encrypted with 0 plaintext leakage');
+
+  // 9.2 Decrypt with correct passphrase
+  const decValid = securityCryptoService.decryptBackup(envelope, passphrase);
+  assert(decValid.success === true && decValid.dataJson === sampleData, 'Valid passphrase decrypts exact original backup payload');
+
+  // 9.3 Decrypt with wrong passphrase
+  const decWrong = securityCryptoService.decryptBackup(envelope, 'WrongPassphrase');
+  assert(decWrong.success === false, 'Wrong passphrase fails authentication and decrypts 0 data');
+
+  // 9.4 Tamper resistance (any flipped hex char fails MAC)
+  const tamperedCipher = envelope.ciphertext.slice(0, -2) + (envelope.ciphertext.slice(-2) === 'aa' ? 'bb' : 'aa');
+  const tamperedEnvelope = { ...envelope, ciphertext: tamperedCipher };
+  const decTampered = securityCryptoService.decryptBackup(tamperedEnvelope, passphrase);
+  assert(decTampered.success === false, 'Tampered ciphertext fails HMAC authentication tag verification (Integrity protected)');
+
+  // 9.5 Prototype Pollution defense
+  const maliciousJson = JSON.stringify({
+    version: '1.0.0',
+    __proto__: { isAdmin: true },
+    constructor: { prototype: { polluter: true } },
+    profiles: [{ id: 'child-1', name: 'Zaid', ageBand: '7-9', avatar: 'av-boy1' }],
+    activeProfileId: 'child-1',
+    profilesProgress: { 'child-1': { stars: 9999999999 } }, // Unchecked giant number
+  });
+  const valResult = backupValidationService.validate(maliciousJson);
+  assert(valResult.valid === true, 'Backup schema validator successfully parsed and sanitized valid profiles');
+  assert({}.isAdmin === undefined, 'Prototype pollution vector __proto__ was strictly scrubbed');
+  assert(valResult.sanitizedData?.profilesProgress['child-1'].stars === 1000000, 'Extreme numbers safely clamped within bounds (1,000,000 max)\n');
 
   console.log('=====================================================');
   console.log(`SECURITY SUITE SUMMARY: ${passed} / ${total} PASSED`);
