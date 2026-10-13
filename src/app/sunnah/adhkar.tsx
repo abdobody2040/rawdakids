@@ -20,6 +20,7 @@ import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
+import SunnahHeroHeader from '@/components/SunnahHeroHeader';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 
 export default function AdhkarScreen() {
@@ -111,105 +112,11 @@ export default function AdhkarScreen() {
         <Header
           showBack
           fallbackRoute="/sunnah"
-          title={isAr ? 'أذكار الصباح والمساء ☀️🌙' : 'Morning & Evening Adhkar'}
+          title={t.sunnah}
         />
 
-        {/* Hero Period Banner & Tabs */}
-        <View style={styles.heroSection}>
-          <LinearGradient
-            colors={
-              activePeriod === 'morning'
-                ? ['#F59E0B', '#D97706', '#B45309']
-                : ['#312E81', '#1E1B4B', '#0F172A']
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroGradient}
-          >
-            {/* Top Period Selector Tabs */}
-            <View style={[styles.tabsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <TouchableOpacity
-                style={[
-                  styles.periodTab,
-                  activePeriod === 'morning' && styles.periodTabActiveMorning,
-                ]}
-                onPress={() => setActivePeriod('morning')}
-                activeOpacity={0.85}
-              >
-                <Ionicons
-                  name="sunny"
-                  size={18}
-                  color={activePeriod === 'morning' ? '#92400E' : '#FFFFFF'}
-                />
-                <Text
-                  style={[
-                    styles.periodTabText,
-                    activePeriod === 'morning' && styles.periodTabTextActiveMorning,
-                  ]}
-                >
-                  {isAr ? 'أذكار الصباح ☀️' : 'Morning Adhkar ☀️'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.periodTab,
-                  activePeriod === 'evening' && styles.periodTabActiveEvening,
-                ]}
-                onPress={() => setActivePeriod('evening')}
-                activeOpacity={0.85}
-              >
-                <Ionicons
-                  name="moon"
-                  size={18}
-                  color={activePeriod === 'evening' ? '#312E81' : '#FFFFFF'}
-                />
-                <Text
-                  style={[
-                    styles.periodTabText,
-                    activePeriod === 'evening' && styles.periodTabTextActiveEvening,
-                  ]}
-                >
-                  {isAr ? 'أذكار المساء 🌙' : 'Evening Adhkar 🌙'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Quick Action Bar: Tasbih Shortcut + Progress */}
-            <View style={[styles.quickBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <View style={styles.progressSummaryCol}>
-                <Text style={styles.progressSummaryText}>
-                  {isAr
-                    ? `إنجاز ${completedCount} من ${currentList.length} أذكار مباركة`
-                    : `Completed ${completedCount} of ${currentList.length} Adhkars`}
-                </Text>
-                <View style={styles.progressBarTrack}>
-                  <View
-                    style={[
-                      styles.progressBarFill,
-                      {
-                        width: `${Math.round(progressRatio * 100)}%`,
-                        backgroundColor: activePeriod === 'morning' ? '#FDE68A' : '#A78BFA',
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
-
-              {/* Direct Tasbih Rosary Button */}
-              <TouchableOpacity
-                style={[styles.tasbihShortcutBtn, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
-                onPress={() => router.push('/sunnah/tasbih')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="finger-print" size={16} color="#0D9488" />
-                <Text style={styles.tasbihShortcutText}>
-                  {isAr ? 'مسبحة الأذكار 📿' : 'Tasbih 📿'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
-        </View>
+        {/* Persistent Sunnah Navigation Hub Header */}
+        <SunnahHeroHeader activeTab="adhkar" />
 
         {audioError && (
           <View style={styles.audioErrorBanner}>
@@ -218,11 +125,107 @@ export default function AdhkarScreen() {
           </View>
         )}
 
-        {/* Adhkar Cards List */}
+        {/* Adhkar Cards List with Morning / Evening Selector */}
         <ScrollView
           contentContainerStyle={styles.scrollList}
           showsVerticalScrollIndicator={false}
         >
+          {/* Hero Period Banner & Tabs */}
+          <View style={styles.heroSection}>
+            <LinearGradient
+              colors={
+                activePeriod === 'morning'
+                  ? ['#F59E0B', '#D97706', '#B45309']
+                  : ['#312E81', '#1E1B4B', '#0F172A']
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGradient}
+            >
+              {/* Top Period Selector Tabs */}
+              <View style={[styles.tabsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.periodTab,
+                    activePeriod === 'morning' && styles.periodTabActiveMorning,
+                  ]}
+                  onPress={() => setActivePeriod('morning')}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons
+                    name="sunny"
+                    size={18}
+                    color={activePeriod === 'morning' ? '#92400E' : '#FFFFFF'}
+                  />
+                  <Text
+                    style={[
+                      styles.periodTabText,
+                      activePeriod === 'morning' && styles.periodTabTextActiveMorning,
+                    ]}
+                  >
+                    {isAr ? 'أذكار الصباح ☀️' : 'Morning Adhkar ☀️'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.periodTab,
+                    activePeriod === 'evening' && styles.periodTabActiveEvening,
+                  ]}
+                  onPress={() => setActivePeriod('evening')}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons
+                    name="moon"
+                    size={18}
+                    color={activePeriod === 'evening' ? '#312E81' : '#FFFFFF'}
+                  />
+                  <Text
+                    style={[
+                      styles.periodTabText,
+                      activePeriod === 'evening' && styles.periodTabTextActiveEvening,
+                    ]}
+                  >
+                    {isAr ? 'أذكار المساء 🌙' : 'Evening Adhkar 🌙'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Quick Action Bar: Tasbih Shortcut + Progress */}
+              <View style={[styles.quickBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={styles.progressSummaryCol}>
+                  <Text style={styles.progressSummaryText}>
+                    {isAr
+                      ? `إنجاز ${completedCount} من ${currentList.length} أذكار مباركة`
+                      : `Completed ${completedCount} of ${currentList.length} Adhkars`}
+                  </Text>
+                  <View style={styles.progressBarTrack}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: `${Math.round(progressRatio * 100)}%`,
+                          backgroundColor: activePeriod === 'morning' ? '#FDE68A' : '#A78BFA',
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {/* Direct Tasbih Rosary Button */}
+                <TouchableOpacity
+                  style={[styles.tasbihShortcutBtn, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
+                  onPress={() => router.push('/sunnah/tasbih')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="finger-print" size={16} color="#0D9488" />
+                  <Text style={styles.tasbihShortcutText}>
+                    {isAr ? 'مسبحة الأذكار 📿' : 'Tasbih 📿'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
           {currentList.map((item, index) => {
             const currentCount = counts[item.id] || 0;
             const isCompleted = currentCount >= item.repeatCount;

@@ -19,6 +19,7 @@ import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
+import SunnahHeroHeader from '@/components/SunnahHeroHeader';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { audioService } from '@/services/audioService';
 
@@ -277,8 +278,11 @@ export default function TasbihScreen() {
         <Header
           showBack
           fallbackRoute="/sunnah"
-          title={isAr ? 'مسبحة الأذكار 📿' : 'Kids Tasbih Counter 📿'}
+          title={t.sunnah}
         />
+
+        {/* Persistent Sunnah Navigation Hub Header */}
+        <SunnahHeroHeader activeTab="tasbih" />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}

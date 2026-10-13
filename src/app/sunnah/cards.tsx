@@ -97,18 +97,7 @@ export default function HadithFlashcardsScreen() {
           fallbackRoute="/sunnah"
           title={t.sunnah}
         />
-        <SunnahHeroHeader
-          activeTab="cards"
-          onTabChange={(tab) => {
-            if (tab === 'hadiths') {
-              router.replace('/sunnah');
-            } else if (tab === 'habits') {
-              router.replace({ pathname: '/sunnah', params: { tab: 'habits' } });
-            } else if (tab === 'duas') {
-              router.replace('/sunnah/duas');
-            }
-          }}
-        />
+        <SunnahHeroHeader activeTab="cards" />
 
         <ScrollView
           style={{ flex: 1 }}

@@ -92,7 +92,7 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
     } else if (tab === 'cards') {
       router.replace('/sunnah/cards');
     } else if (tab === 'tasbih') {
-      router.push('/sunnah/tasbih');
+      router.replace('/sunnah/tasbih');
     }
   };
 

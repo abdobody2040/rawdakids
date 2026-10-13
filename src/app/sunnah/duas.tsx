@@ -101,18 +101,7 @@ export default function DuaLibraryScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
         <Header showBack fallbackRoute="/sunnah" title={t.sunnah} />
-        <SunnahHeroHeader
-          activeTab="duas"
-          onTabChange={(tab) => {
-            if (tab === 'hadiths') {
-              router.replace('/sunnah');
-            } else if (tab === 'habits') {
-              router.replace({ pathname: '/sunnah', params: { tab: 'habits' } });
-            } else if (tab === 'cards') {
-              router.replace('/sunnah/cards');
-            }
-          }}
-        />
+        <SunnahHeroHeader activeTab="duas" />
 
         <ScrollView
           style={{ flex: 1 }}

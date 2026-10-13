@@ -47,7 +47,7 @@ export default function SunnahPathScreen() {
             } else if (tab === 'cards') {
               router.replace('/sunnah/cards');
             } else if (tab === 'tasbih') {
-              router.push('/sunnah/tasbih');
+              router.replace('/sunnah/tasbih');
             }
           }}
         />
