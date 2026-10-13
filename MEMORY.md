@@ -1059,7 +1059,26 @@
   - `npx.cmd tsc --noEmit`: **0 errors**.
   - `npx.cmd expo export --platform web`: **Exported cleanly (23 routes)**.
   - Server Gzip Verification: `Status: 200`, `Content-Encoding: gzip`.
+### Milestone 60: Fixed Persistent Sunnah Hub Navigation Header Across All Sections
+- **User Request & Issue:**
+  - User feedback: "خلى الهيدير ثابت اللى بيتحرك ما بين اقسام السنة عايز الصورة التانية الهيدير اللى فيها ثابت"
+  - In `/sunnah` (Image 2), `SunnahHeroHeader` displayed the hero banner and 6 navigation tabs (`الأحاديث`، `سنن اليوم`، `أذكار الصباح والمساء`، `الأدعية`، `بطاقات الحفظ`، `المسبحة`).
+  - When opening `/sunnah/adhkar` (Image 1) or `/sunnah/tasbih`, this navigation header was completely missing, trapping the user or forcing them back to the root without direct switching.
+  - Furthermore, on pages where it was rendered, the user wanted this navigation bar to be fixed/persistent at the top across all Sunnah sections.
+- **Implementation & Architecture:**
+  1. **Unified Navigation Across All 6 Sunnah Sections:**
+     - Included `<SunnahHeroHeader activeTab="adhkar" />` in [`src/app/sunnah/adhkar.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/adhkar.tsx) fixed at the top above the `ScrollView`.
+     - Included `<SunnahHeroHeader activeTab="tasbih" />` in [`src/app/sunnah/tasbih.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/tasbih.tsx) fixed at the top above the `ScrollView`.
+     - Cleaned up restricted `onTabChange` handlers in [`src/app/sunnah/duas.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/duas.tsx) and [`src/app/sunnah/cards.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/cards.tsx) so all 6 tabs route smoothly with `router.replace`.
+  2. **Scroll & Sticky Structure:**
+     - In `adhkar.tsx`, `SunnahHeroHeader` is fixed at the top outside the `ScrollView`, while the morning/evening period switcher card (`heroSection`) lives inside the scrollable content container.
+     - As the child scrolls through the Adhkar cards, the Sunnah sections navigation header remains permanently fixed and accessible at the top.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **Exported cleanly (23 routes)**.
+  - Server restart on port 3000: active with gzip support.
   - Full E2E Test Suite (`node scripts/test-e2e.js`): **67 / 67 PASSED (100%)**.
+  - Git commit: `9e7a786`.
 
 ---
 
