@@ -222,10 +222,10 @@ export function getMushafPageInfo(pageNumber: number): MushafPageInfo {
   const hizb = Math.min(60, Math.ceil((safePage / TOTAL_MUSHAF_PAGES) * 60) || 1);
 
   const paddedStr = safePage.toString().padStart(3, '0');
-  // Official high-resolution Madinah Mushaf page from verified Quran.com cdn
-  const imageUri = `https://android.quran.com/data/width_1260/page${paddedStr}.png`;
-  // Verified backup mirror
-  const backupImageUri = `https://images.quran.com/page_${paddedStr}.png`;
+  // Official ultra-high-resolution Madinah Mushaf page (1920px width)
+  const imageUri = `https://files.quran.app/hafs/madani/width_1920/page${paddedStr}.png`;
+  // Verified backup mirror (1260px width)
+  const backupImageUri = `https://files.quran.app/hafs/madani/width_1260/page${paddedStr}.png`;
 
   return {
     pageNumber: safePage,

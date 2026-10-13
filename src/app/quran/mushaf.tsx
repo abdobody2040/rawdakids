@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Platform,
   Vibration,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -35,10 +35,9 @@ import {
 import { audioService } from '@/services/audioService';
 import { quranService } from '@/services/quranService';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 export default function MushafReaderScreen() {
   const router = useRouter();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const params = useLocalSearchParams<{ page?: string }>();
   const {
     language,
@@ -66,19 +65,50 @@ export default function MushafReaderScreen() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [jumpInput, setJumpInput] = useState<string>('');
   const [showToast, setShowToast] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<number>(1.0); // 0.75, 1.0, 1.25, 1.5, 1.75, 2.0
+  const [viewMode, setViewMode] = useState<'fit-width' | 'fit-screen'>('fit-width');
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const pageInfo = getMushafPageInfo(currentPage);
   const isBookmarked = mushafBookmarks.includes(currentPage);
 
-  // Sync to store whenever current page changes
+  // Sync to store whenever current page changes & reset scroll position
   useEffect(() => {
     setLastReadMushafPage(currentPage);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [currentPage, setLastReadMushafPage]);
+
+  // Proportional Page Dimensions Calculation
+  const isDesktop = windowWidth >= 768;
+  const ASPECT_RATIO = 2038 / 1260; // 1.61746
+
+  let pageWidth: number;
+  let pageHeight: number;
+
+  if (viewMode === 'fit-width') {
+    // Large, clear readable view: fills container width, scrolls smoothly vertically
+    const baseWidth = isDesktop
+      ? Math.min(windowWidth - 48, 860)
+      : Math.max(300, windowWidth - 16);
+    pageWidth = Math.round(baseWidth * zoomLevel);
+    pageHeight = Math.round(pageWidth * ASPECT_RATIO);
+  } else {
+    // Full page compact fit view
+    const reservedHeight = isFullscreen ? 110 : (isDesktop ? 220 : 250);
+    const availableHeight = Math.max(320, windowHeight - reservedHeight);
+    pageHeight = Math.round(availableHeight * zoomLevel);
+    pageWidth = Math.round(pageHeight / ASPECT_RATIO);
+    if (pageWidth > windowWidth - 16) {
+      pageWidth = windowWidth - 16;
+      pageHeight = Math.round(pageWidth * ASPECT_RATIO);
+    }
+  }
 
   // Stop audio on unmount
   useEffect(() => {
     return () => {
-      audioService.stopDua();
+      audioService.stop();
     };
   }, []);
 
@@ -161,76 +191,170 @@ export default function MushafReaderScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.safeArea, isFullscreen && styles.safeAreaFullscreen]} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
-        {/* Top Header Bar */}
-        <Header
-          showBack
-          fallbackRoute="/quran"
-          title={isAr ? 'المصحف الشريف 📖' : 'The Holy Quran 📖'}
-        />
+        {/* Top Header Bar (Hidden in Fullscreen Mode) */}
+        {!isFullscreen && (
+          <Header
+            showBack
+            fallbackRoute="/quran"
+            title={isAr ? 'المصحف الشريف 📖' : 'The Holy Quran 📖'}
+          />
+        )}
 
         {/* Mushaf Navigation Ribbon Bar */}
-        <View style={[styles.mushafTopRibbon, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-          {/* Page & Juz Info Tag */}
-          <View style={styles.pageInfoCol}>
-            <View style={[styles.titleBadgeRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <Text style={styles.surahBadgeText}>
-                {isAr ? `سورة ${pageInfo.surahNameArabic}` : `Surah ${pageInfo.surahNameEnglish}`}
-              </Text>
-              <Text style={styles.bulletSeparator}>•</Text>
-              <Text style={styles.juzBadgeText}>
-                {isAr ? `الجزء ${pageInfo.juzNumber}` : `Juz ${pageInfo.juzNumber}`}
+        <View style={styles.mushafTopRibbon}>
+          {/* Row 1: Surah / Juz Metadata + Action Buttons */}
+          <View style={[styles.mushafRibbonRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            {/* Page & Juz Info Tag */}
+            <View style={styles.pageInfoCol}>
+              <View style={[styles.titleBadgeRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.surahBadgeText}>
+                  {isAr ? `سورة ${pageInfo.surahNameArabic}` : `Surah ${pageInfo.surahNameEnglish}`}
+                </Text>
+                <Text style={styles.bulletSeparator}>•</Text>
+                <Text style={styles.juzBadgeText}>
+                  {isAr ? `الجزء ${pageInfo.juzNumber}` : `Juz ${pageInfo.juzNumber}`}
+                </Text>
+                <Text style={styles.bulletSeparator}>•</Text>
+                <Text style={styles.hizbBadgeText}>
+                  {isAr ? `الحزب ${pageInfo.hizbNumber}` : `Hizb ${pageInfo.hizbNumber}`}
+                </Text>
+              </View>
+              <Text style={[styles.pageNumberSubText, { textAlign: isAr ? 'right' : 'left' }]}>
+                {isAr ? `صفحة ${currentPage} من ٦٠٤` : `Page ${currentPage} of 604`}
               </Text>
             </View>
-            <Text style={[styles.pageNumberSubText, { textAlign: isAr ? 'right' : 'left' }]}>
-              {isAr ? `صفحة ${currentPage} من ٦٠٤` : `Page ${currentPage} of 604`}
-            </Text>
+
+            {/* Quick Toolbar Actions */}
+            <View style={[styles.toolbarActionsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              {/* Bookmark Ribbon */}
+              <TouchableOpacity
+                style={[styles.toolBtn, isBookmarked && styles.toolBtnActiveBookmark]}
+                onPress={handleToggleBookmark}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                  size={16}
+                  color={isBookmarked ? '#B45309' : '#4B5563'}
+                />
+                <Text style={[styles.toolBtnText, isBookmarked && styles.toolBtnTextActive]}>
+                  {isAr ? 'الفاصلة' : 'Bookmark'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Audio Recitation */}
+              <TouchableOpacity
+                style={[styles.toolBtn, isPlayingAudio && styles.toolBtnActiveAudio]}
+                onPress={handleToggleAudio}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={isPlayingAudio ? 'volume-high' : 'volume-medium-outline'}
+                  size={16}
+                  color={isPlayingAudio ? '#059669' : '#4B5563'}
+                />
+                <Text style={[styles.toolBtnText, isPlayingAudio && { color: '#059669' }]}>
+                  {isPlayingAudio ? (isAr ? 'إيقاف' : 'Stop') : (isAr ? 'استماع' : 'Listen')}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Index Modal Trigger */}
+              <TouchableOpacity
+                style={styles.toolBtnIndex}
+                onPress={() => setShowIndexModal(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="list" size={16} color="#FFFFFF" />
+                <Text style={styles.toolBtnIndexText}>
+                  {isAr ? 'الفهرس' : 'Index'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* Quick Toolbar Actions */}
-          <View style={[styles.toolbarActionsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-            {/* Bookmark Ribbon */}
+          {/* Row 2: Zoom & View Control Bar */}
+          <View style={[styles.zoomToolbarRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            {/* View Mode Toggle */}
             <TouchableOpacity
-              style={[styles.toolBtn, isBookmarked && styles.toolBtnActiveBookmark]}
-              onPress={handleToggleBookmark}
-              activeOpacity={0.8}
+              style={[styles.modeToggleChip, viewMode === 'fit-width' && styles.modeToggleChipActive]}
+              onPress={() => {
+                triggerHaptic();
+                setViewMode((m) => (m === 'fit-width' ? 'fit-screen' : 'fit-width'));
+              }}
+              activeOpacity={0.85}
             >
               <Ionicons
-                name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
-                size={18}
-                color={isBookmarked ? '#B45309' : '#4B5563'}
+                name={viewMode === 'fit-width' ? 'expand-outline' : 'contract-outline'}
+                size={14}
+                color={viewMode === 'fit-width' ? '#047857' : '#92400E'}
               />
-              <Text style={[styles.toolBtnText, isBookmarked && styles.toolBtnTextActive]}>
-                {isAr ? 'الفاصلة' : 'Bookmark'}
+              <Text style={[styles.modeToggleChipText, viewMode === 'fit-width' && styles.modeToggleChipTextActive]}>
+                {viewMode === 'fit-width'
+                  ? (isAr ? 'عرض مكبّر وواضح 🔍' : 'Zoomed View 🔍')
+                  : (isAr ? 'صفحة كاملة 📄' : 'Full Page 📄')}
               </Text>
             </TouchableOpacity>
 
-            {/* Audio Recitation */}
+            {/* Stepper Zoom Buttons */}
+            <View style={[styles.zoomControlsGroup, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <TouchableOpacity
+                style={styles.zoomIconBtn}
+                onPress={() => {
+                  triggerHaptic();
+                  setZoomLevel((z) => Math.max(0.75, parseFloat((z - 0.25).toFixed(2))));
+                }}
+                disabled={zoomLevel <= 0.75}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="remove" size={15} color={zoomLevel <= 0.75 ? '#D1D5DB' : '#78350F'} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.zoomBadgePill}
+                onPress={() => {
+                  triggerHaptic();
+                  setZoomLevel(1.0);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.zoomBadgeText}>
+                  {Math.round(zoomLevel * 100)}%
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.zoomIconBtn}
+                onPress={() => {
+                  triggerHaptic();
+                  setZoomLevel((z) => Math.min(2.0, parseFloat((z + 0.25).toFixed(2))));
+                }}
+                disabled={zoomLevel >= 2.0}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add" size={15} color={zoomLevel >= 2.0 ? '#D1D5DB' : '#78350F'} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Fullscreen Button */}
             <TouchableOpacity
-              style={[styles.toolBtn, isPlayingAudio && styles.toolBtnActiveAudio]}
-              onPress={handleToggleAudio}
-              activeOpacity={0.8}
+              style={[styles.fullscreenBtn, isFullscreen && styles.fullscreenBtnActive]}
+              onPress={() => {
+                triggerHaptic();
+                setIsFullscreen(!isFullscreen);
+              }}
+              activeOpacity={0.85}
             >
               <Ionicons
-                name={isPlayingAudio ? 'volume-high' : 'volume-medium-outline'}
-                size={18}
-                color={isPlayingAudio ? '#059669' : '#4B5563'}
+                name={isFullscreen ? 'contract' : 'scan-outline'}
+                size={14}
+                color={isFullscreen ? '#FFFFFF' : '#78350F'}
               />
-              <Text style={[styles.toolBtnText, isPlayingAudio && { color: '#059669' }]}>
-                {isPlayingAudio ? (isAr ? 'إيقاف' : 'Stop') : (isAr ? 'استماع' : 'Listen')}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Index Modal Trigger */}
-            <TouchableOpacity
-              style={styles.toolBtnIndex}
-              onPress={() => setShowIndexModal(true)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="list" size={18} color="#FFFFFF" />
-              <Text style={styles.toolBtnIndexText}>
-                {isAr ? 'الفهرس' : 'Index'}
+              <Text style={[styles.fullscreenBtnText, isFullscreen && { color: '#FFFFFF' }]}>
+                {isFullscreen
+                  ? (isAr ? 'إنهاء التكبير' : 'Exit Full')
+                  : (isAr ? 'ملء الشاشة ⛶' : 'Fullscreen ⛶')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -244,41 +368,46 @@ export default function MushafReaderScreen() {
           </View>
         )}
 
-        {/* Main Mushaf Page Display Canvas */}
-        <View style={styles.pageCanvasContainer}>
-          {/* Authentic Madinah Mushaf Frame Border */}
-          <View style={styles.mushafPaperFrame}>
-            {/* Header Frame Row */}
-            <View style={[styles.frameHeaderRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <Text style={styles.frameHeaderPart}>
-                {isAr ? `الحزب ${pageInfo.hizbNumber}` : `Hizb ${pageInfo.hizbNumber}`}
-              </Text>
-              <View style={styles.centerKabaOrnament}>
-                <Ionicons name="sparkles" size={12} color="#D97706" />
-                <Text style={styles.centerOrnamentTitle}>
-                  {isAr ? `سورة ${pageInfo.surahNameArabic}` : pageInfo.surahNameEnglish}
+        {/* Scrollable Canvas for Large, High-Definition Mushaf Page */}
+        <ScrollView
+          ref={scrollRef}
+          style={styles.scrollCanvas}
+          contentContainerStyle={styles.scrollCanvasContent}
+          showsVerticalScrollIndicator={true}
+          bounces={false}
+        >
+          <View
+            style={[
+              styles.mushafPaperFrame,
+              {
+                width: pageWidth,
+                minHeight: pageHeight,
+              },
+            ]}
+          >
+            {isImageLoading && !imageError && (
+              <View style={styles.imageLoadingOverlay}>
+                <ActivityIndicator size="large" color="#B45309" />
+                <Text style={styles.loadingPageText}>
+                  {isAr ? `جاري فتح صفحة ${currentPage}...` : `Opening page ${currentPage}...`}
                 </Text>
-                <Ionicons name="sparkles" size={12} color="#D97706" />
               </View>
-              <Text style={styles.frameHeaderPart}>
-                {isAr ? `الجزء ${pageInfo.juzNumber}` : `Juz ${pageInfo.juzNumber}`}
-              </Text>
-            </View>
+            )}
 
-            {/* High-Definition Madinah Mushaf Image Canvas */}
-            <View style={styles.imageWrapper}>
-              {isImageLoading && !imageError && (
-                <View style={styles.imageLoadingOverlay}>
-                  <ActivityIndicator size="large" color="#B45309" />
-                  <Text style={styles.loadingPageText}>
-                    {isAr ? `جاري فتح صفحة ${currentPage}...` : `Opening page ${currentPage}...`}
-                  </Text>
-                </View>
-              )}
-
+            {/* High-Definition Madinah Mushaf Page with double-tap zoom */}
+            <TouchableOpacity
+              activeOpacity={0.96}
+              onPress={() => {
+                triggerHaptic();
+                setZoomLevel((z) => (z === 1.0 ? 1.35 : 1.0));
+              }}
+            >
               <Image
                 source={{ uri: imageError ? pageInfo.backupImageUri : pageInfo.imageUri }}
-                style={styles.mushafImage}
+                style={{
+                  width: pageWidth,
+                  height: pageHeight,
+                }}
                 contentFit="contain"
                 onLoadStart={() => setIsImageLoading(true)}
                 onLoadEnd={() => setIsImageLoading(false)}
@@ -290,23 +419,16 @@ export default function MushafReaderScreen() {
                   }
                 }}
               />
+            </TouchableOpacity>
 
-              {/* Bookmark Ribbon on Canvas */}
-              {isBookmarked && (
-                <View style={styles.canvasRibbonMarker}>
-                  <Ionicons name="bookmark" size={32} color="#DC2626" />
-                </View>
-              )}
-            </View>
-
-            {/* Footer Frame Row: Page Number */}
-            <View style={styles.frameFooterRow}>
-              <View style={styles.pageNumberBadge}>
-                <Text style={styles.pageNumberBadgeText}>{currentPage}</Text>
+            {/* Bookmark Ribbon on Canvas */}
+            {isBookmarked && (
+              <View style={styles.canvasRibbonMarker}>
+                <Ionicons name="bookmark" size={38} color="#DC2626" />
               </View>
-            </View>
+            )}
           </View>
-        </View>
+        </ScrollView>
 
         {/* Bottom Paging Controller Bar */}
         <View style={styles.bottomControllerBar}>
@@ -647,8 +769,8 @@ export default function MushafReaderScreen() {
           </View>
         </Modal>
 
-        {/* Persistent Bottom Nav */}
-        <AppBottomNav />
+        {/* Persistent Bottom Nav (Hidden in fullscreen mode) */}
+        {!isFullscreen && <AppBottomNav />}
       </View>
     </SafeAreaView>
   );
@@ -766,98 +888,138 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#065F46',
   },
-  pageCanvasContainer: {
-    flex: 1,
-    paddingHorizontal: SPACING.xs,
-    paddingVertical: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
+  safeAreaFullscreen: {
+    backgroundColor: '#0F172A',
   },
-  mushafPaperFrame: {
-    width: '100%',
-    maxWidth: 620,
-    flex: 1,
-    backgroundColor: '#FFFDF9',
-    borderRadius: RADIUS.lg,
-    borderWidth: 3,
-    borderColor: '#E7D5A9',
-    overflow: 'hidden',
-    ...SHADOWS.medium,
-  },
-  frameHeaderRow: {
-    height: 32,
-    backgroundColor: '#FBF6E9',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E7D5A9',
-    paddingHorizontal: 12,
+  mushafRibbonRow: {
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
   },
-  frameHeaderPart: {
-    fontSize: 11,
+  hizbBadgeText: {
+    fontSize: 12,
     fontWeight: '700',
-    color: '#92400E',
+    color: '#D97706',
   },
-  centerKabaOrnament: {
+  zoomToolbarRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F3E8D2',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  modeToggleChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: RADIUS.full,
   },
-  centerOrnamentTitle: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#064E3B',
+  modeToggleChipActive: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
   },
-  imageWrapper: {
-    flex: 1,
-    position: 'relative',
-    justifyContent: 'center',
+  modeToggleChipText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  modeToggleChipTextActive: {
+    color: '#065F46',
+  },
+  zoomControlsGroup: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFDF9',
+    backgroundColor: '#F3E8D2',
+    borderRadius: RADIUS.full,
+    padding: 2,
+    gap: 2,
   },
-  mushafImage: {
+  zoomIconBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomBadgePill: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  zoomBadgeText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#78350F',
+  },
+  fullscreenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: RADIUS.full,
+  },
+  fullscreenBtnActive: {
+    backgroundColor: '#059669',
+    borderColor: '#047857',
+  },
+  fullscreenBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#78350F',
+  },
+  scrollCanvas: {
+    flex: 1,
     width: '100%',
-    height: '100%',
+    backgroundColor: '#F7F4EC',
+  },
+  scrollCanvasContent: {
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: 4,
+    flexGrow: 1,
+  },
+  mushafPaperFrame: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1.5,
+    borderColor: '#E7D5A9',
+    overflow: 'hidden',
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.medium,
   },
   imageLoadingOverlay: {
     ...(StyleSheet.absoluteFill as any),
-    backgroundColor: '#FFFDF9',
+    backgroundColor: 'rgba(255, 253, 249, 0.94)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
   },
   loadingPageText: {
     marginTop: 8,
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     color: '#B45309',
   },
   canvasRibbonMarker: {
     position: 'absolute',
-    top: 0,
-    right: 24,
+    top: -2,
+    right: 28,
     zIndex: 15,
-  },
-  frameFooterRow: {
-    height: 28,
-    backgroundColor: '#FBF6E9',
-    borderTopWidth: 1,
-    borderTopColor: '#E7D5A9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pageNumberBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    backgroundColor: '#FFFDF9',
-    borderWidth: 1,
-    borderColor: '#E7D5A9',
-    borderRadius: RADIUS.sm,
-  },
-  pageNumberBadgeText: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: '#92400E',
   },
   bottomControllerBar: {
     backgroundColor: '#FFFDF9',
