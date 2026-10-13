@@ -1,5 +1,4 @@
-// Dedicated Interactive Kid Tasbih Screen (/sunnah/tasbih)
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,7 +11,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
@@ -162,7 +160,9 @@ function playBeadClickSound() {
     gain.connect(ctx.destination);
     osc.start(now);
     osc.stop(now + 0.06);
-  } catch (_) {}
+  } catch {
+    /* audio not supported */
+  }
 }
 
 function playCompletionChimeSound() {
@@ -184,11 +184,12 @@ function playCompletionChimeSound() {
       osc.start(t);
       osc.stop(t + 0.35);
     });
-  } catch (_) {}
+  } catch {
+    /* audio not supported */
+  }
 }
 
 export default function TasbihScreen() {
-  const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';
   const t = TRANSLATIONS[language];
@@ -201,7 +202,7 @@ export default function TasbihScreen() {
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
 
   // Animated scale value for tactile button click
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [scaleAnim] = useState(() => new Animated.Value(1));
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -217,7 +218,9 @@ export default function TasbihScreen() {
     } else {
       try {
         Vibration.vibrate(30);
-      } catch (_) {}
+      } catch {
+        /* vibration not supported */
+      }
     }
 
     // 2. Button bounce animation

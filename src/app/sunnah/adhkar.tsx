@@ -55,7 +55,9 @@ export default function AdhkarScreen() {
     if (Platform.OS !== 'web') {
       try {
         Vibration.vibrate(40);
-      } catch (_) {}
+      } catch {
+        /* vibration not supported */
+      }
     }
 
     const nextCount = currentCount + 1;

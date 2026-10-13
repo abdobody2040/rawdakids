@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { contentService } from '@/services/contentService';
 import { audioService } from '@/services/audioService';
 import { useAppStore } from '@/store/useAppStore';
@@ -37,7 +36,6 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
 ];
 
 export default function DuaLibraryScreen() {
-  const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const duas = contentService.getDuas();

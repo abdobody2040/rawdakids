@@ -9,7 +9,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
 import { HADITHS_DATA, KidHadith } from '@/data/hadithData';
@@ -22,7 +21,6 @@ import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { TRANSLATIONS } from '@/constants/i18n';
 
 export default function HadithFlashcardsScreen() {
-  const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const { width } = useWindowDimensions();

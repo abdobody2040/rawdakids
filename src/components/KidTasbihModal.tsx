@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -143,7 +143,9 @@ function playBeadClickSound() {
     gain.connect(ctx.destination);
     osc.start(now);
     osc.stop(now + 0.06);
-  } catch (_) {}
+  } catch {
+    /* audio not supported */
+  }
 }
 
 function playCompletionChimeSound() {
@@ -165,7 +167,9 @@ function playCompletionChimeSound() {
       osc.start(t);
       osc.stop(t + 0.35);
     });
-  } catch (_) {}
+  } catch {
+    /* audio not supported */
+  }
 }
 
 export interface Props {
@@ -191,8 +195,8 @@ export default function KidTasbihModal({
   const [justCompletedTarget, setJustCompletedTarget] = useState<boolean>(false);
 
   // Animation values
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [scaleAnim] = useState(() => new Animated.Value(1));
+  const [pulseAnim] = useState(() => new Animated.Value(1));
 
   const target = activeDhikr.defaultTarget;
   const progressPercent = Math.min(100, Math.round((count / target) * 100));
