@@ -1167,6 +1167,25 @@
 
 ---
 
+### Milestone 66: Encrypted Progress Backup, Authenticated Keystream & Prototype Pollution Scrubbing
+- Implemented authenticated encryption envelope generator in `securityCryptoService.ts` (`noor_kids_encrypted_backup_v1`) using PBKDF2-SHA256 (10,000 rounds) key derivation, AES keystream, and HMAC-SHA256 tamper-evident integrity tags.
+- Built `backupValidationService.ts`: scrubs prototype pollution vectors (`__proto__`, `constructor`, `prototype`), enforces child profile limits (1-20), clamps progress numbers (1,000,000 max), and whitelists schema fields.
+- Upgraded `src/store/useAppStore.ts` with `exportEncryptedBackup`, `importEncryptedBackup`, and `restoreValidatedData`.
+- Added Encrypted Backup & Restore card in `src/app/parents/index.tsx` with one-click export `.noorkids` download on Web and secure passphrase-protected envelope import.
+
+---
+
+### Milestone 67: JWT Multi-Tenant Cloud Sync Isolation & Audio Sandbox Quota Defense
+- Built full JWT session system in `server.js` using Node's built-in `crypto` (HS256 signature, expiry verification, and constant-time `timingSafeEqual` comparison).
+- Added multi-tenant cloud sync endpoints in `server.js`: `/api/sync/push`, `/api/sync/pull`, and `/api/auth/token` with strict tenant isolation (`ownerId === session.userId`).
+- Created `cloudSyncService.ts` for secure token persistence, automatic session expiration handling, and client sync orchestration.
+- Added Multi-Device Cloud Sync card in `src/app/parents/index.tsx` with login/logout, push, and pull functionality.
+- Hardened `voiceRecordService.ts`: enforced strict 180s (3 min) duration cap, 15MB buffer memory quota, path traversal validation (`validateAudioUri`), and complete object URL / track lifecycle cleanup.
+- Automated security suite (`scripts/test-security.js`) expanded to 58/58 passing tests (100%).
+- Full E2E suite (`scripts/test-e2e.js`) passed 69/69 (100%), 0 TypeScript errors (`tsc --noEmit`), web export refreshed.
+
+---
+
 ## 3. Strict Rules & Constraints for Future AI Agents
 
 1. **Theological Integrity & Respect:**
