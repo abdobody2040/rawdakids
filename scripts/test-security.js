@@ -522,6 +522,37 @@ async function runSecuritySuite() {
   });
   assert(pullResBob.statusCode === 200 && pullResBob.json?.hasData === false && pullResBob.json?.snapshot === null, 'User B receives 0 records when pulling (Tenant Isolation: User A data is 100% hidden)\n');
 
+  // --------------------------------------------------------------------------
+  // TEST 11: AUDIO VOICE MEMO SANDBOX SECURITY & QUOTA DEFENSE
+  // --------------------------------------------------------------------------
+  console.log('--- 11. Audio Voice Memo Sandbox Security, Quotas & Path Traversal Verification ---');
+
+  const { voiceRecordService, MAX_RECORDING_SECONDS, MAX_RECORDING_BYTES } = require('../src/services/voiceRecordService.ts');
+
+  // 11.1 Path traversal defense
+  const traversalA = voiceRecordService.validateAudioUri('../../etc/passwd');
+  const traversalB = voiceRecordService.validateAudioUri('file:///var/mobile/../../sensitive_key.pem');
+  const traversalC = voiceRecordService.validateAudioUri('blob:http://localhost/%2e%2e/admin');
+  assert(!traversalA.valid && !traversalB.valid && !traversalC.valid, 'Audio URI validator strictly blocks path traversal sequences');
+
+  // 11.2 Dangerous / Unauthorized schemes defense
+  const xssScheme = voiceRecordService.validateAudioUri('javascript:alert(document.cookie)');
+  const ftpScheme = voiceRecordService.validateAudioUri('ftp://malicious-server.com/exploit.wav');
+  assert(!xssScheme.valid && !ftpScheme.valid, 'Audio URI validator strictly blocks unauthorized URL schemes (javascript:, ftp:)');
+
+  // 11.3 Valid audio URI accepted
+  const validBlob = voiceRecordService.validateAudioUri('blob:http://localhost:3000/ae8b-4021-9871');
+  const validData = voiceRecordService.validateAudioUri('data:audio/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwE=');
+  assert(validBlob.valid && validData.valid, 'Audio URI validator accepts safe, legitimate internal blob and data:audio schemes');
+
+  // 11.4 Resource quotas enforcement
+  assert(MAX_RECORDING_SECONDS === 180, 'Hard recording duration limit strictly capped at 180s (3 minutes max)');
+  assert(MAX_RECORDING_BYTES === 15 * 1024 * 1024, 'Hard memory buffer byte quota strictly capped at 15MB to prevent memory exhaustion');
+
+  // 11.5 Hardware track & memory lifecycle cleansing
+  voiceRecordService.clearRecording();
+  assert(voiceRecordService.getIsRecording() === false && voiceRecordService.getHasRecording() === false, 'Service cleanly resets state and releases hardware/memory buffers\n');
+
   console.log('=====================================================');
   console.log(`SECURITY SUITE SUMMARY: ${passed} / ${total} PASSED`);
   if (passed === total) {
