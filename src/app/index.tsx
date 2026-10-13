@@ -24,7 +24,10 @@ import KidAvatar from '@/components/KidAvatar';
 import ParentGateModal from '@/components/ParentGateModal';
 import SmartSearchModal from '@/components/SmartSearchModal';
 import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
+import LanguageSelectModal from '@/components/LanguageSelectModal';
+import { AVAILABLE_LANGUAGES, TRANSLATIONS } from '@/constants/i18n';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
+import { formatLocalizedTodayDate } from '@/services/multilingualContentService';
 
 const HERO_OASIS_IMG = require('../../assets/images/hero-oasis.jpg');
 const MASCOT_NOOR_IMG = require('../../assets/images/mascot-noor.jpg');
@@ -58,21 +61,13 @@ const WORLD_BADGE_IMAGES: Record<string, any> = {
   wudu: ICON_GEM_IMG,
 };
 
-function formatTodayDate(isAr: boolean): string {
-  if (isAr) return 'الأحد، ٤ ربيع الأول';
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const {
     language,
-    setLanguage,
+    setLanguage: _setLanguage,
     hasCompletedOnboarding,
     isHydrated,
     recordDailyActivity,
@@ -86,12 +81,14 @@ export default function HomeScreen() {
     lastReadMushafPage,
   } = useAppStore();
 
+  const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
   const [isPlayingHadith, setIsPlayingHadith] = useState(false);
   const [showHadithReward, setShowHadithReward] = useState(false);
   const [parentGateVisible, setParentGateVisible] = useState(false);
   const [showSmartSearch, setShowSmartSearch] = useState(false);
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   // Rotating Hadith of the Day based on day of year
   const [hadithOfTheDay] = useState(() => {
@@ -122,7 +119,7 @@ export default function HomeScreen() {
     });
   };
 
-  const todayDateStr = useMemo(() => formatTodayDate(isAr), [isAr]);
+  const todayDateStr = useMemo(() => formatLocalizedTodayDate(language), [language]);
 
   useEffect(() => {
     if (isHydrated && hasCompletedOnboarding) {
@@ -145,44 +142,44 @@ export default function HomeScreen() {
   const worlds = [
     {
       id: 'quran',
-      title: isAr ? 'حديقة القرآن' : 'Quran Garden',
-      subtitle: isAr ? 'استمع، ردّد واكتشف' : 'Listen, learn & grow',
-      count: isAr ? '١١٤ سورة مباركة' : '114 surahs blooming',
+      title: t.quran,
+      subtitle: t.quranDesc,
+      count: isAr ? '١١٤ سورة مباركة' : '114 Surahs',
       emoji: '📖',
       gradient: ['#e5f5df', '#daf0e6'] as const,
       route: '/quran',
     },
     {
       id: 'sunnah',
-      title: isAr ? 'طريق السنّة' : 'Sunnah Path',
-      subtitle: isAr ? 'عادات نبوية وأذكار' : 'Little habits, big love',
-      count: isAr ? '١٠٠ حديث نبوي وسُنّة' : '100 authentic hadiths',
+      title: t.sunnah,
+      subtitle: t.sunnahDesc,
+      count: isAr ? '١٠٠ حديث نبوي وسُنّة' : '100 Hadiths',
       emoji: '🌙',
       gradient: ['#fff1ce', '#ffe6c9'] as const,
       route: '/sunnah',
     },
     {
       id: 'prophets',
-      title: isAr ? 'قافلة الأنبياء' : 'Prophets’ Caravan',
-      subtitle: isAr ? 'قصص وعِبر ملهمة' : 'Stories full of wonder',
-      count: isAr ? '٢٥ قصة نبي' : '25 stories explored',
+      title: t.prophets,
+      subtitle: t.prophetsDesc,
+      count: isAr ? '٢٥ قصة نبي' : '25 Prophet Stories',
       emoji: '🕊️',
       gradient: ['#e9e8fb', '#dceafa'] as const,
       route: '/prophets',
     },
     {
       id: 'manners',
-      title: isAr ? 'بلدة الأخلاق' : 'Good Manners Town',
-      subtitle: isAr ? 'قيم تصنع الفرق' : 'Make the world brighter',
-      count: isAr ? '٥٠ مَعلماً وخُلقاً حسناً' : '50 moral landmarks',
+      title: t.manners,
+      subtitle: t.mannersDesc,
+      count: isAr ? '٥٠ مَعلماً وخُلقاً حسناً' : '50 Manners',
       emoji: '🌟',
       gradient: ['#ffe8dc', '#fce3ed'] as const,
       route: '/manners',
     },
     {
       id: 'arkan',
-      title: isAr ? 'أكاديمية الأركان' : 'Pillars Academy',
-      subtitle: isAr ? 'أركان الإسلام والإيمان الخمسة والستة' : 'Pillars of Islam & Iman',
+      title: t.pillarsAcademy,
+      subtitle: `${t.pillarsIslam} & ${t.pillarsIman}`,
       count: isAr ? '١١ ركناً مباركاً' : '11 Pillars',
       emoji: '🕌',
       gradient: ['#fef3c7', '#fed7aa'] as const,
@@ -190,11 +187,9 @@ export default function HomeScreen() {
     },
     {
       id: 'wudu',
-      title: isAr ? 'تعلَّم كيف تتوضأ وتصلي خطوة بخطوة' : 'Learn How to Pray & Make Wudu',
-      subtitle: isAr
-        ? 'محاكي الوضوء (٨ خطوات) • محاكي الصلاة (١٠ خطوات) • أركان وسنن الصلاة'
-        : 'Wudu Simulator (8 steps) • Prayer Simulator (10 steps) • Pillars & Sunnahs',
-      count: isAr ? 'محاكي تفاعلي صوتي' : 'Audio Interactive Simulator',
+      title: t.learnWuduSalah,
+      subtitle: `${t.wuduSimulator} • ${t.salahSimulator}`,
+      count: t.wuduSimulator,
       emoji: '🌊',
       gradient: ['#e0f2fe', '#bae6fd'] as const,
       route: '/arkan/salah',
@@ -232,43 +227,20 @@ export default function HomeScreen() {
                     { flexDirection: isAr ? 'row-reverse' : 'row' },
                   ]}
                 >
-                  {/* Language Switcher */}
-                  <View style={styles.langSwitchPill}>
-                    <TouchableOpacity
-                      style={[
-                        styles.langSegmentBtn,
-                        isAr && styles.langSegmentActive,
-                      ]}
-                      onPress={() => setLanguage('ar')}
-                      activeOpacity={0.8}
-                    >
-                      <Text
-                        style={[
-                          styles.langSegmentText,
-                          isAr && styles.langSegmentTextActive,
-                        ]}
-                      >
-                        عربي
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.langSegmentBtn,
-                        !isAr && styles.langSegmentActive,
-                      ]}
-                      onPress={() => setLanguage('en')}
-                      activeOpacity={0.8}
-                    >
-                      <Text
-                        style={[
-                          styles.langSegmentText,
-                          !isAr && styles.langSegmentTextActive,
-                        ]}
-                      >
-                        EN
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  {/* Multilingual Selector Pill */}
+                  <TouchableOpacity
+                    style={styles.langSelectorBtn}
+                    onPress={() => setShowLanguageModal(true)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.langSelectorFlag}>
+                      {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
+                    </Text>
+                    <Text style={styles.langSelectorCode}>
+                      {language.toUpperCase()}
+                    </Text>
+                    <Ionicons name="chevron-down" size={11} color="#267960" />
+                  </TouchableOpacity>
 
                   {/* Parent Gate Lock Button (Clearly labeled so parents know what it is) */}
                   <TouchableOpacity
@@ -320,7 +292,7 @@ export default function HomeScreen() {
                 >
                   <Ionicons name="swap-horizontal" size={15} color="#047857" />
                   <Text style={styles.switchChildHeaderBtnText}>
-                    {isAr ? 'تبديل ↺' : 'Switch ↺'}
+                    {t.switchProfile}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -340,7 +312,7 @@ export default function HomeScreen() {
                 >
                   <Ionicons name="flame" size={17} color="#f97316" />
                   <Text style={styles.statChipText}>
-                    {streakCount} {isAr ? 'أيام متتالية' : 'streak'}
+                    {streakCount} {t.streakDays}
                   </Text>
                 </TouchableOpacity>
 
@@ -352,7 +324,7 @@ export default function HomeScreen() {
                 >
                   <Image source={ICON_STAR_IMG} style={styles.statChip3dIcon} resizeMode="contain" />
                   <Text style={styles.statChipText}>
-                    {stars} {isAr ? 'نجمة' : 'stars'}
+                    {stars} {t.stars}
                   </Text>
                 </TouchableOpacity>
 
@@ -364,7 +336,7 @@ export default function HomeScreen() {
                 >
                   <Image source={ICON_GEM_IMG} style={styles.statChip3dIcon} resizeMode="contain" />
                   <Text style={styles.statChipText}>
-                    {gems} {isAr ? 'جوهرة' : 'gems'}
+                    {gems} {t.gems}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -383,14 +355,12 @@ export default function HomeScreen() {
                 style={[styles.homeSearchPlaceholder, { textAlign: isAr ? 'right' : 'left' }]}
                 numberOfLines={1}
               >
-                {isAr
-                  ? 'ابحث في السور، الأحاديث، الأنبياء، الأدعية، والأخلاق...'
-                  : 'Search Surahs, Hadiths, Prophets, Duas & Manners...'}
+                {t.searchPlaceholder}
               </Text>
               <View style={[styles.homeSearchActionBadge, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="sparkles" size={13} color="#D97706" />
                 <Text style={styles.homeSearchActionBadgeText}>
-                  {isAr ? 'بحث ذكي' : 'Search'}
+                  {t.smartSearch}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -417,24 +387,22 @@ export default function HomeScreen() {
                 <View style={[styles.homeMushafTextBox, isAr && { alignItems: 'flex-end' }]}>
                   <View style={[styles.homeMushafTitleRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                     <Text style={styles.homeMushafTitle}>
-                      {isAr ? 'المصحف الشريف الإلكتروني' : 'The Holy Mushaf'}
+                      {t.mushafTitle}
                     </Text>
                     <View style={styles.homeMushafBadge}>
                       <Text style={styles.homeMushafBadgeText}>
-                        {isAr ? `صفحة ${lastReadMushafPage || 1}` : `Page ${lastReadMushafPage || 1}`}
+                        {`${t.page} ${lastReadMushafPage || 1}`}
                       </Text>
                     </View>
                   </View>
                   <Text style={[styles.homeMushafSubtitle, isAr && { textAlign: 'right' }]}>
-                    {isAr
-                      ? 'اقرأ القرآن الكريم بطبعة مصحف المدينة المنورة (٦٠٤ صفحة)'
-                      : 'Read the complete Madinah Mushaf with authentic pages'}
+                    {t.mushafSubtitle}
                   </Text>
                 </View>
 
                 <View style={[styles.homeMushafActionBtn, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                   <Text style={styles.homeMushafActionBtnText}>
-                    {isAr ? 'قراءة' : 'Read'}
+                    {t.read}
                   </Text>
                   <Ionicons
                     name={isAr ? 'chevron-back' : 'chevron-forward'}
@@ -879,6 +847,12 @@ export default function HomeScreen() {
         visible={showProfileSwitcher}
         onClose={() => setShowProfileSwitcher(false)}
       />
+
+      {/* Multilingual Select Modal (Arabic, English, French, German, Spanish) */}
+      <LanguageSelectModal
+        visible={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1006,30 +980,24 @@ const styles = StyleSheet.create({
     gap: 6,
     flexShrink: 0,
   },
-  langSwitchPill: {
+  langSelectorBtn: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    height: 28,
+    paddingHorizontal: 8,
+    borderRadius: 14,
     backgroundColor: '#eef6f0',
-    borderRadius: 16,
-    padding: 2,
     borderWidth: 1,
     borderColor: '#d7e8db',
-    alignItems: 'center',
   },
-  langSegmentBtn: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 13,
+  langSelectorFlag: {
+    fontSize: 13,
   },
-  langSegmentActive: {
-    backgroundColor: '#267960',
-  },
-  langSegmentText: {
-    fontSize: 10,
+  langSelectorCode: {
+    fontSize: 11,
     fontWeight: '800',
     color: '#267960',
-  },
-  langSegmentTextActive: {
-    color: '#ffffff',
   },
   parentGateBtn: {
     flexDirection: 'row',

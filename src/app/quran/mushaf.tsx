@@ -17,11 +17,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
-import { TRANSLATIONS } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import {
@@ -29,14 +27,11 @@ import {
   MUSHAF_SURAHS,
   MUSHAF_AJZAA,
   getMushafPageInfo,
-  MushafSurahMeta,
-  MushafJuzMeta,
-} from '@/data/mushafData';
+} from "@/data/mushafData";
 import { audioService } from '@/services/audioService';
 import { quranService } from '@/services/quranService';
 
 export default function MushafReaderScreen() {
-  const router = useRouter();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const params = useLocalSearchParams<{ page?: string }>();
   const {
@@ -49,7 +44,6 @@ export default function MushafReaderScreen() {
   } = useAppStore();
 
   const isAr = language === 'ar';
-  const t = TRANSLATIONS[language];
 
   // Resolve initial page
   const initialPage = params.page
@@ -726,7 +720,6 @@ export default function MushafReaderScreen() {
                       maxLength={3}
                       value={jumpInput}
                       onChangeText={setJumpInput}
-                      autoFocus
                     />
                   </View>
 

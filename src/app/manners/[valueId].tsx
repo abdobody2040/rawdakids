@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedMannerBuilding, getLocalizedMannerScenario } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -47,12 +48,15 @@ export default function MannersScenarioPlayerScreen() {
     contentService.getMannersBuildings()[0];
 
   const scenario = building.scenarios[0];
+  const localizedBuilding = getLocalizedMannerBuilding(building, language);
+  const localizedScenario = getLocalizedMannerScenario(scenario, language);
+
   const scenarioImage = MANNER_SCENARIO_IMAGES[building.id] || require('../../../assets/images/manners-town.jpg');
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [hasPledged, setHasPledged] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
 
-  const selectedChoice = scenario.choices.find((c) => c.id === selectedChoiceId);
+  const selectedChoice = localizedScenario.choices.find((c) => c.id === selectedChoiceId);
 
   const handleChoose = (id: string) => {
     setSelectedChoiceId(id);
@@ -69,7 +73,7 @@ export default function MannersScenarioPlayerScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header
         showBack
-        title={language === 'ar' ? building.nameAr : building.nameEn}
+        title={localizedBuilding.name}
       />
 
       <ScrollView
@@ -102,12 +106,12 @@ export default function MannersScenarioPlayerScreen() {
               />
             </View>
             <Text style={styles.scenarioTitle}>
-              {language === 'ar' ? scenario.titleAr : scenario.titleEn}
+              {localizedScenario.title}
             </Text>
           </View>
 
           <Text style={styles.situationText}>
-            {language === 'ar' ? scenario.situationAr : scenario.situationEn}
+            {localizedScenario.situation}
           </Text>
         </View>
 
@@ -116,7 +120,7 @@ export default function MannersScenarioPlayerScreen() {
           <Text style={styles.choicesHeader}>{t.whatWouldYouDo}</Text>
 
           <View style={styles.choicesList}>
-            {scenario.choices.map((choice) => {
+            {localizedScenario.choices.map((choice) => {
               const isSelected = selectedChoiceId === choice.id;
 
               return (
@@ -150,7 +154,7 @@ export default function MannersScenarioPlayerScreen() {
                     }
                   />
                   <Text style={styles.choiceText}>
-                    {language === 'ar' ? choice.textAr : choice.textEn}
+                    {choice.text}
                   </Text>
                 </TouchableOpacity>
               );
@@ -174,9 +178,7 @@ export default function MannersScenarioPlayerScreen() {
                 : t.gentleWrongFeedback}
             </Text>
             <Text style={styles.consequenceText}>
-              {language === 'ar'
-                ? selectedChoice.consequenceAr
-                : selectedChoice.consequenceEn}
+              {selectedChoice.consequence}
             </Text>
           </View>
         )}
@@ -189,9 +191,21 @@ export default function MannersScenarioPlayerScreen() {
               {scenario.supportingProof.type === 'ayah'
                 ? language === 'ar'
                   ? 'من القرآن الكريم'
+                  : language === 'fr'
+                  ? 'Du Saint Coran'
+                  : language === 'de'
+                  ? 'Aus dem Heiligen Koran'
+                  : language === 'es'
+                  ? 'Del Sagrado Corán'
                   : 'From the Quran'
                 : language === 'ar'
                 ? 'من الحديث الشريف'
+                : language === 'fr'
+                ? 'Du noble Hadith'
+                : language === 'de'
+                ? 'Aus dem edlen Hadith'
+                : language === 'es'
+                ? 'Del noble Hadiz'
                 : 'From the Hadith'}
             </Text>
           </View>
@@ -216,9 +230,7 @@ export default function MannersScenarioPlayerScreen() {
         <View style={styles.pledgeCard}>
           <Text style={styles.pledgeTitle}>{t.valuePledge}</Text>
           <Text style={styles.pledgeText}>
-            {language === 'ar'
-              ? building.weeklyPledgeAr
-              : building.weeklyPledgeEn}
+            {localizedBuilding.weeklyPledge}
           </Text>
 
           <TouchableOpacity
@@ -238,12 +250,24 @@ export default function MannersScenarioPlayerScreen() {
             />
             <Text style={styles.pledgeBtnText}>
               {hasPledged
-                ? language === 'ar'
+                ? (language === 'ar'
                   ? 'تم قطع العهد بنجاح!'
-                  : 'Pledge Confirmed!'
-                : language === 'ar'
+                  : language === 'fr'
+                  ? 'Engagement confirmé !'
+                  : language === 'de'
+                  ? 'Gelöbnis bestätigt!'
+                  : language === 'es'
+                  ? '¡Compromiso confirmado!'
+                  : 'Pledge Confirmed!')
+                : (language === 'ar'
                 ? 'أتعهد وألتزم بهذا الخُلق'
-                : 'I take this pledge'}
+                : language === 'fr'
+                ? 'Je prends cet engagement'
+                : language === 'de'
+                ? 'Ich nehme dieses Gelöbnis an'
+                : language === 'es'
+                ? 'Asumo este compromiso'
+                : 'I take this pledge')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -258,6 +282,12 @@ export default function MannersScenarioPlayerScreen() {
         subtitle={
           language === 'ar'
             ? 'بارك الله فيك يا صاحب الخلق الرفيع!'
+            : language === 'fr'
+            ? 'Qu’Allah te bénisse pour tes nobles manières !'
+            : language === 'de'
+            ? 'Möge Allah dich für deinen edlen Charakter segnen!'
+            : language === 'es'
+            ? '¡Que Al-lah te bendiga por tu noble carácter!'
             : 'Masha’Allah for your noble character!'
         }
         onDismiss={() => {

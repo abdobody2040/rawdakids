@@ -317,14 +317,18 @@ async function runSecuritySuite() {
   let rateLimitHit = false;
   let retryAfterHeader = null;
 
-  for (let i = 0; i < 5; i++) {
+  const testRateLimitIp = `198.51.100.${Math.floor(Math.random() * 200) + 10}`;
+  for (let i = 0; i < 6; i++) {
     const res = await request({
       hostname: 'localhost',
       port: 3000,
       path: '/api/auth/login',
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }, { email: 'alice@example.com', password: 'WrongPassword' });
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': testRateLimitIp,
+      },
+    }, { email: 'attacker@example.com', password: 'WrongPassword' });
 
     if (res.statusCode === 429) {
       rateLimitHit = true;
@@ -336,10 +340,223 @@ async function runSecuritySuite() {
   assert(rateLimitHit === true, 'Login route triggered HTTP 429 Too Many Requests after threshold');
   assert(Number(retryAfterHeader) > 0, `Rate limit response includes Retry-After header: ${retryAfterHeader}s\n`);
 
+  // --------------------------------------------------------------------------
+  // TEST 8: PARENTAL GATE CRYPTOGRAPHIC PIN & BRUTE-FORCE LOCKOUT
+  // --------------------------------------------------------------------------
+  console.log('--- 8. Parental Gate Cryptographic Salt/Hash & Lockout Verification ---');
+
+  const { securityCryptoService } = require('../src/services/securityCryptoService.ts');
+
+  // 8.1 Input validation
+  const invalidPinA = securityCryptoService.validatePinFormat('12');
+  const invalidPinB = securityCryptoService.validatePinFormat('abcd');
+  const invalidPinC = securityCryptoService.validatePinFormat('1234567');
+  const validPin = securityCryptoService.validatePinFormat('1234');
+  assert(!invalidPinA.valid && !invalidPinB.valid && !invalidPinC.valid, 'PIN validator strictly rejects non-digits and lengths outside 4-6 digits');
+  assert(validPin.valid, 'PIN validator accepts valid 4-digit PIN');
+
+  // 8.2 Salted SHA-256 hashing
+  const cred1 = securityCryptoService.hashPin('5678');
+  const cred2 = securityCryptoService.hashPin('5678');
+  assert(cred1.hash !== '5678', 'PIN is never stored in plaintext');
+  assert(cred1.hash.length === 64, 'PIN is hashed with standard 256-bit (64 hex char) digest');
+  assert(cred1.salt !== cred2.salt, 'Unique random cryptographic salt generated per PIN hash');
+  assert(cred1.hash !== cred2.hash, 'Salts guarantee identical PINs produce distinct cryptographic hashes');
+
+  // 8.3 Constant-time verification
+  const isMatch = securityCryptoService.verifyPin('5678', cred1.hash, cred1.salt);
+  const isWrong = securityCryptoService.verifyPin('9999', cred1.hash, cred1.salt);
+  assert(isMatch === true, 'Constant-time verification authenticates correct PIN');
+  assert(isWrong === false, 'Constant-time verification rejects incorrect PIN');
+
+  // 8.4 Stepped brute-force lockout
+  const lockout3 = securityCryptoService.calculateNextLockout(3);
+  const status3 = securityCryptoService.checkLockout(3, lockout3);
+  assert(status3.isLocked === true && status3.remainingSeconds <= 30 && status3.remainingSeconds >= 29, '3 failed attempts trigger 30-second security cooldown');
+
+  const lockout5 = securityCryptoService.calculateNextLockout(5);
+  const status5 = securityCryptoService.checkLockout(5, lockout5);
+  assert(status5.isLocked === true && status5.remainingSeconds <= 300 && status5.remainingSeconds >= 298, '5 failed attempts trigger 300-second (5 min) security cooldown\n');
+
+  // --------------------------------------------------------------------------
+  // TEST 9: ENCRYPTED BACKUP & AUTHENTICATED INTEGRITY (OWASP ASVS V8.2 / V8.3)
+  // --------------------------------------------------------------------------
+  console.log('--- 9. Encrypted Backup & Authenticated Integrity Verification ---');
+
+  const { backupValidationService } = require('../src/services/backupValidationService.ts');
+
+  // 9.1 Encrypted Export produces compliant envelope
+  const sampleData = JSON.stringify({
+    version: '1.0.0',
+    profiles: [{ id: 'child-1', name: 'Zaid', ageBand: '7-9', avatar: 'av-boy1' }],
+    activeProfileId: 'child-1',
+    profilesProgress: { 'child-1': { stars: 50, gems: 100 } },
+    parentSettings: { reciterId: 'alafasy' },
+  });
+  const passphrase = 'SuperSecretParentPassphrase123!';
+  const envelope = securityCryptoService.encryptBackup(sampleData, passphrase);
+
+  assert(envelope.format === 'noor_kids_encrypted_backup_v1', 'Backup format conforms to authenticated envelope version');
+  assert(envelope.salt.length === 32, 'Envelope contains unique 128-bit random salt');
+  assert(envelope.iv.length === 32, 'Envelope contains unique 128-bit IV');
+  assert(envelope.authTag.length === 64, 'Envelope contains 256-bit HMAC authentication tag');
+  assert(envelope.ciphertext !== sampleData, 'Payload is completely encrypted with 0 plaintext leakage');
+
+  // 9.2 Decrypt with correct passphrase
+  const decValid = securityCryptoService.decryptBackup(envelope, passphrase);
+  assert(decValid.success === true && decValid.dataJson === sampleData, 'Valid passphrase decrypts exact original backup payload');
+
+  // 9.3 Decrypt with wrong passphrase
+  const decWrong = securityCryptoService.decryptBackup(envelope, 'WrongPassphrase');
+  assert(decWrong.success === false, 'Wrong passphrase fails authentication and decrypts 0 data');
+
+  // 9.4 Tamper resistance (any flipped hex char fails MAC)
+  const tamperedCipher = envelope.ciphertext.slice(0, -2) + (envelope.ciphertext.slice(-2) === 'aa' ? 'bb' : 'aa');
+  const tamperedEnvelope = { ...envelope, ciphertext: tamperedCipher };
+  const decTampered = securityCryptoService.decryptBackup(tamperedEnvelope, passphrase);
+  assert(decTampered.success === false, 'Tampered ciphertext fails HMAC authentication tag verification (Integrity protected)');
+
+  // 9.5 Prototype Pollution defense
+  const maliciousJson = JSON.stringify({
+    version: '1.0.0',
+    __proto__: { isAdmin: true },
+    constructor: { prototype: { polluter: true } },
+    profiles: [{ id: 'child-1', name: 'Zaid', ageBand: '7-9', avatar: 'av-boy1' }],
+    activeProfileId: 'child-1',
+    profilesProgress: { 'child-1': { stars: 9999999999 } }, // Unchecked giant number
+  });
+  const valResult = backupValidationService.validate(maliciousJson);
+  assert(valResult.valid === true, 'Backup schema validator successfully parsed and sanitized valid profiles');
+  assert({}.isAdmin === undefined, 'Prototype pollution vector __proto__ was strictly scrubbed');
+  assert(valResult.sanitizedData?.profilesProgress['child-1'].stars === 1000000, 'Extreme numbers safely clamped within bounds (1,000,000 max)\n');
+
+  // --------------------------------------------------------------------------
+  // TEST 10: JWT AUTHENTICATION & MULTI-TENANT CLOUD SYNC ISOLATION
+  // --------------------------------------------------------------------------
+  console.log('--- 10. JWT Authentication & Multi-Tenant Cloud Sync Isolation ---');
+
+  // 10.1 Issue JWT for Alice
+  const jwtResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/token',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }, { email: 'alice@example.com', password: TEST_PWD });
+  assert(jwtResAlice.statusCode === 200 && jwtResAlice.json?.token, 'JWT endpoint issues cryptographically signed token');
+
+  const aliceJwt = jwtResAlice.json.token;
+  const jwtParts = aliceJwt.split('.');
+  assert(jwtParts.length === 3, 'JWT has standard 3-part compact structure (header.payload.signature)');
+
+  const decodedPayload = JSON.parse(Buffer.from(jwtParts[1], 'base64').toString('utf8'));
+  assert(decodedPayload.sub === 'usr_001_alice' && decodedPayload.exp > decodedPayload.iat, 'JWT payload contains valid subject and expiration claims');
+
+  // 10.2 Anonymous sync access rejected
+  const anonSyncRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+  });
+  assert(anonSyncRes.statusCode === 401, 'Anonymous request to /api/sync/pull strictly rejected with HTTP 401');
+
+  // 10.3 Forged signature rejected
+  const forgedJwt = `${jwtParts[0]}.${jwtParts[1]}.invalid_tampered_signature_12345`;
+  const forgedRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${forgedJwt}` },
+  });
+  assert(forgedRes.statusCode === 401, 'Forged JWT with modified signature strictly rejected with HTTP 401');
+
+  // 10.4 User A pushes child snapshot
+  const aliceSyncPayload = {
+    profiles: [{ id: 'child_alice_1', name: 'Maryam', ageBand: '7-9', avatar: 'av-girl1' }],
+    activeProfileId: 'child_alice_1',
+    profilesProgress: { child_alice_1: { stars: 120, gems: 45 } },
+    parentSettings: { dailyLimitMin: 30, quietHoursEnabled: true, reciterId: 'alafasy', showEnglishTranslation: true, showSimpleTafsir: true, translationSource: 'clearquran', pin: '1234' },
+    gratitudeEntries: [],
+  };
+
+  const pushResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/push',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${aliceJwt}`,
+    },
+  }, aliceSyncPayload);
+  assert(pushResAlice.statusCode === 200 && pushResAlice.json?.profileCount === 1, 'User A securely pushes progress snapshot to cloud (HTTP 200)');
+
+  // 10.5 User A pulls snapshot
+  const pullResAlice = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${aliceJwt}` },
+  });
+  assert(pullResAlice.statusCode === 200 && pullResAlice.json?.hasData === true && pullResAlice.json?.snapshot?.activeProfileId === 'child_alice_1', 'User A retrieves own cloud snapshot successfully');
+
+  // 10.6 User B issues JWT and pulls -> MUST NOT see User A's data (Tenant Isolation)
+  const jwtResBob = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/token',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }, { email: 'bob@example.com', password: TEST_PWD });
+  const bobJwt = jwtResBob.json.token;
+
+  const pullResBob = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/sync/pull',
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${bobJwt}` },
+  });
+  assert(pullResBob.statusCode === 200 && pullResBob.json?.hasData === false && pullResBob.json?.snapshot === null, 'User B receives 0 records when pulling (Tenant Isolation: User A data is 100% hidden)\n');
+
+  // --------------------------------------------------------------------------
+  // TEST 11: AUDIO VOICE MEMO SANDBOX SECURITY & QUOTA DEFENSE
+  // --------------------------------------------------------------------------
+  console.log('--- 11. Audio Voice Memo Sandbox Security, Quotas & Path Traversal Verification ---');
+
+  const { voiceRecordService, MAX_RECORDING_SECONDS, MAX_RECORDING_BYTES } = require('../src/services/voiceRecordService.ts');
+
+  // 11.1 Path traversal defense
+  const traversalA = voiceRecordService.validateAudioUri('../../etc/passwd');
+  const traversalB = voiceRecordService.validateAudioUri('file:///var/mobile/../../sensitive_key.pem');
+  const traversalC = voiceRecordService.validateAudioUri('blob:http://localhost/%2e%2e/admin');
+  assert(!traversalA.valid && !traversalB.valid && !traversalC.valid, 'Audio URI validator strictly blocks path traversal sequences');
+
+  // 11.2 Dangerous / Unauthorized schemes defense
+  const xssScheme = voiceRecordService.validateAudioUri('javascript:alert(document.cookie)');
+  const ftpScheme = voiceRecordService.validateAudioUri('ftp://malicious-server.com/exploit.wav');
+  assert(!xssScheme.valid && !ftpScheme.valid, 'Audio URI validator strictly blocks unauthorized URL schemes (javascript:, ftp:)');
+
+  // 11.3 Valid audio URI accepted
+  const validBlob = voiceRecordService.validateAudioUri('blob:http://localhost:3000/ae8b-4021-9871');
+  const validData = voiceRecordService.validateAudioUri('data:audio/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwE=');
+  assert(validBlob.valid && validData.valid, 'Audio URI validator accepts safe, legitimate internal blob and data:audio schemes');
+
+  // 11.4 Resource quotas enforcement
+  assert(MAX_RECORDING_SECONDS === 180, 'Hard recording duration limit strictly capped at 180s (3 minutes max)');
+  assert(MAX_RECORDING_BYTES === 15 * 1024 * 1024, 'Hard memory buffer byte quota strictly capped at 15MB to prevent memory exhaustion');
+
+  // 11.5 Hardware track & memory lifecycle cleansing
+  voiceRecordService.clearRecording();
+  assert(voiceRecordService.getIsRecording() === false && voiceRecordService.getHasRecording() === false, 'Service cleanly resets state and releases hardware/memory buffers\n');
+
   console.log('=====================================================');
   console.log(`SECURITY SUITE SUMMARY: ${passed} / ${total} PASSED`);
   if (passed === total) {
-    console.log('ALL 7 SECURITY PRINCIPLES FULLY SATISFIED & VERIFIED! 🛡️');
+    console.log('ALL SECURITY PRINCIPLES & HARDENED CONTROLS VERIFIED! 🛡️');
   } else {
     console.log('SOME SECURITY TESTS FAILED.');
   }

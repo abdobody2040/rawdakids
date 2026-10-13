@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedMannerBuilding } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 
@@ -135,6 +136,12 @@ export default function MannersTownScreen() {
                 >
                   {language === 'ar'
                     ? 'دفتر شكر الله والامتنان 🌸'
+                    : language === 'fr'
+                    ? 'Mon Carnet de Gratitude envers Allah 🌸'
+                    : language === 'de'
+                    ? 'Mein Dankbarkeitstagebuch für Allah 🌸'
+                    : language === 'es'
+                    ? 'Mi Diario de Gratitud a Al-lah 🌸'
                     : 'My Gratitude Journal 🌸'}
                 </Text>
                 <Text
@@ -145,6 +152,12 @@ export default function MannersTownScreen() {
                 >
                   {language === 'ar'
                     ? 'سجّل نعمة تشكر الله عليها اليوم واكسب نجوماً!'
+                    : language === 'fr'
+                    ? 'Remercie Allah pour un bienfait aujourd’hui et gagne des étoiles !'
+                    : language === 'de'
+                    ? 'Danke Allah heute für einen Segen & verdiene Sterne!'
+                    : language === 'es'
+                    ? '¡Agradece a Al-lah por una bendición hoy y gana estrellas!'
                     : 'Thank Allah for a blessing today & earn stars!'}
                 </Text>
               </View>
@@ -229,7 +242,15 @@ export default function MannersTownScreen() {
 
         <View style={styles.sectionHeadingRow}>
           <Text style={styles.sectionHeading}>
-            {language === 'ar' ? 'معالم الأخلاق في المدينة' : 'Buildings of Manners'}
+            {language === 'ar'
+              ? 'معالم الأخلاق في المدينة'
+              : language === 'fr'
+              ? 'Édifices des nobles manières'
+              : language === 'de'
+              ? 'Stätten der guten Manieren'
+              : language === 'es'
+              ? 'Edificios de los buenos modales'
+              : 'Buildings of Manners'}
           </Text>
           <View style={styles.landmarksCountBadge}>
             <Ionicons name="sparkles" size={13} color="#0284c7" />
@@ -244,6 +265,7 @@ export default function MannersTownScreen() {
           {buildings.map((building, index) => {
             const isCompleted = scenarioProgress[building.id]?.completed;
             const buildingImage = getBuildingImage(building.id, index);
+            const localizedB = getLocalizedMannerBuilding(building, language);
 
             return (
               <TouchableOpacity
@@ -286,11 +308,11 @@ export default function MannersTownScreen() {
                 </View>
 
                 <Text style={styles.buildingName}>
-                  {language === 'ar' ? building.nameAr : building.nameEn}
+                  {localizedB.name}
                 </Text>
 
                 <Text style={styles.buildingSubtitle}>
-                  {language === 'ar' ? building.subtitleAr : building.subtitleEn}
+                  {localizedB.subtitle}
                 </Text>
 
                 <View style={styles.enterRow}>

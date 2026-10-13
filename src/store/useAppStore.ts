@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '@/constants/i18n';
+import { securityCryptoService, EncryptedBackupEnvelope } from '@/services/securityCryptoService';
+import { backupValidationService, ValidatedBackupData } from '@/services/backupValidationService';
 
 export type AgeBand = '4-6' | '7-9' | '10-13';
 
@@ -155,8 +157,16 @@ export interface AppState {
     showSimpleTafsir: boolean;
     translationSource: 'sahih' | 'clearquran' | 'abdelhaleem';
     pin: string;
+    pinHash?: string;
+    pinSalt?: string;
+    pinFailedAttempts?: number;
+    pinLockoutUntil?: number | null;
   };
   updateParentSettings: (settings: Partial<AppState['parentSettings']>) => void;
+  setParentPin: (pin: string) => boolean;
+  verifyParentPin: (pin: string) => boolean;
+  recordFailedPinAttempt: () => { isLocked: boolean; remainingSeconds: number };
+  resetPinAttempts: () => void;
 
   // Time Limit & Safety
   timeSpentTodaySec: number;
@@ -179,6 +189,16 @@ export interface AppState {
   // Offline Hydration
   isHydrated: boolean;
   hydrate: () => Promise<void>;
+
+  // Encrypted Backup & Restore (OWASP ASVS V8.2 / V8.3)
+  exportEncryptedBackup: (passphrase: string) => EncryptedBackupEnvelope;
+  importEncryptedBackup: (
+    envelope: EncryptedBackupEnvelope,
+    passphrase: string
+  ) => { success: boolean; profileCount?: number; errorAr?: string; errorEn?: string };
+  restoreValidatedData: (
+    data: ValidatedBackupData
+  ) => { success: boolean; profileCount: number };
 }
 
 const STORAGE_KEY = '@noor_kids_app_state_v1';
@@ -779,18 +799,89 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  parentSettings: {
-    dailyLimitMin: 0,
-    quietHoursEnabled: false,
-    reciterId: 'alafasy',
-    showEnglishTranslation: false,
-    showSimpleTafsir: true,
-    translationSource: 'sahih',
-    pin: '1234',
-  },
+  parentSettings: (() => {
+    const defaultCrypto = securityCryptoService.hashPin('1234', 'noor_kids_default_salt_v1');
+    return {
+      dailyLimitMin: 0,
+      quietHoursEnabled: false,
+      reciterId: 'alafasy',
+      showEnglishTranslation: false,
+      showSimpleTafsir: true,
+      translationSource: 'sahih' as const,
+      pin: '••••',
+      pinHash: defaultCrypto.hash,
+      pinSalt: defaultCrypto.salt,
+      pinFailedAttempts: 0,
+      pinLockoutUntil: null,
+    };
+  })(),
   updateParentSettings: (settings) => {
     set((state) => ({
       parentSettings: { ...state.parentSettings, ...settings },
+    }));
+    persistState(get());
+  },
+  setParentPin: (newPin: string) => {
+    const check = securityCryptoService.validatePinFormat(newPin);
+    if (!check.valid) return false;
+    const { hash, salt } = securityCryptoService.hashPin(newPin);
+    set((state) => ({
+      parentSettings: {
+        ...state.parentSettings,
+        pin: '••••',
+        pinHash: hash,
+        pinSalt: salt,
+        pinFailedAttempts: 0,
+        pinLockoutUntil: null,
+      },
+    }));
+    persistState(get());
+    return true;
+  },
+  verifyParentPin: (inputPin: string) => {
+    const { parentSettings } = get();
+    const lockout = securityCryptoService.checkLockout(
+      parentSettings.pinFailedAttempts || 0,
+      parentSettings.pinLockoutUntil || null
+    );
+    if (lockout.isLocked) return false;
+
+    let isCorrect = false;
+    if (parentSettings.pinHash && parentSettings.pinSalt) {
+      isCorrect = securityCryptoService.verifyPin(inputPin, parentSettings.pinHash, parentSettings.pinSalt);
+    } else if (parentSettings.pin && parentSettings.pin !== '••••') {
+      isCorrect = inputPin.trim() === parentSettings.pin;
+      if (isCorrect) {
+        get().setParentPin(inputPin);
+      }
+    }
+
+    if (isCorrect) {
+      get().resetPinAttempts();
+    }
+    return isCorrect;
+  },
+  recordFailedPinAttempt: () => {
+    const { parentSettings } = get();
+    const newCount = (parentSettings.pinFailedAttempts || 0) + 1;
+    const lockoutUntil = securityCryptoService.calculateNextLockout(newCount);
+    set((state) => ({
+      parentSettings: {
+        ...state.parentSettings,
+        pinFailedAttempts: newCount,
+        pinLockoutUntil: lockoutUntil,
+      },
+    }));
+    persistState(get());
+    return securityCryptoService.checkLockout(newCount, lockoutUntil);
+  },
+  resetPinAttempts: () => {
+    set((state) => ({
+      parentSettings: {
+        ...state.parentSettings,
+        pinFailedAttempts: 0,
+        pinLockoutUntil: null,
+      },
     }));
     persistState(get());
   },
@@ -880,5 +971,82 @@ export const useAppStore = create<AppState>((set, get) => ({
     } finally {
       set({ isHydrated: true });
     }
+  },
+
+  exportEncryptedBackup: (passphrase: string) => {
+    const state = get();
+    const payload = {
+      version: '1.0.0',
+      exportedAt: new Date().toISOString(),
+      profiles: state.profiles,
+      activeProfileId: state.activeProfileId,
+      profilesProgress: state.profilesProgress,
+      parentSettings: {
+        dailyLimitMin: state.parentSettings.dailyLimitMin,
+        quietHoursEnabled: state.parentSettings.quietHoursEnabled,
+        reciterId: state.parentSettings.reciterId,
+        showEnglishTranslation: state.parentSettings.showEnglishTranslation,
+        showSimpleTafsir: state.parentSettings.showSimpleTafsir,
+        translationSource: state.parentSettings.translationSource,
+        pin: '••••',
+        pinHash: state.parentSettings.pinHash,
+        pinSalt: state.parentSettings.pinSalt,
+      },
+      gratitudeEntries: state.gratitudeEntries,
+    };
+    const jsonStr = JSON.stringify(payload);
+    return securityCryptoService.encryptBackup(jsonStr, passphrase);
+  },
+
+  importEncryptedBackup: (envelope: EncryptedBackupEnvelope, passphrase: string) => {
+    // 1. Authenticated decryption
+    const decryptResult = securityCryptoService.decryptBackup(envelope, passphrase);
+    if (!decryptResult.success || !decryptResult.dataJson) {
+      return {
+        success: false,
+        errorAr: decryptResult.errorAr || 'فشل فك التشفير: كلمة المرور غير صحيحة.',
+        errorEn: decryptResult.errorEn || 'Decryption failed: Incorrect passphrase.',
+      };
+    }
+
+    // 2. Strict schema & prototype pollution validation
+    const validationResult = backupValidationService.validate(decryptResult.dataJson);
+    if (!validationResult.valid || !validationResult.sanitizedData) {
+      return {
+        success: false,
+        errorAr: validationResult.errorAr || 'ملف النسخة الاحتياطية غير صالح.',
+        errorEn: validationResult.errorEn || 'Invalid backup schema or corrupted data.',
+      };
+    }
+
+    // 3. Hydrate state safely
+    return get().restoreValidatedData(validationResult.sanitizedData);
+  },
+
+  restoreValidatedData: (data: ValidatedBackupData) => {
+    const activeId = data.activeProfileId;
+    const activeProg = data.profilesProgress[activeId] || {};
+
+    set((state) => ({
+      profiles: data.profiles,
+      activeProfileId: data.activeProfileId,
+      profilesProgress: data.profilesProgress,
+      parentSettings: {
+        ...state.parentSettings,
+        ...data.parentSettings,
+      },
+      gratitudeEntries: data.gratitudeEntries || [],
+      stars: activeProg.stars ?? state.stars,
+      gems: activeProg.gems ?? state.gems,
+      streakCount: activeProg.streakCount ?? state.streakCount,
+      lastReadMushafPage: activeProg.lastReadMushafPage ?? state.lastReadMushafPage,
+      mushafBookmarks: activeProg.mushafBookmarks ?? state.mushafBookmarks,
+    }));
+    persistState(get());
+
+    return {
+      success: true,
+      profileCount: data.profiles.length,
+    };
   },
 }));

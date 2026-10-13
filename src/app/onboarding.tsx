@@ -14,7 +14,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
-import { TRANSLATIONS } from '@/constants/i18n';
+import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import MascotNoor from '@/components/MascotNoor';
 import KidAvatar, { PRESET_AVATARS, getAvatarDisplayName } from '@/components/KidAvatar';
@@ -25,8 +25,6 @@ const QURAN_GARDEN_IMG = require('../../assets/images/quran-garden.jpg');
 const SUNNAH_PATH_IMG = require('../../assets/images/sunnah-path.jpg');
 const PROPHETS_CARAVAN_IMG = require('../../assets/images/prophets-caravan.jpg');
 const MANNERS_TOWN_IMG = require('../../assets/images/manners-town.jpg');
-const LANG_ARABIC_IMG = require('../../assets/images/lang-arabic-3d.jpg');
-const LANG_ENGLISH_IMG = require('../../assets/images/lang-english-3d.jpg');
 const AGE_SPROUT_IMG = require('../../assets/images/age-sprout-3d.jpg');
 const AGE_ROCKET_IMG = require('../../assets/images/age-rocket-3d.jpg');
 const AGE_SCHOLAR_IMG = require('../../assets/images/age-scholar-3d.jpg');
@@ -155,47 +153,39 @@ export default function OnboardingScreen() {
             <Text style={styles.subheading}>{t.tagline}</Text>
 
             <View style={styles.langSelectorArea}>
-              <Text style={styles.fieldLabel}>اختر لغة التطبيق / Choose Language</Text>
+              <Text style={styles.fieldLabel}>{t.chooseLanguage}</Text>
               <View style={styles.langButtonsRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.langCard,
-                    language === 'ar' && styles.langCardSelected,
-                  ]}
-                  onPress={() => setLanguage('ar')}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.langImageContainer}>
-                    <Image
-                      source={LANG_ARABIC_IMG}
-                      style={styles.langImage}
-                      contentFit="cover"
-                      transition={150}
-                    />
-                  </View>
-                  <Text style={styles.langTitle}>العربية</Text>
-                  <Text style={styles.langSub}>اللغة الأساسية</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.langCard,
-                    language === 'en' && styles.langCardSelected,
-                  ]}
-                  onPress={() => setLanguage('en')}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.langImageContainer}>
-                    <Image
-                      source={LANG_ENGLISH_IMG}
-                      style={styles.langImage}
-                      contentFit="cover"
-                      transition={150}
-                    />
-                  </View>
-                  <Text style={styles.langTitle}>English</Text>
-                  <Text style={styles.langSub}>Second Language</Text>
-                </TouchableOpacity>
+                {AVAILABLE_LANGUAGES.map((lang) => {
+                  const isSelected = language === lang.code;
+                  return (
+                    <TouchableOpacity
+                      key={lang.code}
+                      style={[
+                        styles.langCard,
+                        isSelected && styles.langCardSelected,
+                      ]}
+                      onPress={() => setLanguage(lang.code)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={styles.langImageContainer}>
+                        <View style={styles.langEmojiWrapper}>
+                          <Text style={styles.langEmojiText}>{lang.code.toUpperCase()}</Text>
+                        </View>
+                      </View>
+                      <Text style={[styles.langTitle, isSelected && styles.langTitleSelected]}>
+                        {lang.nameNative}
+                      </Text>
+                      <Text style={styles.langSub}>
+                        {LANGUAGE_LOCALIZED_NAMES[language]?.[lang.code] || lang.nameNative}
+                      </Text>
+                      {isSelected && (
+                        <View style={styles.langCheckBadge}>
+                          <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
 
@@ -575,46 +565,78 @@ const styles = StyleSheet.create({
   },
   langButtonsRow: {
     flexDirection: 'row',
-    gap: SPACING.md,
+    flexWrap: 'wrap',
+    gap: 12,
     marginTop: SPACING.xs,
+    justifyContent: 'center',
   },
   langCard: {
     flex: 1,
+    minWidth: 130,
+    maxWidth: 190,
     backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#E2E8F0',
-    overflow: 'hidden',
+    position: 'relative',
+    ...SHADOWS.soft,
   },
   langCardSelected: {
     borderColor: COLORS.primary,
     backgroundColor: '#ECFDF5',
   },
   langImageContainer: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     overflow: 'hidden',
     borderWidth: 2.5,
     borderColor: '#FBBF24',
     marginBottom: 8,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  langEmojiWrapper: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+  },
+  langEmojiText: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: 0.5,
   },
   langImage: {
     width: '100%',
     height: '100%',
   },
   langTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: COLORS.text,
+    textAlign: 'center',
+  },
+  langTitleSelected: {
+    color: COLORS.primaryDark,
   },
   langSub: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  langCheckBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
   },
   fieldGroup: {
     marginBottom: SPACING.md,

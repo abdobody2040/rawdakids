@@ -17,6 +17,13 @@ import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { audioService } from '@/services/audioService';
 import { getProphetDecisionMoment, StoryDecisionOption } from '@/data/storiesData';
+import {
+  getLocalizedProphetStoryTitle,
+  getLocalizedProphetScene,
+  getLocalizedProphetDecision,
+  getLocalizedProphetQuiz,
+  getLocalizedProphetTakeaway,
+} from '@/services/multilingualContentService';
 import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
@@ -69,6 +76,11 @@ export default function ProphetStoryPlayerScreen() {
   const currentScene = prophet.scenes[activeSceneIdx] || prophet.scenes[0];
   const currentQuizQ = prophet.quiz[quizQuestionIdx];
 
+  const localizedScene = getLocalizedProphetScene(prophet.id, currentScene, activeSceneIdx, language);
+  const localizedDecision = getLocalizedProphetDecision(decisionMoment, language);
+  const localizedQuiz = currentQuizQ ? getLocalizedProphetQuiz(currentQuizQ, language) : null;
+  const localizedTakeaway = getLocalizedProphetTakeaway(prophet.takeawayCard, language);
+
   const sceneImageKey = `${prophet.id}_${activeSceneIdx}`;
   const sceneImage = PROPHET_SCENE_IMAGES[sceneImageKey] || PROPHETS_CARAVAN_DEFAULT_IMG;
 
@@ -84,11 +96,16 @@ export default function ProphetStoryPlayerScreen() {
       setIsAudioPlaying(false);
     } else {
       setIsAudioPlaying(true);
-      await audioService.playDua(currentScene.narrationAr, (status) => {
-        if (status.didJustFinish || status.error) {
-          setIsAudioPlaying(false);
-        }
-      });
+      const narrationToPlay = language === 'ar' ? currentScene.narrationAr : localizedScene.narration;
+      await audioService.playDua(
+        narrationToPlay,
+        (status) => {
+          if (status.didJustFinish || status.error) {
+            setIsAudioPlaying(false);
+          }
+        },
+        language === 'ar' ? 'ar' : language
+      );
     }
   };
 
@@ -147,11 +164,7 @@ export default function ProphetStoryPlayerScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header
         showBack
-        title={
-          language === 'ar'
-            ? `قصة نبي الله ${prophet.nameAr} ${prophet.honorificAr}`
-            : `Story of Prophet ${prophet.nameEn} (${prophet.honorificEn})`
-        }
+        title={getLocalizedProphetStoryTitle(prophet, language)}
       />
 
       <ScrollView
@@ -178,9 +191,7 @@ export default function ProphetStoryPlayerScreen() {
             <View style={styles.sceneCard}>
               <View style={styles.sceneHeader}>
                 <Text style={styles.sceneTitle}>
-                  {language === 'ar'
-                    ? currentScene.titleAr
-                    : currentScene.titleEn}
+                  {localizedScene.title}
                 </Text>
                 <Text style={styles.sceneCounter}>
                   {t.scene} {activeSceneIdx + 1} / {prophet.scenes.length}
@@ -199,9 +210,7 @@ export default function ProphetStoryPlayerScreen() {
                   style={styles.sceneIllustrationOverlay}
                 >
                   <Text style={styles.sceneIllustrationCaption}>
-                    {language === 'ar'
-                      ? currentScene.symbolDescriptionAr
-                      : currentScene.symbolDescriptionEn}
+                    {localizedScene.symbolDescription}
                   </Text>
                 </LinearGradient>
               </View>
@@ -228,12 +237,8 @@ export default function ProphetStoryPlayerScreen() {
                   ]}
                 >
                   {isAudioPlaying
-                    ? (language === 'ar'
-                        ? 'جارٍ الاستماع للراوي... (انقر للإيقاف)'
-                        : 'Playing Audio Narration... (Tap to Pause)')
-                    : (language === 'ar'
-                        ? 'استمع إلى الراوي الصوتي 🔊'
-                        : 'Listen to Voice Narration 🔊')}
+                    ? t.playingVoiceNarration
+                    : t.listenVoiceNarration}
                 </Text>
                 {isAudioPlaying && (
                   <View style={styles.audioWavePill}>
@@ -244,9 +249,7 @@ export default function ProphetStoryPlayerScreen() {
 
               {/* Narration Text */}
               <Text style={styles.narrationText}>
-                {language === 'ar'
-                  ? currentScene.narrationAr
-                  : currentScene.narrationEn}
+                {localizedScene.narration}
               </Text>
 
               {/* Embedded Quran Ayah Inside Story (P3) */}
@@ -296,7 +299,7 @@ export default function ProphetStoryPlayerScreen() {
                 >
                   <Text style={styles.nextBtnText}>
                     {activeSceneIdx === prophet.scenes.length - 1
-                      ? (language === 'ar' ? 'لحظة الاختيار والتدبّر ✨' : 'Decision Moment ✨')
+                      ? t.decisionMoment
                       : t.nextScene}
                   </Text>
                   <Ionicons
@@ -316,25 +319,23 @@ export default function ProphetStoryPlayerScreen() {
             <View style={styles.decisionHeader}>
               <Ionicons name="compass" size={24} color={prophet.themeColor} />
               <Text style={styles.decisionHeaderTitle}>
-                {language === 'ar'
-                  ? 'ماذا تفعل يا بطل؟ (لحظة تدبّر)'
-                  : 'What Would You Do? (Reflection Moment)'}
+                {t.whatWouldYouDoPrompt}
               </Text>
             </View>
 
             <View style={[styles.decisionPromptBadge, { backgroundColor: prophet.themeColor + '18' }]}>
               <Ionicons name="sparkles" size={16} color={prophet.themeColor} />
               <Text style={[styles.decisionPromptText, { color: prophet.themeColor }]}>
-                {language === 'ar' ? decisionMoment.promptAr : decisionMoment.promptEn}
+                {localizedDecision.prompt}
               </Text>
             </View>
 
             <Text style={styles.decisionQuestionText}>
-              {language === 'ar' ? decisionMoment.questionAr : decisionMoment.questionEn}
+              {localizedDecision.question}
             </Text>
 
             <View style={styles.decisionOptionsList}>
-              {decisionMoment.options.map((opt) => {
+              {localizedDecision.options.map((opt) => {
                 const isSelected = selectedDecisionId === opt.id;
 
                 return (
@@ -347,7 +348,7 @@ export default function ProphetStoryPlayerScreen() {
                           ? styles.decisionOptionBest
                           : styles.decisionOptionAlternative),
                     ]}
-                    onPress={() => handleSelectDecision(opt)}
+                    onPress={() => handleSelectDecision(opt as any)}
                     activeOpacity={0.85}
                   >
                     <View style={styles.decisionOptionRow}>
@@ -368,7 +369,7 @@ export default function ProphetStoryPlayerScreen() {
                         )}
                       </View>
                       <Text style={styles.decisionOptionText}>
-                        {language === 'ar' ? opt.textAr : opt.textEn}
+                        {opt.text}
                       </Text>
                     </View>
 
@@ -388,13 +389,13 @@ export default function ProphetStoryPlayerScreen() {
                             { color: opt.isBestChoice ? '#047857' : '#b45309' },
                           ]}
                         >
-                          {language === 'ar' ? opt.feedbackAr : opt.feedbackEn}
+                          {opt.feedback}
                         </Text>
                         {opt.isBestChoice && (
                           <View style={styles.bestChoiceRewardPill}>
                             <Ionicons name="star" size={12} color="#f59e0b" />
                             <Text style={styles.bestChoiceRewardText}>
-                              {language === 'ar' ? '+1 نجمة تدبّر!' : '+1 Star!'}
+                              {t.reflectionStar}
                             </Text>
                           </View>
                         )}
@@ -412,7 +413,7 @@ export default function ProphetStoryPlayerScreen() {
                 activeOpacity={0.8}
               >
                 <Text style={styles.nextBtnText}>
-                  {language === 'ar' ? 'الانتقال إلى اختبار القصة 🏆' : 'Proceed to Quiz 🏆'}
+                  {t.proceedToQuiz}
                 </Text>
                 <Ionicons
                   name={language === 'ar' ? 'arrow-back' : 'arrow-forward'}
@@ -424,7 +425,7 @@ export default function ProphetStoryPlayerScreen() {
           </View>
         )}
 
-        {screenPhase === 'quiz' && (
+        {screenPhase === 'quiz' && localizedQuiz && (
           // QUIZ MODE (P5)
           <View style={styles.quizCard}>
             <View style={styles.quizHeader}>
@@ -435,16 +436,11 @@ export default function ProphetStoryPlayerScreen() {
             </View>
 
             <Text style={styles.quizQuestionText}>
-              {language === 'ar'
-                ? currentQuizQ.questionAr
-                : currentQuizQ.questionEn}
+              {localizedQuiz.question}
             </Text>
 
             <View style={styles.optionsList}>
-              {(language === 'ar'
-                ? currentQuizQ.optionsAr
-                : currentQuizQ.optionsEn
-              ).map((opt, idx) => {
+              {localizedQuiz.options.map((opt, idx) => {
                 const isSelected = selectedOptionIdx === idx;
                 const isCorrect = idx === currentQuizQ.correctAnswerIndex;
 
@@ -488,28 +484,22 @@ export default function ProphetStoryPlayerScreen() {
           <View style={styles.takeawayCard}>
             <Text style={styles.takeawayEmoji}>📜</Text>
             <Text style={styles.takeawayTitle}>
-              {language === 'ar'
-                ? prophet.takeawayCard.titleAr
-                : prophet.takeawayCard.titleEn}
+              {localizedTakeaway.title}
             </Text>
 
             <View style={styles.takeawayBox}>
               <Text style={styles.takeawayLabel}>{t.lessonsLearned}</Text>
               <Text style={styles.takeawayContent}>
-                {language === 'ar'
-                  ? prophet.takeawayCard.lessonAr
-                  : prophet.takeawayCard.lessonEn}
+                {localizedTakeaway.lesson}
               </Text>
             </View>
 
             <View style={styles.actionBox}>
               <Text style={styles.actionLabel}>
-                {language === 'ar' ? 'تطبيق اليوم المبارك' : 'Today’s Practice'}
+                {t.todaysPractice}
               </Text>
               <Text style={styles.actionContent}>
-                {language === 'ar'
-                  ? prophet.takeawayCard.actionForTodayAr
-                  : prophet.takeawayCard.actionForTodayEn}
+                {localizedTakeaway.actionForToday}
               </Text>
             </View>
 
@@ -533,11 +523,7 @@ export default function ProphetStoryPlayerScreen() {
         starsEarned={3}
         gemsEarned={5}
         title={t.congratulations}
-        subtitle={
-          language === 'ar'
-            ? `أكملت قصة نبي الله ${prophet.nameAr} بنجاح!`
-            : `Completed the story of Prophet ${prophet.nameEn} successfully!`
-        }
+        subtitle={t.completedStorySuccess}
         onDismiss={() => {
           setShowCelebration(false);
           router.replace('/prophets');

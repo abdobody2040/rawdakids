@@ -17,6 +17,7 @@ import { audioService } from '@/services/audioService';
 import { SHADOWS } from '@/constants/theme';
 import { useAppStore } from '@/store/useAppStore';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
+import { Language } from '@/constants/i18n';
 
 const MASCOT_NOOR_IMG = require('../../assets/images/mascot-noor.jpg');
 
@@ -24,7 +25,7 @@ interface AyahTafsirModalProps {
   visible: boolean;
   surah: Surah | null;
   ayah: Ayah | null;
-  language: 'ar' | 'en';
+  language: Language;
   onDismiss: () => void;
   onUnderstood?: () => void;
 }

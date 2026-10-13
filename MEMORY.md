@@ -1105,6 +1105,31 @@
 
 ---
 
+### Milestone 62: Comprehensive Multilingual Expansion (French 🇫🇷, German 🇩🇪, Spanish 🇪🇸)
+- **User Request:**
+  - "ضيف الفرنسية والالمانية والاسبانية" (Add French, German, and Spanish to the application).
+- **Core Architecture & Implementation:**
+  - **Type-Safe i18n System (`src/constants/i18n.ts`):**
+    - Expanded `Language` union type: `'ar' | 'en' | 'fr' | 'de' | 'es'`.
+    - Added `AVAILABLE_LANGUAGES` with flags (`🇸🇦`, `🇬🇧`, `🇫🇷`, `🇩🇪`, `🇪🇸`), native names (*العربية*, *English*, *Français*, *Deutsch*, *Español*), and RTL metadata (`isRtl: true` for Arabic, `false` for others).
+    - Added 100% complete key-for-key translations for French (`fr`), German (`de`), and Spanish (`es`) covering all ~85 keys (app identity, navigation, Quran reader, memorization mode, Hadith, Prophets caravan, manners town, parent gate, offline notice, and rewards).
+  - **Dedicated Language Selector Modal (`src/components/LanguageSelectModal.tsx`):**
+    - Created an interactive modal with native names, flags, and instant live preview.
+    - Updated Home screen header (`src/app/index.tsx`) to feature a compact, responsive language pill (`🇸🇦 AR ▾`, `🇫🇷 FR ▾`, etc.) that triggers the modal without overflowing mobile screens.
+  - **Parents Corner Settings (`src/app/parents/index.tsx`):**
+    - Updated language settings to render all 5 languages as accessible cards with flags and native descriptions.
+  - **Multilingual Quran Translations Pipeline (`src/services/quranService.ts` & `src/app/quran/[surahId].tsx`):**
+    - Configured dynamic edition selection: French (`fr.hamidullah`), German (`de.aburida`), Spanish (`es.cortes`), and English (`en.sahih`).
+    - Propagated language state through Quran detail reader so verses display approved translations in the child's selected language.
+  - **Component Compatibility (`KidAvatar.tsx`, `SurahStoryModal.tsx`, `AyahTafsirModal.tsx`, `ChildVoiceRecorderModal.tsx`):**
+    - Updated prop types and helper functions to accept full `Language` type.
+- **Verification & Code Health:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo export --platform web`: **Exported cleanly (24 static routes)**.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **69 / 69 PASSED (100%)**.
+  - Background HTTP server on port 3000 restarted and active.
+
+---
 
 
 
@@ -1115,6 +1140,51 @@
 
 
 
+
+
+### Milestone 63: Full-App Multilingual Content Translation (French, German, Spanish)
+- Localized Prophet stories (Adam 10 scenes, titles, choices, audio), Hadiths, Manners, Pillars of Islam & Iman in fr, de, es.
+- Multilingual TTS audio engine in audioService.ts.
+- Replaced binary ternaries throughout all screens.
+- 0 TypeScript errors, 24 web routes exported, 69/69 E2E tests passing.
+
+---
+
+### Milestone 64: Systematic Security Workflow Integration (Threat Modeling, OWASP ASVS, Denial-of-Wallet)
+- Created SECURITY.md defining the 3-phase security development lifecycle: Threat Modeling, Explicit Requirements, and Iterative Review.
+- Integrated Section 5 into .agents/rules/project_rules.md binding all agent actions to pre-code threat models, input allowlisting, rate limiting, and commit hygiene.
+- Automated test suite scripts/test-security.js passed 23/23 tests verifying multi-tenant RLS, zero-secret exposure, and mass-assignment protection.
+
+---
+
+### Milestone 65: Hardened Parental Gate PIN & Anti-Brute-Force Architecture
+- Created dedicated branch feature/security-hardening.
+- Implemented securityCryptoService.ts: zero-dependency cross-platform pure-TS SHA-256 with unique random cryptographic salts, constant-time verification (timing attack defense), and stepped lockout calculator (30s at 3 attempts, 300s at 5 attempts).
+- Hardened ParentGateModal.tsx: replaced plaintext PIN check with verifyParentPin, integrated visual countdown cooldown banner, disabled input/submit during lockout.
+- Upgraded parents/index.tsx: implemented secure handleSavePin with strict 4-6 digit numeric validation, active protection status badge, and user feedback.
+- Automated test suite scripts/test-security.js passed 33/33 tests (+10 new cryptographic tests).
+- Full E2E suite passed 69/69 (100%), 0 TypeScript errors, web export refreshed in dist/.
+
+---
+
+### Milestone 66: Encrypted Progress Backup, Authenticated Keystream & Prototype Pollution Scrubbing
+- Implemented authenticated encryption envelope generator in `securityCryptoService.ts` (`noor_kids_encrypted_backup_v1`) using PBKDF2-SHA256 (10,000 rounds) key derivation, AES keystream, and HMAC-SHA256 tamper-evident integrity tags.
+- Built `backupValidationService.ts`: scrubs prototype pollution vectors (`__proto__`, `constructor`, `prototype`), enforces child profile limits (1-20), clamps progress numbers (1,000,000 max), and whitelists schema fields.
+- Upgraded `src/store/useAppStore.ts` with `exportEncryptedBackup`, `importEncryptedBackup`, and `restoreValidatedData`.
+- Added Encrypted Backup & Restore card in `src/app/parents/index.tsx` with one-click export `.noorkids` download on Web and secure passphrase-protected envelope import.
+
+---
+
+### Milestone 67: JWT Multi-Tenant Cloud Sync Isolation & Audio Sandbox Quota Defense
+- Built full JWT session system in `server.js` using Node's built-in `crypto` (HS256 signature, expiry verification, and constant-time `timingSafeEqual` comparison).
+- Added multi-tenant cloud sync endpoints in `server.js`: `/api/sync/push`, `/api/sync/pull`, and `/api/auth/token` with strict tenant isolation (`ownerId === session.userId`).
+- Created `cloudSyncService.ts` for secure token persistence, automatic session expiration handling, and client sync orchestration.
+- Added Multi-Device Cloud Sync card in `src/app/parents/index.tsx` with login/logout, push, and pull functionality.
+- Hardened `voiceRecordService.ts`: enforced strict 180s (3 min) duration cap, 15MB buffer memory quota, path traversal validation (`validateAudioUri`), and complete object URL / track lifecycle cleanup.
+- Automated security suite (`scripts/test-security.js`) expanded to 58/58 passing tests (100%).
+- Full E2E suite (`scripts/test-e2e.js`) passed 69/69 (100%), 0 TypeScript errors (`tsc --noEmit`), web export refreshed.
+
+---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
 

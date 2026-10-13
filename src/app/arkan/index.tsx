@@ -14,6 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedPillar } from '@/services/multilingualContentService';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import { arkanService, PillarItem } from '@/data/arkanData';
@@ -22,6 +24,7 @@ import { getPillarMedia } from '@/data/arkanMedia';
 export default function ArkanAcademyScreen() {
   const router = useRouter();
   const { language } = useAppStore();
+  const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
 
   const [activeTab, setActiveTab] = useState<'islam' | 'iman'>('islam');
@@ -33,7 +36,7 @@ export default function ArkanAcademyScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
-        <Header showBack fallbackRoute="/" title={isAr ? 'أكاديمية الأركان' : 'Pillars Academy'} />
+        <Header showBack fallbackRoute="/" title={t.pillarsAcademy} />
 
         <ScrollView
           style={{ flex: 1 }}
@@ -54,11 +57,17 @@ export default function ArkanAcademyScreen() {
                     </Text>
                   </View>
                   <Text style={styles.heroTitle}>
-                    {isAr ? 'أكاديمية الأركان' : 'Pillars Academy'}
+                    {t.pillarsAcademy}
                   </Text>
                   <Text style={[styles.heroSubtitle, { textAlign: isAr ? 'right' : 'left' }]}>
                     {isAr
                       ? 'تعلم أركان الإسلام الخمسة وأركان الإيمان الستة بأسلوب تفاعلي مشوق وجميل!'
+                      : language === 'fr'
+                      ? 'Découvre les 5 piliers de l’Islam et les 6 piliers de la Foi à travers des leçons interactives !'
+                      : language === 'de'
+                      ? 'Entdecke die 5 Säulen des Islam und die 6 Säulen des Glaubens mit interaktiven Lektionen!'
+                      : language === 'es'
+                      ? '¡Descubre los 5 pilares del Islam y los 6 pilares de la Fe con lecciones interactivas!'
                       : 'Explore the 5 Pillars of Islam and 6 Pillars of Iman through interactive lessons!'}
                   </Text>
                 </View>
@@ -88,7 +97,7 @@ export default function ArkanAcademyScreen() {
                       activeTab === 'islam' && styles.catTabBtnTextActive,
                     ]}
                   >
-                    {isAr ? 'أركان الإسلام (٥)' : 'Pillars of Islam (5)'}
+                    {`${t.pillarsIslam} (5)`}
                   </Text>
                 </TouchableOpacity>
 
@@ -111,7 +120,7 @@ export default function ArkanAcademyScreen() {
                       activeTab === 'iman' && styles.catTabBtnTextActive,
                     ]}
                   >
-                    {isAr ? 'أركان الإيمان (٦)' : 'Pillars of Iman (6)'}
+                    {`${t.pillarsIman} (6)`}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -121,6 +130,8 @@ export default function ArkanAcademyScreen() {
           {/* Pillars Cards List */}
           <View style={styles.listContainer}>
             {currentList.map((pillar) => {
+              const localizedP = getLocalizedPillar(pillar, language);
+
               return (
                 <TouchableOpacity
                   key={pillar.id}
@@ -136,7 +147,15 @@ export default function ArkanAcademyScreen() {
                   >
                     <View style={[styles.numberBadge, { backgroundColor: pillar.color }]}>
                       <Text style={styles.numberBadgeText}>
-                        {isAr ? `الركن ${pillar.number}` : `Pillar ${pillar.number}`}
+                        {isAr
+                          ? `الركن ${pillar.number}`
+                          : language === 'fr'
+                          ? `Pilier ${pillar.number}`
+                          : language === 'de'
+                          ? `Säule ${pillar.number}`
+                          : language === 'es'
+                          ? `Pilar ${pillar.number}`
+                          : `Pillar ${pillar.number}`}
                       </Text>
                     </View>
 
@@ -155,7 +174,7 @@ export default function ArkanAcademyScreen() {
                       { textAlign: isAr ? 'right' : 'left' },
                     ]}
                   >
-                    {isAr ? pillar.titleAr : pillar.titleEn}
+                    {localizedP.title}
                   </Text>
 
                   <Text
@@ -164,7 +183,7 @@ export default function ArkanAcademyScreen() {
                       { textAlign: isAr ? 'right' : 'left' },
                     ]}
                   >
-                    {isAr ? pillar.subtitleAr : pillar.subtitleEn}
+                    {localizedP.subtitle}
                   </Text>
 
                   <Text
@@ -174,7 +193,7 @@ export default function ArkanAcademyScreen() {
                     ]}
                     numberOfLines={2}
                   >
-                    {isAr ? pillar.summaryAr : pillar.summaryEn}
+                    {localizedP.summary}
                   </Text>
 
                   {/* Card Bottom CTA */}
@@ -186,7 +205,7 @@ export default function ArkanAcademyScreen() {
                   >
                     <View style={styles.rewardPill}>
                       <Ionicons name="star" size={14} color="#F59E0B" />
-                      <Text style={styles.rewardText}>+{pillar.rewardStars} {isAr ? 'نجوم' : 'stars'}</Text>
+                      <Text style={styles.rewardText}>+{pillar.rewardStars} {t.stars}</Text>
                     </View>
 
                     <View style={[styles.ctaButton, { backgroundColor: pillar.color }]}>

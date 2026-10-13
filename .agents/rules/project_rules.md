@@ -20,3 +20,8 @@ Before starting any task, read:
 - Ensure all screens support both Arabic (RTL) and English (LTR).
 - Verify `npx tsc --noEmit` and `npx expo lint` pass with 0 errors before completing tasks.
 - When updating UI, run `npx expo export --platform web` to sync `dist/` with `server.js`.
+
+## 5. Systematic Security Protocol (SECURITY.md)
+- **Pre-Code Threat Model:** Analyze access control, trust boundaries, COPPA data isolation, and denial-of-wallet vectors before writing code.
+- **Explicit Security Requirements:** Enforce strict parameter allowlisting (`validateStrict`), server-side price catalogs (`SERVER_PRICES`), and rate limiting (`checkRateLimit`).
+- **Post-Code Verification:** Review for authorization gaps (OWASP ASVS), verify zero exposed secrets, test with `node scripts/test-security.js`, and keep commits modular and revertible.

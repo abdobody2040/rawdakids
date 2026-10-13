@@ -71,17 +71,33 @@ export const quranService = {
 
   getSurah: async (
     surahNumber: number,
-    translationSource: string = 'sahih'
+    translationSource: string = 'sahih',
+    language: string = 'ar'
   ): Promise<Surah> => {
-    const cacheKey = `${surahNumber}:${translationSource}`;
+    let editionTag = 'en.sahih';
+    if (language === 'fr') {
+      editionTag = 'fr.hamidullah';
+    } else if (language === 'de') {
+      editionTag = 'de.aburida';
+    } else if (language === 'es') {
+      editionTag = 'es.cortes';
+    } else if (translationSource === 'clearquran') {
+      editionTag = 'en.sahih';
+    } else if (translationSource === 'abdelhaleem') {
+      editionTag = 'en.asad';
+    } else {
+      editionTag = 'en.sahih';
+    }
+
+    const cacheKey = `${surahNumber}:${translationSource}:${language}`;
     const cached = quranService._cache.get(cacheKey);
     if (cached) {
       return cached;
     }
 
     const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
-    // If bundled is available and default translation is used, return bundled instantly
-    if (bundled && translationSource === 'sahih') {
+    // If bundled is available and Arabic or default English is used, return bundled instantly
+    if (bundled && (language === 'ar' || (language === 'en' && translationSource === 'sahih'))) {
       quranService._cache.set(cacheKey, bundled);
       return bundled;
     }
@@ -89,13 +105,6 @@ export const quranService = {
     const meta =
       ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
       ALL_114_SURAHS_CATALOG[0];
-
-    const editionTag =
-      translationSource === 'clearquran'
-        ? 'en.sahih'
-        : translationSource === 'abdelhaleem'
-        ? 'en.asad'
-        : 'en.sahih';
 
     const tryFetchJson = async (url: string) => {
       const controller = new AbortController();

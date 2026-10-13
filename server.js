@@ -31,6 +31,9 @@ const RATE_LIMIT_RULES = {
   '/api/user/records': { windowMs: 60000, maxRequests: 100 },
   '/api/payments/create-checkout-session': { windowMs: 60000, maxRequests: 10 },
   '/api/payments/webhook': { windowMs: 60000, maxRequests: 60 },
+  '/api/sync/push': { windowMs: 60000, maxRequests: 20 },
+  '/api/sync/pull': { windowMs: 60000, maxRequests: 30 },
+  '/api/auth/token': { windowMs: 60000, maxRequests: 10 },
 };
 
 const ipRequestBuckets = new Map();
@@ -131,6 +134,75 @@ function parseJsonBody(req) {
 }
 
 const DATABASE_RECORDS = new Map();
+const DATABASE_USER_SYNC_STORE = new Map();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'noor_kids_jwt_signing_key_32bytes_min_512b_salt';
+
+function base64UrlEncode(str) {
+  return Buffer.from(str)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function base64UrlDecode(str) {
+  let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4) b64 += '=';
+  return Buffer.from(b64, 'base64').toString('utf8');
+}
+
+function signJwt(payload, expiresInSec = 3600) {
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const now = Math.floor(Date.now() / 1000);
+  const fullPayload = {
+    ...payload,
+    iat: now,
+    exp: now + expiresInSec,
+  };
+  const headerB64 = base64UrlEncode(JSON.stringify(header));
+  const payloadB64 = base64UrlEncode(JSON.stringify(fullPayload));
+  const signature = crypto
+    .createHmac('sha256', JWT_SECRET)
+    .update(`${headerB64}.${payloadB64}`)
+    .digest('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  return `${headerB64}.${payloadB64}.${signature}`;
+}
+
+function verifyJwt(token) {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [headerB64, payloadB64, signature] = parts;
+
+  const expectedSig = crypto
+    .createHmac('sha256', JWT_SECRET)
+    .update(`${headerB64}.${payloadB64}`)
+    .digest('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
+  const expectedBuf = Buffer.from(expectedSig);
+  const sigBuf = Buffer.from(signature);
+  if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(base64UrlDecode(payloadB64));
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 // Helper to verify caller authentication from Authorization header
 // NEVER trusts any userId parameter from the request body or query string.
@@ -147,6 +219,16 @@ function authenticateRequest(req) {
   }
   if (token === 'token_user_b') {
     return { userId: 'usr_002_bob', email: 'bob@example.com' };
+  }
+
+  // Cryptographic JWT verification
+  const jwtClaims = verifyJwt(token);
+  if (jwtClaims && jwtClaims.sub) {
+    return {
+      userId: jwtClaims.sub,
+      email: jwtClaims.email || '',
+      claims: jwtClaims,
+    };
   }
   return null;
 }
@@ -305,6 +387,116 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       return sendJson(400, { error: e.message });
     }
+  }
+
+  if (urlPath === '/api/auth/token' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const validation = validateStrict(body, ['email', 'password'], ['email', 'password']);
+      if (!validation.valid) {
+        return sendJson(400, { error: validation.error });
+      }
+
+      let userId = null;
+      let email = body.email;
+      if (body.email === 'alice@example.com' && body.password === 'SecretPassword123!') {
+        userId = 'usr_001_alice';
+      } else if (body.email === 'bob@example.com' && body.password === 'SecretPassword123!') {
+        userId = 'usr_002_bob';
+      } else if (body.email && body.password && body.password.length >= 8) {
+        userId = 'usr_' + crypto.createHash('sha256').update(body.email).digest('hex').slice(0, 12);
+      } else {
+        return sendJson(401, { error: 'Invalid credentials' });
+      }
+
+      const token = signJwt({ sub: userId, email }, 7200);
+      return sendJson(200, {
+        token,
+        tokenType: 'Bearer',
+        expiresIn: 7200,
+        user: { id: userId, email },
+      });
+    } catch (e) {
+      return sendJson(400, { error: e.message });
+    }
+  }
+
+  if (urlPath === '/api/sync/push' && req.method === 'POST') {
+    try {
+      const session = authenticateRequest(req);
+      if (!session) {
+        return sendJson(401, { error: 'Unauthorized: Valid authentication token required' });
+      }
+
+      const body = await parseJsonBody(req);
+      const allowedKeys = [
+        'profiles',
+        'activeProfileId',
+        'profilesProgress',
+        'parentSettings',
+        'gratitudeEntries',
+        'clientTimestamp',
+      ];
+      const validation = validateStrict(body, allowedKeys, ['profiles', 'activeProfileId']);
+      if (!validation.valid) {
+        return sendJson(400, { error: validation.error });
+      }
+
+      if (!Array.isArray(body.profiles) || body.profiles.length > 20) {
+        return sendJson(400, { error: 'Validation error: profiles must be an array of at most 20 profiles' });
+      }
+
+      const scrubbed = JSON.parse(
+        JSON.stringify(body, (key, value) => {
+          if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+            return undefined;
+          }
+          return value;
+        })
+      );
+
+      const syncSnapshot = {
+        ownerId: session.userId,
+        syncedAt: new Date().toISOString(),
+        clientTimestamp: body.clientTimestamp || new Date().toISOString(),
+        data: scrubbed,
+      };
+
+      DATABASE_USER_SYNC_STORE.set(session.userId, syncSnapshot);
+
+      return sendJson(200, {
+        success: true,
+        syncedAt: syncSnapshot.syncedAt,
+        ownerId: session.userId,
+        profileCount: scrubbed.profiles.length,
+      });
+    } catch (e) {
+      return sendJson(400, { error: e.message });
+    }
+  }
+
+  if (urlPath === '/api/sync/pull' && req.method === 'GET') {
+    const session = authenticateRequest(req);
+    if (!session) {
+      return sendJson(401, { error: 'Unauthorized: Valid authentication token required' });
+    }
+
+    const userSnapshot = DATABASE_USER_SYNC_STORE.get(session.userId);
+    if (!userSnapshot) {
+      return sendJson(200, {
+        success: true,
+        hasData: false,
+        snapshot: null,
+        syncedAt: null,
+      });
+    }
+
+    return sendJson(200, {
+      success: true,
+      hasData: true,
+      syncedAt: userSnapshot.syncedAt,
+      snapshot: userSnapshot.data,
+    });
   }
 
   if (urlPath === '/api/user/records' && req.method === 'POST') {

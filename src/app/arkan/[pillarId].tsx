@@ -13,6 +13,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
+import { TRANSLATIONS } from '@/constants/i18n';
+import { getLocalizedPillar } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -24,9 +26,11 @@ export default function PillarDetailScreen() {
   const router = useRouter();
   const { pillarId, mode } = useLocalSearchParams();
   const { language, addStars, addGems } = useAppStore();
+  const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
 
   const pillar = arkanService.getPillarById(String(pillarId || 'shahada')) || arkanService.getIslamPillars()[0];
+  const localizedPillar = getLocalizedPillar(pillar, language);
 
   const initialMode = (pillarId === 'wudu' || mode === 'wudu') ? 'wudu' : ((mode === 'prayer' || mode === 'salah') ? 'prayer' : 'wudu');
   const [simMode, setSimMode] = useState<'wudu' | 'prayer'>(initialMode);
@@ -81,8 +85,8 @@ export default function PillarDetailScreen() {
           fallbackRoute="/arkan"
           title={
             pillarId === 'wudu'
-              ? (isAr ? 'تعلَّم الوضوء الطهور' : 'Learn Wudu')
-              : (isAr ? pillar.titleAr : pillar.titleEn)
+              ? t.learnWudu
+              : localizedPillar.title
           }
         />
 
@@ -101,8 +105,8 @@ export default function PillarDetailScreen() {
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryBadgeText}>
                     {pillar.category === 'islam'
-                      ? (isAr ? `الركن ${pillar.number} من أركان الإسلام` : `Pillar ${pillar.number} of Islam`)
-                      : (isAr ? `الركن ${pillar.number} من أركان الإيمان` : `Pillar ${pillar.number} of Iman`)}
+                      ? (isAr ? `الركن ${pillar.number} من أركان الإسلام` : language === 'fr' ? `Pilier ${pillar.number} de l'Islam` : language === 'de' ? `Säule ${pillar.number} des Islam` : language === 'es' ? `Pilar ${pillar.number} del Islam` : `Pillar ${pillar.number} of Islam`)
+                      : (isAr ? `الركن ${pillar.number} من أركان الإيمان` : language === 'fr' ? `Pilier ${pillar.number} de la Foi` : language === 'de' ? `Säule ${pillar.number} des Glaubens` : language === 'es' ? `Pilar ${pillar.number} de la Fe` : `Pillar ${pillar.number} of Iman`)}
                   </Text>
                 </View>
                 <View style={styles.heroIconBox}>
@@ -115,11 +119,11 @@ export default function PillarDetailScreen() {
               </View>
 
               <Text style={[styles.heroTitle, { textAlign: isAr ? 'right' : 'left' }]}>
-                {isAr ? pillar.titleAr : pillar.titleEn}
+                {localizedPillar.title}
               </Text>
 
               <Text style={[styles.heroSubtitle, { textAlign: isAr ? 'right' : 'left' }]}>
-                {isAr ? pillar.subtitleAr : pillar.subtitleEn}
+                {localizedPillar.subtitle}
               </Text>
 
               {/* Hadith / Quran Proof Box */}
@@ -127,11 +131,19 @@ export default function PillarDetailScreen() {
                 <View style={[styles.proofHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                   <Ionicons name="book" size={15} color="#FDE68A" />
                   <Text style={styles.proofLabel}>
-                    {isAr ? 'الدليل من الحديث الشريف:' : 'Prophetic Proof:'}
+                    {isAr
+                      ? 'الدليل من الحديث الشريف:'
+                      : language === 'fr'
+                      ? 'Preuve du noble Hadith :'
+                      : language === 'de'
+                      ? 'Beweis aus dem edlen Hadith:'
+                      : language === 'es'
+                      ? 'Prueba del noble Hadiz:'
+                      : 'Prophetic Proof:'}
                   </Text>
                 </View>
                 <Text style={[styles.proofText, { textAlign: isAr ? 'right' : 'left' }]}>
-                  «{isAr ? pillar.hadithProofAr : pillar.hadithProofEn}»
+                  «{isAr ? pillar.hadithProofAr : localizedPillar.hadithProof}»
                 </Text>
               </View>
             </LinearGradient>
