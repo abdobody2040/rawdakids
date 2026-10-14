@@ -1,28 +1,33 @@
-import { useState, useEffect } from "react";
+// src/app/parents/index.tsx
+// Parents' Corner (Section 5.6 - ركن الوالدين)
+// Orchestrates modular parental controls, child profile management, and privacy dashboards.
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Switch,
-  Alert,
-  Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppStore, AgeBand } from '@/store/useAppStore';
+import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
-import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
 import InstallAndroidModal from '@/components/InstallAndroidModal';
 import { RECITERS } from '@/data/quranData';
 import { notificationService, DEFAULT_KID_REMINDERS } from '@/services/notificationService';
-import { securityCryptoService } from '@/services/securityCryptoService';
-import { cloudSyncService, ParentUserSession } from '@/services/cloudSyncService';
+
+// Modular Child & Security Cards
+import ChildProfilesCard from '@/components/parents/ChildProfilesCard';
+import ChildProgressReportsCard from '@/components/parents/ChildProgressReportsCard';
+import WeeklyChallengesCard from '@/components/parents/WeeklyChallengesCard';
+import ParentPinCard from '@/components/parents/ParentPinCard';
+import EncryptedBackupCard from '@/components/parents/EncryptedBackupCard';
+import CloudSyncCard from '@/components/parents/CloudSyncCard';
 
 export default function ParentsCornerScreen() {
   const {
@@ -45,57 +50,7 @@ export default function ParentsCornerScreen() {
   } = useAppStore();
 
   const t = TRANSLATIONS[language];
-
-  const [showAddChildModal, setShowAddChildModal] = useState(false);
-  const [newChildName, setNewChildName] = useState('');
-  const [newChildAgeBand, setNewChildAgeBand] = useState<AgeBand>('7-9');
-  const [newChildAvatar, setNewChildAvatar] = useState('av-girl1');
-
-  const [pinInput, setPinInput] = useState('');
-  const [pinErrorMessage, setPinErrorMessage] = useState('');
-  const [pinSuccessMessage, setPinSuccessMessage] = useState(false);
   const [testNotificationSent, setTestNotificationSent] = useState(false);
-
-  // Encrypted Backup States
-  const [backupPassphrase, setBackupPassphrase] = useState('');
-  const [importPassphrase, setImportPassphrase] = useState('');
-  const [importPayloadInput, setImportPayloadInput] = useState('');
-  const [backupNotice, setBackupNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [showImportBox, setShowImportBox] = useState(false);
-
-  // Cloud Sync States (Multi-Tenant JWT Sync)
-  const [syncSession, setSyncSession] = useState<ParentUserSession | null>(null);
-  const [syncEmail, setSyncEmail] = useState('');
-  const [syncPassword, setSyncPassword] = useState('');
-  const [syncLoading, setSyncLoading] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
-  const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const handleDeleteChild = (id: string, name: string) => {
-    if (profiles.length <= 1) {
-      Alert.alert(
-        language === 'ar' ? 'تنبيه' : 'Notice',
-        language === 'ar'
-          ? 'يجب أن يبقى ملف طفل واحد على الأقل في التطبيق.'
-          : 'At least one child profile must remain in the app.'
-      );
-      return;
-    }
-    Alert.alert(
-      language === 'ar' ? 'حذف ملف الطفل' : 'Delete Child Profile',
-      language === 'ar'
-        ? `هل أنت متأكد من حذف ملف "${name}" وجميع إنجازاته وتقدمه المحفوظ على هذا الجهاز نهائياً؟`
-        : `Are you sure you want to permanently delete "${name}" and all progress saved on this device?`,
-      [
-        { text: language === 'ar' ? 'إلغاء' : 'Cancel', style: 'cancel' },
-        {
-          text: language === 'ar' ? 'حذف نهائي' : 'Delete',
-          style: 'destructive',
-          onPress: () => deleteProfile(id),
-        },
-      ]
-    );
-  };
 
   const handleTestNotification = async () => {
     const granted = await notificationService.requestPermission();
@@ -110,262 +65,6 @@ export default function ParentsCornerScreen() {
         setTestNotificationSent(true);
         setTimeout(() => setTestNotificationSent(false), 4000);
       }
-    }
-  };
-
-  const handleUploadAvatarChild = () => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e: any) => {
-        const file = e.target?.files?.[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const res = ev.target?.result as string;
-            if (res) {
-              setNewChildAvatar(res);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-      input.click();
-    }
-  };
-
-  const handleCreateChild = () => {
-    if (!newChildName.trim()) {
-      return;
-    }
-    addProfile({
-      name: newChildName.trim(),
-      ageBand: newChildAgeBand,
-      avatar: newChildAvatar,
-    });
-    setNewChildName('');
-    setShowAddChildModal(false);
-  };
-
-  const handleSavePin = () => {
-    setPinErrorMessage('');
-    const validation = securityCryptoService.validatePinFormat(pinInput);
-    if (!validation.valid) {
-      const err = language === 'ar' ? (validation.errorAr || 'رمز غير صالح') : (validation.errorEn || 'Invalid PIN');
-      setPinErrorMessage(err);
-      Alert.alert(language === 'ar' ? 'تنبيه' : 'Validation Error', err);
-      return;
-    }
-
-    const success = setParentPin(pinInput);
-    if (success) {
-      setPinInput('');
-      setPinSuccessMessage(true);
-      setTimeout(() => setPinSuccessMessage(false), 4000);
-      Alert.alert(
-        language === 'ar' ? 'تم الحفظ بأمان! 🔒' : 'PIN Saved Securely! 🔒',
-        language === 'ar'
-          ? 'تم تشفير رمز PIN الجديد وحفظه محلياً بنجاح. سيُطلب هذا الرمز عند فتح قسم الوالدين.'
-          : 'Your new PIN has been cryptographically salted, hashed, and saved on this device.'
-      );
-    }
-  };
-
-  const handleExportBackup = () => {
-    if (backupPassphrase.trim().length < 6) {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar'
-          ? 'يرجى كتابة كلمة مرور لا تقل عن 6 أحرف لتشفير النسخة الاحتياطية.'
-          : 'Please enter a passphrase of at least 6 characters.',
-      });
-      return;
-    }
-
-    try {
-      const envelope = exportEncryptedBackup(backupPassphrase.trim());
-      const envelopeJson = JSON.stringify(envelope, null, 2);
-
-      if (Platform.OS === 'web' && typeof document !== 'undefined') {
-        const blob = new Blob([envelopeJson], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `noor-kids-backup-${new Date().toISOString().split('T')[0]}.noorkids`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      setBackupNotice({
-        type: 'success',
-        text: language === 'ar'
-          ? 'تم تصدير وتشفير النسخة الاحتياطية بنجاح! احفظ كلمة المرور لاستعادتها.'
-          : 'Backup exported and encrypted successfully! Keep your passphrase safe.',
-      });
-      setBackupPassphrase('');
-    } catch {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar' ? 'فشل تصدير النسخة الاحتياطية.' : 'Export failed.',
-      });
-    }
-  };
-
-  const handleImportBackup = () => {
-    if (!importPayloadInput.trim()) {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar' ? 'يرجى لصق كود النسخة الاحتياطية المشفرة.' : 'Please paste the encrypted backup payload.',
-      });
-      return;
-    }
-    if (!importPassphrase.trim()) {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar' ? 'يرجى إدخال كلمة المرور المستخدمة أثناء التصدير.' : 'Please enter the decryption passphrase.',
-      });
-      return;
-    }
-
-    let parsedEnvelope: any;
-    try {
-      parsedEnvelope = JSON.parse(importPayloadInput.trim());
-    } catch {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar' ? 'كود النسخة الاحتياطية غير صالح (JSON تالف).' : 'Invalid JSON payload.',
-      });
-      return;
-    }
-
-    const result = importEncryptedBackup(parsedEnvelope, importPassphrase.trim());
-    if (result.success) {
-      setBackupNotice({
-        type: 'success',
-        text: language === 'ar'
-          ? `✓ تم استعادة النسخة الاحتياطية بنجاح وتحديث ${result.profileCount} من ملفات الأطفال!`
-          : `✓ Restored successfully! ${result.profileCount} child profiles updated.`,
-      });
-      setImportPayloadInput('');
-      setImportPassphrase('');
-      setShowImportBox(false);
-      Alert.alert(
-        language === 'ar' ? 'تمت الاستعادة بنجاح 🎉' : 'Restore Successful 🎉',
-        language === 'ar'
-          ? 'تم فك التشفير والتحقق من سلامة البيانات واستعادة تقدم الأطفال.'
-          : 'Data decrypted, authenticated, and restored successfully.'
-      );
-    } else {
-      setBackupNotice({
-        type: 'error',
-        text: language === 'ar' ? (result.errorAr || 'فشلت الاستعادة') : (result.errorEn || 'Restore failed'),
-      });
-    }
-  };
-
-  useEffect(() => {
-    cloudSyncService.getSession().then((sess) => setSyncSession(sess));
-    cloudSyncService.getLastSyncTime().then((time) => setLastSyncTime(time));
-  }, []);
-
-  const handleSyncLogin = async () => {
-    if (!syncEmail.trim() || !syncPassword.trim()) {
-      setSyncNotice({
-        type: 'error',
-        text: language === 'ar' ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور.' : 'Please enter email and password.',
-      });
-      return;
-    }
-    setSyncLoading(true);
-    setSyncNotice(null);
-    const res = await cloudSyncService.login(syncEmail.trim(), syncPassword.trim());
-    setSyncLoading(false);
-    if (res.success && res.session) {
-      setSyncSession(res.session);
-      setSyncPassword('');
-      setSyncNotice({
-        type: 'success',
-        text: language === 'ar' ? '✓ تم تسجيل الدخول بنجاح وتفعيل الربط السحابي الآمن!' : '✓ Logged in successfully. Secure cloud sync activated!',
-      });
-    } else {
-      setSyncNotice({
-        type: 'error',
-        text: language === 'ar' ? (res.errorAr || 'فشل تسجيل الدخول') : (res.errorEn || 'Login failed'),
-      });
-    }
-  };
-
-  const handleSyncLogout = async () => {
-    await cloudSyncService.logout();
-    setSyncSession(null);
-    setLastSyncTime(null);
-    setSyncNotice({
-      type: 'success',
-      text: language === 'ar' ? 'تم تسجيل الخروج بنجاح.' : 'Logged out successfully.',
-    });
-  };
-
-  const handleSyncPush = async () => {
-    setSyncLoading(true);
-    setSyncNotice(null);
-    const state = useAppStore.getState();
-    const res = await cloudSyncService.pushProgress({
-      profiles: state.profiles,
-      activeProfileId: state.activeProfileId,
-      profilesProgress: state.profilesProgress,
-      parentSettings: state.parentSettings,
-      gratitudeEntries: state.gratitudeEntries,
-    });
-    setSyncLoading(false);
-    if (res.success && res.syncedAt) {
-      setLastSyncTime(res.syncedAt);
-      setSyncNotice({
-        type: 'success',
-        text: language === 'ar' ? '✓ تم رفع ومزامنة تقدم الأطفال بنجاح إلى السحابة!' : '✓ Progress synced successfully to secure cloud!',
-      });
-    } else {
-      setSyncNotice({
-        type: 'error',
-        text: language === 'ar' ? (res.errorAr || 'فشلت المزامنة') : (res.errorEn || 'Sync push failed'),
-      });
-    }
-  };
-
-  const handleSyncPull = async () => {
-    setSyncLoading(true);
-    setSyncNotice(null);
-    const res = await cloudSyncService.pullProgress();
-    setSyncLoading(false);
-    if (res.success) {
-      if (!res.hasData || !res.data) {
-        setSyncNotice({
-          type: 'error',
-          text: language === 'ar' ? 'لا توجد بيانات سحابية محفوظة لحسابك حتى الآن.' : 'No cloud data found for your account.',
-        });
-        return;
-      }
-      const restoreRes = restoreValidatedData(res.data);
-      if (restoreRes.success) {
-        if (res.syncedAt) setLastSyncTime(res.syncedAt);
-        setSyncNotice({
-          type: 'success',
-          text: language === 'ar'
-            ? `✓ تم استعادة البيانات بنجاح (${restoreRes.profileCount} ملفات أطفال)!`
-            : `✓ Restored successfully (${restoreRes.profileCount} child profiles)!`,
-        });
-        Alert.alert(
-          language === 'ar' ? 'اكتملت المزامنة السحابية 🎉' : 'Cloud Sync Complete 🎉',
-          language === 'ar' ? 'تم تحديث بيانات وملفات أطفالك من السحابة بنجاح.' : 'Child progress updated from cloud.'
-        );
-      }
-    } else {
-      setSyncNotice({
-        type: 'error',
-        text: language === 'ar' ? (res.errorAr || 'فشلت الاستعادة') : (res.errorEn || 'Pull failed'),
-      });
     }
   };
 
@@ -432,7 +131,6 @@ export default function ParentsCornerScreen() {
             </View>
           </View>
 
-          {/* Local Storage Loss Warning */}
           <View style={styles.privacyWarningBox}>
             <Ionicons name="warning" size={18} color="#D97706" />
             <Text style={styles.privacyWarningText}>
@@ -443,302 +141,28 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
-        {/* Child Profiles Section (PA1) */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="people" size={20} color={COLORS.primary} />
-            <Text style={styles.sectionTitle}>{t.childProfiles}</Text>
-          </View>
+        {/* 1. Child Profiles Management Card */}
+        <ChildProfilesCard
+          language={language}
+          t={t}
+          profiles={profiles}
+          activeProfileId={activeProfileId}
+          setActiveProfile={setActiveProfile}
+          addProfile={addProfile}
+          deleteProfile={deleteProfile}
+        />
 
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'يمكنك إنشاء ملف لطفل أو أكثر على هذا الجهاز. تقدم كل طفل منفصل تماماً عن الآخر.'
-              : 'You can create one or more child profiles on this device. Each child has isolated progress.'}
-          </Text>
+        {/* 2. Isolated Progress Reports Card */}
+        <ChildProgressReportsCard
+          language={language}
+          t={t}
+          profiles={profiles}
+          activeProfileId={activeProfileId}
+          setActiveProfile={setActiveProfile}
+          getChildProgress={getChildProgress}
+        />
 
-          <View style={styles.profilesList}>
-            {profiles.map((p) => {
-              const isActive = p.id === activeProfileId;
-
-              return (
-                <View
-                  key={p.id}
-                  style={[
-                    styles.profileCard,
-                    isActive && styles.profileCardActive,
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: SPACING.md }}
-                    onPress={() => setActiveProfile(p.id)}
-                    activeOpacity={0.8}
-                  >
-                    <KidAvatar avatar={p.avatar} size={42} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.profileNameText}>{p.name}</Text>
-                      <Text style={styles.profileAgeText}>
-                        {p.ageBand === '4-6'
-                          ? t.ageBandExplorers
-                          : p.ageBand === '7-9'
-                          ? t.ageBandLearners
-                          : t.ageBandMinds}
-                      </Text>
-                    </View>
-                    {isActive ? (
-                      <View style={styles.activeProfileBadge}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={18}
-                          color="#059669"
-                        />
-                        <Text style={styles.activeProfileBadgeText}>
-                          {language === 'ar' ? 'النشط حالياً' : 'Active'}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </TouchableOpacity>
-
-                  {profiles.length > 1 && (
-                    <TouchableOpacity
-                      style={styles.deleteProfileIconBtn}
-                      onPress={() => handleDeleteChild(p.id, p.name)}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="trash-outline" size={18} color="#EF4444" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            })}
-          </View>
-
-          {profiles.length < 4 && (
-            <TouchableOpacity
-              style={styles.addChildBtn}
-              onPress={() => setShowAddChildModal(!showAddChildModal)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="add-circle" size={20} color={COLORS.primary} />
-              <Text style={styles.addChildBtnText}>{t.addChild}</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Add Child Form */}
-          {showAddChildModal && (
-            <View style={styles.addChildForm}>
-              <Text style={styles.formLabel}>{t.childName}</Text>
-              <TextInput
-                style={styles.formInput}
-                placeholder={language === 'ar' ? 'اسم الطفل' : 'Child name'}
-                placeholderTextColor={COLORS.textMuted}
-                value={newChildName}
-                onChangeText={setNewChildName}
-              />
-
-              <Text style={styles.formLabel}>{t.ageBand}</Text>
-              <View style={styles.ageBandRow}>
-                {(['4-6', '7-9', '10-13'] as AgeBand[]).map((ab) => (
-                  <TouchableOpacity
-                    key={ab}
-                    style={[
-                      styles.ageBandBtn,
-                      newChildAgeBand === ab && styles.ageBandBtnActive,
-                    ]}
-                    onPress={() => setNewChildAgeBand(ab)}
-                  >
-                    <Text
-                      style={[
-                        styles.ageBandBtnText,
-                        newChildAgeBand === ab && styles.ageBandBtnTextActive,
-                      ]}
-                    >
-                      {ab}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <Text style={styles.formLabel}>{t.avatars}</Text>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: COLORS.primaryLight + '25', paddingHorizontal: 8, paddingVertical: 4, borderRadius: RADIUS.md }}
-                  onPress={handleUploadAvatarChild}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="camera" size={14} color={COLORS.primaryDark} />
-                  <Text style={{ fontSize: 11, fontWeight: '800', color: COLORS.primaryDark }}>
-                    {language === 'ar' ? 'رفع صورة 📷' : 'Upload Photo 📷'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, marginBottom: SPACING.md, paddingVertical: 4 }}
-              >
-                {newChildAvatar.startsWith('data:') && (
-                  <TouchableOpacity
-                    style={[styles.avatarPickCircle, styles.avatarPickCircleActive]}
-                  >
-                    <KidAvatar avatar={newChildAvatar} size={38} />
-                  </TouchableOpacity>
-                )}
-                {PRESET_AVATARS.map((av) => (
-                  <TouchableOpacity
-                    key={av.id}
-                    style={[
-                      styles.avatarPickCircle,
-                      newChildAvatar === av.id && styles.avatarPickCircleActive,
-                    ]}
-                    onPress={() => setNewChildAvatar(av.id)}
-                  >
-                    <KidAvatar avatar={av.id} size={38} />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-
-              <TouchableOpacity
-                style={styles.saveChildBtn}
-                onPress={handleCreateChild}
-              >
-                <Text style={styles.saveChildBtnText}>{t.save}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* Children Progress Reports Section (Isolated per child on this device) */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="stats-chart" size={20} color="#0284c7" />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar'
-                ? 'سجل إنجازات وتقدم الأطفال (مستقل لكل طفل على هذا الجهاز)'
-                : 'Children Progress Reports (Independent per child)'}
-            </Text>
-          </View>
-
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'تُعرض هنا إنجازات كل طفل بشكل منفصل بناءً على البيانات المخزنة محلياً على هذا الجهاز فقط، دون مزامنة مع أي جهاز آخر.'
-              : 'Each child’s progress is tracked independently and saved locally on this device only without cross-device sync.'}
-          </Text>
-
-          <View style={styles.childReportsList}>
-            {profiles.map((p) => {
-              const childProg = getChildProgress(p.id);
-              const isActive = p.id === activeProfileId;
-              const surahsCount = Object.values(childProg.surahProgress || {}).filter(
-                (s) => s.isCompleted
-              ).length;
-              const hadithsCount = Object.values(childProg.hadithProgress || {}).filter(
-                (h) => h.completed
-              ).length;
-              const storiesCount = Object.values(childProg.storyProgress || {}).filter(
-                (st) => st.completed
-              ).length;
-
-              return (
-                <View
-                  key={`report-${p.id}`}
-                  style={[
-                    styles.childReportCard,
-                    isActive && styles.childReportCardActive,
-                  ]}
-                >
-                  <View style={styles.childReportHeader}>
-                    <KidAvatar avatar={p.avatar} size={46} />
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Text style={styles.childReportName}>{p.name}</Text>
-                        {isActive && (
-                          <View style={styles.activePillBadge}>
-                            <Text style={styles.activePillText}>
-                              {language === 'ar' ? 'الملف النشط' : 'Active'}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                      <Text style={styles.childReportAge}>
-                        {p.ageBand === '4-6'
-                          ? t.ageBandExplorers
-                          : p.ageBand === '7-9'
-                          ? t.ageBandLearners
-                          : t.ageBandMinds}
-                      </Text>
-                    </View>
-
-                    {!isActive && (
-                      <TouchableOpacity
-                        style={styles.switchChildBtn}
-                        onPress={() => setActiveProfile(p.id)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.switchChildBtnText}>
-                          {language === 'ar' ? 'تفعيل ↺' : 'Switch ↺'}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-
-                  {/* Stats Grid */}
-                  <View style={styles.childStatsGrid}>
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>⭐</Text>
-                      <Text style={styles.childStatValue}>{childProg.stars}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'النجوم' : 'Stars'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>💎</Text>
-                      <Text style={styles.childStatValue}>{childProg.gems}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'الجواهر' : 'Gems'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>🔥</Text>
-                      <Text style={styles.childStatValue}>{childProg.streakCount}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'أيام متتالية' : 'Streak'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>📖</Text>
-                      <Text style={styles.childStatValue}>{surahsCount}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'سور مكتملة' : 'Surahs'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>📜</Text>
-                      <Text style={styles.childStatValue}>{hadithsCount}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'أحاديث' : 'Hadiths'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.childStatBox}>
-                      <Text style={styles.childStatEmoji}>🕌</Text>
-                      <Text style={styles.childStatValue}>{storiesCount}</Text>
-                      <Text style={styles.childStatLabel}>
-                        {language === 'ar' ? 'قصص الأنبياء' : 'Stories'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Daily Time Limit (PA3) */}
+        {/* 3. Daily Time Limit Goal */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="timer" size={20} color={COLORS.secondaryDark} />
@@ -779,102 +203,14 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
-        {/* Real-Life Manners Challenges Approval (PA4, E3) */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="shield-checkmark" size={20} color="#059669" />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar'
-                ? 'مصادقة تحديات الأخلاق الحقيقية (PA4)'
-                : 'Real-Life Manners Approval'}
-            </Text>
-          </View>
+        {/* 4. Real-Life Manners Challenges Approval Card */}
+        <WeeklyChallengesCard
+          language={language}
+          weeklyChallenges={weeklyChallenges}
+          confirmWeeklyChallenge={confirmWeeklyChallenge}
+        />
 
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'عندما يُطبّق طفلك خُلقاً وسلوكاً حسناً في الحياة الواقعية (مثل بر الوالدين أو إفشاء السلام)، صدّق على إنجازه هنا لمنحه جواهر ومكافآت التميز!'
-              : 'When your child puts good manners into real-life practice, verify their achievement here to award them bonus gems and celebrate!'}
-          </Text>
-
-          <View style={styles.challengesList}>
-            {weeklyChallenges.map((c) => {
-              const isConfirmed = c.confirmedByParent;
-              const isChildDone = c.completedByChild;
-
-              return (
-                <View
-                  key={c.id}
-                  style={[
-                    styles.challengeCard,
-                    isConfirmed && styles.challengeCardConfirmed,
-                  ]}
-                >
-                  <View style={styles.challengeTopRow}>
-                    <Text style={styles.challengeEmoji}>{c.emoji}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.challengeTitle}>
-                        {language === 'ar' ? c.titleAr : c.titleEn}
-                      </Text>
-                      <Text style={styles.challengeDesc}>
-                        {language === 'ar' ? c.descAr : c.descEn}
-                      </Text>
-                    </View>
-                    <View style={styles.challengeRewardBadge}>
-                      <Text style={styles.challengeRewardText}>
-                        +{c.gemReward} 💎
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.challengeActionRow}>
-                    {isConfirmed ? (
-                      <View style={styles.confirmedBadge}>
-                        <Ionicons name="checkmark-circle" size={16} color="#059669" />
-                        <Text style={styles.confirmedBadgeText}>
-                          {language === 'ar' ? 'تم الاعتماد ومنح الجواهر ✓' : 'Approved & Rewarded ✓'}
-                        </Text>
-                      </View>
-                    ) : (
-                      <TouchableOpacity
-                        style={[
-                          styles.approveBtn,
-                          isChildDone && styles.approveBtnHighlighted,
-                        ]}
-                        onPress={() => {
-                          confirmWeeklyChallenge(c.id);
-                          Alert.alert(
-                            language === 'ar' ? 'تم الاعتماد بنجاح! 🎉' : 'Approved! 🎉',
-                            language === 'ar'
-                              ? `بارك الله في طفلك! تم منح +${c.gemReward} جواهر و +3 نجوم.`
-                              : `Mabrook! Awarded +${c.gemReward} gems and +3 stars.`
-                          );
-                        }}
-                        activeOpacity={0.8}
-                      >
-                        <Ionicons
-                          name="sparkles"
-                          size={15}
-                          color={COLORS.textLight}
-                        />
-                        <Text style={styles.approveBtnText}>
-                          {isChildDone
-                            ? (language === 'ar'
-                                ? `✨ مصادقة إنجاز البطل (+${c.gemReward} جواهر)`
-                                : `✨ Verify Child’s Deed (+${c.gemReward} Gems)`)
-                            : (language === 'ar'
-                                ? `✓ اعتماد السلوك الطيب (+${c.gemReward} جواهر)`
-                                : `✓ Confirm Good Deed (+${c.gemReward} Gems)`)}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Content & Reciter Settings (PA5) */}
+        {/* 5. Content & Reciter Settings */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="settings" size={20} color={COLORS.primaryDark} />
@@ -1054,7 +390,7 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
-        {/* Daily Kid Gentle Reminders Card (PA6 / Push Notifications) */}
+        {/* 6. Daily Gentle Reminders Card */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="notifications" size={20} color={COLORS.primaryDark} />
@@ -1114,63 +450,15 @@ export default function ParentsCornerScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Security PIN Setting */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="key" size={20} color={COLORS.primary} />
-            <Text style={styles.sectionTitle}>{t.parentPin}</Text>
-          </View>
+        {/* 7. Security PIN Setting Card */}
+        <ParentPinCard
+          language={language}
+          t={t}
+          parentSettings={parentSettings}
+          setParentPin={setParentPin}
+        />
 
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'رمز الحماية (PIN) يُحفظ محلياً بصيغة مشفرة (Salted SHA-256) على هذا الجهاز لحماية قسم الأهل ومنع تخمين الرمز بمؤقت أمان تصاعدي.'
-              : 'Your security PIN is stored locally using salted SHA-256 hashing on this device only, backed by exponential brute-force lockout.'}
-          </Text>
-
-          <View style={styles.pinStatusRow}>
-            <Ionicons name="shield-checkmark" size={16} color="#059669" />
-            <Text style={styles.pinStatusText}>
-              {language === 'ar'
-                ? `الحماية الحالية: ${parentSettings.pinHash ? 'مشفر ومحمي بنجاح ✓' : 'الرمز الافتراضي (1234)'}`
-                : `Status: ${parentSettings.pinHash ? 'Encrypted & Active ✓' : 'Default PIN Active'}`}
-            </Text>
-          </View>
-
-          <View style={[styles.pinRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-            <TextInput
-              style={styles.pinInput}
-              value={pinInput}
-              onChangeText={(text) => {
-                setPinInput(text);
-                setPinErrorMessage('');
-              }}
-              placeholder={language === 'ar' ? 'رمز جديد (٤-٦ أرقام)' : 'New PIN (4-6 digits)'}
-              placeholderTextColor={COLORS.textMuted}
-              keyboardType="number-pad"
-              maxLength={6}
-              secureTextEntry={true}
-            />
-            <TouchableOpacity style={styles.pinSaveBtn} onPress={handleSavePin} activeOpacity={0.8}>
-              <Ionicons name="lock-closed" size={16} color="#FFFFFF" />
-              <Text style={styles.pinSaveBtnText}>{t.save}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {pinErrorMessage ? (
-            <Text style={styles.pinErrorText}>{pinErrorMessage}</Text>
-          ) : null}
-
-          {pinSuccessMessage ? (
-            <View style={styles.pinSuccessBadge}>
-              <Ionicons name="checkmark-circle" size={15} color="#065F46" />
-              <Text style={styles.pinSuccessBadgeText}>
-                {language === 'ar' ? '✓ تم تشفير وحفظ رمز PIN الجديد بنجاح!' : '✓ PIN updated and encrypted!'}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-
-        {/* Language switch */}
+        {/* 8. Language Selector */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="globe" size={20} color={COLORS.primary} />
@@ -1219,7 +507,7 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
-        {/* App Installation on Child's Device (Android / PWA) */}
+        {/* 9. Standalone Android PWA Installation */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="phone-portrait" size={20} color={COLORS.primary} />
@@ -1237,263 +525,20 @@ export default function ParentsCornerScreen() {
           <InstallAndroidModal />
         </View>
 
-        {/* Encrypted Backup & Restore (OWASP ASVS V8.2 / V8.3) */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="shield-half" size={20} color="#059669" />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'النسخ الاحتياطي المشفر والاستعادة' : 'Encrypted Backup & Restore'}
-            </Text>
-          </View>
+        {/* 10. Authenticated Encrypted Backup & Restore */}
+        <EncryptedBackupCard
+          language={language}
+          exportEncryptedBackup={exportEncryptedBackup}
+          importEncryptedBackup={importEncryptedBackup}
+        />
 
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'تشفير كامل لتقدم أطفالك وسجل يومياتهم بكلمة مرور خاصة بك (AES + HMAC-SHA256). يمكنك نقل النسخة بأمان إلى أي جهاز آخر دون الاعتماد على خوادم سحابية.'
-              : 'End-to-end encrypted backup of your children’s achievements using your own passphrase (AES + HMAC-SHA256). Transfer safely to other devices without cloud exposure.'}
-          </Text>
+        {/* 11. Multi-Device Cloud Sync */}
+        <CloudSyncCard
+          language={language}
+          restoreValidatedData={restoreValidatedData}
+        />
 
-          {backupNotice ? (
-            <View
-              style={[
-                styles.backupNoticeBox,
-                backupNotice.type === 'error' ? styles.backupNoticeError : styles.backupNoticeSuccess,
-              ]}
-            >
-              <Ionicons
-                name={backupNotice.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
-                size={16}
-                color={backupNotice.type === 'error' ? '#DC2626' : '#059669'}
-              />
-              <Text
-                style={[
-                  styles.backupNoticeText,
-                  { color: backupNotice.type === 'error' ? '#DC2626' : '#065F46' },
-                ]}
-              >
-                {backupNotice.text}
-              </Text>
-            </View>
-          ) : null}
-
-          {/* Export Box */}
-          <View style={styles.backupSubCard}>
-            <Text style={styles.backupSubTitle}>
-              {language === 'ar' ? '📤 تصدير نسخة احتياطية مشفرة:' : '📤 Export Encrypted Backup:'}
-            </Text>
-            <TextInput
-              style={styles.backupInput}
-              placeholder={language === 'ar' ? 'اختر كلمة مرور التشفير (٦ أحرف فأكثر)' : 'Choose encryption passphrase (min 6 chars)'}
-              placeholderTextColor={COLORS.textMuted}
-              secureTextEntry={true}
-              value={backupPassphrase}
-              onChangeText={setBackupPassphrase}
-            />
-            <TouchableOpacity style={styles.backupExportBtn} onPress={handleExportBackup} activeOpacity={0.8}>
-              <Ionicons name="download-outline" size={18} color="#FFFFFF" />
-              <Text style={styles.backupBtnText}>
-                {language === 'ar' ? 'تصدير وتحميل النسخة المشفرة (.noorkids)' : 'Export & Download (.noorkids)'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Import Box */}
-          <View style={[styles.backupSubCard, { marginTop: SPACING.md }]}>
-            <TouchableOpacity
-              style={styles.backupToggleRow}
-              onPress={() => setShowImportBox(!showImportBox)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.backupSubTitle}>
-                {language === 'ar' ? '📥 استعادة نسخة احتياطية سابقة' : '📥 Restore from Encrypted Backup'}
-              </Text>
-              <Ionicons
-                name={showImportBox ? 'chevron-up' : 'chevron-down'}
-                size={18}
-                color={COLORS.textSecondary}
-              />
-            </TouchableOpacity>
-
-            {showImportBox ? (
-              <View style={{ marginTop: SPACING.sm }}>
-                <TextInput
-                  style={[styles.backupInput, styles.backupTextArea]}
-                  placeholder={language === 'ar' ? 'الصق كود النسخة الاحتياطية المشفرة هنا...' : 'Paste encrypted backup envelope JSON here...'}
-                  placeholderTextColor={COLORS.textMuted}
-                  multiline={true}
-                  numberOfLines={4}
-                  value={importPayloadInput}
-                  onChangeText={setImportPayloadInput}
-                />
-                <TextInput
-                  style={[styles.backupInput, { marginTop: SPACING.sm }]}
-                  placeholder={language === 'ar' ? 'أدخل كلمة مرور التشفير المستخدمة' : 'Enter decryption passphrase'}
-                  placeholderTextColor={COLORS.textMuted}
-                  secureTextEntry={true}
-                  value={importPassphrase}
-                  onChangeText={setImportPassphrase}
-                />
-                <TouchableOpacity style={styles.backupImportBtn} onPress={handleImportBackup} activeOpacity={0.8}>
-                  <Ionicons name="refresh" size={18} color="#FFFFFF" />
-                  <Text style={styles.backupBtnText}>
-                    {language === 'ar' ? 'فك التشفير والاستعادة الآمنة' : 'Authenticate & Restore'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-          </View>
-        </View>
-
-        {/* Secure Multi-Tenant Cloud Sync (OWASP ASVS V2 / V3 / V4) */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="cloud-upload" size={20} color="#0284C7" />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'المزامنة السحابية متعددة الأجهزة' : 'Multi-Device Cloud Sync'}
-            </Text>
-          </View>
-
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'مزامنة سحابية آمنة ومشفرة بالـ JWT لحساب الأسرة مع عزل كامل للبيانات (Multi-Tenant RLS). تتيح لك نقل ومزامنة تقدم أطفالك بين هاتفك وجهاز طفلك اللوحي.'
-              : 'Secure JWT-authenticated cloud sync with strict multi-tenant isolation (RLS). Sync child progress seamlessly between your phone and child’s tablet.'}
-          </Text>
-
-          {syncNotice ? (
-            <View
-              style={[
-                styles.backupNoticeBox,
-                syncNotice.type === 'error' ? styles.backupNoticeError : styles.backupNoticeSuccess,
-              ]}
-            >
-              <Ionicons
-                name={syncNotice.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
-                size={16}
-                color={syncNotice.type === 'error' ? '#DC2626' : '#059669'}
-              />
-              <Text
-                style={[
-                  styles.backupNoticeText,
-                  { color: syncNotice.type === 'error' ? '#DC2626' : '#065F46' },
-                ]}
-              >
-                {syncNotice.text}
-              </Text>
-            </View>
-          ) : null}
-
-          {syncSession ? (
-            <View style={styles.backupSubCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.sm }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="shield-checkmark" size={18} color="#059669" />
-                  <Text style={[styles.backupSubTitle, { color: '#059669', marginBottom: 0 }]}>
-                    {language === 'ar' ? 'الحساب متصل وآمن' : 'Connected & Authenticated'}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={handleSyncLogout} activeOpacity={0.7}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#DC2626' }}>
-                    {language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <Text style={{ fontSize: 13, color: COLORS.text, fontWeight: '600', marginBottom: 4 }}>
-                {language === 'ar' ? `البريد: ${syncSession.email}` : `Account: ${syncSession.email}`}
-              </Text>
-              {lastSyncTime ? (
-                <Text style={{ fontSize: 11, color: COLORS.textSecondary, marginBottom: SPACING.md }}>
-                  {language === 'ar'
-                    ? `آخر مزامنة: ${new Date(lastSyncTime).toLocaleDateString()} ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : `Last Synced: ${new Date(lastSyncTime).toLocaleDateString()} ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                </Text>
-              ) : (
-                <Text style={{ fontSize: 11, color: COLORS.textSecondary, marginBottom: SPACING.md }}>
-                  {language === 'ar' ? 'لم تتم المزامنة بعد' : 'No sync performed yet'}
-                </Text>
-              )}
-
-              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
-                <TouchableOpacity
-                  style={[styles.backupExportBtn, { flex: 1, backgroundColor: '#0284C7' }]}
-                  onPress={handleSyncPush}
-                  disabled={syncLoading}
-                  activeOpacity={0.8}
-                >
-                  {syncLoading ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <>
-                      <Ionicons name="cloud-upload-outline" size={16} color="#FFFFFF" />
-                      <Text style={styles.backupBtnText}>
-                        {language === 'ar' ? 'رفع ومزامنة الآن' : 'Push to Cloud'}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.backupImportBtn, { flex: 1, marginTop: 0, backgroundColor: '#059669' }]}
-                  onPress={handleSyncPull}
-                  disabled={syncLoading}
-                  activeOpacity={0.8}
-                >
-                  {syncLoading ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <>
-                      <Ionicons name="cloud-download-outline" size={16} color="#FFFFFF" />
-                      <Text style={styles.backupBtnText}>
-                        {language === 'ar' ? 'استعادة من السحابة' : 'Pull from Cloud'}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.backupSubCard}>
-              <Text style={styles.backupSubTitle}>
-                {language === 'ar' ? 'تسجيل دخول حساب ولي الأمر:' : 'Parent Account Sign In:'}
-              </Text>
-              <TextInput
-                style={styles.backupInput}
-                placeholder={language === 'ar' ? 'البريد الإلكتروني (مثال: parent@example.com)' : 'Email (e.g. parent@example.com)'}
-                placeholderTextColor={COLORS.textMuted}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={syncEmail}
-                onChangeText={setSyncEmail}
-              />
-              <TextInput
-                style={styles.backupInput}
-                placeholder={language === 'ar' ? 'كلمة المرور' : 'Password'}
-                placeholderTextColor={COLORS.textMuted}
-                secureTextEntry={true}
-                value={syncPassword}
-                onChangeText={setSyncPassword}
-              />
-              <TouchableOpacity
-                style={[styles.backupExportBtn, { backgroundColor: '#0284C7' }]}
-                onPress={handleSyncLogin}
-                disabled={syncLoading}
-                activeOpacity={0.8}
-              >
-                {syncLoading ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Ionicons name="log-in-outline" size={18} color="#FFFFFF" />
-                    <Text style={styles.backupBtnText}>
-                      {language === 'ar' ? 'تسجيل الدخول وربط المزامنة' : 'Sign In & Connect'}
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* Offline Mode & External Features Transparency */}
+        {/* 12. Offline Mode & Transparency */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="cloud-offline" size={20} color="#059669" />
@@ -1582,132 +627,74 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
     lineHeight: 18,
   },
-  profilesList: {
-    gap: SPACING.sm,
-  },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.cardAlt,
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    gap: SPACING.md,
+  privacyCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: '#BBF7D0',
+    ...SHADOWS.soft,
   },
-  profileCardActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '22',
-  },
-  profileEmoji: {
-    fontSize: 28,
-  },
-  profileNameText: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  profileAgeText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  addChildBtn: {
+  privacyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: SPACING.md,
-    marginTop: SPACING.sm,
-    backgroundColor: COLORS.primaryLight + '22',
-    borderRadius: RADIUS.lg,
-  },
-  addChildBtnText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.primaryDark,
-  },
-  addChildForm: {
-    marginTop: SPACING.md,
-    padding: SPACING.md,
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-  },
-  formLabel: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  formInput: {
-    height: 44,
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    fontSize: 14,
-    color: COLORS.text,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    marginBottom: SPACING.sm,
-  },
-  ageBandRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
+    gap: SPACING.md,
     marginBottom: SPACING.md,
   },
-  ageBandBtn: {
-    flex: 1,
-    height: 38,
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.card,
+  privacyIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#86EFAC',
   },
-  ageBandBtnActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '33',
+  privacyTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#166534',
   },
-  ageBandBtnText: {
+  privacyTagline: {
     fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.text,
+    color: '#15803D',
+    fontWeight: '600',
+    marginTop: 2,
+    lineHeight: 16,
   },
-  ageBandBtnTextActive: {
-    color: COLORS.primaryDark,
-    fontWeight: '800',
-  },
-  saveChildBtn: {
-    height: 44,
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveChildBtnText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.textLight,
-  },
-  avatarPickerRow: {
-    flexDirection: 'row',
+  privacyBadgesList: {
     gap: 8,
     marginBottom: SPACING.md,
   },
-  avatarPickCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.card,
+  privacyBadgeItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
+    gap: 8,
   },
-  avatarPickCircleActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '33',
+  privacyBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#166534',
+    flex: 1,
+    lineHeight: 16,
+  },
+  privacyWarningBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#FFFBEB',
+    padding: SPACING.sm,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  privacyWarningText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#92400E',
+    flex: 1,
+    lineHeight: 16,
   },
   limitButtonsRow: {
     flexDirection: 'row',
@@ -1715,45 +702,57 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   limitBtn: {
+    flex: 1,
+    minWidth: 54,
+    paddingVertical: 10,
     backgroundColor: COLORS.cardAlt,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    borderWidth: 1,
     borderColor: COLORS.border,
   },
   limitBtnSelected: {
+    backgroundColor: COLORS.secondary,
     borderColor: COLORS.secondaryDark,
-    backgroundColor: COLORS.secondaryLight,
   },
   limitBtnText: {
     fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.textSecondary,
+    fontWeight: '700',
+    color: COLORS.text,
   },
   limitBtnTextSelected: {
-    color: COLORS.secondaryDark,
+    color: COLORS.textLight,
+  },
+  formLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
+  },
+  subFormLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
   },
   recitersList: {
-    gap: 6,
-    marginBottom: SPACING.md,
+    gap: SPACING.xs,
   },
   reciterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    backgroundColor: COLORS.cardAlt,
-    padding: SPACING.md,
+    padding: SPACING.sm,
     borderRadius: RADIUS.md,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.cardAlt,
   },
   reciterRowSelected: {
     borderColor: COLORS.primary,
     backgroundColor: COLORS.primaryLight + '22',
   },
   reciterName: {
-    flex: 1,
     fontSize: 14,
     fontWeight: '700',
     color: COLORS.text,
@@ -1769,74 +768,167 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.text,
   },
-  pinRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    marginTop: 4,
-  },
-  pinInput: {
-    flex: 1,
-    height: 48,
+  translationSourcesBox: {
     backgroundColor: COLORS.cardAlt,
+    padding: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginTop: SPACING.xs,
+    marginBottom: SPACING.sm,
+    gap: SPACING.xs,
+  },
+  translationSourceCard: {
+    backgroundColor: COLORS.card,
     borderRadius: RADIUS.md,
+    padding: SPACING.sm,
     borderWidth: 1.5,
     borderColor: COLORS.border,
-    paddingHorizontal: SPACING.md,
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.text,
-    letterSpacing: 2,
   },
-  pinSaveBtn: {
+  translationSourceCardSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight + '10',
+  },
+  translationSourceTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SPACING.xs,
+  },
+  translationSourceName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  translationSourceDesc: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  sourceRadio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  sourceRadioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.primary,
+  },
+  sourceBadgePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    height: 48,
-    paddingHorizontal: SPACING.lg,
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    ...SHADOWS.glow(COLORS.primary),
+    gap: 4,
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
   },
-  pinSaveBtnText: {
-    fontSize: 14,
+  sourceBadgePillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  remindersSubtext: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
+  },
+  remindersList: {
+    gap: SPACING.xs,
+    marginBottom: SPACING.md,
+  },
+  reminderItemRow: {
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.cardAlt,
+    padding: SPACING.sm,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  reminderTimeBadge: {
+    backgroundColor: COLORS.primaryLight + '30',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.sm,
+  },
+  reminderTimeText: {
+    fontSize: 11,
     fontWeight: '800',
-    color: COLORS.textLight,
+    color: COLORS.primaryDark,
+  },
+  reminderTextCol: {
+    flex: 1,
+  },
+  reminderItemTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  reminderItemBody: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+  },
+  testNotificationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 44,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.md,
+    ...SHADOWS.soft,
+  },
+  testNotificationBtnSuccess: {
+    backgroundColor: '#059669',
+  },
+  testNotificationBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 13,
   },
   langGrid: {
-    gap: 8,
+    gap: SPACING.sm,
   },
   langCardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: RADIUS.md,
+    gap: SPACING.sm,
+    padding: SPACING.md,
     backgroundColor: COLORS.cardAlt,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.5,
     borderColor: COLORS.border,
   },
   langCardItemActive: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '18',
+    backgroundColor: COLORS.primaryLight + '15',
+    ...SHADOWS.glow(COLORS.primary),
   },
   langCodeBadge: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    borderWidth: 2,
-    borderColor: '#FBBF24',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   langCodeBadgeText: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 0.5,
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.primary,
   },
   langTextCol: {
     flex: 1,
@@ -1852,563 +944,42 @@ const styles = StyleSheet.create({
   langNameSub: {
     fontSize: 11,
     color: COLORS.textSecondary,
-    marginTop: 1,
-    fontWeight: '600',
-  },
-  translationSourcesBox: {
-    marginTop: SPACING.sm,
-    marginBottom: SPACING.md,
-    gap: SPACING.xs + 2,
-  },
-  subFormLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginBottom: 4,
-  },
-  translationSourceCard: {
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    gap: 8,
-  },
-  translationSourceCardSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '15',
-  },
-  translationSourceTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: SPACING.sm,
-  },
-  translationSourceName: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  translationSourceDesc: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 16,
-  },
-  sourceRadio: {
-    width: 20,
-    height: 20,
-    borderRadius: RADIUS.full,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  sourceRadioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
-  },
-  sourceBadgePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 4,
-    backgroundColor: COLORS.card,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-  },
-  sourceBadgePillText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#059669',
-  },
-  challengesList: {
-    gap: SPACING.sm,
-  },
-  challengeCard: {
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    gap: SPACING.sm,
-  },
-  challengeCardConfirmed: {
-    borderColor: '#059669',
-    backgroundColor: '#05966910',
-  },
-  challengeTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  challengeEmoji: {
-    fontSize: 26,
-  },
-  challengeTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  challengeDesc: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 16,
-  },
-  challengeRewardBadge: {
-    backgroundColor: COLORS.card,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  challengeRewardText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0284c7',
-  },
-  challengeActionRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingTop: 4,
-  },
-  confirmedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#05966920',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: RADIUS.full,
-  },
-  confirmedBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#059669',
-  },
-  approveBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: RADIUS.md,
-  },
-  approveBtnHighlighted: {
-    backgroundColor: COLORS.secondaryDark,
-  },
-  approveBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.textLight,
-  },
-  remindersSubtext: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-    marginBottom: SPACING.md,
-  },
-  remindersList: {
-    gap: 8,
-    marginBottom: SPACING.md,
-  },
-  reminderItemRow: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.sm,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    alignItems: 'center',
-    gap: 10,
-  },
-  reminderTimeBadge: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  reminderTimeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#065F46',
-  },
-  reminderTextCol: {
-    flex: 1,
-  },
-  reminderItemTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  reminderItemBody: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 16,
-  },
-  testNotificationBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.primary,
-    paddingVertical: 12,
-    borderRadius: RADIUS.lg,
-    ...SHADOWS.soft,
-  },
-  testNotificationBtnSuccess: {
-    backgroundColor: '#059669',
-  },
-  testNotificationBtnText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  privacyCard: {
-    backgroundColor: '#ECFDF5',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1.5,
-    borderColor: '#A7F3D0',
-    ...SHADOWS.soft,
-    gap: SPACING.md,
-  },
-  privacyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  privacyIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: RADIUS.full,
-    backgroundColor: '#D1FAE5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  privacyTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#065F46',
-  },
-  privacyTagline: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#047857',
-    marginTop: 2,
-    lineHeight: 17,
-  },
-  privacyBadgesList: {
-    gap: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: '#D1FAE5',
-  },
-  privacyBadgeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  privacyBadgeText: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#065F46',
-    lineHeight: 16,
-  },
-  privacyWarningBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: '#FFFBEB',
-    borderRadius: RADIUS.md,
-    padding: SPACING.sm + 2,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  privacyWarningText: {
-    flex: 1,
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#92400E',
-    lineHeight: 16,
-  },
-  activeProfileBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-  },
-  activeProfileBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#065F46',
-  },
-  deleteProfileIconBtn: {
-    padding: 8,
-    borderRadius: RADIUS.md,
-    backgroundColor: '#FEE2E2',
-    marginLeft: 6,
-  },
-  childReportsList: {
-    gap: SPACING.md,
-  },
-  childReportCard: {
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    gap: SPACING.md,
-  },
-  childReportCardActive: {
-    borderColor: '#0284c7',
-    backgroundColor: '#F0F9FF',
-  },
-  childReportHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  childReportName: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: COLORS.text,
-  },
-  activePillBadge: {
-    backgroundColor: '#E0F2FE',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: '#7DD3FC',
-  },
-  activePillText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#0369A1',
-  },
-  childReportAge: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  switchChildBtn: {
-    backgroundColor: '#0284c7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: RADIUS.md,
-  },
-  switchChildBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  childStatsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  childStatBox: {
-    flex: 1,
-    minWidth: '30%',
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
-    padding: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.borderLight,
-  },
-  childStatEmoji: {
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  childStatValue: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: COLORS.text,
-  },
-  childStatLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
     marginTop: 2,
   },
   offlineFeaturesBox: {
     backgroundColor: '#F0FDF4',
-    borderRadius: RADIUS.lg,
     padding: SPACING.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: '#BBF7D0',
-    gap: 6,
   },
   offlineBoxHeading: {
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '800',
     color: '#166534',
-    marginBottom: 2,
+    marginBottom: SPACING.xs,
   },
   offlineBullet: {
     fontSize: 12,
-    fontWeight: '600',
     color: COLORS.text,
     lineHeight: 18,
+    marginBottom: 2,
   },
   privacyAssurancePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#DCFCE7',
-    padding: 8,
-    borderRadius: RADIUS.md,
-    marginTop: 6,
-  },
-  privacyAssurancePillText: {
-    flex: 1,
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#15803D',
-    lineHeight: 16,
-  },
-  pinStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: RADIUS.md,
-    marginBottom: SPACING.sm,
-  },
-  pinStatusText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#065F46',
-  },
-  pinErrorText: {
-    color: COLORS.error,
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 6,
-  },
-  pinSuccessBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#D1FAE5',
-    borderWidth: 1,
-    borderColor: '#6EE7B7',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: RADIUS.md,
-    marginTop: 8,
+    marginTop: SPACING.sm,
   },
-  pinSuccessBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#065F46',
-  },
-  backupNoticeBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    marginBottom: SPACING.md,
-  },
-  backupNoticeError: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FCA5A5',
-  },
-  backupNoticeSuccess: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
-  },
-  backupNoticeText: {
-    flex: 1,
-    fontSize: 12,
+  privacyAssurancePillText: {
+    fontSize: 11,
     fontWeight: '700',
-    lineHeight: 16,
-  },
-  backupSubCard: {
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  backupSubTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: SPACING.xs,
-  },
-  backupInput: {
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    paddingHorizontal: SPACING.md,
-    height: 46,
-    fontSize: 14,
-    color: COLORS.text,
-    fontWeight: '600',
-    marginBottom: SPACING.sm,
-  },
-  backupTextArea: {
-    height: 80,
-    textAlignVertical: 'top',
-    paddingTop: 10,
-    fontSize: 12,
-  },
-  backupExportBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    height: 48,
-    borderRadius: RADIUS.md,
-    backgroundColor: '#059669',
-    ...SHADOWS.glow('#059669'),
-  },
-  backupImportBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    height: 48,
-    borderRadius: RADIUS.md,
-    backgroundColor: '#0284C7',
-    marginTop: 4,
-    ...SHADOWS.glow('#0284C7'),
-  },
-  backupBtnText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  backupToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    color: '#15803D',
+    flex: 1,
+    lineHeight: 15,
   },
 });
