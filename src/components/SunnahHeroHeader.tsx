@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,14 +39,14 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
     },
     {
       id: 'habits',
-      labelAr: 'سنن اليوم',
+      labelAr: 'السنن',
       labelEn: 'Daily Habits',
       icon: 'sparkles',
       color: '#059669',
     },
     {
       id: 'adhkar',
-      labelAr: 'أذكار الصباح والمساء',
+      labelAr: 'الأذكار',
       labelEn: 'Adhkar',
       icon: 'sunny',
       color: '#D97706',
@@ -60,7 +60,7 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
     },
     {
       id: 'cards',
-      labelAr: 'بطاقات الحفظ',
+      labelAr: 'البطاقات',
       labelEn: 'Cards',
       icon: 'albums',
       color: '#7C3AED',
@@ -98,7 +98,7 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
 
   return (
     <View style={styles.headerWrapper}>
-      {/* Hero Visual Banner with Integrated 4-Tabs Switcher */}
+      {/* Hero Visual Banner with Integrated 6-Tabs Switcher */}
       <View style={styles.heroBannerContainer}>
         <Image
           source={SUNNAH_PATH_IMG}
@@ -124,36 +124,44 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
             </View>
           </View>
 
-          {/* Integrated 4-Tabs Switcher */}
-          <View style={[styles.tabsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <TouchableOpacity
-                  key={tab.id}
-                  style={[styles.tabBtn, isActive && styles.tabBtnActive]}
-                  onPress={() => handlePressTab(tab.id)}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons
-                    name={tab.icon}
-                    size={18}
-                    color={isActive ? tab.color : '#FFFFFF'}
-                    style={styles.tabIcon}
-                  />
-                  <Text
-                    style={[
-                      styles.tabBtnText,
-                      isActive && [styles.tabBtnTextActive, { color: tab.color }],
-                    ]}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
+          {/* Integrated Horizontal Scrollable Tabs Switcher */}
+          <View style={styles.tabsWrapper}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[
+                styles.tabsScrollContent,
+                { flexDirection: isAr ? 'row-reverse' : 'row' },
+              ]}
+            >
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <TouchableOpacity
+                    key={tab.id}
+                    style={[styles.tabBtn, isActive && styles.tabBtnActive]}
+                    onPress={() => handlePressTab(tab.id)}
+                    activeOpacity={0.8}
                   >
-                    {isAr ? tab.labelAr : tab.labelEn}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    <Ionicons
+                      name={tab.icon}
+                      size={18}
+                      color={isActive ? tab.color : '#FFFFFF'}
+                      style={styles.tabIcon}
+                    />
+                    <Text
+                      style={[
+                        styles.tabBtnText,
+                        isActive && [styles.tabBtnTextActive, { color: tab.color }],
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {isAr ? tab.labelAr : tab.labelEn}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </View>
         </LinearGradient>
       </View>
@@ -218,19 +226,21 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 17,
   },
-  tabsRow: {
-    flexDirection: 'row',
+  tabsWrapper: {
     backgroundColor: 'rgba(0, 0, 0, 0.25)',
     borderRadius: RADIUS.lg,
     padding: 4,
-    gap: 6,
+  },
+  tabsScrollContent: {
     alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 2,
   },
   tabBtn: {
-    flex: 1,
+    minWidth: 66,
     minHeight: 52,
     paddingVertical: 6,
-    paddingHorizontal: 4,
+    paddingHorizontal: 10,
     borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',

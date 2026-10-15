@@ -33,10 +33,10 @@ yarn-error.*
 # local env files
 .env*.local
 
-# typescript
-*.tsbuildinfo
-
-example
+# keystores and signing credentials
+*.keystore
+credentials.json
+google-play-media/keystore/
 
 # generated native folders
 /ios

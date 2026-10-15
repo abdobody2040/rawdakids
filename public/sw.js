@@ -1,5 +1,5 @@
-// Noor Kids - PWA Service Worker for Android Installation & Offline Cache
-const CACHE_NAME = 'noor-kids-v2';
+// Rawdakids - PWA Service Worker for Android Installation & Offline Cache
+const CACHE_NAME = 'rawdakids-v1';
 
 const STATIC_PRECACHE = [
   '/',

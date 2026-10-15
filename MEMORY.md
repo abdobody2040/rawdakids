@@ -6,7 +6,7 @@
 
 ## 1. Project Overview & Current State
 
-- **Application Name:** Noor Kids (نور للأطفال)
+- **Application Name:** Rawdakids (روضة كيدز)
 - **Status:** Fully functional, interactive, and polished web/mobile application.
 - **Active Ports:**
   - `http://localhost:3000`: Production node server (`server.js`) serving `dist/` + `/api/tts` streaming proxy.
@@ -1183,6 +1183,139 @@
 - Hardened `voiceRecordService.ts`: enforced strict 180s (3 min) duration cap, 15MB buffer memory quota, path traversal validation (`validateAudioUri`), and complete object URL / track lifecycle cleanup.
 - Automated security suite (`scripts/test-security.js`) expanded to 58/58 passing tests (100%).
 - Full E2E suite (`scripts/test-e2e.js`) passed 69/69 (100%), 0 TypeScript errors (`tsc --noEmit`), web export refreshed.
+
+---
+
+### Milestone 68: Complete Application Renaming to Rawdakids & Active Server Launch
+- **App Name Renamed:** Standardized app name to **Rawdakids** (روضة كيدز) across all configurations, UI text, metadata, and build assets:
+  - `app.json`: `name`: "Rawdakids - روضة كيدز", `slug`: "rawdakids", `scheme`: "rawdakids", `package`: "com.rawdakids.app", `bundleIdentifier`: "com.rawdakids.app".
+  - `package.json`: `name`: "rawdakids".
+  - `public/manifest.json`: `name`: "روضة كيدز - Rawdakids".
+  - `public/sw.js`: Service worker cache updated to `rawdakids-v1`.
+  - `src/constants/i18n.ts`: `appName: 'Rawdakids'` across English, French, German, and Spanish locales; `روضة كيدز` for Arabic.
+  - `src/components/AchievementCertificateModal.tsx`: Updated brand titles and certificate verification seal to `RAWDAKIDS APP` / `Rawdakids ☼`.
+  - `src/components/AppSplashScreen.tsx` & `InstallAndroidModal.web.tsx`: Updated UI splash and modal headers to `Rawdakids`.
+  - `src/app/parents/index.tsx`: Updated notification preview and installation descriptions.
+  - `PRIVACY_POLICY.md` & `privacy.html`: Localized and aligned policy and package names with `Rawdakids` and `com.rawdakids.app`.
+  - `GOOGLE_PLAY_STORE_LISTING.md` & `GOOGLE_PLAY_DEPLOYMENT_GUIDE.md`: Updated listing titles and guides.
+- **Code Health & Linting Fix:**
+  - Resolved `react-hooks/set-state-in-effect` error in `ParentGateModal.tsx` by scheduling timer updates asynchronously.
+  - Eliminated unused `_err` catch variables across `audioService.ts` and `voiceRecordService.ts`.
+  - Removed unused `_setLanguage` in `src/app/index.tsx`.
+  - `npx expo lint`: **0 errors, 0 warnings**.
+  - `npx tsc --noEmit`: **0 errors**.
+  - `npx expo export --platform web`: All 24 static routes rebuilt cleanly in `dist/`.
+- **E2E Test Suite (`node scripts/test-e2e.js`):** **69 / 69 PASSED (100% Success Rate)**.
+- **Running Servers Active:**
+  - `node server.js` serving production app + `/api/tts` streaming proxy at `http://localhost:3000`.
+  - `npx expo start --web --port 8081` running Metro bundler at `http://localhost:8081`.
+
+---
+
+### Milestone 69: Fix Generated Media with the New Name (RAWDAKIDS Splash Screen & Play Store Assets)
+- **3D Pixar Mobile Splash Screen Re-generated:**
+  - Re-generated [`assets/images/splash-screen.jpg`](file:///g:/quran%20app%20for%20kids/assets/images/splash-screen.jpg) and [`assets/images/splash-screen.png`](file:///g:/quran%20app%20for%20kids/assets/images/splash-screen.png) (9:16 aspect ratio).
+  - Replaced the old "NOOR KIDS" cloud lettering with 3D glowing golden bubble cloud typography reading **RAWDAKIDS** and **روضة كيدز**.
+  - Synchronized across both `assets/images/` and `dist/assets/images/`.
+- **Google Play Media Assets Regenerated:**
+  - Re-rendered all Google Play store listing assets via [`scripts/generate_store_assets.ps1`](file:///g:/quran%20app%20for%20kids/scripts/generate_store_assets.ps1):
+    - `01_app_icon_512x512.png` (512x512 Play Store icon).
+    - `02_feature_graphic_1024x500.png` & `.jpg` (Feature graphic with `روضة كيدز` & `Rawdakids - رحلة الإيمان والمعرفة`).
+    - `phone_screenshots/` (6 high-res 1080x1920 mobile mockups).
+    - `tablet_screenshots/` (2 high-res 7-inch and 10-inch tablet mockups).
+- **Code Health Verification:**
+  - Fixed `ParentGateModal.tsx` interval type to `ReturnType<typeof setInterval>`.
+  - `npx expo lint`: **0 errors, 0 warnings**.
+  - `npx tsc --noEmit`: **0 errors**.
+  ### Milestone 70: Dynamic Child Progress & Clean State Architecture (Zero Hardcoded Starter Stats)
+- **Eliminated Starter Seed Numbers:**
+  - Removed all mock starting points (`stars: 12, gems: 25, streak: 3` and `stars: 5, gems: 10`) from initial profiles in [`src/store/useAppStore.ts`](file:///g:/quran%20app%20for%20kids/src/store/useAppStore.ts).
+  - Every child profile now begins with clean genuine dynamic states: `stars: 0`, `gems: 0`, `streakCount: 0`.
+  - All progression, stars, gems, streaks, and collected badges are 100% earned dynamically by the user through learning Surahs, Hadiths, Duas, and Manners.
+- **Child Progress Isolation & Reset Engine:**
+  - Added `resetChildProgress(id?: string)` in [`src/store/useAppStore.ts`](file:///g:/quran%20app%20for%20kids/src/store/useAppStore.ts).
+  - Added Parent Gate "إعادة ضبط إنجازات الطفل / Reset Child Progress" with confirmation modal in [`src/app/parents/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/parents/index.tsx).
+
+---
+
+### Milestone 71: Production Android App Bundle (.aab) Generated via EAS Cloud Build
+- **Target Platform & Package:**
+  - Application ID: `com.rawdakids.app`
+  - Name: `Rawdakids - روضة كيدز`
+  - Build Profile: `production` (Android App Bundle `.aab` for Google Play Store release)
+  - Keystore: Generated and securely maintained on Expo Remote Credentials
+- **Build Outcome:**
+  - Build ID: `0a48abdf-4044-4c69-96c7-79a4b088917e`
+  - Build Status: **FINISHED (Code 0, SUCCESS)**
+  - Direct AAB Download Artifact:
+    `https://expo.dev/artifacts/eas/EIs_7eHHv3iPDoV_r3dG2Yko9UZHMa1cFHGcEoVv21k.aab`
+  - Live Build Page:
+    `https://expo.dev/accounts/abdobody2020/projects/rawdakid/builds/0a48abdf-4044-4c69-96c7-79a4b088917e`
+
+---
+
+### Milestone 72: Standalone Preview Android APK Generated for Real Device Testing
+- **Target:** Standalone Native Android Package (`.apk`)
+- **Build Profile:** `preview` (`buildType: "apk"`)
+- **Build ID:** `f7ed81d4-f846-495c-9810-34664771c975`
+- **Build Status:** **FINISHED (Code 0, SUCCESS)**
+- **Direct APK Download Artifact:**
+  `https://expo.dev/artifacts/eas/uSk5dD1rPQcSDUfZIeQesuffFMAYzN73ubO99gF6G88.apk`
+- **Build & QR Code Page:**
+  `https://expo.dev/accounts/abdobody2020/projects/rawdakid/builds/f7ed81d4-f846-495c-9810-34664771c975`
+
+### Milestone 73: Visual & Audio Quality Overhaul (Prophet 3D Scenes, Hadith Artworks, Mobile Menus, Repeat Play/Pause, Click-to-Play Quran Reading)
+- **1. Prophets Caravan 3D Pixar Artworks Across All Scenes:**
+  - Resolved generic caravan fallback in [`src/app/prophets/[prophetId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/%5BprophetId%5D.tsx).
+  - Generated and integrated 6 high-resolution 3D Pixar scenes:
+    - `scene-paradise-tree.jpg`: Heavenly paradise garden with glowing ancient tree of knowledge, crystal rivers, and celestial light rays (fixes Adam Scene 5 "أنهار الجنة وظلالها المباركة").
+    - `scene-earth-dawn.jpg`: Peaceful earth at golden sunrise with rolling hills, streams, and soaring doves.
+    - `scene-desert-stars.jpg`: Golden sand dunes under starlit night sky with glowing crescent moon and lanterns.
+    - `scene-whale-sea.jpg`: Gentle giant whale silhouette in bioluminescent coral sea (Yunus & storm scenes).
+    - `scene-palace-garden.jpg`: Royal palace garden with marble fountain, hoopoe bird, and songbirds (Sulayman & Dawud).
+    - `scene-medina-mosque.jpg`: Illuminated Prophet's Mosque courtyard with green dome under starlit night (Muhammad ﷺ in Medina).
+  - Built `getProphetSceneArtwork` intelligent matcher guaranteeing every scene across all 25 Prophets receives an authentic, contextual, respectful 3D illustration.
+- **2. Mobile Screen Menu Text Overflow Fix:**
+  - In [`src/components/SunnahHeroHeader.tsx`](file:///g:/quran%20app%20for%20kids/src/components/SunnahHeroHeader.tsx), replaced cramped fixed row with a smooth horizontal `ScrollView` with `showsHorizontalScrollIndicator={false}`.
+  - Shortened verbose labels (`أذكار الصباح والمساء` -> `الأذكار`, `بطاقات الحفظ` -> `البطاقات`, `سنن اليوم` -> `السنن`).
+  - Zero text clipping or ellipsis (`...`) on narrow mobile screens (320px–390px).
+- **3. Illustrated Hadith Stories 3D Artworks:**
+  - Generated 3 new thematic 3D Pixar Hadith scenes:
+    - `story-table-manners.jpg`: Kid-friendly breakfast table with dates, milk, fruit, and Bismillah/Alhamdulillah embroidery.
+    - `story-helping-charity.jpg`: Children helping neighbors with food baskets in a cheerful neighborhood.
+    - `story-sleeping-dhikr.jpg`: Bedtime bedroom with star lantern, soft duvet, and smiling crescent moon.
+  - Upgraded `getSceneImage` in [`src/app/sunnah/[hadithId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/%5BhadithId%5D.tsx) with semantic keyword matching covering food, charity, sleeping, prayer, knowledge, parents, mercy, and smiling. Zero missing or mismatched story images.
+- **4. Listen & Repeat (Hifz) Player Controls:**
+  - Added dedicated Play (▶), Pause (⏸), and Restart (🔄) buttons to [`src/app/quran/repeat.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/repeat.tsx).
+  - Prominent red glow pause button when active, allowing easy pausing and resuming at any repeat cycle.
+- **5. Click-to-Play Quran Reading Mode:**
+  - In [`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx), tapping any Ayah card or any part of the Quranic text now immediately plays the Ayah audio (or toggles pause/play).
+  - Added a dedicated 1-tap `[ ▶ استمع / ⏸ إيقاف ]` button directly in each Ayah's header badge.
+  - Moved word meanings to a dedicated `[ 📖 الكلمات ]` button, eliminating tap interception.
+### Milestone 18: Android Native Sound, Voice Recording & Offline Surahs Resolution
+- **1. Native Voice Recording & Sandboxed Playback (`src/services/voiceRecordService.ts`):**
+  - Replaced native mock interval with real `expo-audio` native recording engine (`AudioModule.AudioRecorder`, `RecordingPresets.HIGH_QUALITY`).
+  - Added microphone runtime permissions validation via `ModernExpoAudio.requestRecordingPermissionsAsync()`.
+  - Configured native audio mode session for recording: `allowsRecording: true`, `interruptionMode: 'doNotMix'`.
+  - On stop, safely switches audio mode back to speaker output (`allowsRecording: false`, `shouldRouteThroughEarpiece: false`) so playback never routes to the call earpiece.
+  - Implemented native recorded audio playback via `ModernExpoAudio.createAudioPlayer(this.currentBlobUrl)` with explicit volume, status updates, and lifecycle cleanup.
+- **2. Android Audio Loudspeaker Output & Audio Focus (`src/services/audioService.ts`, `app.json`):**
+  - Resolved sound not outputting from Android phone speaker:
+    - Fixed audio session initialization: added `ensurePlaybackAudioMode()` with `interruptionMode: 'doNotMix'` (requests exclusive media focus instead of default `mixWithOthers` which silently discarded playback).
+    - Added `shouldRouteThroughEarpiece: false` and `allowsRecording: false` to ensure media always routes through the phone's primary loudspeaker.
+    - Explicitly set `player.volume = 1.0` and `player.muted = false` on every playback request.
+    - Added `"usesCleartextTraffic": true` in `app.json` under Android to prevent Android 9+ network security policies from blocking CDN streams.
+    - Configured `expo-audio` config-plugin in `app.json` with permissions: `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_MEDIA_PLAYBACK`, `FOREGROUND_SERVICE_MICROPHONE`.
+- **3. Complete Offline Juz Amma (78-114) + Surah Al-Mulk (67) & AsyncStorage Caching (`src/data/juzAmmaOffline.json`, `src/services/quranService.ts`, `src/app/quran/[surahId].tsx`):**
+  - Bundled authentic Uthmani text, Tafsir Al-Muyassar, and English translations for all 38 core Surahs (Juz Amma 78-114 and Surah Al-Mulk 67) into `juzAmmaOffline.json`. They now open in 0ms completely offline with zero network latency.
+  - Upgraded `quranService.ts` with persistent `AsyncStorage` caching (`@rawdakids_surah_${cacheKey}`).
+  - Extended API timeout from 3.5s to 12s with fallback to single lightweight edition (`quran-uthmani`) to prevent placeholder verses on mobile cellular connections.
+  - In `[surahId].tsx`, added an Islamic loading indicator with spinner while fetching non-bundled Surahs, preventing dummy text from showing during loads.
+- **Verification:**
+  - `npx.cmd tsc --noEmit`: **0 errors**.
+  - `npx.cmd expo lint`: **0 errors, 0 warnings**.
+  - `node scripts/test-e2e.js`: **69 / 69 passed (100%)**.
+  - `npx.cmd expo export --platform web`: 24 static routes exported successfully to `dist/`.
 
 ---
 

@@ -29,20 +29,103 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 
-const PROPHETS_CARAVAN_DEFAULT_IMG = require('../../../assets/images/prophets-caravan.jpg');
+const PROPHET_ARTWORKS = {
+  caravan: require('../../../assets/images/prophets-caravan.jpg'),
+  adamCreation: require('../../../assets/images/scene-adam-creation.jpg'),
+  adamRepentance: require('../../../assets/images/scene-adam-repentance.jpg'),
+  paradiseTree: require('../../../assets/images/scene-paradise-tree.jpg'),
+  earthDawn: require('../../../assets/images/scene-earth-dawn.jpg'),
+  desertStars: require('../../../assets/images/scene-desert-stars.jpg'),
+  whaleSea: require('../../../assets/images/scene-whale-sea.jpg'),
+  palaceGarden: require('../../../assets/images/scene-palace-garden.jpg'),
+  medinaMosque: require('../../../assets/images/scene-medina-mosque.jpg'),
+  nuhArk: require('../../../assets/images/scene-nuh-ark.jpg'),
+  ibrahimKaaba: require('../../../assets/images/scene-ibrahim-kaaba.jpg'),
+  musaSinai: require('../../../assets/images/scene-musa-sinai.jpg'),
+  muhammadHira: require('../../../assets/images/scene-muhammad-hira.jpg'),
+};
 
-const PROPHET_SCENE_IMAGES: Record<string, any> = {
-  // Adam
-  'adam_0': require('../../../assets/images/scene-adam-creation.jpg'),
-  'adam_1': require('../../../assets/images/scene-adam-repentance.jpg'),
-  // Nuh
-  'nuh_0': require('../../../assets/images/scene-nuh-ark.jpg'),
-  // Ibrahim
-  'ibrahim_0': require('../../../assets/images/scene-ibrahim-kaaba.jpg'),
-  // Musa
-  'musa_0': require('../../../assets/images/scene-musa-sinai.jpg'),
-  // Muhammad
-  'muhammad_0': require('../../../assets/images/scene-muhammad-hira.jpg'),
+const getProphetSceneArtwork = (prophetId: string, sceneIdx: number, scene: any) => {
+  // 1. Prophet Adam
+  if (prophetId === 'adam') {
+    if (sceneIdx === 0 || sceneIdx === 1) return PROPHET_ARTWORKS.adamCreation;
+    if (sceneIdx >= 2 && sceneIdx <= 4) return PROPHET_ARTWORKS.paradiseTree;
+    if (sceneIdx === 5 || sceneIdx === 6) return PROPHET_ARTWORKS.adamRepentance;
+    return PROPHET_ARTWORKS.earthDawn;
+  }
+
+  // 2. Prophet Nuh
+  if (prophetId === 'nuh') {
+    if (sceneIdx >= 4 && sceneIdx <= 6) return PROPHET_ARTWORKS.whaleSea;
+    return PROPHET_ARTWORKS.nuhArk;
+  }
+
+  // 3. Prophet Ibrahim & Ismail
+  if (prophetId === 'ibrahim' || prophetId === 'ismail') {
+    if (sceneIdx === 0 || sceneIdx === 1) return PROPHET_ARTWORKS.desertStars;
+    if (sceneIdx >= 6) return PROPHET_ARTWORKS.ibrahimKaaba;
+    return PROPHET_ARTWORKS.earthDawn;
+  }
+
+  // 4. Prophet Musa & Harun
+  if (prophetId === 'musa' || prophetId === 'harun') {
+    if (sceneIdx >= 3 && sceneIdx <= 6) return PROPHET_ARTWORKS.musaSinai;
+    return PROPHET_ARTWORKS.earthDawn;
+  }
+
+  // 5. Prophet Yunus
+  if (prophetId === 'yunus') {
+    if (sceneIdx >= 2 && sceneIdx <= 6) return PROPHET_ARTWORKS.whaleSea;
+    return PROPHET_ARTWORKS.earthDawn;
+  }
+
+  // 6. Prophet Sulayman & Dawud
+  if (prophetId === 'sulayman' || prophetId === 'dawud') {
+    return PROPHET_ARTWORKS.palaceGarden;
+  }
+
+  // 7. Prophet Muhammad ﷺ
+  if (prophetId === 'muhammad') {
+    if (sceneIdx <= 2) return PROPHET_ARTWORKS.muhammadHira;
+    if (sceneIdx >= 6) return PROPHET_ARTWORKS.medinaMosque;
+    return PROPHET_ARTWORKS.ibrahimKaaba;
+  }
+
+  // 8. Prophet Yusuf
+  if (prophetId === 'yusuf') {
+    if (sceneIdx <= 2) return PROPHET_ARTWORKS.desertStars;
+    if (sceneIdx >= 6) return PROPHET_ARTWORKS.palaceGarden;
+    return PROPHET_ARTWORKS.earthDawn;
+  }
+
+  // 9. Semantic & Keyword Fallbacks based on Scene Content
+  const text = `${scene?.titleAr || ''} ${scene?.narrationAr || ''} ${scene?.symbolDescriptionAr || ''}`;
+  if (text.includes('جنة') || text.includes('شجرة') || text.includes('ثمار') || text.includes('أنهار')) {
+    return PROPHET_ARTWORKS.paradiseTree;
+  }
+  if (text.includes('حوت') || text.includes('بحر') || text.includes('سفينة') || text.includes('طوفان')) {
+    return PROPHET_ARTWORKS.whaleSea;
+  }
+  if (text.includes('كعبة') || text.includes('مكة') || text.includes('حرم')) {
+    return PROPHET_ARTWORKS.ibrahimKaaba;
+  }
+  if (text.includes('مسجد') || text.includes('مدينة') || text.includes('منبر')) {
+    return PROPHET_ARTWORKS.medinaMosque;
+  }
+  if (text.includes('طور') || text.includes('جبل') || text.includes('سيناء')) {
+    return PROPHET_ARTWORKS.musaSinai;
+  }
+  if (text.includes('حراء') || text.includes('غار') || text.includes('وحي')) {
+    return PROPHET_ARTWORKS.muhammadHira;
+  }
+  if (text.includes('هدهد') || text.includes('طير') || text.includes('بستان') || text.includes('قصر') || text.includes('نمل')) {
+    return PROPHET_ARTWORKS.palaceGarden;
+  }
+  if (text.includes('نجم') || text.includes('ليل') || text.includes('صحراء') || text.includes('قمر')) {
+    return PROPHET_ARTWORKS.desertStars;
+  }
+
+  return PROPHET_ARTWORKS.earthDawn;
 };
 
 export default function ProphetStoryPlayerScreen() {
@@ -81,8 +164,7 @@ export default function ProphetStoryPlayerScreen() {
   const localizedQuiz = currentQuizQ ? getLocalizedProphetQuiz(currentQuizQ, language) : null;
   const localizedTakeaway = getLocalizedProphetTakeaway(prophet.takeawayCard, language);
 
-  const sceneImageKey = `${prophet.id}_${activeSceneIdx}`;
-  const sceneImage = PROPHET_SCENE_IMAGES[sceneImageKey] || PROPHETS_CARAVAN_DEFAULT_IMG;
+  const sceneImage = getProphetSceneArtwork(prophet.id, activeSceneIdx, currentScene);
 
   useEffect(() => {
     return () => {

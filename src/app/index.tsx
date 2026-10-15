@@ -67,7 +67,6 @@ export default function HomeScreen() {
 
   const {
     language,
-    setLanguage: _setLanguage,
     hasCompletedOnboarding,
     isHydrated,
     recordDailyActivity,

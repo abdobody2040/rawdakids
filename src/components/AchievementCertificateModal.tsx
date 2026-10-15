@@ -156,7 +156,7 @@ export default function AchievementCertificateModal({
 
                   {/* App Brand Header */}
                   <Text style={styles.brandTitle}>
-                    {isAr ? 'تَطْبِيقُ نُور لِلأَطْفَالِ' : 'NOOR KIDS APP'}
+                    {isAr ? 'تَطْبِيقُ رَوْضَة كِيدْز' : 'RAWDAKIDS APP'}
                   </Text>
                   <Text style={styles.brandSubtitle}>
                     {isAr ? 'رِحْلَةُ الإِيمَانِ وَالْقُرْآنِ وَالأَخْلاقِ' : 'Journey of Faith, Quran & Ethics'}
@@ -167,8 +167,8 @@ export default function AchievementCertificateModal({
                   {/* Presentation Text */}
                   <Text style={styles.presentationText}>
                     {isAr
-                      ? 'تَفْخَرُ إِدَارَةُ "نُور لِلأَطْفَالِ" بِمَنْحِ هَذِهِ الشَّهَادَةِ التَّقْدِيرِيَّةِ لِلْبَطَلِ الْمُجْتَهِدِ:'
-                      : 'Noor Kids proudly awards this Certificate of Honor to the outstanding champion:'}
+                      ? 'تَفْخَرُ إِدَارَةُ "رَوْضَة كِيدْز" بِمَنْحِ هَذِهِ الشَّهَادَةِ التَّقْدِيرِيَّةِ لِلْبَطَلِ الْمُجْتَهِدِ:'
+                      : 'Rawdakids proudly awards this Certificate of Honor to the outstanding champion:'}
                   </Text>
 
                   {/* Child Name (Spotlight) */}
@@ -230,7 +230,7 @@ export default function AchievementCertificateModal({
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Image source={MASCOT_NOOR_IMG} style={styles.footerMascot} resizeMode="cover" />
                         <Text style={styles.footerValue}>
-                          {isAr ? 'نُور لِلأَطْفَالِ ☼' : 'Noor Kids ☼'}
+                          {isAr ? 'رَوْضَة كِيدْز ☼' : 'Rawdakids ☼'}
                         </Text>
                       </View>
                     </View>

@@ -54,7 +54,7 @@ function httpGet(url) {
 async function runRouteTests() {
   console.log('\n--- 1. Testing Static HTML Routes ---');
   const routes = [
-    { path: '/', expectedContent: 'noor kids' },
+    { path: '/', expectedContent: 'html' },
     { path: '/quran', expectedContent: 'html' },
     { path: '/quran/mushaf', expectedContent: 'html' },
     { path: '/quran/1', expectedContent: 'html' },

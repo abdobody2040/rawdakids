@@ -25,30 +25,131 @@ const STORY_IMAGES = {
   parentsHug: require('../../../assets/images/story-parents-hug.jpg'),
   gentleNature: require('../../../assets/images/story-gentle-nature.jpg'),
   sunnahPath: require('../../../assets/images/sunnah-path.jpg'),
+  tableManners: require('../../../assets/images/story-table-manners.jpg'),
+  helpingCharity: require('../../../assets/images/story-helping-charity.jpg'),
+  sleepingDhikr: require('../../../assets/images/story-sleeping-dhikr.jpg'),
+  medinaMosque: require('../../../assets/images/scene-medina-mosque.jpg'),
+  desertStars: require('../../../assets/images/scene-desert-stars.jpg'),
+  paradiseTree: require('../../../assets/images/scene-paradise-tree.jpg'),
 };
 
-const getSceneImage = (hadithId: string, sceneIndex: number, theme: string) => {
-  if (hadithId === 'smile-charity') {
-    return sceneIndex === 0 ? STORY_IMAGES.smileSchool : STORY_IMAGES.smileHappy;
+const getSceneImage = (hadith: any, sceneIndex: number) => {
+  if (!hadith) return STORY_IMAGES.sunnahPath;
+  const theme = hadith.theme || '';
+  const text = `${hadith.arabicText || ''} ${hadith.titleAr || ''} ${hadith.explanationAr || ''} ${hadith.id || ''}`;
+
+  // 1. Food, Drink, Dining Manners
+  if (
+    theme === 'food' ||
+    text.includes('طعام') ||
+    text.includes('شراب') ||
+    text.includes('سم الله') ||
+    text.includes('بيمينك') ||
+    text.includes('تأكل') ||
+    text.includes('تمر') ||
+    text.includes('لبن')
+  ) {
+    return STORY_IMAGES.tableManners;
   }
-  if (hadithId === 'quran-learners' || hadithId === 'seeking-knowledge') {
+
+  // 2. Charity, Neighbor Kindness, Helping Others
+  if (
+    theme === 'charity' ||
+    theme === 'sharing' ||
+    theme === 'helping' ||
+    text.includes('صدقة') ||
+    text.includes('جار') ||
+    text.includes('إطعام') ||
+    text.includes('مسكين') ||
+    text.includes('تعاون') ||
+    text.includes('معروف')
+  ) {
+    return STORY_IMAGES.helpingCharity;
+  }
+
+  // 3. Sleeping, Waking, Bedtime, Night Dhikr
+  if (
+    theme === 'sleep' ||
+    theme === 'dhikr' ||
+    text.includes('نوم') ||
+    text.includes('استيقاظ') ||
+    text.includes('فراش') ||
+    text.includes('أذكار') ||
+    text.includes('مساء')
+  ) {
+    return STORY_IMAGES.sleepingDhikr;
+  }
+
+  // 4. Prayer, Salah, Mosque, Wudu
+  if (
+    theme === 'prayer' ||
+    theme === 'salah' ||
+    theme === 'mosque' ||
+    text.includes('صلاة') ||
+    text.includes('مسجد') ||
+    text.includes('وضوء') ||
+    text.includes('جمعة') ||
+    text.includes('أذان')
+  ) {
+    return STORY_IMAGES.medinaMosque;
+  }
+
+  // 5. Quran, Knowledge, Learning
+  if (
+    theme === 'knowledge' ||
+    theme === 'quran' ||
+    text.includes('علم') ||
+    text.includes('قرآن') ||
+    text.includes('تعلم') ||
+    text.includes('تلاوة')
+  ) {
     return STORY_IMAGES.quranReading;
   }
-  if (hadithId === 'parents-kindness' || hadithId === 'mercy-to-young') {
+
+  // 6. Parents, Family, Kinship
+  if (
+    theme === 'parents' ||
+    theme === 'family' ||
+    text.includes('والد') ||
+    text.includes('أمك') ||
+    text.includes('أبوك') ||
+    text.includes('رحم')
+  ) {
     return STORY_IMAGES.parentsHug;
   }
+
+  // 7. Smiling, Good Word, Cheerful Demeanor
   if (
-    hadithId === 'mercy-living' ||
-    hadithId === 'gentleness-matters' ||
-    hadithId === 'removing-harm'
+    theme === 'smiling' ||
+    text.includes('تبسم') ||
+    text.includes('بشاشة') ||
+    text.includes('وجه أخيك') ||
+    text.includes('كلمة طيبة')
+  ) {
+    return sceneIndex === 0 ? STORY_IMAGES.smileSchool : STORY_IMAGES.smileHappy;
+  }
+
+  // 8. Mercy, Animals, Nature, Removing Harm
+  if (
+    theme === 'mercy' ||
+    theme === 'nature' ||
+    theme === 'kindness' ||
+    text.includes('رفق') ||
+    text.includes('رحمة') ||
+    text.includes('طريق') ||
+    text.includes('أذى') ||
+    text.includes('حيوان') ||
+    text.includes('نخل')
   ) {
     return STORY_IMAGES.gentleNature;
   }
-  if (theme === 'knowledge') return STORY_IMAGES.quranReading;
-  if (theme === 'parents' || theme === 'kindness') return STORY_IMAGES.parentsHug;
-  if (theme === 'mercy' || theme === 'cleanliness') return STORY_IMAGES.gentleNature;
-  if (theme === 'smiling') return STORY_IMAGES.smileHappy;
-  return STORY_IMAGES.sunnahPath;
+
+  // 9. Paradise, Rewards
+  if (text.includes('جنة') || text.includes('فردوس') || text.includes('أجر') || text.includes('ثواب')) {
+    return STORY_IMAGES.paradiseTree;
+  }
+
+  return sceneIndex === 0 ? STORY_IMAGES.helpingCharity : STORY_IMAGES.smileHappy;
 };
 
 export default function HadithDetailScreen() {
@@ -65,7 +166,7 @@ export default function HadithDetailScreen() {
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
 
   const currentScene = localized.miniStory[activeStoryScene];
-  const sceneImg = getSceneImage(hadith.id, activeStoryScene, hadith.theme);
+  const sceneImg = getSceneImage(hadith, activeStoryScene);
   const selectedChoice = localized.scenario.choices.find((c) => c.id === selectedChoiceId);
 
   const handleChoiceSelect = (choiceId: string) => {

@@ -30,7 +30,7 @@ export const LANGUAGE_LOCALIZED_NAMES: Record<Language, Record<Language, string>
 export const TRANSLATIONS = {
   ar: {
     // App info
-    appName: 'نور للأطفال',
+    appName: 'روضة كيدز',
     tagline: 'رحلة الإيمان والمعرفة والمرح',
     mascotName: 'نور',
     mascotGreeting: 'أهلاً بك يا بطل! جاهز لرحلة اليوم؟',
@@ -210,7 +210,7 @@ export const TRANSLATIONS = {
   },
   en: {
     // App info
-    appName: 'Noor Kids',
+    appName: 'Rawdakids',
     tagline: 'Faith, Knowledge, and Joyful Learning',
     mascotName: 'Noor',
     mascotGreeting: 'Welcome, champion! Ready for today’s adventure?',
@@ -390,7 +390,7 @@ export const TRANSLATIONS = {
   },
   fr: {
     // App info
-    appName: 'Noor Kids',
+    appName: 'Rawdakids',
     tagline: 'Foi, Savoir et Apprentissage Joyeux',
     mascotName: 'Noor',
     mascotGreeting: 'Bienvenue, champion ! Prêt pour l’aventure d’aujourd’hui ?',
@@ -570,7 +570,7 @@ export const TRANSLATIONS = {
   },
   de: {
     // App info
-    appName: 'Noor Kids',
+    appName: 'Rawdakids',
     tagline: 'Glaube, Wissen und Freude am Lernen',
     mascotName: 'Noor',
     mascotGreeting: 'Willkommen, Champion! Bereit für das heutige Abenteuer?',
@@ -750,7 +750,7 @@ export const TRANSLATIONS = {
   },
   es: {
     // App info
-    appName: 'Noor Kids',
+    appName: 'Rawdakids',
     tagline: 'Fe, Conocimiento y Aprendizaje Alegre',
     mascotName: 'Noor',
     mascotGreeting: '¡Bienvenido, campeón! ¿Listo para la aventura de hoy?',

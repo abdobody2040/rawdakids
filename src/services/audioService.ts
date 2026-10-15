@@ -30,14 +30,18 @@ class AudioService {
   private duaAudio: any = null;
 
   constructor() {
-    this.initAudioMode();
+    this.ensurePlaybackAudioMode();
   }
 
-  private async initAudioMode() {
+  public async ensurePlaybackAudioMode() {
     try {
       if (Platform.OS !== 'web' && ModernExpoAudio?.setAudioModeAsync) {
         await ModernExpoAudio.setAudioModeAsync({
           playsInSilentMode: true,
+          shouldPlayInBackground: true,
+          interruptionMode: 'doNotMix',
+          allowsRecording: false,
+          shouldRouteThroughEarpiece: false,
         });
       }
     } catch {
@@ -57,6 +61,9 @@ class AudioService {
       // Stop any background Dua or Tafsir TTS synchronously
       this.stopDua();
 
+      // Ensure Android audio session is in loudspeaker playback mode (exclusive focus)
+      await this.ensurePlaybackAudioMode();
+
       // 1. Web Platform Playback
       if (Platform.OS === 'web') {
         if (typeof window !== 'undefined' && (window as any).Audio) {
@@ -64,7 +71,7 @@ class AudioService {
             try {
               this.webAudio.pause();
               this.webAudio.currentTime = 0;
-            } catch (_err) {
+            } catch {
               // Ignore pause error on uninitialized audio
             }
           }
@@ -117,8 +124,12 @@ class AudioService {
             try {
               this.modernSubscription?.remove?.();
               this.modernPlayer.pause?.();
-              this.modernPlayer.release?.();
-            } catch (_err) {
+              if (typeof this.modernPlayer.remove === 'function') {
+                this.modernPlayer.remove();
+              } else if (typeof this.modernPlayer.release === 'function') {
+                this.modernPlayer.release();
+              }
+            } catch {
               // Ignore teardown error on release
             }
             this.modernPlayer = null;
@@ -128,6 +139,13 @@ class AudioService {
           // Must pass string uri directly - passing an object { uri } invokes Asset.fromURI which fails on remote streams
           const player = ModernExpoAudio.createAudioPlayer(uri);
           this.modernPlayer = player;
+          try {
+            player.volume = 1.0;
+            player.muted = false;
+          } catch {
+            // Volume safe set
+          }
+
           if (typeof player.playbackRate === 'number') {
             player.playbackRate = speed;
           }
@@ -136,6 +154,9 @@ class AudioService {
             if (status.didJustFinish) {
               this.isPlaying = false;
               this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+            } else if (status.error) {
+              this.isPlaying = false;
+              this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
             } else if (status.isBuffering || !status.isLoaded) {
               // During initial buffer/load, keep playing state active so UI doesn't prematurely revert to stopped
               this.isPlaying = true;
@@ -397,7 +418,7 @@ class AudioService {
           this.modernSubscription?.remove?.();
           this.modernPlayer.pause?.();
           this.modernPlayer.release?.();
-        } catch (_err) {
+        } catch {
           // Ignore teardown error on release
         }
         this.modernPlayer = null;

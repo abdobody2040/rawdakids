@@ -117,7 +117,7 @@ export default function InstallAndroidModal() {
                 <Image source={ANDROID_ICON} style={styles.modalIcon} resizeMode="contain" />
               </View>
               <Text style={styles.modalTitle}>
-                {isAr ? 'تثبيت تطبيق نور للأطفال على أندرويد' : 'Install Noor Kids on Android'}
+                {isAr ? 'تثبيت تطبيق روضة كيدز على أندرويد' : 'Install Rawdakids on Android'}
               </Text>
             </View>
 

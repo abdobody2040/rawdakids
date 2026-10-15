@@ -49,20 +49,27 @@ export default function ParentGateModal({ visible, onClose, onSuccess }: ParentG
       parentSettings.pinFailedAttempts || 0,
       parentSettings.pinLockoutUntil || null
     );
-    setLockoutSec(status.remainingSeconds);
 
-    if (status.remainingSeconds > 0) {
-      const interval = setInterval(() => {
-        setLockoutSec((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const timer = setTimeout(() => {
+      setLockoutSec(status.remainingSeconds);
+      if (status.remainingSeconds > 0) {
+        interval = setInterval(() => {
+          setLockoutSec((prev) => {
+            if (prev <= 1) {
+              if (interval) clearInterval(interval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      if (interval) clearInterval(interval);
+    };
   }, [parentSettings.pinLockoutUntil, parentSettings.pinFailedAttempts, visible]);
 
   const generateNewQuestion = () => {

@@ -74,6 +74,16 @@ export default function ListenAndRepeatScreen() {
     });
   };
 
+  const handlePauseAudio = async () => {
+    await audioService.pause();
+    setIsPlaying(false);
+  };
+
+  const handleRestartAudio = async () => {
+    await audioService.stop();
+    await playCurrentAyah(1);
+  };
+
   const handleSelfRate = (rating: 'great' | 'good' | 'practice') => {
     if (rating === 'great') {
       setAyahStatus(surah.number, currentAyah.number, 'memorized');
@@ -108,25 +118,73 @@ export default function ListenAndRepeatScreen() {
 
         {/* Listen Card */}
         <View style={styles.card}>
-          <TouchableOpacity
-            style={[styles.audioCircle, isPlaying && styles.audioCirclePlaying]}
-            onPress={() => playCurrentAyah(1)}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={isPlaying ? 'volume-high' : 'volume-medium'}
-              size={36}
-              color={COLORS.textLight}
-            />
-          </TouchableOpacity>
+          {/* Main Interactive Controls: Play, Pause, Replay */}
+          <View style={styles.playerControlsRow}>
+            {/* Replay Button */}
+            <TouchableOpacity
+              style={styles.playerSecBtn}
+              onPress={handleRestartAudio}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="refresh" size={22} color={COLORS.primary} />
+              <Text style={styles.playerSecBtnText}>
+                {language === 'ar' ? 'إعادة' : 'Restart'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Play / Pause Toggle Button */}
+            {isPlaying ? (
+              <TouchableOpacity
+                style={[styles.playerMainBtn, styles.playerPauseBtn]}
+                onPress={handlePauseAudio}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="pause" size={32} color="#FFFFFF" />
+                <Text style={styles.playerMainBtnText}>
+                  {language === 'ar' ? 'إيقاف مؤقت' : 'Pause'}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.playerMainBtn, styles.playerPlayBtn]}
+                onPress={() => playCurrentAyah(currentRepeatCycle)}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="play" size={32} color="#FFFFFF" style={{ marginLeft: 3 }} />
+                <Text style={styles.playerMainBtnText}>
+                  {language === 'ar' ? 'استماع وتكرار' : 'Play & Repeat'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Next Ayah Quick Step */}
+            <TouchableOpacity
+              style={styles.playerSecBtn}
+              onPress={() => {
+                audioService.stop();
+                setIsPlaying(false);
+                if (currentAyahIdx < surah.ayahs.length - 1) {
+                  setCurrentAyahIdx(currentAyahIdx + 1);
+                  setIsTextHidden(false);
+                }
+              }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="play-skip-forward" size={22} color={COLORS.primary} />
+              <Text style={styles.playerSecBtnText}>
+                {language === 'ar' ? 'التالية' : 'Next'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.instructionText}>
             {isPlaying
               ? language === 'ar'
                 ? `استمع بخشوع... (تكرار ${currentRepeatCycle} من ${repeatCount})`
                 : `Listening... (Repeat ${currentRepeatCycle}/${repeatCount})`
               : language === 'ar'
-              ? 'اضغط للاستماع للآية'
-              : 'Tap to listen to the ayah'}
+              ? 'اضغط زر التشغيل للبدء أو التكرار'
+              : 'Tap Play to start repetition'}
           </Text>
 
           {/* Repeat Selection Chips */}
@@ -289,19 +347,51 @@ const styles = StyleSheet.create({
     ...SHADOWS.medium,
     marginBottom: SPACING.lg,
   },
-  audioCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
+  playerControlsRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.sm,
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  playerMainBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    borderRadius: RADIUS.full,
+    ...SHADOWS.medium,
+  },
+  playerPlayBtn: {
+    backgroundColor: COLORS.primary,
     ...SHADOWS.glow(COLORS.primary),
   },
-  audioCirclePlaying: {
-    backgroundColor: COLORS.success,
-    ...SHADOWS.glow(COLORS.success),
+  playerPauseBtn: {
+    backgroundColor: '#DC2626',
+    ...SHADOWS.glow('#DC2626'),
+  },
+  playerMainBtnText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  playerSecBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.cardAlt,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  playerSecBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.primaryDark,
   },
   instructionText: {
     fontSize: 14,

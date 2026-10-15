@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -48,6 +49,10 @@ export default function SurahDetailScreen() {
 
   const t = TRANSLATIONS[language];
   const [surah, setSurah] = useState(() => quranService.getSurahSync(surahNumber));
+  const [isLoadingSurah, setIsLoadingSurah] = useState(() => {
+    const initial = quranService.getSurahSync(surahNumber);
+    return initial.ayahs[0]?.textUthmani?.startsWith('آية رقم') ?? false;
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -56,10 +61,13 @@ export default function SurahDetailScreen() {
       .then((data) => {
         if (isMounted && data) {
           setSurah(data);
+          setIsLoadingSurah(false);
         }
       })
       .catch(() => {
-        // safely falls back to sync initialized data
+        if (isMounted) {
+          setIsLoadingSurah(false);
+        }
       });
     return () => {
       isMounted = false;
@@ -449,6 +457,15 @@ export default function SurahDetailScreen() {
           </View>
         )}
 
+        {isLoadingSurah && (
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 32, gap: 10 }}>
+            <ActivityIndicator size="large" color="#059669" />
+            <Text style={{ fontSize: 16, fontFamily: 'Amiri', color: '#064E3B' }}>
+              {language === 'ar' ? 'جاري تحميل آيات السورة الكريمة...' : 'Loading holy surah verses...'}
+            </Text>
+          </View>
+        )}
+
         {surah.ayahs.map((ayah) => {
           const isActive = ayah.number === activeAyahNum;
           const status =
@@ -458,13 +475,46 @@ export default function SurahDetailScreen() {
             <TouchableOpacity
               key={ayah.number}
               style={[styles.ayahCard, isActive && styles.ayahCardActive]}
-              onPress={() => playAyahAudio(ayah.number, 1)}
+              onPress={() => {
+                if (isActive && isPlaying) {
+                  handlePlayPause();
+                } else {
+                  playAyahAudio(ayah.number, 1);
+                }
+              }}
               activeOpacity={0.9}
             >
               {/* Ayah Header Row */}
               <View style={[styles.ayahHeaderRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
-                <View style={styles.ayahNumberBadge}>
-                  <Text style={styles.ayahNumberText}>{ayah.number}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={styles.ayahNumberBadge}>
+                    <Text style={styles.ayahNumberText}>{ayah.number}</Text>
+                  </View>
+
+                  {/* Dedicated 1-Tap Play / Pause Button */}
+                  <TouchableOpacity
+                    style={[styles.ayahPlayBtn, isActive && isPlaying && styles.ayahPlayBtnActive]}
+                    onPress={(e) => {
+                      e.stopPropagation?.();
+                      if (isActive && isPlaying) {
+                        handlePlayPause();
+                      } else {
+                        playAyahAudio(ayah.number, 1);
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons
+                      name={isActive && isPlaying ? 'pause' : 'play'}
+                      size={13}
+                      color={isActive && isPlaying ? '#FFFFFF' : '#047857'}
+                    />
+                    <Text style={[styles.ayahPlayBtnText, isActive && isPlaying && styles.ayahPlayBtnTextActive]}>
+                      {isActive && isPlaying
+                        ? (language === 'ar' ? 'إيقاف' : 'Pause')
+                        : (language === 'ar' ? 'استمع' : 'Play')}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={{ flexDirection: language === 'ar' ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -480,13 +530,29 @@ export default function SurahDetailScreen() {
                     </View>
                   )}
 
+                  {/* Word Meaning Vocabulary Button */}
+                  <TouchableOpacity
+                    style={[styles.ayahWordsBtn, language === 'ar' && { flexDirection: 'row-reverse' }]}
+                    onPress={(e) => {
+                      e.stopPropagation?.();
+                      const words = ayah.textUthmani.trim().split(/\s+/);
+                      handleWordTap(words[0] || '', ayah);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="book-outline" size={13} color="#0D9488" />
+                    <Text style={styles.ayahWordsBtnText}>
+                      {language === 'ar' ? 'الكلمات' : 'Words'}
+                    </Text>
+                  </TouchableOpacity>
+
                   {/* Quick Tafsir Modal Button */}
                   <TouchableOpacity
                     style={[styles.ayahTafsirBtn, language === 'ar' && { flexDirection: 'row-reverse' }]}
                     onPress={() => setSelectedTafsirAyah(ayah)}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="bulb-outline" size={14} color="#b45309" />
+                    <Ionicons name="bulb-outline" size={13} color="#b45309" />
                     <Text style={styles.ayahTafsirBtnText}>
                       {language === 'ar' ? 'تفسير الآية' : 'Tafsir'}
                     </Text>
@@ -510,7 +576,7 @@ export default function SurahDetailScreen() {
                           ? 'time'
                           : 'bookmark-outline'
                       }
-                      size={14}
+                      size={13}
                       color={
                         status === 'memorized'
                           ? COLORS.success
@@ -543,26 +609,30 @@ export default function SurahDetailScreen() {
                     }}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="mic" size={13} color="#059669" />
+                    <Ionicons name="mic" size={12} color="#059669" />
                     <Text style={styles.voiceRecordBtnText}>
-                      {language === 'ar' ? 'سجّل صوتك' : 'Record'}
+                      {language === 'ar' ? 'سجّل' : 'Record'}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              {/* Uthmani Quran Text (with tap-to-learn word-by-word) */}
-              <Text style={styles.uthmaniText}>
-                {ayah.textUthmani.trim().split(/\s+/).map((word, wIdx) => (
-                  <Text
-                    key={wIdx}
-                    style={styles.uthmaniWord}
-                    onPress={() => handleWordTap(word, ayah)}
-                  >
-                    {word}{' '}
-                  </Text>
-                ))}
-              </Text>
+              {/* Uthmani Quran Text (Tapping plays/pauses the Ayah) */}
+              <TouchableOpacity
+                onPress={() => {
+                  if (isActive && isPlaying) {
+                    handlePlayPause();
+                  } else {
+                    playAyahAudio(ayah.number, 1);
+                  }
+                }}
+                activeOpacity={0.8}
+                style={{ width: '100%' }}
+              >
+                <Text style={styles.uthmaniText}>
+                  {ayah.textUthmani}
+                </Text>
+              </TouchableOpacity>
 
               {/* Simple Tafsir Line */}
               {/* Ayah Meaning / Tafsir Box */}
@@ -1086,6 +1156,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: COLORS.quranGarden.dark,
+  },
+  ayahPlayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  ayahPlayBtnActive: {
+    backgroundColor: '#059669',
+    borderColor: '#047857',
+  },
+  ayahPlayBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  ayahPlayBtnTextActive: {
+    color: '#FFFFFF',
+  },
+  ayahWordsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F0FDFA',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+  },
+  ayahWordsBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#0F766E',
   },
   hifzStatusBtn: {
     flexDirection: 'row',

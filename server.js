@@ -861,7 +861,7 @@ const server = http.createServer(async (req, res) => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').then(function(reg) {
-      console.log('Noor Kids PWA active:', reg.scope);
+      console.log('Rawdakids PWA active:', reg.scope);
     }).catch(function(e) {
       console.warn('SW registration:', e);
     });
@@ -919,5 +919,5 @@ if ('serviceWorker' in navigator) {
 });
 
 server.listen(PORT, () => {
-  console.log(`Noor Kids is running securely at http://localhost:${PORT}`);
+  console.log(`Rawdakids is running securely at http://localhost:${PORT}`);
 });

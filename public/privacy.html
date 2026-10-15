@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سياسة الخصوصية | Privacy Policy - Rawdakids</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #064E3B;
+      --primary-light: #059669;
+      --accent: #F59E0B;
+      --accent-soft: #FEF3C7;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border: #E2E8F0;
+      --badge-safe: #10B981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.8;
+      padding: 24px 16px;
+    }
+
+    body[dir="ltr"] {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Top Bar & Language Switcher */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #064E3B, #059669);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
+    }
+
+    .app-title h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .app-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .lang-switcher {
+      display: flex;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 30px;
+      gap: 4px;
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(6, 78, 59, 0.2);
+    }
+
+    /* Hero Card */
+    .hero-card {
+      background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+      color: #FFFFFF;
+      padding: 32px 28px;
+      border-radius: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: '🕌';
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      font-size: 120px;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    body[dir="ltr"] .hero-card::after {
+      left: auto;
+      right: -20px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      opacity: 0.92;
+      max-width: 680px;
+    }
+
+    .compliance-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .compliance-pill {
+      background: #FFFFFF;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Content Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #F1F5F9;
+    }
+
+    .card-title .icon {
+      font-size: 22px;
+      width: 38px;
+      height: 38px;
+      background: var(--accent-soft);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    ul, ol {
+      padding-right: 22px;
+      margin-bottom: 12px;
+    }
+
+    body[dir="ltr"] ul, body[dir="ltr"] ol {
+      padding-right: 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+
+    li strong {
+      color: var(--text-main);
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Highlight Box */
+    .highlight-box {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+
+    .highlight-box h4 {
+      color: #065F46;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .highlight-box p {
+      color: #047857;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Meta Table */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .meta-item {
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .meta-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .lang-switcher {
+        align-self: flex-start;
+      }
+      .hero-title {
+        font-size: 22px;
+      }
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Bar -->
+    <header class="header-bar">
+      <div class="app-brand">
+        <div class="app-icon">📖</div>
+        <div class="app-title">
+          <h1 id="brand-title">روضة كيدز (Rawdakids)</h1>
+          <p id="brand-subtitle">بيئة قرآنية وتربوية آمنة للأطفال</p>
+        </div>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="btn-ar" onclick="switchLang('ar')">العربية</button>
+        <button class="lang-btn" id="btn-en" onclick="switchLang('en')">English</button>
+      </div>
+    </header>
+
+    <!-- ARABIC CONTENT -->
+    <div id="content-ar">
+      <!-- Hero -->
+      <section class="hero-card">
+        <span class="hero-badge">🛡️ وثيقة رسمية معتمدة</span>
+        <h2 class="hero-title">سياسة الخصوصية وأمان الأطفال</h2>
+        <p class="hero-desc">
+          نحن في "روضة كيدز" نلتزم بأعلى معايير الأمان وحماية خصوصية الأسرة والطفل. لا نجمع أي بيانات شخصية، ولا نقدم إعلانات تجارية إطلاقاً.
+        </p>
+        <div class="compliance-badges">
+          <div class="compliance-pill">✓ Google Play Families Policy</div>
+          <div class="compliance-pill">✓ COPPA Compliant</div>
+          <div class="compliance-pill">✓ GDPR-K Compliant</div>
+          <div class="compliance-pill">✓ 100% بدون إعلانات</div>
+        </div>
+      </section>
+
+      <!-- App Info Meta -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">ℹ️</span>
+          <span>معلومات التطبيق والناشر</span>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">اسم التطبيق</div>
+            <div class="meta-value">روضة كيدز (Rawdakids)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">حزمة التطبيق (Package ID)</div>
+            <div class="meta-value">com.rawdakids.app</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">المطور / المالك</div>
+            <div class="meta-value">Rawdakids Team (abdobody2040)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">تاريخ السريان</div>
+            <div class="meta-value">أكتوبر 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zero Data Collection -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🚫</span>
+          <span>1. عدم جمع أي بيانات شخصية (Zero Personal Data)</span>
+        </div>
+        <p>تطبيق روضة كيدز صُمم وفق مبدأ <strong>"الخصوصية في جوهر التصميم" (Privacy by Design)</strong>:</p>
+        <ul>
+          <li><strong>بدون تسجيل حساب:</strong> لا يطلب التطبيق أي تسجيل دخول، أو إنشاء حساب، أو إدخال بريد إلكتروني.</li>
+          <li><strong>لا جمع للمعلومات الشخصية (PII):</strong> لا نجمع الأسماء، العناوين، أرقام الهواتف، صور الطفل، أو موقعه الجغرافي.</li>
+          <li><strong>لا تتبع إعلاني:</strong> لا نقرأ ولا نستخدم أي معرّفات إعلانية (Advertising ID) أو معرّفات أجهزة دائمة.</li>
+        </ul>
+        <div class="highlight-box">
+          <h4>✓ ضمانة كاملة للأولياء</h4>
+          <p>أطفالكم في أمان تام بنسبة 100% أثناء استخدام التطبيق، ولن تُطلب منهم أي معلومة تخص هويتهم.</p>
+        </div>
+      </div>
+
+      <!-- Microphone & Permissions -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🎙️</span>
+          <span>2. الأذونات واستخدام الميكروفون الحصري</span>
+        </div>
+        <p>يطلب التطبيق الحد الأدنى فقط من الصلاحيات لتقديم تجربة تعليمية متميزة:</p>
+        <ul>
+          <li>
+            <strong>إذن الميكروفون (RECORD_AUDIO):</strong>
+            يُستخدم <em>حصرياً ومحلياً على جهاز الطفل</em> لتسجيل صوته أثناء مراجعة حفظ القرآن الكريم وترديد الآيات خلف القارئ.
+            <br>
+            <strong>هام جداً:</strong> المعالجة الصوتية تتم <strong>بالكامل داخل الجهاز دون إرسال أي تسجيلات صوتية عبر الإنترنت أو تخزينها على خوادم خارجية</strong>.
+          </li>
+          <li>
+            <strong>إذن الاتصال بالإنترنت (INTERNET):</strong>
+            يُستخدم فقط لتحميل وبث التلاوات القرآنية الصوتية من مصادر موثوقة ومفتوحة (مثل خوادم EveryAyah ومكتبات التلاوة المعتمدة).
+          </li>
+          <li>
+            <strong>إذن تشغيل الصوت بالخلفية (FOREGROUND_SERVICE):</strong>
+            لتمكين مشغل القرآن الكريم وأذكار النوم من الاستمرار بهدوء في الخلفية عند قفل الشاشة.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Ads & Safety -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">✨</span>
+          <span>3. بيئة نقية خالية تماماً من الإعلانات (Zero Ads)</span>
+        </div>
+        <p>
+          انطلاقاً من قدسية تعليم القرآن الكريم وحماية براءة الأطفال، فإن تطبيق روضة كيدز <strong>خالٍ تماماً من أي إعلانات تجارية</strong> (لا وجود لـ AdMob أو Unity Ads أو غيرها). لا توجد نوافذ منبثقة، ولا مقاطع فيديو تسويقية، ولا محتوى يشتت انتباه طفلك.
+        </p>
+      </div>
+
+      <!-- Local Storage & Parental Gate -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🔒</span>
+          <span>4. التخزين المحلي وبوابة الوالدين (Parental Gate)</span>
+        </div>
+        <ul>
+          <li>
+            <strong>التخزين المحلي الآمن:</strong> كافة نقاط التقدم، وعدد السور المحفوظة، ونجوم المكافآت تُحفظ <em>محلياً فقط على الهاتف</em>. ويمكن حذفها بمسح بيانات التطبيق أو إلغاء تثبيته.
+          </li>
+          <li>
+            <strong>بوابة الوالدين (Parental Gate):</strong> الإعدادات وروابط التواصل (إن وجدت) محمية بمسألة حسابية مخصصة للبالغين لضمان عدم خروج الطفل من محيط التطبيق الآمن.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">✉️</span>
+          <span>5. التواصل مع فريق التطوير</span>
+        </div>
+        <p>نرحب بأي استفسار أو اقتراح من أولياء الأمور حول سياسة الخصوصية وأمان أطفالكم:</p>
+        <p>
+          البريد الإلكتروني المباشر: <strong>abdobody2020@gmail.com</strong><br>
+          مستودع المشروع: <a href="https://github.com/abdobody2040/quran-app-for-kids" target="_blank">github.com/abdobody2040/quran-app-for-kids</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- ENGLISH CONTENT -->
+    <div id="content-en" class="hidden">
+      <!-- Hero -->
+      <section class="hero-card">
+        <span class="hero-badge">🛡️ Official Policy</span>
+        <h2 class="hero-title">Privacy Policy & Child Safety</h2>
+        <p class="hero-desc">
+          At Rawdakids, we are deeply committed to protecting children and family privacy. We collect zero personal data and serve zero commercial ads.
+        </p>
+        <div class="compliance-badges">
+          <div class="compliance-pill">✓ Google Play Families Policy</div>
+          <div class="compliance-pill">✓ COPPA Compliant</div>
+          <div class="compliance-pill">✓ GDPR-K Compliant</div>
+          <div class="compliance-pill">✓ 100% Ad-Free</div>
+        </div>
+      </section>
+
+      <!-- App Info Meta -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">ℹ️</span>
+          <span>Application & Publisher Details</span>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Application Name</div>
+            <div class="meta-value">Rawdakids (روضة كيدز)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Package Name</div>
+            <div class="meta-value">com.rawdakids.app</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Developer / Team</div>
+            <div class="meta-value">Rawdakids Team (abdobody2040)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Effective Date</div>
+            <div class="meta-value">October 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zero Data Collection -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🚫</span>
+          <span>1. Zero Personal Data Collected</span>
+        </div>
+        <p>Rawdakids is built under the <strong>"Privacy by Design"</strong> framework for children:</p>
+        <ul>
+          <li><strong>No Registration or Account Required:</strong> Children and parents can use all features without logging in or providing an email address.</li>
+          <li><strong>No Personally Identifiable Information (PII):</strong> We do not ask for or collect names, physical addresses, phone numbers, child photos, or precise location data.</li>
+          <li><strong>No Ad Identifiers or Trackers:</strong> We do not track or store mobile Advertising IDs (AAID/IDFA) or unique hardware IDs.</li>
+        </ul>
+        <div class="highlight-box">
+          <h4>✓ Parent Guarantee</h4>
+          <p>Children are 100% safe. No personal data ever leaves the local device.</p>
+        </div>
+      </div>
+
+      <!-- Microphone & Permissions -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🎙️</span>
+          <span>2. Device Permissions & Microphone Usage</span>
+        </div>
+        <p>The app requests strictly necessary permissions required for its interactive educational features:</p>
+        <ul>
+          <li>
+            <strong>Microphone Permission (RECORD_AUDIO):</strong>
+            Used <em>strictly on-device</em> to allow children to practice recitation by repeating Quranic verses and listening back to their own voice.
+            <br>
+            <strong>Strict Guarantee:</strong> Audio processing is performed <strong>100% locally on the device. No audio recordings are ever transmitted across the internet, uploaded to remote cloud servers, or shared with third parties.</strong>
+          </li>
+          <li>
+            <strong>Internet Access (INTERNET, ACCESS_NETWORK_STATE):</strong>
+            Used exclusively to stream high-quality Quran recitation tracks from verified open-source Islamic content delivery networks (e.g. EveryAyah / Quran.com API).
+          </li>
+          <li>
+            <strong>Foreground Media Playback (FOREGROUND_SERVICE):</strong>
+            Allows continuous Quran recitation and sleep Azkar playback while the screen is locked.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Ads & Safety -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">✨</span>
+          <span>3. Completely Ad-Free (Zero Third-Party Ads)</span>
+        </div>
+        <p>
+          To maintain a pure spiritual and safe educational environment, Rawdakids is <strong>completely free of commercial advertising</strong> (no Google AdMob, Unity Ads, etc.). No popups, no promotional interruptions, and no third-party ad SDKs exist in the application.
+        </p>
+      </div>
+
+      <!-- Local Storage & Parental Gate -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🔒</span>
+          <span>4. Local Storage & Parental Gate</span>
+        </div>
+        <ul>
+          <li>
+            <strong>Offline Local Storage:</strong> Progress metrics (memorized verses, streak days, and star rewards) are saved <em>locally on the device only</em> via AsyncStorage. You can delete all progress anytime by clearing app data in Android settings.
+          </li>
+          <li>
+            <strong>Parental Gate:</strong> Adult-oriented screens and external links are locked behind an adult math verification challenge to keep young children safely within the learning experience.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">✉️</span>
+          <span>5. Contact & Support</span>
+        </div>
+        <p>If you have any questions or concerns regarding our privacy practices, please contact us:</p>
+        <p>
+          Direct Email: <strong>abdobody2020@gmail.com</strong><br>
+          Official Repository: <a href="https://github.com/abdobody2040/quran-app-for-kids" target="_blank">github.com/abdobody2040/quran-app-for-kids</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 روضة كيدز - Rawdakids. جميع الحقوق محفوظة | All rights reserved.</p>
+      <p style="margin-top: 6px; font-size: 12px;">
+        Designed with care for Muslim children & families worldwide.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    function switchLang(lang) {
+      const isAr = lang === 'ar';
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+      document.body.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+
+      document.getElementById('content-ar').classList.toggle('hidden', !isAr);
+      document.getElementById('content-en').classList.toggle('hidden', isAr);
+
+      document.getElementById('btn-ar').classList.toggle('active', isAr);
+      document.getElementById('btn-en').classList.toggle('active', !isAr);
+
+      document.getElementById('brand-title').innerText = isAr ? 'روضة كيدز (Rawdakids)' : 'Rawdakids (روضة كيدز)';
+      document.getElementById('brand-subtitle').innerText = isAr ? 'بيئة قرآنية وتربوية آمنة للأطفال' : 'Safe Islamic learning environment for children';
+    }
+  </script>
+</body>
+</html>

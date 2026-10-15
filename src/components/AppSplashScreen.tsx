@@ -94,7 +94,7 @@ export default function AppSplashScreen({
           </View>
 
           <Text style={styles.appTitle}>
-            {isAr ? 'نور للأطفال • عالم الإيمان والبهجة' : 'Noor Kids • Islamic Joy & Learning'}
+            {isAr ? 'روضة كيدز • عالم الإيمان والبهجة' : 'Rawdakids • Islamic Joy & Learning'}
           </Text>
         </View>
       </ImageBackground>

@@ -1,4 +1,5 @@
-// Quran Service (Data Access Layer supporting all 114 Surahs)
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import juzAmmaData from '@/data/juzAmmaOffline.json';
 import {
   ALL_114_SURAHS_CATALOG,
   BUNDLED_SURAHS,
@@ -9,6 +10,8 @@ import {
   Reciter,
   Ayah,
 } from '@/data/quranData';
+
+const OFFLINE_SURAHS_MAP: Record<string, Ayah[]> = juzAmmaData as Record<string, Ayah[]>;
 
 export const quranService = {
   // Returns all 114 Surahs
@@ -29,14 +32,38 @@ export const quranService = {
   },
 
   getSurahSync: (surahNumber: number): Surah => {
+    // 1. Check rich bundled surahs
     const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
     if (bundled) {
       return bundled;
     }
+
     const meta =
       ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
       ALL_114_SURAHS_CATALOG[0];
 
+    // 2. Check complete Juz Amma + Al-Mulk offline dataset
+    const offlineAyahs = OFFLINE_SURAHS_MAP[String(surahNumber)];
+    if (offlineAyahs && offlineAyahs.length > 0) {
+      return {
+        ...meta,
+        storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+        storyIntroEn: `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+        coreLessonsAr: [
+          `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+          'العمل بما جاء في القرآن الكريم',
+          'طلب الأجر والبركة من تلاوة كتاب الله',
+        ],
+        coreLessonsEn: [
+          `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+          'Living by the guidance of the Holy Quran',
+          'Seeking blessings through recitation',
+        ],
+        ayahs: offlineAyahs,
+      };
+    }
+
+    // 3. Fallback for unbundled surahs before async fetch finishes
     const placeholderAyahs: Ayah[] = Array.from(
       { length: meta.ayahCount },
       (_, i) => ({
@@ -95,20 +122,61 @@ export const quranService = {
       return cached;
     }
 
+    // 1. Check bundled Surahs
     const bundled = BUNDLED_SURAHS.find((s) => s.number === surahNumber);
-    // If bundled is available and Arabic or default English is used, return bundled instantly
     if (bundled && (language === 'ar' || (language === 'en' && translationSource === 'sahih'))) {
       quranService._cache.set(cacheKey, bundled);
       return bundled;
     }
 
+    // 2. Check offline Juz Amma + Al-Mulk dataset
     const meta =
       ALL_114_SURAHS_CATALOG.find((s) => s.number === surahNumber) ||
       ALL_114_SURAHS_CATALOG[0];
 
-    const tryFetchJson = async (url: string) => {
+    const offlineAyahs = OFFLINE_SURAHS_MAP[String(surahNumber)];
+    if (offlineAyahs && offlineAyahs.length > 0 && language === 'ar') {
+      const fullOfflineSurah: Surah = {
+        ...meta,
+        storyIntroAr:
+          bundled?.storyIntroAr ||
+          `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+        storyIntroEn:
+          bundled?.storyIntroEn ||
+          `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+        coreLessonsAr: bundled?.coreLessonsAr || [
+          `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+          'العمل بما جاء في القرآن الكريم',
+          'طلب الأجر والبركة من تلاوة كتاب الله',
+        ],
+        coreLessonsEn: bundled?.coreLessonsEn || [
+          `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+          'Living by the guidance of the Holy Quran',
+          'Seeking blessings through recitation',
+        ],
+        ayahs: offlineAyahs,
+      };
+      quranService._cache.set(cacheKey, fullOfflineSurah);
+      return fullOfflineSurah;
+    }
+
+    // 3. Check persistent AsyncStorage cache
+    try {
+      const storedJson = await AsyncStorage.getItem(`@rawdakids_surah_${cacheKey}`);
+      if (storedJson) {
+        const parsed = JSON.parse(storedJson);
+        if (parsed && Array.isArray(parsed.ayahs) && parsed.ayahs.length > 0) {
+          quranService._cache.set(cacheKey, parsed);
+          return parsed;
+        }
+      }
+    } catch {
+      // Storage read error ignored
+    }
+
+    const tryFetchJson = async (url: string, timeoutMs: number = 12000) => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const response = await fetch(url, { signal: controller.signal });
         clearTimeout(timeoutId);
@@ -120,10 +188,11 @@ export const quranService = {
       }
     };
 
-    // 1. Dynamic fetch with Tafsir Al-Muyassar for non-bundled surahs
+    // 4. Dynamic fetch with Tafsir Al-Muyassar for non-bundled surahs
     try {
       const json = await tryFetchJson(
-        `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ar.muyassar,${editionTag}`
+        `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ar.muyassar,${editionTag}`,
+        12000
       );
 
       if (json && json.data) {
@@ -165,16 +234,67 @@ export const quranService = {
           ],
           ayahs,
         };
+
         quranService._cache.set(cacheKey, fullSurah);
+        try {
+          await AsyncStorage.setItem(`@rawdakids_surah_${cacheKey}`, JSON.stringify(fullSurah));
+        } catch {
+          // Storage write safe
+        }
         return fullSurah;
       }
     } catch {
-      // Fallback
+      // 5. Fallback: Try single lightweight edition fetch (quran-uthmani)
+      try {
+        const singleJson = await tryFetchJson(
+          `https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`,
+          8000
+        );
+        if (singleJson && singleJson.data?.ayahs) {
+          const ayahs: Ayah[] = singleJson.data.ayahs.map((a: any) => ({
+            number: a.numberInSurah,
+            globalNumber: a.number,
+            textUthmani: a.text,
+            simpleTafsir: `آية كريمة من سورة ${meta.nameArabic}`,
+            translationEn: '',
+          }));
+          const fastSurah: Surah = {
+            ...meta,
+            storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز.`,
+            storyIntroEn: `Surah ${meta.nameTransliteration} of the Holy Quran.`,
+            coreLessonsAr: ['تلاوة كتاب الله', 'تدبر المعاني', 'العمل بالقرآن'],
+            coreLessonsEn: ['Recitation', 'Reflection', 'Living the values'],
+            ayahs,
+          };
+          quranService._cache.set(cacheKey, fastSurah);
+          try {
+            await AsyncStorage.setItem(`@rawdakids_surah_${cacheKey}`, JSON.stringify(fastSurah));
+          } catch {
+            // Storage write safe
+          }
+          return fastSurah;
+        }
+      } catch {
+        // Network completely offline
+      }
     }
 
     if (bundled) {
       quranService._cache.set(cacheKey, bundled);
       return bundled;
+    }
+
+    if (offlineAyahs && offlineAyahs.length > 0) {
+      const fallbackSurah: Surah = {
+        ...meta,
+        storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز.`,
+        storyIntroEn: `Surah ${meta.nameTransliteration} of the Holy Quran.`,
+        coreLessonsAr: ['تلاوة كتاب الله', 'تدبر المعاني', 'العمل بالقرآن'],
+        coreLessonsEn: ['Recitation', 'Reflection', 'Living the values'],
+        ayahs: offlineAyahs,
+      };
+      quranService._cache.set(cacheKey, fallbackSurah);
+      return fallbackSurah;
     }
 
     // Fallback template

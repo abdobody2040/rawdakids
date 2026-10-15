@@ -1,0 +1,115 @@
+{
+  "appIcon": {
+    "source": "assets/images/icon.png",
+    "output": "01_app_icon_512x512.png",
+    "width": 512,
+    "height": 512
+  },
+  "featureGraphic": {
+    "bg": "assets/images/hero-oasis.jpg",
+    "mascot": "assets/images/mascot-noor.jpg",
+    "outputPng": "02_feature_graphic_1024x500.png",
+    "outputJpg": "02_feature_graphic_1024x500.jpg",
+    "width": 1024,
+    "height": 500,
+    "badge": "تطبيق إسلامي معتمد وآمن للأطفال 100%",
+    "title": "روضة كيدز",
+    "subtitle": "Rawdakids - رحلة الإيمان والمعرفة",
+    "bullets": [
+      "المصحف الشريف كاملا وتلاوة كبار القراء",
+      "أركان الإسلام وتعليم الوضوء والصلاة 3D",
+      "قصص 25 نبيا بأسلوب ممتع ومسابقات تفاعلية",
+      "بدون إعلانات نهائيا - بيئة تربوية آمنة"
+    ]
+  },
+  "cardFeatures": [
+    "* تجربة تعليمية مبهجة",
+    "* تلاوات وأصوات نقية",
+    "* بدون إعلانات نهائيا",
+    "* حوافز نجوم وأوسمة",
+    "* بوابة أمان لأولياء الأمور"
+  ],
+  "phoneScreens": [
+    {
+      "file": "01_home_oasis_mockup.png",
+      "badge": "الرئيسية - واحة روضة كيدز",
+      "title": "رحلة إيمانية ممتعة للصغار",
+      "subtitle": "مهام يومية وجوائز نجوم تحفز الطفل على التعلم",
+      "heroImg": "assets/images/hero-oasis.jpg",
+      "subImg": "assets/images/mascot-noor.jpg",
+      "themeColor": [6, 78, 59],
+      "accentColor": [245, 158, 11]
+    },
+    {
+      "file": "02_quran_garden_mockup.png",
+      "badge": "المصحف الشريف - 114 سورة كاملة",
+      "title": "تلاوة القراء وتفسير الأطفال",
+      "subtitle": "27 قارئا مع التكرار والترديد وتفسير الآيات",
+      "heroImg": "assets/images/quran-garden.jpg",
+      "subImg": "assets/images/sticker-quran.jpg",
+      "themeColor": [4, 120, 87],
+      "accentColor": [52, 211, 153]
+    },
+    {
+      "file": "03_prophets_caravan_mockup.png",
+      "badge": "قافلة الأنبياء - 25 نبيا",
+      "title": "قصص مصورة ومسابقات ذكية",
+      "subtitle": "من آدم عليه السلام إلى نبينا محمد صلى الله عليه وسلم",
+      "heroImg": "assets/images/prophets-caravan.jpg",
+      "subImg": "assets/images/scene-ibrahim-kaaba.jpg",
+      "themeColor": [120, 53, 15],
+      "accentColor": [251, 191, 36]
+    },
+    {
+      "file": "04_arkan_prayer_mockup.png",
+      "badge": "أركان الإسلام والإيمان",
+      "title": "تعليم الوضوء والصلاة خطوة بخطوة",
+      "subtitle": "محاكي ثلاثي الأبعاد تفاعلي مع الصوت والتوجيه",
+      "heroImg": "assets/images/salah-standing-3d.jpg",
+      "subImg": "assets/images/wudu-hands-3d.jpg",
+      "themeColor": [30, 58, 138],
+      "accentColor": [96, 165, 250]
+    },
+    {
+      "file": "05_sunnah_duas_mockup.png",
+      "badge": "حديقة السنن والأذكار",
+      "title": "مسبحة تفاعلية وبطاقات أحاديث",
+      "subtitle": "أذكار الصباح والمساء وأحاديث نبوية شريفة",
+      "heroImg": "assets/images/sunnah-path.jpg",
+      "subImg": "assets/images/sticker-lantern.jpg",
+      "themeColor": [13, 148, 136],
+      "accentColor": [45, 212, 191]
+    },
+    {
+      "file": "06_manners_town_mockup.png",
+      "badge": "مدينة الأخلاق وبرطمان الامتنان",
+      "title": "غرس القيم والآداب الإسلامية",
+      "subtitle": "10 معالم خلقية وسجل يومي لشكر نعم الله",
+      "heroImg": "assets/images/manners-town.jpg",
+      "subImg": "assets/images/gratitude-jar.jpg",
+      "themeColor": [124, 45, 18],
+      "accentColor": [251, 146, 60]
+    }
+  ],
+  "tabletScreens": [
+    {
+      "file": "01_tablet_7inch_mockup.png",
+      "title": "روضة كيدز - تجربة الأجهزة اللوحية (7 بوصة)",
+      "subtitle": "شاشة واسعة بدقة فائقة تدعم أجهزة التابلت لتجربة ممتعة وسلسة",
+      "width": 1920,
+      "height": 1200,
+      "imgLeft": "assets/images/hero-oasis.jpg",
+      "imgRight": "assets/images/mascot-noor.jpg"
+    },
+    {
+      "file": "02_tablet_10inch_mockup.png",
+      "title": "عالم روضة كيدز على الشاشات الكبيرة (10 بوصة)",
+      "subtitle": "تصفح مريح للمصحف الشريف وقصص الأنبياء وسنن النبي صلى الله عليه وسلم",
+      "width": 2048,
+      "height": 1536,
+      "imgMain": "assets/images/quran-garden.jpg",
+      "imgSub1": "assets/images/prophets-caravan.jpg",
+      "imgSub2": "assets/images/manners-town.jpg"
+    }
+  ]
+}

@@ -47,16 +47,18 @@ export default function ParentsCornerScreen() {
     restoreValidatedData,
     weeklyChallenges,
     confirmWeeklyChallenge,
+    resetChildProgress,
   } = useAppStore();
 
   const t = TRANSLATIONS[language];
   const [testNotificationSent, setTestNotificationSent] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleTestNotification = async () => {
     const granted = await notificationService.requestPermission();
     if (granted) {
       const sent = await notificationService.sendNotification(
-        language === 'ar' ? '🌟 نور للأطفال' : '🌟 Noor Kids',
+        language === 'ar' ? '🌟 روضة كيدز' : '🌟 Rawdakids',
         language === 'ar'
           ? 'أهلاً بك يا بطل! حان وقت وردك القرآني ودعاء المساء المبارك 📖'
           : 'Welcome, young champion! Time for your Quran Garden recitation and evening Dua 📖'
@@ -518,8 +520,8 @@ export default function ParentsCornerScreen() {
 
           <Text style={styles.settingDesc}>
             {language === 'ar'
-              ? 'يمكنك تثبيت تطبيق "نور للأطفال" كـ تطبيق أصلي مستقل على هاتف أو جهاز طفلك اللوحي (أندرويد) ليعمل مباشرة وبدون الحاجة لمتجر التطبيقات.'
-              : 'You can install Noor Kids as a standalone app on your child’s Android phone or tablet directly without an app store.'}
+              ? 'يمكنك تثبيت تطبيق "روضة كيدز" كـ تطبيق أصلي مستقل على هاتف أو جهاز طفلك اللوحي (أندرويد) ليعمل مباشرة وبدون الحاجة لمتجر التطبيقات.'
+              : 'You can install Rawdakids as a standalone app on your child’s Android phone or tablet directly without an app store.'}
           </Text>
 
           <InstallAndroidModal />
@@ -538,7 +540,56 @@ export default function ParentsCornerScreen() {
           restoreValidatedData={restoreValidatedData}
         />
 
-        {/* 12. Offline Mode & Transparency */}
+        {/* 12. Reset Active Child Progress */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="refresh-circle" size={20} color="#DC2626" />
+            <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>
+              {language === 'ar' ? 'إعادة ضبط إنجازات الطفل' : 'Reset Child Progress'}
+            </Text>
+          </View>
+
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'يمكنك تصفير النجوم والجواهر والأيام المتتالية للطفل الحالي لتبدأ رحلة التعلم من الصفر (0).'
+              : 'Reset stars, gems, streak, and achievements for the active child to start fresh from zero (0).'}
+          </Text>
+
+          {resetSuccess ? (
+            <View style={{ backgroundColor: '#DCFCE7', padding: 12, borderRadius: RADIUS.md, alignItems: 'center' }}>
+              <Text style={{ color: '#166534', fontWeight: 'bold' }}>
+                {language === 'ar' ? '✓ تم تصفير إنجازات الطفل بنجاح!' : '✓ Child progress reset to 0 successfully!'}
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#FEE2E2',
+                borderWidth: 1,
+                borderColor: '#F87171',
+                paddingVertical: 12,
+                borderRadius: RADIUS.md,
+                alignItems: 'center',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+              onPress={() => {
+                resetChildProgress();
+                setResetSuccess(true);
+                setTimeout(() => setResetSuccess(false), 3500);
+              }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="trash-outline" size={16} color="#DC2626" />
+              <Text style={{ color: '#DC2626', fontWeight: 'bold' }}>
+                {language === 'ar' ? 'تصفير إنجازات الطفل الحالي والبدء من 0' : 'Reset Active Child Progress to 0'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* 13. Offline Mode & Transparency */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="cloud-offline" size={20} color="#059669" />

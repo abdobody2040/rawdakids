@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "Noor Kids - نور للأطفال",
-    "slug": "noor-kids",
+    "name": "Rawdakids - روضة كيدز",
+    "slug": "rawdakid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "noorkids",
+    "scheme": "rawdakids",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.noorkids.app",
+      "bundleIdentifier": "com.rawdakids.app",
       "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "com.noorkids.app",
+      "package": "com.rawdakids.app",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#064E3B",
@@ -24,8 +24,12 @@
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE"
       ],
+      "usesCleartextTraffic": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -43,7 +47,14 @@
           "resizeMode": "contain"
         }
       ],
-      "expo-audio"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "يسمح هذا الإذن للطفل بتسجيل تلاوته والاستماع إليها للمراجعة والتشجيع",
+          "recordAudioAndroid": true,
+          "enableBackgroundPlayback": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -51,8 +62,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ad554aa7-4c0c-4db6-98b2-babc488e3a33"
+        "projectId": "0cf00dd7-b095-414e-a469-7d38bab56976"
       }
-    }
+    },
+    "owner": "abdobody2020"
   }
 }

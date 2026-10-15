@@ -65,12 +65,12 @@ export const createDefaultChildProgress = (avatar: string): ChildProgressData =>
   storyProgress: {},
   scenarioProgress: {},
   dailyHabitsDone: {},
-  stars: 5,
-  gems: 10,
-  streakCount: 1,
-  lastActiveDate: new Date().toISOString().split('T')[0],
-  unlockedStickers: ['st-kaaba', 'st-quran'],
-  unlockedBadges: ['badge-reciter'],
+  stars: 0,
+  gems: 0,
+  streakCount: 0,
+  lastActiveDate: '',
+  unlockedStickers: [],
+  unlockedBadges: [],
   selectedAvatarId: avatar,
   gratitudeEntries: [],
   lastReadMushafPage: 1,
@@ -95,6 +95,7 @@ export interface AppState {
   deleteProfile: (id: string) => boolean;
   getChildProgress: (id: string) => ChildProgressData;
   cleanupDuplicateProfiles: () => void;
+  resetChildProgress: (id?: string) => void;
 
   // Hifz & Quran Progress
   surahProgress: Record<number, SurahProgressItem>;
@@ -304,22 +305,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       storyProgress: {},
       scenarioProgress: {},
       dailyHabitsDone: {},
-      stars: 12,
-      gems: 25,
-      streakCount: 3,
-      lastActiveDate: new Date().toISOString().split('T')[0],
-      unlockedStickers: ['st-kaaba', 'st-quran', 'st-crescent', 'st-lantern'],
-      unlockedBadges: ['badge-reciter'],
+      stars: 0,
+      gems: 0,
+      streakCount: 0,
+      lastActiveDate: '',
+      unlockedStickers: [],
+      unlockedBadges: [],
       selectedAvatarId: 'av-boy1',
-      gratitudeEntries: [
-        {
-          id: 'gratitude-1',
-          date: new Date().toISOString().split('T')[0],
-          category: 'أهلي وأسرتي',
-          emoji: '👨‍👩‍👧',
-          text: 'الحمد لله على نعمة أمي وأبي اللذين يهتمان بي ويحبانني',
-        },
-      ],
+      gratitudeEntries: [],
+      lastReadMushafPage: 1,
+      mushafBookmarks: [1],
     },
   },
 
@@ -534,6 +529,44 @@ export const useAppStore = create<AppState>((set, get) => ({
     persistState(get());
   },
 
+  resetChildProgress: (targetId) => {
+    const { profiles, activeProfileId, profilesProgress } = get();
+    const idToReset = targetId || activeProfileId;
+    const targetProfile = profiles.find((p) => p.id === idToReset);
+    const cleanProgress = createDefaultChildProgress(targetProfile?.avatar || 'av-boy1');
+
+    const updatedProgressMap = {
+      ...profilesProgress,
+      [idToReset]: cleanProgress,
+    };
+
+    if (idToReset === activeProfileId) {
+      set({
+        profilesProgress: updatedProgressMap,
+        surahProgress: cleanProgress.surahProgress,
+        hadithProgress: cleanProgress.hadithProgress,
+        storyProgress: cleanProgress.storyProgress,
+        scenarioProgress: cleanProgress.scenarioProgress,
+        dailyHabitsDone: cleanProgress.dailyHabitsDone,
+        stars: 0,
+        gems: 0,
+        streakCount: 0,
+        lastActiveDate: '',
+        unlockedStickers: [],
+        unlockedBadges: [],
+        gratitudeEntries: [],
+        lastReadMushafPage: 1,
+        mushafBookmarks: [1],
+      });
+    } else {
+      set({
+        profilesProgress: updatedProgressMap,
+      });
+    }
+
+    persistState(get());
+  },
+
   surahProgress: {},
   setAyahStatus: (surahNumber, ayahNumber, status) => {
     set((state) => {
@@ -683,8 +716,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     persistState(get());
   },
 
-  stars: 12,
-  gems: 25,
+  stars: 0,
+  gems: 0,
   addStars: (count) => {
     set((state) => ({ stars: state.stars + count }));
     persistState(get());
@@ -693,7 +726,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({ gems: state.gems + count }));
     persistState(get());
   },
-  unlockedStickers: ['st-kaaba', 'st-quran', 'st-crescent', 'st-lantern'],
+  unlockedStickers: [],
   unlockSticker: (id) => {
     set((state) => ({
       unlockedStickers: state.unlockedStickers.includes(id)
@@ -764,7 +797,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
     persistState(get());
   },
-  unlockedBadges: ['badge-reciter'],
+  unlockedBadges: [],
   unlockBadge: (id) => {
     set((state) => ({
       unlockedBadges: state.unlockedBadges.includes(id)
@@ -911,15 +944,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     persistState(get());
   },
 
-  gratitudeEntries: [
-    {
-      id: 'gratitude-1',
-      date: new Date().toISOString().split('T')[0],
-      category: 'أهلي وأسرتي',
-      emoji: '👨‍👩‍👧',
-      text: 'الحمد لله على نعمة أمي وأبي اللذين يهتمان بي ويحبانني',
-    },
-  ],
+  gratitudeEntries: [],
   addGratitudeEntry: (entry) => {
     const newEntry = {
       id: 'gratitude_' + Date.now(),
@@ -949,12 +974,12 @@ export const useAppStore = create<AppState>((set, get) => ({
             storyProgress: parsed.storyProgress || {},
             scenarioProgress: parsed.scenarioProgress || {},
             dailyHabitsDone: parsed.dailyHabitsDone || {},
-            stars: parsed.stars ?? 12,
-            gems: parsed.gems ?? 25,
-            streakCount: parsed.streakCount ?? 3,
-            lastActiveDate: parsed.lastActiveDate || new Date().toISOString().split('T')[0],
-            unlockedStickers: parsed.unlockedStickers || ['st-kaaba', 'st-quran', 'st-crescent', 'st-lantern'],
-            unlockedBadges: parsed.unlockedBadges || ['badge-reciter'],
+            stars: parsed.stars ?? 0,
+            gems: parsed.gems ?? 0,
+            streakCount: parsed.streakCount ?? 0,
+            lastActiveDate: parsed.lastActiveDate || '',
+            unlockedStickers: parsed.unlockedStickers || [],
+            unlockedBadges: parsed.unlockedBadges || [],
             selectedAvatarId: parsed.selectedAvatarId || 'av-boy1',
             gratitudeEntries: parsed.gratitudeEntries || [],
             lastReadMushafPage: parsed.lastReadMushafPage ?? 1,
