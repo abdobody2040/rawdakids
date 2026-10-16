@@ -6,9 +6,41 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAppStore } from '@/store/useAppStore';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useFonts } from 'expo-font';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import AppSplashScreen from '@/components/AppSplashScreen';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
+
+// Ensure icon font families are registered immediately in browser on Web
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const FONT_STYLE_ID = 'expo-vector-icons-web-fonts';
+  if (!document.getElementById(FONT_STYLE_ID)) {
+    const style = document.createElement('style');
+    style.id = FONT_STYLE_ID;
+    style.textContent = `
+      @font-face {
+        font-family: 'ionicons';
+        src: url('/assets/fonts/Ionicons.ttf') format('truetype'),
+             url('https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'FontAwesome5_Solid';
+        src: url('/assets/fonts/FontAwesome5_Solid.ttf') format('truetype'),
+             url('https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'MaterialCommunityIcons';
+        src: url('/assets/fonts/MaterialCommunityIcons.ttf') format('truetype'),
+             url('https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf') format('truetype');
+        font-display: swap;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
 
 // Prevent native splash screen from autohiding until app is ready
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -29,6 +61,11 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+    ...FontAwesome5.font,
+  });
+
   const hydrate = useAppStore((s) => s.hydrate);
   const isHydrated = useAppStore((s) => s.isHydrated);
   const incrementTimeSpent = useAppStore((s) => s.incrementTimeSpent);
