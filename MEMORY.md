@@ -1358,6 +1358,22 @@
   - Added `useFonts` hook in `_layout.tsx` and injected web `@font-face` definitions with local and CDN fallbacks.
   - Replaced vector icon dependencies in [`src/app/onboarding.tsx`](file:///g:/quran%20app%20for%20kids/src/app/onboarding.tsx) (language select checkmark, avatar checkmark, world radio checkmark, and Continue button arrows) with universal self-contained badge circles (`✓`) and native Unicode directional arrows (`←` / `→`) to guarantee 100% render reliability across all browsers and devices without tofu box glyphs (`▯`).
 
+### Milestone 22: Expansion to 12 Pixar 3D Character Avatars
+- **1. User Request:** User requested a larger character roster in the onboarding and profile avatar picker (`محتاج عدد اكبر من الشخصيات`).
+- **2. Generated 6 New 3D Pixar Characters:**
+  - `avatar-boy-3.jpg` (av-boy3): **الحافظ الصغير (The Young Hafiz)** — Boy in crisp white thobe and green embroidered kufi.
+  - `avatar-girl-3.jpg` (av-girl3): **الزهرة (The Blossom)** — Cheerful girl in soft pastel yellow floral hijab.
+  - `avatar-boy-4.jpg` (av-boy4): **المستكشف (The Explorer)** — Curious adventurer boy with navy vest and compass.
+  - `avatar-girl-4.jpg` (av-girl4): **القارئة الذكية (The Smart Reader)** — Studious girl Maryam in lavender hijab with spectacles and reading book.
+  - `avatar-horse.jpg` (av-horse): **المهر الأصيل (The Noble Foal)** — Cute Arabian horse foal with rosette ribbon in flower meadow.
+  - `avatar-falcon.jpg` (av-falcon): **الصقر الشجاع (The Brave Falcon)** — Chubby friendly baby falcon chick in a desert oasis.
+- **3. System Integration:**
+  - Registered all 12 avatars in [`src/components/KidAvatar.tsx`](file:///g:/quran%20app%20for%20kids/src/components/KidAvatar.tsx) (`AVATAR_IMAGES`, `PRESET_AVATARS`, and `getAvatarDisplayName`).
+  - Added new avatars with emoji, localized descriptions, and unlock gem costs to `AVATAR_OPTIONS` in [`src/data/badgesData.ts`](file:///g:/quran%20app%20for%20kids/src/data/badgesData.ts).
+  - Automatically propagated across onboarding ([`src/app/onboarding.tsx`](file:///g:/quran%20app%20for%20kids/src/app/onboarding.tsx)), Profile Switcher Modal ([`src/components/ChildProfileSwitchModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/ChildProfileSwitchModal.tsx)), and Parents' Child Profiles Card ([`src/components/parents/ChildProfilesCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/ChildProfilesCard.tsx)).
+- **4. Verification:** `npx tsc --noEmit` (0 errors), `npm run build` (successful static bundle export), pushed to `origin main`.
+
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
