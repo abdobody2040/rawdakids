@@ -1387,6 +1387,23 @@
   - Upgraded [`src/components/Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx) and [`src/app/parents/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/parents/index.tsx) with seamless `<LanguageSelectModal>` integration for quick access to all 10 languages from anywhere in the app.
 - **4. Verification:** `npx tsc --noEmit` (0 errors), `npm run build` (successful static bundle export).
 
+### Milestone 24: 100% Multilingual Coverage & Elimination of English Fallbacks
+- **1. User Request:** "verfiy that all fields of langugses is fixed need full translation" (prompted by user screenshot showing Bengali headers with English card bodies and bottom navigation tabs).
+- **2. Problem Identified:**
+  - `src/components/AppBottomNav.tsx` had hardcoded English fallback logic for non-ar languages.
+  - `src/app/arkan/index.tsx` and `src/app/arkan/[pillarId].tsx` had ternary chains checking only `fr`, `de`, `es`, falling back to English for `ru`, `ur`, `id`, `bn`, and `tr`.
+  - Hadith action button, habits intro, manners pledge text, gratitude journal banner, and Quran download/wisdom tags similarly lacked 10-language coverage.
+- **3. Implemented Fixes:**
+  - **AppBottomNav:** Added `NAV_TAB_LABELS` with 10-language translations for `home`, `quran`, `sunnah`, `prophets`, `manners`, and `rewards`.
+  - **Pillars Academy:** Added 10-language dataset and helper methods (`getPillarHeroBadge`, `getPillarHeroSubtitle`, `getPillarCategoryBadge`, `getPillarShortNumber`, `getPillarExploreLabel`, `getPillarProofLabel`, `getPillarSimTab`, `getPillarSimBadge`, `getPillarStepCounter`, `getPillarDhikrLabel`, `getPillarAudioBtnLabel`, `getPillarNavBtnLabel`, `getPillarQuizTitle`, `getPillarClaimRewardText`, `getPillarCelebrationMeta`) covering all 11 Pillars, Wudu simulator (8 steps), Salah simulator (10 steps), and quizzes.
+  - **Manners Landmarks:** Added 10-language translations for landmarks (`honesty-hall`, `parents-kindness`, `sharing-house`, `cleanliness-park`, `patience-palace`, `respect-elders`) and pledge buttons.
+  - **Sunnah & Hadiths:** Added 10-language helpers for mini-stories, explore actions, habits intro, and celebrations.
+  - **Quran Surah Screen:** Added 10-language helpers for download button states, surah story showcase header, and golden lessons.
+  - **RTL Support:** Standardized RTL layout using `isRTL(language)` supporting both Arabic and Urdu.
+- **4. Verification:**
+  - `npx.cmd tsc --noEmit` -> 0 errors.
+  - `npm.cmd run build` -> Clean export of 24 static routes into `dist/`.
+  - `git commit` & `git push origin main` -> Pushed to GitHub repository for automatic Vercel deployment.
 
 ---
 
@@ -1404,4 +1421,4 @@
    - Use `useRouter()` and `<Link>` from `expo-router`.
 4. **Platform Compatibility:**
    - Always support both Web and Native (iOS/Android). Guard web-specific code with `Platform.OS === 'web'`.
-   - Support RTL (Arabic) and LTR (English) gracefully with `language === 'ar'`.
+   - Support RTL (Arabic and Urdu) and LTR gracefully using `isRTL(language)`.
