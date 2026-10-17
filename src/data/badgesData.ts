@@ -190,4 +190,11 @@ export const AVATAR_OPTIONS: AvatarOption[] = [
   { id: 'av-girl2', nameAr: 'المبدعة', nameEn: 'The Creative', emoji: '🧕', color: '#8B5CF6', gemCost: 20 },
   { id: 'av-lantern', nameAr: 'المحبوب', nameEn: 'The Beloved', emoji: '🏮', color: '#F59E0B', gemCost: 0 },
   { id: 'av-cat', nameAr: 'القطة مشمش', nameEn: 'Mishmish the Cat', emoji: '🐱', color: '#F97316', gemCost: 30 },
+  { id: 'av-boy3', nameAr: 'الحافظ الصغير', nameEn: 'The Young Hafiz', emoji: '📖', color: '#059669', gemCost: 0 },
+  { id: 'av-girl3', nameAr: 'الزهرة', nameEn: 'The Blossom', emoji: '🌸', color: '#F59E0B', gemCost: 0 },
+  { id: 'av-boy4', nameAr: 'المستكشف', nameEn: 'The Explorer', emoji: '🧭', color: '#0284C7', gemCost: 20 },
+  { id: 'av-girl4', nameAr: 'القارئة الذكية', nameEn: 'The Smart Reader', emoji: '📚', color: '#8B5CF6', gemCost: 20 },
+  { id: 'av-horse', nameAr: 'المهر الأصيل', nameEn: 'The Noble Foal', emoji: '🐴', color: '#D97706', gemCost: 25 },
+  { id: 'av-falcon', nameAr: 'الصقر الشجاع', nameEn: 'The Brave Falcon', emoji: '🦅', color: '#EA580C', gemCost: 35 },
 ];
+
