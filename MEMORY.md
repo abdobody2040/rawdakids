@@ -1317,6 +1317,47 @@
   - `node scripts/test-e2e.js`: **69 / 69 passed (100%)**.
   - `npx.cmd expo export --platform web`: 24 static routes exported successfully to `dist/`.
 
+### Milestone 19: GitHub Repository Creation & Automated Vercel Deployment
+- **1. GitHub Remote Setup:**
+  - Created public GitHub repository: `https://github.com/abdobody2040/rawdakids`.
+  - Configured git remote origin, committed all source code, assets, and documentation, and pushed to `main` branch.
+- **2. Automated Cloud CI/CD:**
+  - Configured project for automated Vercel deployment with Expo web export (`npm run build`).
+  - Added [vercel.json](file:///g:/quran%20app%20for%20kids/vercel.json) with static output directory `dist` and build caching.
+
+### Milestone 20: Prophet Story Scene Artworks & Visual Variety
+- **1. Root Cause of Repetitive Scenes:**
+  - In [`src/app/prophets/[prophetId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/%5BprophetId%5D.tsx), `getProphetSceneArtwork` previously relied on only 12 hardcoded scene artworks, defaulting to `scene-earth-dawn.jpg` for scenes 2, 3, 4, 5 of Ibrahim and most scenes of other prophets.
+- **2. Generation of 13 New 3D Pixar Cinematic Artworks (16:9):**
+  - Generated distinctive, high-definition scene illustrations adhering strictly to Section 3 Theological Guidelines (NO face or body likeness of Prophets; symbolic elements, miracles, nature, and sacred environments):
+    - `scene-fire-coolness.jpg`: Ibrahim's miraculous fire turning into a serene garden with blooming roses, clear stream, and sparkling cool embers.
+    - `scene-zamzam-well.jpg`: The miraculous spring of Zamzam bubbling up from desert sands in Mecca under golden sunlight.
+    - `scene-ram-sacrifice.jpg`: The peaceful mountains of Mina at dawn with a gentle white ram of light.
+    - `scene-broken-idols.jpg`: Mesopotamian temple with broken clay statues on the stone floor and ceremonial axe resting against a pillar.
+    - `scene-desert-migration.jpg`: Migration to the blessed land across sand dunes, olive valleys, river, and date palms.
+    - `scene-nile-basket.jpg`: Baby Musa's woven wicker basket floating safely on the calm River Nile with lotus water lilies and papyrus reeds.
+    - `scene-red-sea-parting.jpg`: Colossal towering water walls parting like mountains, revealing a dry path of light on the seabed.
+    - `scene-yusuf-well.jpg`: Ancient stone well in golden desert sands under a starry night and luminous crescent moon.
+    - `scene-gourd-vine.jpg`: Green gourd plant (Yaqtin) with yellow blossoms shading Yunus on a peaceful shore after emerging from the whale.
+    - `scene-sulayman-crystal.jpg`: Grand palace hall with a crystal glass floor (Sarh Mumarrad) over water with colorful fish.
+    - `scene-she-camel-rock.jpg`: Miraculous she-camel and calf drinking from a stone basin beside carved rock facades of Al-Hijr.
+    - `scene-thawr-cave.jpg`: Cave of Thawr sealed with a shimmering spiderweb and nesting white dove at sunrise.
+    - `scene-mount-judi.jpg`: Noah's Ark resting on Mount Judi with a rainbow, receded waters, and a white dove with an olive branch.
+- **3. Precision Narrative Mapping & Aspect Ratio:**
+  - Overhauled `getProphetSceneArtwork` in `[prophetId].tsx` with explicit per-scene mapping for Ibrahim, Musa, Yusuf, Nuh, Yunus, Sulayman, Dawud, Muhammad ﷺ, Salih, Ismail, and Adam, plus semantic keyword fallbacks and rotating alternating backups so no two consecutive scenes ever share the same artwork.
+  - Updated `sceneIllustrationWrapper` from rigid `height: 220` to responsive `aspectRatio: 16 / 9`, `maxHeight: 380`, preventing horizontal slit cropping on wide desktop screens.
+
+### Milestone 21: Vercel SPA Routing & Universal Icon Glyph Fixes
+- **1. Vercel SPA Rewrite Infinite Loop (`vercel.json`):**
+  - Resolved `Uncaught SyntaxError: Unexpected token '<'` caused by wildcard rewrites `/(.*) -> /index.html` intercepting static `.js` bundles and images.
+  - Implemented proper SPA rewrite regex exclusion: `{"source": "/((?!.*\\..*).*)", "destination": "/index.html"}` to allow static bundles and assets to be served directly with long-term caching.
+- **2. PWA Manifest Assets (`public/assets/`):**
+  - Populated `public/assets/images/icon.png` and `android-icon-foreground.png` to eliminate PWA manifest 404 download errors.
+- **3. Vector Icon Tofu Box Resolution (`src/app/_layout.tsx`, `public/assets/fonts/`):**
+  - Copied `Ionicons.ttf`, `FontAwesome5_Solid.ttf`, and `MaterialCommunityIcons.ttf` to `public/assets/fonts/`.
+  - Added `useFonts` hook in `_layout.tsx` and injected web `@font-face` definitions with local and CDN fallbacks.
+  - Replaced vector icon dependencies in [`src/app/onboarding.tsx`](file:///g:/quran%20app%20for%20kids/src/app/onboarding.tsx) (language select checkmark, avatar checkmark, world radio checkmark, and Continue button arrows) with universal self-contained badge circles (`✓`) and native Unicode directional arrows (`←` / `→`) to guarantee 100% render reliability across all browsers and devices without tofu box glyphs (`▯`).
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
