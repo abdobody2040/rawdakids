@@ -14,8 +14,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
-import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedPillar } from '@/services/multilingualContentService';
+import { TRANSLATIONS, isRTL } from '@/constants/i18n';
+import {
+  getLocalizedPillar,
+  getPillarHeroBadge,
+  getPillarHeroSubtitle,
+  getPillarShortNumber,
+  getPillarExploreLabel,
+} from '@/services/multilingualContentService';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import { arkanService, PillarItem } from '@/data/arkanData';
@@ -25,7 +31,7 @@ export default function ArkanAcademyScreen() {
   const router = useRouter();
   const { language } = useAppStore();
   const t = TRANSLATIONS[language];
-  const isAr = language === 'ar';
+  const isRtl = isRTL(language);
 
   const [activeTab, setActiveTab] = useState<'islam' | 'iman'>('islam');
 
@@ -49,26 +55,18 @@ export default function ArkanAcademyScreen() {
               colors={['#065F46', '#047857']}
               style={styles.heroGradient}
             >
-              <View style={[styles.heroRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                <View style={[styles.heroTextCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+              <View style={[styles.heroRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.heroTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
                   <View style={styles.heroBadgePill}>
                     <Text style={styles.heroBadgeText}>
-                      {isAr ? '🌟 رحلة الإيمان والعمل' : '🌟 Journey of Faith'}
+                      {getPillarHeroBadge(language)}
                     </Text>
                   </View>
                   <Text style={styles.heroTitle}>
                     {t.pillarsAcademy}
                   </Text>
-                  <Text style={[styles.heroSubtitle, { textAlign: isAr ? 'right' : 'left' }]}>
-                    {isAr
-                      ? 'تعلم أركان الإسلام الخمسة وأركان الإيمان الستة بأسلوب تفاعلي مشوق وجميل!'
-                      : language === 'fr'
-                      ? 'Découvre les 5 piliers de l’Islam et les 6 piliers de la Foi à travers des leçons interactives !'
-                      : language === 'de'
-                      ? 'Entdecke die 5 Säulen des Islam und die 6 Säulen des Glaubens mit interaktiven Lektionen!'
-                      : language === 'es'
-                      ? '¡Descubre los 5 pilares del Islam y los 6 pilares de la Fe con lecciones interactivas!'
-                      : 'Explore the 5 Pillars of Islam and 6 Pillars of Iman through interactive lessons!'}
+                  <Text style={[styles.heroSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                    {getPillarHeroSubtitle(language)}
                   </Text>
                 </View>
                 <View style={styles.heroIconBox}>
@@ -77,7 +75,7 @@ export default function ArkanAcademyScreen() {
               </View>
 
               {/* 2-Category Tab Switcher */}
-              <View style={[styles.categoryTabsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.categoryTabsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <TouchableOpacity
                   style={[
                     styles.catTabBtn,
@@ -142,20 +140,12 @@ export default function ArkanAcademyScreen() {
                   <View
                     style={[
                       styles.cardHeaderRow,
-                      { flexDirection: isAr ? 'row-reverse' : 'row' },
+                      { flexDirection: isRtl ? 'row-reverse' : 'row' },
                     ]}
                   >
                     <View style={[styles.numberBadge, { backgroundColor: pillar.color }]}>
                       <Text style={styles.numberBadgeText}>
-                        {isAr
-                          ? `الركن ${pillar.number}`
-                          : language === 'fr'
-                          ? `Pilier ${pillar.number}`
-                          : language === 'de'
-                          ? `Säule ${pillar.number}`
-                          : language === 'es'
-                          ? `Pilar ${pillar.number}`
-                          : `Pillar ${pillar.number}`}
+                        {getPillarShortNumber(pillar.number, language)}
                       </Text>
                     </View>
 
@@ -171,7 +161,7 @@ export default function ArkanAcademyScreen() {
                   <Text
                     style={[
                       styles.pillarTitle,
-                      { textAlign: isAr ? 'right' : 'left' },
+                      { textAlign: isRtl ? 'right' : 'left' },
                     ]}
                   >
                     {localizedP.title}
@@ -180,7 +170,7 @@ export default function ArkanAcademyScreen() {
                   <Text
                     style={[
                       styles.pillarSubtitle,
-                      { textAlign: isAr ? 'right' : 'left' },
+                      { textAlign: isRtl ? 'right' : 'left' },
                     ]}
                   >
                     {localizedP.subtitle}
@@ -189,7 +179,7 @@ export default function ArkanAcademyScreen() {
                   <Text
                     style={[
                       styles.pillarSummary,
-                      { textAlign: isAr ? 'right' : 'left' },
+                      { textAlign: isRtl ? 'right' : 'left' },
                     ]}
                     numberOfLines={2}
                   >
@@ -200,7 +190,7 @@ export default function ArkanAcademyScreen() {
                   <View
                     style={[
                       styles.cardFooterRow,
-                      { flexDirection: isAr ? 'row-reverse' : 'row' },
+                      { flexDirection: isRtl ? 'row-reverse' : 'row' },
                     ]}
                   >
                     <View style={styles.rewardPill}>
@@ -210,10 +200,10 @@ export default function ArkanAcademyScreen() {
 
                     <View style={[styles.ctaButton, { backgroundColor: pillar.color }]}>
                       <Text style={styles.ctaButtonText}>
-                        {isAr ? 'استكشف وتعلّم' : 'Explore'}
+                        {getPillarExploreLabel(language)}
                       </Text>
                       <Ionicons
-                        name={isAr ? 'arrow-back' : 'arrow-forward'}
+                        name={isRtl ? 'arrow-back' : 'arrow-forward'}
                         size={15}
                         color="#FFFFFF"
                       />

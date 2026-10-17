@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedHadith } from '@/services/multilingualContentService';
+import { getLocalizedHadith, getHadithMiniStoryTitle, getHadithCelebrationSubtitle } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -222,15 +222,7 @@ export default function HadithDetailScreen() {
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="book" size={20} color={COLORS.secondaryDark} />
             <Text style={styles.sectionTitle}>
-              {language === 'ar'
-                ? 'قصة مصورة عن الحديث'
-                : language === 'fr'
-                ? 'Mini-histoire illustrée'
-                : language === 'de'
-                ? 'Illustrierte Kurzgeschichte'
-                : language === 'es'
-                ? 'Mini-historia ilustrada'
-                : 'Illustrated Mini-Story'}
+              {getHadithMiniStoryTitle(language)}
             </Text>
           </View>
 
@@ -379,17 +371,7 @@ export default function HadithDetailScreen() {
         starsEarned={2}
         gemsEarned={3}
         title={t.congratulations}
-        subtitle={
-          language === 'ar'
-            ? 'أحسنت اختيار السلوك النبوي الشريف!'
-            : language === 'fr'
-            ? 'Bravo ! Tu as choisi la noble voie prophétique !'
-            : language === 'de'
-            ? 'Gut gemacht! Du hast den edlen prophetischen Weg gewählt!'
-            : language === 'es'
-            ? '¡Bien hecho! ¡Elegiste el noble camino de la Sunnah!'
-            : 'Well done choosing the noble Sunnah way!'
-        }
+        subtitle={getHadithCelebrationSubtitle(language)}
         onDismiss={() => setShowCelebration(false)}
       />
     </SafeAreaView>

@@ -16,6 +16,11 @@ import { quranService } from '@/services/quranService';
 import { audioService } from '@/services/audioService';
 import { useAppStore, HifzStatus } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
+import {
+  getQuranSaveBtnLabel,
+  getQuranStoryShowcaseTitle,
+  getQuranGoldenLessonTag,
+} from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/theme';
 import { Ayah } from '@/data/quranData';
 import Header from '@/components/Header';
@@ -332,8 +337,8 @@ export default function SurahDetailScreen() {
               {isDownloading
                 ? `${downloadProgress}%`
                 : isDownloaded
-                ? (language === 'ar' ? 'محفوظة' : language === 'fr' ? 'Enregistrée' : language === 'de' ? 'Gespeichert' : language === 'es' ? 'Guardada' : 'Saved')
-                : (language === 'ar' ? 'تنزيل' : language === 'fr' ? 'Télécharger' : language === 'de' ? 'Laden' : language === 'es' ? 'Descargar' : 'Save')}
+                ? getQuranSaveBtnLabel(true, language)
+                : getQuranSaveBtnLabel(false, language)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -344,15 +349,7 @@ export default function SurahDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Ionicons name="sparkles" size={15} color="#d97706" />
               <Text style={styles.storyShowcaseTitle}>
-                {language === 'ar'
-                  ? 'قصة السورة وعبرها المباركة:'
-                  : language === 'fr'
-                  ? 'Histoire et sagesse de la sourate :'
-                  : language === 'de'
-                  ? 'Geschichte und Weisheit der Sure:'
-                  : language === 'es'
-                  ? 'Historia y sabiduría de la sura:'
-                  : 'Surah Story & Wisdom:'}
+                {getQuranStoryShowcaseTitle(language)}
               </Text>
             </View>
           </View>
@@ -369,15 +366,7 @@ export default function SurahDetailScreen() {
           {((language === 'ar' ? surah.coreLessonsAr : surah.coreLessonsEn) || []).length > 0 && (
             <View style={[styles.goldenLessonRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
               <Text style={styles.goldenLessonTag}>
-                {language === 'ar'
-                  ? '🌱 العبرة الذهبية:'
-                  : language === 'fr'
-                  ? '🌱 Leçon clé :'
-                  : language === 'de'
-                  ? '🌱 Wichtigste Lehre:'
-                  : language === 'es'
-                  ? '🌱 Lección clave:'
-                  : '🌱 Core Lesson:'}
+                {getQuranGoldenLessonTag(language)}
               </Text>
               <Text style={styles.goldenLessonText} numberOfLines={1}>
                 {language === 'ar' ? surah.coreLessonsAr[0] : surah.coreLessonsEn[0]}

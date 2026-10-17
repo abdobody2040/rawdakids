@@ -13,8 +13,21 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
-import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedPillar } from '@/services/multilingualContentService';
+import { TRANSLATIONS, isRTL } from '@/constants/i18n';
+import {
+  getLocalizedPillar,
+  getPillarCategoryBadge,
+  getPillarProofLabel,
+  getPillarSimTab,
+  getPillarSimBadge,
+  getPillarStepCounter,
+  getPillarDhikrLabel,
+  getPillarAudioBtnLabel,
+  getPillarNavBtnLabel,
+  getPillarQuizTitle,
+  getPillarClaimRewardText,
+  getPillarCelebrationMeta,
+} from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -28,6 +41,7 @@ export default function PillarDetailScreen() {
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
+  const isRtl = isRTL(language);
 
   const pillar = arkanService.getPillarById(String(pillarId || 'shahada')) || arkanService.getIslamPillars()[0];
   const localizedPillar = getLocalizedPillar(pillar, language);
@@ -101,12 +115,10 @@ export default function PillarDetailScreen() {
               colors={[pillar.color, pillar.color + 'DD']}
               style={styles.heroGradient}
             >
-              <View style={[styles.heroTopRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.heroTopRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryBadgeText}>
-                    {pillar.category === 'islam'
-                      ? (isAr ? `الركن ${pillar.number} من أركان الإسلام` : language === 'fr' ? `Pilier ${pillar.number} de l'Islam` : language === 'de' ? `Säule ${pillar.number} des Islam` : language === 'es' ? `Pilar ${pillar.number} del Islam` : `Pillar ${pillar.number} of Islam`)
-                      : (isAr ? `الركن ${pillar.number} من أركان الإيمان` : language === 'fr' ? `Pilier ${pillar.number} de la Foi` : language === 'de' ? `Säule ${pillar.number} des Glaubens` : language === 'es' ? `Pilar ${pillar.number} de la Fe` : `Pillar ${pillar.number} of Iman`)}
+                    {getPillarCategoryBadge(pillar.category, pillar.number, language)}
                   </Text>
                 </View>
                 <View style={styles.heroIconBox}>
@@ -118,31 +130,23 @@ export default function PillarDetailScreen() {
                 </View>
               </View>
 
-              <Text style={[styles.heroTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+              <Text style={[styles.heroTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
                 {localizedPillar.title}
               </Text>
 
-              <Text style={[styles.heroSubtitle, { textAlign: isAr ? 'right' : 'left' }]}>
+              <Text style={[styles.heroSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
                 {localizedPillar.subtitle}
               </Text>
 
               {/* Hadith / Quran Proof Box */}
               <View style={styles.proofBox}>
-                <View style={[styles.proofHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.proofHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                   <Ionicons name="book" size={15} color="#FDE68A" />
                   <Text style={styles.proofLabel}>
-                    {isAr
-                      ? 'الدليل من الحديث الشريف:'
-                      : language === 'fr'
-                      ? 'Preuve du noble Hadith :'
-                      : language === 'de'
-                      ? 'Beweis aus dem edlen Hadith:'
-                      : language === 'es'
-                      ? 'Prueba del noble Hadiz:'
-                      : 'Prophetic Proof:'}
+                    {getPillarProofLabel(language)}
                   </Text>
                 </View>
-                <Text style={[styles.proofText, { textAlign: isAr ? 'right' : 'left' }]}>
+                <Text style={[styles.proofText, { textAlign: isRtl ? 'right' : 'left' }]}>
                   «{isAr ? pillar.hadithProofAr : localizedPillar.hadithProof}»
                 </Text>
               </View>
@@ -154,7 +158,7 @@ export default function PillarDetailScreen() {
             <View style={styles.stepsModuleCard}>
               {/* Dual Simulator Mode Switcher for Salah */}
               {hasBothSims && (
-                <View style={[styles.simSelectorRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.simSelectorRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                   <TouchableOpacity
                     style={[styles.simSelectorTab, simMode === 'wudu' && styles.simSelectorTabActive]}
                     onPress={() => {
@@ -167,7 +171,7 @@ export default function PillarDetailScreen() {
                   >
                     <Ionicons name="water" size={15} color={simMode === 'wudu' ? '#FFFFFF' : '#0284C7'} />
                     <Text style={[styles.simSelectorTabText, simMode === 'wudu' && styles.simSelectorTabTextActive]}>
-                      {isAr ? '🌊 كيف أتوضأ؟ (٨ خطوات)' : '🌊 How to do Wudu (8 steps)'}
+                      {getPillarSimTab('wudu', language)}
                     </Text>
                   </TouchableOpacity>
 
@@ -183,25 +187,21 @@ export default function PillarDetailScreen() {
                   >
                     <Ionicons name="body" size={15} color={simMode === 'prayer' ? '#FFFFFF' : '#0284C7'} />
                     <Text style={[styles.simSelectorTabText, simMode === 'prayer' && styles.simSelectorTabTextActive]}>
-                      {isAr ? '🕌 كيف أصلي؟ (١٠ خطوات)' : '🕌 How to Pray (10 steps)'}
+                      {getPillarSimTab('prayer', language)}
                     </Text>
                   </TouchableOpacity>
                 </View>
               )}
 
-              <View style={[styles.stepsHeaderRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.stepsHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <View style={styles.stepsBadge}>
                   <Ionicons name={simMode === 'prayer' ? 'body' : 'water'} size={16} color="#0284C7" />
                   <Text style={styles.stepsBadgeText}>
-                    {simMode === 'prayer'
-                      ? (isAr ? 'طريقة وأركان الصلاة' : 'How to Pray (Step-by-Step)')
-                      : (isAr ? 'خطوات الوضوء المبارك' : 'Steps of Wudu')}
+                    {getPillarSimBadge(simMode, language)}
                   </Text>
                 </View>
                 <Text style={styles.stepsCounterText}>
-                  {isAr
-                    ? `خطوة ${currentStepIdx + 1} من ${activeSteps.length}`
-                    : `Step ${currentStepIdx + 1} of ${activeSteps.length}`}
+                  {getPillarStepCounter(currentStepIdx + 1, activeSteps.length, language)}
                 </Text>
               </View>
 
@@ -216,7 +216,7 @@ export default function PillarDetailScreen() {
                   <View
                     style={[
                       styles.stepMediaBadge,
-                      { [isAr ? 'left' : 'right']: 12 },
+                      { [isRtl ? 'left' : 'right']: 12 },
                     ]}
                   >
                     <Ionicons
@@ -225,29 +225,27 @@ export default function PillarDetailScreen() {
                       color="#0284C7"
                     />
                     <Text style={styles.stepMediaBadgeText}>
-                      {simMode === 'prayer'
-                        ? (isAr ? `ركن ${currentStep.step} من ${activeSteps.length}` : `Step ${currentStep.step} of ${activeSteps.length}`)
-                        : (isAr ? `خطوة ${currentStep.step} من ${activeSteps.length}` : `Step ${currentStep.step} of ${activeSteps.length}`)}
+                      {getPillarStepCounter(currentStep.step, activeSteps.length, language)}
                     </Text>
                   </View>
                 </View>
                 <Text style={styles.stepTitle}>
                   {isAr ? currentStep.titleAr : currentStep.titleEn}
                 </Text>
-                <Text style={[styles.stepDesc, { textAlign: isAr ? 'right' : 'left' }]}>
+                <Text style={[styles.stepDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
                   {isAr ? currentStep.descAr : currentStep.descEn}
                 </Text>
 
                 {/* Dhikr & Du'a box if available */}
                 {(currentStep.dhikrAr || currentStep.dhikrEn) && (
                   <View style={styles.dhikrBox}>
-                    <View style={[styles.dhikrHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <View style={[styles.dhikrHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                       <Ionicons name="sparkles" size={14} color="#059669" />
                       <Text style={styles.dhikrLabel}>
-                        {isAr ? 'ما نقوله في هذه الخطوة:' : 'What to say in this step:'}
+                        {getPillarDhikrLabel(language)}
                       </Text>
                     </View>
-                    <Text style={[styles.dhikrText, { textAlign: isAr ? 'right' : 'left' }]}>
+                    <Text style={[styles.dhikrText, { textAlign: isRtl ? 'right' : 'left' }]}>
                       «{isAr ? currentStep.dhikrAr : (currentStep.dhikrEn || currentStep.dhikrAr)}»
                     </Text>
 
@@ -268,9 +266,7 @@ export default function PillarDetailScreen() {
                           isPlayingStepAudio && { color: '#DC2626' },
                         ]}
                       >
-                        {isPlayingStepAudio
-                          ? (isAr ? 'إيقاف الصوت' : 'Stop Audio')
-                          : (isAr ? '🔊 استمع لنطق الذكر' : '🔊 Listen to Dhikr')}
+                        {getPillarAudioBtnLabel(isPlayingStepAudio, language)}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -278,7 +274,7 @@ export default function PillarDetailScreen() {
               </View>
 
               {/* Step Navigation Controls */}
-              <View style={[styles.stepNavRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.stepNavRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <TouchableOpacity
                   style={[
                     styles.stepNavBtn,
@@ -293,7 +289,7 @@ export default function PillarDetailScreen() {
                   activeOpacity={0.8}
                 >
                   <Ionicons
-                    name={isAr ? 'arrow-forward' : 'arrow-back'}
+                    name={isRtl ? 'arrow-forward' : 'arrow-back'}
                     size={16}
                     color={currentStepIdx === 0 ? '#9CA3AF' : '#1F2937'}
                   />
@@ -303,7 +299,7 @@ export default function PillarDetailScreen() {
                       currentStepIdx === 0 && { color: '#9CA3AF' },
                     ]}
                   >
-                    {isAr ? 'السابق' : 'Previous'}
+                    {getPillarNavBtnLabel('prev', language)}
                   </Text>
                 </TouchableOpacity>
 
@@ -338,13 +334,13 @@ export default function PillarDetailScreen() {
                   <Text style={styles.stepNavBtnPrimaryText}>
                     {currentStepIdx === activeSteps.length - 1
                       ? (simMode === 'prayer'
-                          ? (isAr ? 'أتقنت الصلاة ✓' : 'Prayer Completed ✓')
-                          : (isAr ? 'أتقنت الوضوء ✓' : 'Wudu Completed ✓'))
-                      : (isAr ? 'التالي' : 'Next')}
+                          ? getPillarNavBtnLabel('prayerDone', language)
+                          : getPillarNavBtnLabel('wuduDone', language))
+                      : getPillarNavBtnLabel('next', language)}
                   </Text>
                   {currentStepIdx < activeSteps.length - 1 && (
                     <Ionicons
-                      name={isAr ? 'arrow-back' : 'arrow-forward'}
+                      name={isRtl ? 'arrow-back' : 'arrow-forward'}
                       size={16}
                       color="#FFFFFF"
                     />
@@ -358,16 +354,16 @@ export default function PillarDetailScreen() {
           <View style={styles.sectionsList}>
             {pillar.sections.map((sec, sIdx) => (
               <View key={sIdx} style={styles.sectionCard}>
-                <View style={[styles.secHeaderRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.secHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                   <View style={[styles.secIconBox, { backgroundColor: pillar.cardBg }]}>
                     <Ionicons name={sec.icon as keyof typeof Ionicons.glyphMap} size={20} color={pillar.color} />
                   </View>
-                  <Text style={[styles.secTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                  <Text style={[styles.secTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
                     {isAr ? sec.titleAr : sec.titleEn}
                   </Text>
                 </View>
 
-                <Text style={[styles.secDesc, { textAlign: isAr ? 'right' : 'left' }]}>
+                <Text style={[styles.secDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
                   {isAr ? sec.descAr : sec.descEn}
                 </Text>
 
@@ -378,10 +374,10 @@ export default function PillarDetailScreen() {
                         key={iIdx}
                         style={[
                           styles.itemRow,
-                          { flexDirection: isAr ? 'row-reverse' : 'row' },
+                          { flexDirection: isRtl ? 'row-reverse' : 'row' },
                         ]}
                       >
-                        <Text style={[styles.itemText, { textAlign: isAr ? 'right' : 'left' }]}>
+                        <Text style={[styles.itemText, { textAlign: isRtl ? 'right' : 'left' }]}>
                           {item}
                         </Text>
                       </View>
@@ -394,11 +390,11 @@ export default function PillarDetailScreen() {
 
           {/* Interactive Learning Quiz Module */}
           <View style={styles.quizCard}>
-            <View style={[styles.quizHeaderRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            <View style={[styles.quizHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View style={styles.quizBadge}>
                 <Ionicons name="help-circle" size={18} color="#D97706" />
                 <Text style={styles.quizBadgeText}>
-                  {isAr ? 'اختبر فهمك يا بطل' : 'Check Your Knowledge'}
+                  {getPillarQuizTitle(language)}
                 </Text>
               </View>
               <Text style={styles.quizRewardTag}>+{pillar.rewardStars} ⭐</Text>
@@ -410,7 +406,7 @@ export default function PillarDetailScreen() {
 
               return (
                 <View key={qIdx} style={styles.questionBlock}>
-                  <Text style={[styles.questionTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                  <Text style={[styles.questionTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
                     {qIdx + 1}. {isAr ? q.questionAr : q.questionEn}
                   </Text>
 
@@ -437,7 +433,7 @@ export default function PillarDetailScreen() {
                               styles.optionText,
                               isAnswered && isThisCorrect && styles.optionTextCorrect,
                               isAnswered && isThisSelected && !isThisCorrect && styles.optionTextWrong,
-                              { textAlign: isAr ? 'right' : 'left' },
+                              { textAlign: isRtl ? 'right' : 'left' },
                             ]}
                           >
                             {optLabel}
@@ -455,7 +451,7 @@ export default function PillarDetailScreen() {
 
                   {isAnswered && (
                     <View style={styles.explanationBox}>
-                      <Text style={[styles.explanationText, { textAlign: isAr ? 'right' : 'left' }]}>
+                      <Text style={[styles.explanationText, { textAlign: isRtl ? 'right' : 'left' }]}>
                         💡 {q.explanationAr}
                       </Text>
                     </View>
@@ -472,30 +468,29 @@ export default function PillarDetailScreen() {
             >
               <Ionicons name="trophy" size={20} color="#FFFFFF" />
               <Text style={styles.claimQuizBtnText}>
-                {isAr
-                  ? `أتممت الركن! احصل على +${pillar.rewardStars} نجوم 🌟`
-                  : `Completed! Claim +${pillar.rewardStars} Stars 🌟`}
+                {getPillarClaimRewardText(pillar.rewardStars, language)}
               </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
 
         {/* Celebration Modal */}
-        <StarRewardCelebration
-          visible={showCelebration}
-          starsEarned={pillar.rewardStars}
-          gemsEarned={pillar.rewardGems}
-          title={isAr ? 'بارك الله فيك يا بطل!' : 'Masha’Allah! Champion!'}
-          subtitle={
-            isAr
-              ? `أتممت تعلم واستيعاب ${pillar.titleAr}`
-              : `You mastered learning ${pillar.titleEn}`
-          }
-          onDismiss={() => {
-            setShowCelebration(false);
-            router.replace('/arkan');
-          }}
-        />
+        {(() => {
+          const celebrationMeta = getPillarCelebrationMeta(localizedPillar.title, language);
+          return (
+            <StarRewardCelebration
+              visible={showCelebration}
+              starsEarned={pillar.rewardStars}
+              gemsEarned={pillar.rewardGems}
+              title={celebrationMeta.title}
+              subtitle={celebrationMeta.subtitle}
+              onDismiss={() => {
+                setShowCelebration(false);
+                router.replace('/arkan');
+              }}
+            />
+          );
+        })()}
       </View>
     </SafeAreaView>
   );

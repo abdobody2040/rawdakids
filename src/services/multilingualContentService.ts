@@ -349,18 +349,15 @@ export function getLocalizedProphetMeta(prophet: ProphetStory, lang: Language): 
 
 export function getLocalizedProphetStoryTitle(prophet: ProphetStory, lang: Language): string {
   const meta = getLocalizedProphetMeta(prophet, lang);
-  if (lang === 'ar') {
-    return `قصة نبي الله ${meta.name} ${meta.honorific}`;
-  }
-  if (lang === 'fr') {
-    return `Histoire du Prophète ${meta.name} (${meta.honorific})`;
-  }
-  if (lang === 'de') {
-    return `Geschichte des Propheten ${meta.name} (${meta.honorific})`;
-  }
-  if (lang === 'es') {
-    return `Historia del Profeta ${meta.name} (${meta.honorific})`;
-  }
+  if (lang === 'ar') return `قصة نبي الله ${meta.name} ${meta.honorific}`;
+  if (lang === 'ur') return `اللہ کے نبی ${meta.name} ${meta.honorific} کا واقعہ`;
+  if (lang === 'bn') return `নবী ${meta.name} (${meta.honorific})-এর ঘটনা`;
+  if (lang === 'ru') return `История Пророка ${meta.name} (${meta.honorific})`;
+  if (lang === 'id') return `Kisah Nabi ${meta.name} (${meta.honorific})`;
+  if (lang === 'tr') return `Peygamber ${meta.name} (${meta.honorific}) Hikayesi`;
+  if (lang === 'fr') return `Histoire du Prophète ${meta.name} (${meta.honorific})`;
+  if (lang === 'de') return `Geschichte des Propheten ${meta.name} (${meta.honorific})`;
+  if (lang === 'es') return `Historia del Profeta ${meta.name} (${meta.honorific})`;
   return `Story of Prophet ${meta.name} (${meta.honorific})`;
 }
 
@@ -550,120 +547,265 @@ export function getLocalizedMannerBuilding(
     };
   }
 
-  // Curated French, German, Spanish names for the 6 core buildings
-  const buildingLocalizations: Record<string, Record<'fr' | 'de' | 'es', { name: string; subtitle: string; weeklyPledge: string }>> = {
-    'honesty-hall': {
-      fr: {
-        name: 'Palais de la Vérité et de la Confiance',
-        subtitle: 'Le croyant ne ment jamais et préserve les dépôts avec fidélité',
-        weeklyPledge: 'Je m’engage à toujours dire la vérité avec douceur et à honorer la confiance de tous.',
-      },
-      de: {
-        name: 'Halle der Wahrheit & Zuverlässigkeit',
-        subtitle: 'Ein Gläubiger lügt nicht und hütet das Anvertraute stets treu',
-        weeklyPledge: 'Ich verspreche, in jeder Situation die Wahrheit zu sagen und ehrlich zu sein.',
-      },
-      es: {
-        name: 'Palacio de la Verdad y la Confianza',
-        subtitle: 'Un creyente nunca miente y cuida lo encomendado con devoción',
-        weeklyPledge: 'Prometo decir siempre la verdad y nunca traicionar la confianza de los demás.',
-      },
+  const buildingLocalizations: Record<string, Partial<Record<Language, { name: string; subtitle: string; weeklyPledge: string }>>> = {
+  "honesty-hall": {
+    "bn": {
+      "name": "সত্যবাদিতা ও বিশ্বস্ততার প্রাসাদ",
+      "subtitle": "মুমিন কখনো মিথ্যা বলে না এবং আমানত রক্ষা করে",
+      "weeklyPledge": "আমি প্রতিশ্রুতি দিচ্ছি যে সর্বদা সত্য কথা বলব এবং আমানত রক্ষা করব।"
     },
-    'parents-kindness': {
-      fr: {
-        name: 'Jardin de la Piété envers les Parents',
-        subtitle: 'Le Paradis est sous les pieds des mères et la satisfaction d’Allah est liée aux parents',
-        weeklyPledge: 'Je m’engage à écouter mes parents avec un sourire et à les aider chaque jour.',
-      },
-      de: {
-        name: 'Garten der Güte zu den Eltern',
-        subtitle: 'Das Paradies liegt zu Füßen der Mütter und Allahs Wohlgefallen bei den Eltern',
-        weeklyPledge: 'Ich verspreche, meinen Eltern mit einem Lächeln zu gehorchen und ihnen täglich zu helfen.',
-      },
-      es: {
-        name: 'Jardín de la Bondad hacia los Padres',
-        subtitle: 'El Paraíso está bajo los pies de las madres y la complacencia de Al-lah con los padres',
-        weeklyPledge: 'Prometo escuchar a mis padres con cariño y ayudarlos alegremente cada día.',
-      },
+    "ru": {
+      "name": "Дворец Правдивости и Честности",
+      "subtitle": "Верующий никогда не обманывает и хранит доверие",
+      "weeklyPledge": "Я обещаю всегда говорить правду и беречь доверие."
     },
-    'sharing-house': {
-      fr: {
-        name: 'Maison du Partage et de la Générosité',
-        subtitle: 'La main qui donne est meilleure que celle qui reçoit',
-        weeklyPledge: 'Je m’engage à partager mes jouets et mes joies avec mes frères et amis.',
-      },
-      de: {
-        name: 'Haus des Teilens & der Großzügigkeit',
-        subtitle: 'Die gebende Hand ist besser als die nehmende Hand',
-        weeklyPledge: 'Ich verspreche, meine Freude und meine Dinge gerne mit anderen zu teilen.',
-      },
-      es: {
-        name: 'Casa de la Generosidad y el Compartir',
-        subtitle: 'La mano que da es mejor y más amada que la mano que recibe',
-        weeklyPledge: 'Prometo compartir mis juguetes y mi alegría con mis hermanos y amigos.',
-      },
+    "ur": {
+      "name": "سچائی اور امانت داری کا محل",
+      "subtitle": "مومن کبھی جھوٹ نہیں بولتا اور امانت میں خیانت نہیں کرتا",
+      "weeklyPledge": "میں وعدہ کرتا ہوں کہ ہمیشہ سچ بولوں گا اور امانت داری نبھاؤں گا۔"
     },
-    'cleanliness-park': {
-      fr: {
-        name: 'Parc de la Pureté et de la Propreté',
-        subtitle: 'La propreté est la moitié de la foi',
-        weeklyPledge: 'Je m’engage à garder mes vêtements, ma chambre et la nature propres et ordonnés.',
-      },
-      de: {
-        name: 'Park der Reinheit & Sauberkeit',
-        subtitle: 'Die Reinheit ist die halbe Kraft des Glaubens',
-        weeklyPledge: 'Ich verspreche, meine Umgebung, mein Zimmer und die Natur sauber zu halten.',
-      },
-      es: {
-        name: 'Parque de la Pureza y la Limpieza',
-        subtitle: 'La pureza y el aseo son la mitad de la fe',
-        weeklyPledge: 'Prometo mantener mis prendas, mi habitación y la naturaleza limpias y ordenadas.',
-      },
+    "id": {
+      "name": "Istana Kejujuran & Amanah",
+      "subtitle": "Seorang mukmin tidak pernah berbohong dan selalu menjaga amanah",
+      "weeklyPledge": "Aku berjanji akan selalu berkata jujur dan menjaga amanah."
     },
-    'patience-palace': {
-      fr: {
-        name: 'Château de la Patience et du Calme',
-        subtitle: 'La patience est une lumière et une force pour le croyant',
-        weeklyPledge: 'Je m’engage à respirer profondément et à rester calme quand je suis contrarié.',
-      },
-      de: {
-        name: 'Schloss der Geduld & Ruhe',
-        subtitle: 'Geduld ist ein strahlendes Licht und eine Festung für die Seele',
-        weeklyPledge: 'Ich verspreche, ruhig zu bleiben und tief durchzuatmen, wenn es schwierig wird.',
-      },
-      es: {
-        name: 'Castillo de la Paciencia y la Calma',
-        subtitle: 'La paciencia es una luz brillante y una virtud suprema',
-        weeklyPledge: 'Prometo respirar hondo y conservar la calma ante cualquier disgusto.',
-      },
+    "tr": {
+      "name": "Doğruluk ve Güven Sarayı",
+      "subtitle": "Mümin asla yalan söylemez ve emanete hıyanet etmez",
+      "weeklyPledge": "Her zaman doğruyu söyleyeceğime ve emaneti koruyacağıma söz veriyorum."
     },
-    'respect-elders': {
-      fr: {
-        name: 'Cour du Respect et de l’Affection',
-        subtitle: 'Celui qui ne respecte pas nos aînés et n’est pas doux envers les petits n’est pas des nôtres',
-        weeklyPledge: 'Je m’engage à saluer les plus âgés avec respect et à protéger les plus petits.',
-      },
-      de: {
-        name: 'Hof des Respekts & der Zuneigung',
-        subtitle: 'Wer die Älteren nicht ehrt und zu den Jüngeren nicht barmherzig ist, gehört nicht zu uns',
-        weeklyPledge: 'Ich verspreche, älteren Menschen respektvoll zu begegnen und die Kleinen zu beschützen.',
-      },
-      es: {
-        name: 'Patio del Respeto y el Cariño',
-        subtitle: 'Quien no respeta a nuestros mayores ni muestra ternura a los pequeños no es de los nuestros',
-        weeklyPledge: 'Prometo saludar a los mayores con reverencia y cuidar con ternura a los más pequeños.',
-      },
+    "fr": {
+      "name": "Palais de la Vérité et de la Confiance",
+      "subtitle": "Le croyant ne ment jamais et préserve les dépôts avec fidélité",
+      "weeklyPledge": "Je m’engage à toujours dire la vérité avec douceur et à honorer la confiance de tous."
     },
-  };
+    "de": {
+      "name": "Halle der Wahrheit & Zuverlässigkeit",
+      "subtitle": "Ein Gläubiger lügt nicht und hütet das Anvertraute stets treu",
+      "weeklyPledge": "Ich verspreche, in jeder Situation die Wahrheit zu sagen und ehrlich zu sein."
+    },
+    "es": {
+      "name": "Palacio de la Verdad y la Confianza",
+      "subtitle": "Un creyente nunca miente y cuida lo encomendado con devoción",
+      "weeklyPledge": "Prometo decir siempre la verdad y nunca traicionar la confianza de los demás."
+    }
+  },
+  "parents-kindness": {
+    "bn": {
+      "name": "পিতা-মাতার খেদমতের উদ্যান",
+      "subtitle": "মায়ের পদতলে জান্নাত এবং পিতা-মাতার সন্তুষ্টিতে আল্লাহর সন্তুষ্টি",
+      "weeklyPledge": "আমি পিতা-মাতাকে হাসিমুখে ভালোবাসব ও প্রতিদিন তাদের কাজে সাহায্য করব।"
+    },
+    "ru": {
+      "name": "Сад Почтения к Родителям",
+      "subtitle": "Рай находится под ногами матерей, а довольство Аллаха — в довольстве родителей",
+      "weeklyPledge": "Я обещаю с улыбкой слушаться родителей и помогать им каждый день."
+    },
+    "ur": {
+      "name": "والدین کی خدمت کا گلشن",
+      "subtitle": "جنت ماؤں کے قدموں تلے ہے اور رب کی رضا والدین کی رضا میں ہے",
+      "weeklyPledge": "میں ہمیشہ مسکرا کر امی ابو کا کہنا مانوں گا اور ان کی خدمت کروں گا۔"
+    },
+    "id": {
+      "name": "Taman Bakti kepada Orang Tua",
+      "subtitle": "Surga di bawah telapak kaki ibu dan ridha Allah ada pada ridha orang tua",
+      "weeklyPledge": "Aku berjanji akan berbakti kepada orang tua dan membantu mereka setiap hari."
+    },
+    "tr": {
+      "name": "Anne Babaya İyilik Bahçesi",
+      "subtitle": "Cennet annelerin ayakları altındadır ve Allah’ın rızası anne babanın rızasındadır",
+      "weeklyPledge": "Anne babama her zaman sevgiyle itaat edeceğime ve onlara yardım edeceğime söz veriyorum."
+    },
+    "fr": {
+      "name": "Jardin de la Piété envers les Parents",
+      "subtitle": "Le Paradis est sous les pieds des mères et la satisfaction d’Allah est liée aux parents",
+      "weeklyPledge": "Je m’engage à écouter mes parents avec un sourire et à les aider chaque jour."
+    },
+    "de": {
+      "name": "Garten der Güte zu den Eltern",
+      "subtitle": "Das Paradies liegt zu Füßen der Mütter und Allahs Wohlgefallen bei den Eltern",
+      "weeklyPledge": "Ich verspreche, meinen Eltern mit einem Lächeln zu gehorchen und ihnen täglich zu helfen."
+    },
+    "es": {
+      "name": "Jardín de la Bondad hacia los Padres",
+      "subtitle": "El Paraíso está bajo los pies de las madres y la complacencia de Al-lah con los padres",
+      "weeklyPledge": "Prometo escuchar a mis padres con cariño y ayudarlos alegremente cada día."
+    }
+  },
+  "sharing-house": {
+    "bn": {
+      "name": "দানশীলতা ও সহমর্মিতার ঘর",
+      "subtitle": "গ্রহীতার হাতের চেয়ে দাতার হাত উত্তম ও আল্লাহর কাছে প্রিয়",
+      "weeklyPledge": "আমি আনন্দ ও খেলনা ভাই-বোন ও বন্ধুদের সাথে ভাগ করে নেব।"
+    },
+    "ru": {
+      "name": "Дом Щедрости и Заботы",
+      "subtitle": "Дающая рука лучше берущей перед Аллахом",
+      "weeklyPledge": "Я обещаю делиться своими игрушками и радостью с братьями и друзьями."
+    },
+    "ur": {
+      "name": "سخاوت اور ہمدردی کا گھر",
+      "subtitle": "دینے والا ہاتھ لینے والے ہاتھ سے بہتر اور افضل ہے",
+      "weeklyPledge": "میں اپنی خوشیاں اور کھلونے اپنے بہن بھائیوں اور دوستوں کے ساتھ بانٹوں گا۔"
+    },
+    "id": {
+      "name": "Rumah Berbagi & Kedermawanan",
+      "subtitle": "Tangan di atas lebih baik daripada tangan di bawah",
+      "weeklyPledge": "Aku berjanji akan gemar berbagi mainan dan kebahagiaan dengan sesama."
+    },
+    "tr": {
+      "name": "Cömertlik ve Paylaşma Evi",
+      "subtitle": "Veren el alan elden daha üstündür ve hayırlıdır",
+      "weeklyPledge": "Oyuncaklarımı ve sevincimi kardeşlerim ve arkadaşlarımla paylaşacağıma söz veriyorum."
+    },
+    "fr": {
+      "name": "Maison du Partage et de la Générosité",
+      "subtitle": "La main qui donne est meilleure que celle qui reçoit",
+      "weeklyPledge": "Je m’engage à partager mes jouets et mes joies avec mes frères et amis."
+    },
+    "de": {
+      "name": "Haus des Teilens & der Großzügigkeit",
+      "subtitle": "Die gebende Hand ist besser als die nehmende Hand",
+      "weeklyPledge": "Ich verspreche, meine Freude und meine Dinge gerne mit anderen zu teilen."
+    },
+    "es": {
+      "name": "Casa de la Generosidad y el Compartir",
+      "subtitle": "La mano que da es mejor y más amada que la mano que recibe",
+      "weeklyPledge": "Prometo compartir mis juguetes y mi alegría con mis hermanos y amigos."
+    }
+  },
+  "cleanliness-park": {
+    "bn": {
+      "name": "পবিত্রতা ও পরিচ্ছন্নতার পার্ক",
+      "subtitle": "পরিচ্ছন্নতা ও পবিত্রতা ঈমানের অর্ধেক অংশ",
+      "weeklyPledge": "আমি আমার পোশাক, ঘর ও পরিবেশ সর্বদা পরিষ্কার-পরিচ্ছন্ন রাখব।"
+    },
+    "ru": {
+      "name": "Парк Чистоты и Порядка",
+      "subtitle": "Чистота — половина веры",
+      "weeklyPledge": "Я обещаю содержать свою одежду, комнату и природу в чистоте."
+    },
+    "ur": {
+      "name": "صفائی اور پاکیزگی کا چمن",
+      "subtitle": "پاکیزگی اور صفائی نصف ایمان ہے",
+      "weeklyPledge": "میں اپنے کپڑوں، کمرے اور ماحول کو ہمیشہ صاف ستھرا رکھوں گا۔"
+    },
+    "id": {
+      "name": "Taman Kebersihan & Kesucian",
+      "subtitle": "Kebersihan adalah sebagian dari iman",
+      "weeklyPledge": "Aku berjanji menjaga pakaian, kamar, dan lingkunganku tetap bersih dan rapi."
+    },
+    "tr": {
+      "name": "Temizlik ve Saflık Parkı",
+      "subtitle": "Temizlik imanın yarısıdır",
+      "weeklyPledge": "Kıyafetlerimi, odamı ve çevremi her zaman tertemiz tutacağıma söz veriyorum."
+    },
+    "fr": {
+      "name": "Parc de la Pureté et de la Propreté",
+      "subtitle": "La propreté est la moitié de la foi",
+      "weeklyPledge": "Je m’engage à garder mes vêtements, ma chambre et la nature propres et ordonnés."
+    },
+    "de": {
+      "name": "Park der Reinheit & Sauberkeit",
+      "subtitle": "Die Reinheit ist die halbe Kraft des Glaubens",
+      "weeklyPledge": "Ich verspreche, meine Umgebung, mein Zimmer und die Natur sauber zu halten."
+    },
+    "es": {
+      "name": "Parque de la Pureza y la Limpieza",
+      "subtitle": "La pureza y el aseo son la mitad de la fe",
+      "weeklyPledge": "Prometo mantener mis prendas, mi habitación y la naturaleza limpias y ordenadas."
+    }
+  },
+  "patience-palace": {
+    "bn": {
+      "name": "ধৈর্য ও প্রশান্তির দুর্গ",
+      "subtitle": "ধৈর্য হলো মুমিনের জন্য আলোকবর্তিকা ও মহাশক্তি",
+      "weeklyPledge": "আমি কোনো সমস্যায় রাগ না করে শান্ত থাকব ও ধৈর্য ধারণ করব।"
+    },
+    "ru": {
+      "name": "Замок Терпения и Спокойствия",
+      "subtitle": "Терпение — свет и сила для верующего",
+      "weeklyPledge": "Я обещаю глубоко дышать и сохранять спокойствие, когда расстроен."
+    },
+    "ur": {
+      "name": "صبر اور بردباری کا قلعہ",
+      "subtitle": "صبر مومن کے لیے روشنی اور سب سے بڑی طاقت ہے",
+      "weeklyPledge": "میں غصے کے وقت صبر سے کام لوں گا اور پرسکون رہوں گا۔"
+    },
+    "id": {
+      "name": "Istana Kesabaran & Ketenangan",
+      "subtitle": "Kesabaran adalah cahaya penuntun dan kekuatan bagi orang beriman",
+      "weeklyPledge": "Aku berjanji akan tetap tenang, sabar, dan menahan emosi saat menghadapi kesulitan."
+    },
+    "tr": {
+      "name": "Sabır ve Sükunet Kalesi",
+      "subtitle": "Sabır mümin için aydınlık bir nur ve güçtür",
+      "weeklyPledge": "Zorluklar karşısında öfkeme hakim olup sabırla hareket edeceğime söz veriyorum."
+    },
+    "fr": {
+      "name": "Château de la Patience et du Calme",
+      "subtitle": "La patience est une lumière et une force pour le croyant",
+      "weeklyPledge": "Je m’engage à respirer profondément et à rester calme quand je suis contrarié."
+    },
+    "de": {
+      "name": "Schloss der Geduld & Ruhe",
+      "subtitle": "Geduld ist ein strahlendes Licht und eine Festung für die Seele",
+      "weeklyPledge": "Ich verspreche, ruhig zu bleiben und tief durchzuatmen, wenn es schwierig wird."
+    },
+    "es": {
+      "name": "Castillo de la Paciencia y la Calma",
+      "subtitle": "La paciencia es una luz brillante y una virtud suprema",
+      "weeklyPledge": "Prometo respirar hondo y conservar la calma ante cualquier disgusto."
+    }
+  },
+  "respect-elders": {
+    "bn": {
+      "name": "বড়দের শ্রদ্ধা ও ছোটদের স্নেহের চত্বর",
+      "subtitle": "যে আমাদের বড়দের সম্মান করে না এবং ছোটদের স্নেহ করে না, সে আমাদের দলভুক্ত নয়",
+      "weeklyPledge": "আমি বড়দের শ্রদ্ধা করব এবং ছোটদের স্নেহ ও যত্ন করব।"
+    },
+    "ru": {
+      "name": "Обитель Уважения и Заботы",
+      "subtitle": "Не из нас тот, кто не уважает старших и не милосерден к младшим",
+      "weeklyPledge": "Я обещаю уважать старших и бережно заботиться о младших."
+    },
+    "ur": {
+      "name": "بڑوں کے احترام اور چھوٹوں کی شفقت کا آنگن",
+      "subtitle": "وہ ہم میں سے نہیں جو ہمارے بڑوں کا احترام اور چھوٹوں پر رحم نہ کرے",
+      "weeklyPledge": "میں بڑوں کا ادب کروں گا اور چھوٹوں سے شفقت اور پیار کا برتاؤ کروں گا۔"
+    },
+    "id": {
+      "name": "Pelataran Menghormati yang Tua & Menyayangi yang Muda",
+      "subtitle": "Bukan golongan kami yang tidak menghormati yang lebih tua dan tidak menyayangi yang muda",
+      "weeklyPledge": "Aku berjanji santun kepada orang yang lebih tua dan menyayangi adik-adik."
+    },
+    "tr": {
+      "name": "Büyüklere Saygı ve Küçüklere Sevgi Avlusu",
+      "subtitle": "Büyüklerimize saygı göstermeyen ve küçüklerimize merhamet etmeyen bizden değildir",
+      "weeklyPledge": "Büyüklerime hürmetle yaklaşacağıma ve küçüklere merhametle davranacağıma söz veriyorum."
+    },
+    "fr": {
+      "name": "Cour du Respect et de l’Affection",
+      "subtitle": "Celui qui ne respecte pas nos aînés et n’est pas doux envers les petits n’est pas des nôtres",
+      "weeklyPledge": "Je m’engage à saluer les plus âgés avec respect et à protéger les plus petits."
+    },
+    "de": {
+      "name": "Hof des Respekts & der Zuneigung",
+      "subtitle": "Wer die Älteren nicht ehrt und zu den Jüngeren nicht barmherzig ist, gehört nicht zu uns",
+      "weeklyPledge": "Ich verspreche, älteren Menschen respektvoll zu begegnen und die Kleinen zu beschützen."
+    },
+    "es": {
+      "name": "Patio del Respeto y el Cariño",
+      "subtitle": "Quien no respeta a nuestros mayores ni muestra ternura a los pequeños no es de los nuestros",
+      "weeklyPledge": "Prometo saludar a los mayores con reverencia y cuidar con ternura a los más pequeños."
+    }
+  }
+};
 
-  const localizedBuilding = (lang === 'fr' || lang === 'de' || lang === 'es')
-    ? buildingLocalizations[building.id]?.[lang]
-    : null;
-
+  const localizedBuilding = buildingLocalizations[building.id]?.[lang];
   if (localizedBuilding) {
     return localizedBuilding;
   }
-
   return {
     name: building.nameEn,
     subtitle: building.subtitleEn,
@@ -704,6 +846,471 @@ export function getLocalizedMannerScenario(
   };
 }
 
+const PILLAR_LOCALIZATIONS: Record<string, Partial<Record<Language, { title: string; subtitle: string; summary: string }>>> = {
+  "shahada": {
+    "bn": {
+      "title": "ঈমানের সাক্ষ্য (শাহাদাহ্)",
+      "subtitle": "জান্নাতের চাবিকাঠি ও ইসলামের মূল ভিত্তি",
+      "summary": "শাহাদাহ্ হলো ইসলামের প্রথম ও সর্বশ্রেষ্ঠ স্তম্ভ—ঘোষণা করা যে আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই এবং মুহাম্মদ ﷺ তাঁর প্রেরিত বান্দা ও রাসূল।"
+    },
+    "ru": {
+      "title": "Свидетельство веры (Шахада)",
+      "subtitle": "Ключ от Рая и основание Ислама",
+      "summary": "Шахада — первый и величайший столп Ислама: свидетельство того, что нет божества, достойного поклонения, кроме Аллаха, и Мухаммад — Его Посланник."
+    },
+    "ur": {
+      "title": "کلمۂ شہادت (گواہی)",
+      "subtitle": "جنت کی چابی اور اسلام کی بنیادی بنیاد",
+      "summary": "شہادت اسلام کا پہلا اور سب سے عظیم رکن ہے: اس بات کی سچی گواہی دینا کہ اللہ کے سوا کوئی معبود نہیں اور محمد ﷺ اللہ کے رسول ہیں۔"
+    },
+    "id": {
+      "title": "Syahadat (Kesaksian Iman)",
+      "subtitle": "Kunci Surga dan Fondasi Utama Islam",
+      "summary": "Syahadat adalah rukun pertama dan paling agung dalam Islam: bersaksi bahwa tiada tuhan selain Allah dan Muhammad adalah utusan Allah."
+    },
+    "tr": {
+      "title": "Kelime-i Şehadet",
+      "subtitle": "Cennetin Anahtarı ve İslam’ın Temeli",
+      "summary": "Şehadet, İslam’ın ilk ve en yüce şartıdır: Allah’tan başka ilah olmadığına ve Muhammed’in O’nun kulu ve elçisi olduğuna inanıp tanıklık etmektir."
+    },
+    "fr": {
+      "title": "L’Attestation de Foi (Chahada)",
+      "subtitle": "La clé du Paradis et le premier fondement de l’Islam",
+      "summary": "La Chahada est le premier et le plus grand pilier de l’Islam : proclamer qu’il n’y a de divinité digne d’adoration qu’Allah et que Muhammad est Son Messager."
+    },
+    "de": {
+      "title": "Das Glaubensbekenntnis (Schahada)",
+      "subtitle": "Der Schlüssel zum Paradies und das Fundament des Islam",
+      "summary": "Die Schahada ist die erste und wichtigste Säule des Islam: das Zeugnis, dass niemand der Anbetung würdig ist außer Allah und Muhammad Sein Gesandter ist."
+    },
+    "es": {
+      "title": "El Testimonio de Fe (Shahada)",
+      "subtitle": "La llave del Paraíso y el pilar fundamental del Islam",
+      "summary": "La Shahada es el primer y más grande pilar del Islam: declarar que no hay más dios que Al-lah y que Muhammad es Su Mensajero."
+    }
+  },
+  "salah": {
+    "bn": {
+      "title": "দৈনন্দিন নামায (সালাত)",
+      "subtitle": "দিনে পাঁচবার আল্লাহর সাথে নূর ও ভালোবাসার নিবিড় বন্ধন",
+      "summary": "নামায হলো মুমিনের মিরাজ ও ইসলামের দ্বিতীয় প্রধান স্তম্ভ, যা আমাদের হৃদয়কে পবিত্র রাখে এবং আল্লাহর স্মরণ ও শান্তিতে ভরিয়ে দেয়।"
+    },
+    "ru": {
+      "title": "Ежедневная молитва (Намаз / Салят)",
+      "subtitle": "Свет и живая связь с Аллахом пять раз в день",
+      "summary": "Намаз — второй столп Ислама и опора религии, которая очищает сердце, защищает от дурного и дарует спокойствие душе."
+    },
+    "ur": {
+      "title": "روزانہ کی نماز (صلوٰۃ)",
+      "subtitle": "دن میں پانچ بار اللہ تعالیٰ سے محبت و نور کا تعلق",
+      "summary": "نماز دین کا ستون اور مومن کی معراج ہے، جو دل کو پاکیزگی، سکون اور اللہ کی سچی یاد سے منور رکھتی ہے۔"
+    },
+    "id": {
+      "title": "Salat Lima Waktu",
+      "subtitle": "Cahaya dan Hubungan Kasih dengan Allah 5 Kali Sehari",
+      "summary": "Salat adalah rukun Islam kedua dan tiang agama, yang membersihkan hati, menjauhkan dari keburukan, dan memberi ketenangan jiwa."
+    },
+    "tr": {
+      "title": "Günlük Namaz (Salat)",
+      "subtitle": "Günde Beş Vakit Allah ile Sevgi ve Nur Bağı",
+      "summary": "Namaz dinin direğidir ve müminin miracıdır; kalbi kötülüklerden korur, huzur ve arınma kazandırır."
+    },
+    "fr": {
+      "title": "La Prière Quotidienne (Salât)",
+      "subtitle": "Le lien d’amour et de lumière avec Allah cinq fois par jour",
+      "summary": "La Salât est le deuxième pilier de l’Islam et le pilier de la religion, qui illumine le cœur et préserve des mauvaises actions."
+    },
+    "de": {
+      "title": "Das tägliche Gebet (Salah)",
+      "subtitle": "Die liebevolle Verbindung und das Licht zu Allah fünfmal am Tag",
+      "summary": "Das Gebet ist die tragende Säule des Islam, die das Herz reinigt, vor Schlechtem bewahrt und inneren Frieden schenkt."
+    },
+    "es": {
+      "title": "La Oración Diaria (Salat)",
+      "subtitle": "La conexión de amor y luz con Al-lah cinco veces al día",
+      "summary": "La oración es el segundo pilar del Islam y la columna de la fe, que purifica el corazón y brinda sosiego al alma."
+    }
+  },
+  "zakat": {
+    "bn": {
+      "title": "পবিত্র যাকাত প্রদান",
+      "subtitle": "সম্পদ পবিত্র করা ও অভাবীদের ভালোবাসায় সাহায্য করা",
+      "summary": "যাকাত হলো সমাজের দরিদ্র ও অসহায় ভাই-বোনদের সাহায্য করার জন্য আল্লাহর নির্ধারিত ফরজ ইবাদত, যা সম্পদে বরকত বাড়ায়।"
+    },
+    "ru": {
+      "title": "Очистительная милостыня (Закят)",
+      "subtitle": "Очищение имущества и искренняя помощь нуждающимся",
+      "summary": "Закят — третий столп Ислама: обязанность делиться частью своего удела с нуждающимися ради довольства Аллаха и благодати."
+    },
+    "ur": {
+      "title": "زکوٰۃ کی ادائیگی",
+      "subtitle": "مال کی پاکیزگی اور ضرورت مندوں کی محبت بھری مدد",
+      "summary": "زکوٰۃ غریب اور نادار بھائی بہنوں کی مدد، مال میں برکت اور دل کو سخاوت سے بھرنے کا الٰہی فریضہ ہے۔"
+    },
+    "id": {
+      "title": "Zakat (Sedekah Wajib)",
+      "subtitle": "Membersihkan Harta dan Membantu Sesama dengan Cinta",
+      "summary": "Zakat adalah rukun Islam ketiga untuk menyucikan harta dan membantu fakir miskin demi meraih ridha Allah."
+    },
+    "tr": {
+      "title": "Zekat İbadeti",
+      "subtitle": "Malları Arındırmak ve Muhtaçlara Sevgiyle Yardım Etmek",
+      "summary": "Zekat, zengin Müslümanların yılda bir kez ihtiyaç sahipleriyle paylaştığı, malı temizleyen ve bereketi artıran bir ibadettir."
+    },
+    "fr": {
+      "title": "L’Aumône Purificatrice (Zakât)",
+      "subtitle": "Partager avec amour pour aider les nécessiteux et bénir nos biens",
+      "summary": "La Zakât purifie les richesses et renforce la fraternité en aidant les pauvres et les nécessiteux avec générosité."
+    },
+    "de": {
+      "title": "Die Pflichtabgabe (Zakat)",
+      "subtitle": "Mit Liebe teilen, um die Bedürftigen zu unterstützen",
+      "summary": "Die Zakat reinigt den Besitz und stärkt die Gemeinschaft, indem den Schwachen und Armen geholfen wird."
+    },
+    "es": {
+      "title": "La Limosna Obligatoria (Zakat)",
+      "subtitle": "Compartir con amor para apoyar a los necesitados y purificar los bienes",
+      "summary": "El Zakat purifica la riqueza y fomenta la solidaridad ayudando a quienes más lo necesitan con generosidad."
+    }
+  },
+  "sawm": {
+    "bn": {
+      "title": "রমযান মাসের রোজা (সাওম)",
+      "subtitle": "কুরআনের মাস, ধৈর্য ও সীমাহীন আনন্দের সময়",
+      "summary": "রোজা হলো সুবহে সাদিক থেকে সূর্যাস্ত পর্যন্ত পানাহার থেকে বিরত থেকে তাকওয়া, ধৈর্য ও আল্লাহর নৈকট্য অর্জন করা।"
+    },
+    "ru": {
+      "title": "Пост в месяц Рамадан (Саум)",
+      "subtitle": "Месяц Корана, терпения, милосердия и радости",
+      "summary": "Пост учит терпению, благодарности Аллаху и состраданию к тем, кто испытывает голод, укрепляя богобоязненность."
+    },
+    "ur": {
+      "title": "رمضان المبارک کے روزے (صوم)",
+      "subtitle": "قرآن کا مہینہ، صبر، شکر اور خوشی کی بہار",
+      "summary": "روزہ صبح صادق سے غروب آفتاب تک کھانے پینے سے رک کر اللہ کی رضا اور تقویٰ حاصل کرنے کی بہترین عبادت ہے۔"
+    },
+    "id": {
+      "title": "Puasa Ramadan (Sawm)",
+      "subtitle": "Bulan Al-Quran, Kesabaran, dan Kegembiraan Rohani",
+      "summary": "Puasa melatih kesabaran, syukur, empati kepada kaum dhuafa, dan mendekatkan diri kepada Allah Yang Maha Pengasih."
+    },
+    "tr": {
+      "title": "Ramazan Orucu (Savm)",
+      "subtitle": "Kuran Ayı, Sabır, Şükür ve Sevinç Mevsimi",
+      "summary": "Oruç, imsaktan akşama kadar yeme içmeden uzak durarak nefsi terbiye etmek, sabrı ve aç olanların halini anlamayı öğretir."
+    },
+    "fr": {
+      "title": "Le Jeûne du Ramadan (Siyâm)",
+      "subtitle": "Apprendre la patience, la gratitude et la maîtrise de soi",
+      "summary": "Le jeûne du mois béni de Ramadan élève l’âme, enseigne l’empathie pour les affamés et rapproche d’Allah."
+    },
+    "de": {
+      "title": "Das Fasten im Ramadan (Sawm)",
+      "subtitle": "Geduld, Dankbarkeit und Beherrschung des Herzens lernen",
+      "summary": "Das Fasten schult die Geduld, das Mitgefühl für Bedürftige und vertieft die Dankbarkeit gegenüber den Gaben Allahs."
+    },
+    "es": {
+      "title": "El Ayuno de Ramadán (Sawm)",
+      "subtitle": "Aprender la paciencia, la gratitud y la purificación del alma",
+      "summary": "El ayuno fortalece la voluntad, despierta la compasión por los necesitados y acerca el corazón a Al-lah."
+    }
+  },
+  "hajj": {
+    "bn": {
+      "title": "পবিত্র মক্কার হজ্জ",
+      "subtitle": "পবিত্র কা’বার চারপাশে বিশ্ব মুসলিমের ঐক্যের মহামিলন",
+      "summary": "হজ্জ হলো সামর্থ্যবান মুসলমানদের জন্য জীবনে একবার পবিত্র কা’বা জিয়ারত করে বিশ্ব মুসলিম ভ্রাতৃত্বের মিলনমেলায় শরিক হওয়া।"
+    },
+    "ru": {
+      "title": "Паломничество в Мекку (Хадж)",
+      "subtitle": "Великое путешествие братства и единства вокруг Каабы",
+      "summary": "Хадж — пятый столп Ислама: паломничество к Заповедной мечети в Мекке для тех, кто имеет возможность совершить его хотя бы раз в жизни."
+    },
+    "ur": {
+      "title": "بیت اللہ کا مبارک حج",
+      "subtitle": "خانہ کعبہ کے گرد امت مسلمہ کے اتحاد کا عظیم سفر",
+      "summary": "حج صاحبِ استطاعت مسلمانوں کے لیے زندگی میں ایک بار بیت اللہ کی زیارت اور امت کے اتحاد کا شاندار مظاہرہ ہے۔"
+    },
+    "id": {
+      "title": "Haji ke Baitullah (Makkah)",
+      "subtitle": "Perjalanan Agung Persaudaraan dan Persatuan Umat di Ka’bah",
+      "summary": "Haji adalah ziarah suci ke Ka’bah di Makkah bagi yang mampu secara fisik dan finansial sekali seumur hidup."
+    },
+    "tr": {
+      "title": "Kutsal Hac İbadeti",
+      "subtitle": "Kabe Etrafında Kardeşlik ve Birlik Yolculuğu",
+      "summary": "Hac, gücü yeten her Müslümanın ömründe bir kez Mekke’deki Kabe’yi ve mukaddes mekanları ziyaret etmesidir."
+    },
+    "fr": {
+      "title": "Le Pèlerinage à La Mecque (Hajj)",
+      "subtitle": "Le grand voyage de la fraternité et de l’unité autour de la Kaaba",
+      "summary": "Le Hajj est le grand voyage spirituel à La Mecque, obligatoire une fois dans la vie pour qui en a les moyens."
+    },
+    "de": {
+      "title": "Die Pilgerfahrt (Hadsch)",
+      "subtitle": "Die große Reise des Friedens und der Einheit rund um die Kaaba",
+      "summary": "Die Hadsch ist die heilige Reise nach Mekka zur Kaaba, die jedem fähigen Muslim einmal im Leben auferlegt ist."
+    },
+    "es": {
+      "title": "La Peregrinación (Hajj)",
+      "subtitle": "El gran viaje sagrado de fraternidad y unión alrededor de la Kaaba",
+      "summary": "El Hajj es la peregrinación a la Sagrada Kaaba en La Meca, un viaje de unidad para quien tenga la capacidad."
+    }
+  },
+  "iman_allah": {
+    "bn": {
+      "title": "আল্লাহর প্রতি ঈমান",
+      "subtitle": "বিশ্বজগতের একমাত্র সৃষ্টিকর্তা ও পালনকর্তার প্রতি বিশ্বাস",
+      "summary": "দৃঢ় বিশ্বাস স্থাপন করা যে আল্লাহ এক ও অদ্বিতীয়, তাঁর কোনো অংশীদার নেই, তিনি সব শোনেন, সব দেখেন এবং তিনি পরম দয়ালু।"
+    },
+    "ru": {
+      "title": "Вера в Аллаха (Таухид)",
+      "subtitle": "Вера в Единого Творца и Господа миров",
+      "summary": "Искренняя вера в то, что Аллах — Единственный Создатель и Владыка всего сущего, у Которого нет сотоварищей."
+    },
+    "ur": {
+      "title": "اللہ تعالیٰ پر ایمان",
+      "subtitle": "تمام جہانوں کے اکیلے خالق اور مالک پر سچا یقین",
+      "summary": "اس بات پر کامل یقین رکھنا کہ اللہ ایک ہے، اس کا کوئی شریک نہیں، وہی زندگی اور کائنات کا اکیلا مالک ہے۔"
+    },
+    "id": {
+      "title": "Iman kepada Allah",
+      "subtitle": "Keyakinan kepada Pencipta dan Pemelihara Alam Semesta",
+      "summary": "Meyakini dengan sepenuh hati bahwa Allah Maha Esa, tiada sekutu bagi-Nya, Maha Mendengar dan Maha Mengetahui."
+    },
+    "tr": {
+      "title": "Allah’a İman",
+      "subtitle": "Alemlerin Tek Yaratıcısı ve Rabbine İnanmak",
+      "summary": "Allah’ın varlığına, birliğine, eşi ve benzeri olmadığına, her şeyi bildiğine ve yarattığına kalpten inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi en Allah (Le Créateur Unique)",
+      "subtitle": "La croyance en l’Unique Créateur et Maître des mondes",
+      "summary": "Croire fermement en Allah, Seul sans associé, Créateur bienveillant de toutes choses."
+    },
+    "de": {
+      "title": "Der Glaube an Allah",
+      "subtitle": "Der Glaube an den einzigen Schöpfer und Herrn aller Welten",
+      "summary": "Aus tiefstem Herzen daran glauben, dass Allah Eins ist, keinen Partner hat und alles erschaffen hat."
+    },
+    "es": {
+      "title": "La Fe en Al-lah (Dios Único)",
+      "subtitle": "Creer en el Único Creador y Sustentador de los mundos",
+      "summary": "Creer con el corazón en Al-lah, Quien no tiene copartícipes, es Todopoderoso y Misericordioso."
+    }
+  },
+  "iman_angels": {
+    "bn": {
+      "title": "ফেরেশতাদের প্রতি ঈমান",
+      "subtitle": "নূরের তৈরি অনুগত বান্দাদের প্রতি বিশ্বাস",
+      "summary": "বিশ্বাস করা যে আল্লাহর আজ্ঞাবহ ফেরেশতাগণ নূরের তৈরি এবং তারা অবিরাম আল্লাহর আদেশ নিষ্ঠার সাথে পালন করেন।"
+    },
+    "ru": {
+      "title": "Вера в Ангелов",
+      "subtitle": "Вера в благородных созданий из света",
+      "summary": "Вера в то, что ангелы сотворены из света и беспрекословно исполняют все повеления Всевышнего Аллаха."
+    },
+    "ur": {
+      "title": "فرشتوں پر ایمان",
+      "subtitle": "نور سے پیدا کی گئی معصوم ہستیوں پر یقین",
+      "summary": "یقین رکھنا کہ فرشتے اللہ کے باوفا اور معصوم بندے ہیں جو رات دن اللہ کے احکام کی اطاعت کرتے ہیں۔"
+    },
+    "id": {
+      "title": "Iman kepada Malaikat",
+      "subtitle": "Keyakinan kepada Makhluk Suci yang Diciptakan dari Cahaya",
+      "summary": "Meyakini bahwa para malaikat diciptakan dari cahaya dan senantiasa taat menjalankan perintah Allah."
+    },
+    "tr": {
+      "title": "Meleklere İman",
+      "subtitle": "Nurdan Yaratılmış Masum Varlıklara İnanmak",
+      "summary": "Meleklerin nurdan yaratıldıklarına, günahsız olduklarına ve Allah’ın emirlerini yerine getirdiklerine inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi aux Anges",
+      "subtitle": "La croyance aux nobles créatures créées de lumière",
+      "summary": "Croire que les anges sont des serviteurs purs créés de lumière, obéissant avec amour à Allah."
+    },
+    "de": {
+      "title": "Der Glaube an die Engel",
+      "subtitle": "Der Glaube an die aus Licht geschaffenen edlen Wesen",
+      "summary": "Daran glauben, dass die Engel aus Licht erschaffen sind und stets die Befehle Allahs voller Gehorsam erfüllen."
+    },
+    "es": {
+      "title": "La Fe en los Ángeles",
+      "subtitle": "Creer en las nobles criaturas creadas de luz",
+      "summary": "Creer en los ángeles, siervos puros creados de luz que cumplen fielmente los designios de Al-lah."
+    }
+  },
+  "iman_books": {
+    "bn": {
+      "title": "আসমানী কিতাবসমূহের প্রতি ঈমান",
+      "subtitle": "আল্লাহর প্রেরিত পথনির্দেশক বাণী ও পবিত্র কুরআনের প্রতি বিশ্বাস",
+      "summary": "বিশ্বাস করা যে আল্লাহ মানবজাতির কল্যাণে আসমানী গ্রন্থ নাযিল করেছেন, যার মধ্যে পবিত্র কুরআন সর্বশেষ ও সংরক্ষিত কিতাব।"
+    },
+    "ru": {
+      "title": "Вера в Священные Писания",
+      "subtitle": "Вера в ниспосланные Божьи книги и Священный Коран",
+      "summary": "Вера в то, что Аллах ниспосылал Писания для наставления людей, последним и совершенным из которых является Коран."
+    },
+    "ur": {
+      "title": "آسمانی کتابوں پر ایمان",
+      "subtitle": "اللہ کے بھیجے گئے احکامات اور قرآن مجید پر یقین",
+      "summary": "تمام آسمانی کتابوں پر سچا ایمان رکھنا جن میں قرآن مجید اللہ کی آخری، محفوظ اور کامل کتاب ہے۔"
+    },
+    "id": {
+      "title": "Iman kepada Kitab-Kitab Allah",
+      "subtitle": "Keyakinan kepada Petunjuk Ilahi dan Al-Quran Al-Karim",
+      "summary": "Meyakini kitab-kitab yang diturunkan Allah kepada para rasul sebagai petunjuk hidup, dengan Al-Quran sebagai kitab pamungkas."
+    },
+    "tr": {
+      "title": "Kutsal Kitaplara İman",
+      "subtitle": "İlahi Mesajlara ve Kur’an-ı Kerim’e İnanmak",
+      "summary": "Allah’ın peygamberlerine gönderdiği kutsal kitaplara ve son kitap olan Kur’an-ı Kerim’e kalpten inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi aux Livres Célestes",
+      "subtitle": "La croyance aux paroles d’Allah et au Saint Coran",
+      "summary": "Croire aux écritures révélées par Allah, dont le Saint Coran est l’ultime livre protégé."
+    },
+    "de": {
+      "title": "Der Glaube an die heiligen Bücher",
+      "subtitle": "Der Glaube an die offenbarten Schriften und den Koran",
+      "summary": "Daran glauben, dass Allah Seine Schriften zur Rechtleitung herabgesandt hat, gekrönt durch den edlen Koran."
+    },
+    "es": {
+      "title": "La Fe en los Libros Sagrados",
+      "subtitle": "Creer en las revelaciones divinas y el Sagrado Corán",
+      "summary": "Creer en los libros sagrados revelados por Al-lah como guía, siendo el Corán el mensaje final y protegido."
+    }
+  },
+  "iman_messengers": {
+    "bn": {
+      "title": "নবী ও রাসূলগণের প্রতি ঈমান",
+      "subtitle": "মানবজাতির সত্যের পথপ্রদর্শক সম্মানিত নবীগণের প্রতি বিশ্বাস",
+      "summary": "বিশ্বাস করা যে আল্লাহ মানবজাতিকে পথ দেখাতে অনেক নবী পাঠিয়েছেন এবং মুহাম্মদ ﷺ সর্বশেষ ও সর্বশ্রেষ্ঠ নবী।"
+    },
+    "ru": {
+      "title": "Вера в Пророков и Посланников",
+      "subtitle": "Вера в избранных учителей человечества",
+      "summary": "Вера во всех благородных пророков Аллаха от Адама до Мухаммада ﷺ, призывавших к добру и единобожию."
+    },
+    "ur": {
+      "title": "انبیاء اور رسولوں پر ایمان",
+      "subtitle": "انسانیت کے سچے رہنماؤں پر ایمان",
+      "summary": "حضرت آدمؑ سے لے کر حضرت محمد ﷺ تک تمام سچے انبیاء پر ایمان لانا، اور محمد ﷺ کو اللہ کا آخری نبی تسلیم کرنا۔"
+    },
+    "id": {
+      "title": "Iman kepada Para Nabi & Rasul",
+      "subtitle": "Keyakinan kepada Para Pembimbing Umat Manusia",
+      "summary": "Meyakini semua nabi dan rasul yang diutus Allah dari Nabi Adam hingga Nabi Muhammad ﷺ sebagai teladan terbaik."
+    },
+    "tr": {
+      "title": "Peygamberlere İman",
+      "subtitle": "İnsanlığa Doğru Yolu Gösteren Elçilere İnanmak",
+      "summary": "Hz. Adem’den Hz. Muhammed ﷺ’e kadar gönderilen tüm peygamberlerin Allah’ın doğru sözlü elçileri olduğuna inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi aux Prophètes et Messagers",
+      "subtitle": "La croyance aux modèles d’intégrité envoyés par Allah",
+      "summary": "Croire en tous les prophètes depuis Adam jusqu’à Muhammad ﷺ, le sceau des messagers."
+    },
+    "de": {
+      "title": "Der Glaube an die Gesandten",
+      "subtitle": "Der Glaube an die Vorbilder der Menschheit",
+      "summary": "An alle edlen Gesandten glauben, von Adam bis zu Muhammad ﷺ, dem Siegel aller Propheten."
+    },
+    "es": {
+      "title": "La Fe en los Profetas y Mensajeros",
+      "subtitle": "Creer en los guías de la humanidad enviados por Al-lah",
+      "summary": "Creer en todos los profetas desde Adán hasta Muhammad ﷺ, el último y sello de los mensajeros."
+    }
+  },
+  "iman_day": {
+    "bn": {
+      "title": "আখেরাত বা পরকালের প্রতি ঈমান",
+      "subtitle": "হিসাব-নিকাশ, জান্নাত ও অনন্ত জীবনের প্রতি বিশ্বাস",
+      "summary": "বিশ্বাস করা যে পার্থিব জীবনের পর পুনরুত্থান সত্য এবং নেক কাজের বিনিময়ে আল্লাহ জান্নাতের অনন্ত সুখ দান করবেন।"
+    },
+    "ru": {
+      "title": "Вера в Судный День (Ахират)",
+      "subtitle": "Вера в вечную жизнь и справедливое воздаяние",
+      "summary": "Вера в воскрешение после смерти, справедливый суд Всевышнего и вечную награду в райских садах за благие дела."
+    },
+    "ur": {
+      "title": "آخرت کے دن پر ایمان",
+      "subtitle": "حساب کتاب، جنت اور ابدی زندگی پر یقین",
+      "summary": "اس دنیا کے بعد دوبارہ زندہ کیے جانے، اپنے اعمال کے حساب اور نیک لوگوں کے لیے جنت کی نعمتوں پر کامل یقین رکھنا۔"
+    },
+    "id": {
+      "title": "Iman kepada Hari Kiamat (Akhirat)",
+      "subtitle": "Keyakinan kepada Hari Pembalasan dan Surga yang Kekal",
+      "summary": "Meyakini adanya hari kebangkitan, pertanggungjawaban amal, dan balasan surga bagi orang-orang beriman."
+    },
+    "tr": {
+      "title": "Ahiret Gününe İman",
+      "subtitle": "Hesap Gününe, Yeniden Dirilişe ve Cennete İnanmak",
+      "summary": "Dünya hayatından sonra yeniden dirilişin, hesap gününün ve iyiliklerin karşılığı olarak Cennetin varlığına inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi au Jour Dernier (L’Au-delà)",
+      "subtitle": "La croyance au Jugement équitable et au Paradis éternel",
+      "summary": "Croire en la résurrection, au jugement des actes et à la récompense divine du Paradis pour les croyants bienfaisants."
+    },
+    "de": {
+      "title": "Der Glaube an den Jüngsten Tag",
+      "subtitle": "Der Glaube an das ewige Leben und die göttliche Gerechtigkeit",
+      "summary": "Daran glauben, dass nach diesem Leben die Auferstehung folgt und gute Taten mit dem Paradies belohnt werden."
+    },
+    "es": {
+      "title": "La Fe en el Día del Juicio",
+      "subtitle": "Creer en la vida eterna y la justicia divina",
+      "summary": "Creer en la resurrección, el juicio de las obras y la promesa del Paraíso eterno para los justos."
+    }
+  },
+  "iman_destiny": {
+    "bn": {
+      "title": "তাকদীরের প্রতি ঈমান",
+      "subtitle": "ভালো ও মন্দ সবকিছু আল্লাহর হিকমত ও জ্ঞানের অন্তর্ভুক্ত",
+      "summary": "বিশ্বাস করা যে যা কিছু ঘটে তা আল্লাহর সর্বজ্ঞ জ্ঞান ও প্রজ্ঞাময় পরিকল্পনার অংশ, যা আমাদের মনকে সন্তুষ্টি দান করে।"
+    },
+    "ru": {
+      "title": "Вера в Предопределение (Кадар)",
+      "subtitle": "Вера в совершенную мудрость и замысел Аллаха",
+      "summary": "Вера в то, что всё происходящее подвластно знанию и мудрости Аллаха, что дарует покой и терпение в любых испытаниях."
+    },
+    "ur": {
+      "title": "تقدیر پر ایمان (قضاء و قدر)",
+      "subtitle": "اچھے اور برے حالات میں اللہ کی حکمت پر یقین",
+      "summary": "اس بات پر راضی رہنا کہ دنیا میں جو کچھ ہوتا ہے وہ اللہ کے علم، ارادے اور بہترین حکمت کے تحت ہوتا ہے۔"
+    },
+    "id": {
+      "title": "Iman kepada Qada dan Qadar (Takdir)",
+      "subtitle": "Keyakinan kepada Ketetapan dan Hikmah Allah",
+      "summary": "Meyakini bahwa segala sesuatu terjadi atas kehendak dan kebijaksanaan Allah, mendatangkan ketenangan hati."
+    },
+    "tr": {
+      "title": "Kadere İman (Kader ve Kaza)",
+      "subtitle": "Allah’ın Sonsuz İlim ve Hikmetine İnanmak",
+      "summary": "Her şeyin Allah’ın bilgisi, takdiri ve hikmeti dahilinde gerçekleştiğine, O’nun her işinde bir hayır olduğuna inanmaktır."
+    },
+    "fr": {
+      "title": "La Foi au Destin (Al-Qadr)",
+      "subtitle": "La croyance en la sagesse suprême d’Allah dans toute chose",
+      "summary": "Croire que tout arrive selon le décret sage d’Allah, ce qui apaise l’esprit et renforce la résilience."
+    },
+    "de": {
+      "title": "Der Glaube an die Vorherbestimmung (Qadr)",
+      "subtitle": "Der Glaube an Allahs unendliche Weisheit in allem",
+      "summary": "Daran glauben, dass alles nach Allahs weisem Plan geschieht, was dem Herzen tiefe Zufriedenheit schenkt."
+    },
+    "es": {
+      "title": "La Fe en el Destino Divino (Al-Qádr)",
+      "subtitle": "Creer en la infinita sabiduría y designio de Al-lah",
+      "summary": "Creer que todo ocurre conforme a la sabiduría y conocimiento de Al-lah, brindando paz y aceptación al alma."
+    }
+  }
+};
+
 export function getLocalizedPillar(
   pillar: PillarItem,
   lang: Language
@@ -722,42 +1329,19 @@ export function getLocalizedPillar(
     };
   }
 
-  // Pillar Titles in French, German, Spanish
-  const pillarTitles: Record<string, Record<'fr' | 'de' | 'es', { title: string; subtitle: string }>> = {
-    shahada: {
-      fr: { title: 'L’Attestation de Foi (Chahada)', subtitle: 'La clé du Paradis et le premier fondement de l’Islam' },
-      de: { title: 'Das Glaubensbekenntnis (Schahada)', subtitle: 'Der Schlüssel zum Paradies und das Fundament des Islam' },
-      es: { title: 'El Testimonio de Fe (Shahada)', subtitle: 'La llave del Paraíso y el pilar fundamental del Islam' },
-    },
-    salah: {
-      fr: { title: 'La Prière Quotidienne (Salât)', subtitle: 'Le lien d’amour et de lumière avec Allah cinq fois par jour' },
-      de: { title: 'Das tägliche Gebet (Salah)', subtitle: 'Die liebevolle Verbindung und das Licht zu Allah fünfmal am Tag' },
-      es: { title: 'La Oración Diaria (Salat)', subtitle: 'La conexión de amor y luz con Al-lah cinco veces al día' },
-    },
-    zakat: {
-      fr: { title: 'L’Aumône Purificatrice (Zakât)', subtitle: 'Partager avec amour pour aider les nécessiteux et bénir nos biens' },
-      de: { title: 'Die Pflichtabgabe (Zakat)', subtitle: 'Mit Liebe teilen, um die Bedürftigen zu unterstützen' },
-      es: { title: 'La Limosna Obligatoria (Zakat)', subtitle: 'Compartir con amor para apoyar a los necesitados y purificar los bienes' },
-    },
-    sawm: {
-      fr: { title: 'Le Jeûne du Ramadan (Siyâm)', subtitle: 'Apprendre la patience, la gratitude et la maîtrise de soi' },
-      de: { title: 'Das Fasten im Ramadan (Sawm)', subtitle: 'Geduld, Dankbarkeit und Beherrschung des Herzens lernen' },
-      es: { title: 'El Ayuno de Ramadán (Sawm)', subtitle: 'Aprender la paciencia, la gratitud y la purificación del alma' },
-    },
-    hajj: {
-      fr: { title: 'Le Pèlerinage à La Mecque (Hajj)', subtitle: 'Le grand voyage de la fraternité et de l’unité autour de la Kaaba' },
-      de: { title: 'Die Pilgerfahrt (Hadsch)', subtitle: 'Die große Reise des Friedens und der Einheit rund um die Kaaba' },
-      es: { title: 'La Peregrinación (Hajj)', subtitle: 'El gran viaje sagrado de fraternidad y unión alrededor de la Kaaba' },
-    },
-  };
-
-  const localized = (lang === 'fr' || lang === 'de' || lang === 'es')
-    ? pillarTitles[pillar.id]?.[lang]
-    : null;
+  const custom = PILLAR_LOCALIZATIONS[pillar.id]?.[lang];
+  if (custom) {
+    return {
+      title: custom.title,
+      subtitle: custom.subtitle,
+      summary: custom.summary,
+      hadithProof: pillar.hadithProofEn || pillar.hadithProofAr,
+    };
+  }
 
   return {
-    title: localized ? localized.title : pillar.titleEn,
-    subtitle: localized ? localized.subtitle : pillar.subtitleEn,
+    title: pillar.titleEn,
+    subtitle: pillar.subtitleEn,
     summary: pillar.summaryEn || pillar.summaryAr,
     hadithProof: pillar.hadithProofEn || pillar.hadithProofAr,
   };
@@ -811,3 +1395,609 @@ export function formatLocalizedTodayDate(lang: Language): string {
     day: 'numeric',
   });
 }
+export function getPillarHeroBadge(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: '🌟 رحلة الإيمان والعمل',
+    en: '🌟 Journey of Faith',
+    fr: '🌟 Voyage de la Foi',
+    de: '🌟 Reise des Glaubens',
+    es: '🌟 Viaje de la Fe',
+    ru: '🌟 Путь веры и знаний',
+    ur: '🌟 ایمان اور عمل کا سفر',
+    id: '🌟 Perjalanan Iman',
+    bn: '🌟 ঈমান ও আমলের যাত্রা',
+    tr: '🌟 İman ve İlim Yolculuğu',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarHeroSubtitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'تعلم أركان الإسلام الخمسة وأركان الإيمان الستة بأسلوب تفاعلي مشوق وجميل!',
+    en: 'Explore the 5 Pillars of Islam and 6 Pillars of Iman through interactive lessons!',
+    fr: 'Découvre les 5 piliers de l’Islam et les 6 piliers de la Foi à travers des leçons interactives !',
+    de: 'Entdecke die 5 Säulen des Islam und die 6 Säulen des Glaubens mit interaktiven Lektionen!',
+    es: '¡Descubre los 5 pilares del Islam y los 6 pilares de la Fe con lecciones interactivas!',
+    ru: 'Изучайте 5 столпов Ислама и 6 столпов Имана в увлекательных интерактивных уроках!',
+    ur: 'اسلام کے ۵ ارکان اور ایمان کے ۶ ارکان دلکش و دلچسپ انداز میں سیکھیں!',
+    id: 'Pelajari 5 Rukun Islam dan 6 Rukun Iman melalui pembelajaran interaktif yang menyenangkan!',
+    bn: '৫টি ইসলামের রুকন এবং ৬টি ঈমানের রুকন শিখুন চমৎকার ও আনন্দময় পাঠের মাধ্যমে!',
+    tr: 'İslam’ın 5 şartını ve İmanın 6 şartını eğlenceli ve interaktif derslerle keşfet!',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarShortNumber(num: number, lang: Language): string {
+  if (lang === 'ar') return `الركن ${num}`;
+  if (lang === 'ur') return `رکن ${num}`;
+  if (lang === 'bn') return `${num}নং স্তম্ভ`;
+  if (lang === 'ru') return `Столп ${num}`;
+  if (lang === 'tr') return `${num}. Şart`;
+  if (lang === 'id') return `Rukun ${num}`;
+  if (lang === 'fr') return `Pilier ${num}`;
+  if (lang === 'de') return `Säule ${num}`;
+  if (lang === 'es') return `Pilar ${num}`;
+  return `Pillar ${num}`;
+}
+
+export function getPillarCategoryBadge(category: 'islam' | 'iman', num: number, lang: Language): string {
+  if (category === 'islam') {
+    if (lang === 'ar') return `الركن ${num} من أركان الإسلام`;
+    if (lang === 'ur') return `اسلام کا رکن ${num}`;
+    if (lang === 'bn') return `ইসলামের ${num}নং রুকন`;
+    if (lang === 'ru') return `Столп ${num} Ислама`;
+    if (lang === 'tr') return `İslam’ın ${num}. Şartı`;
+    if (lang === 'id') return `Rukun Islam ke-${num}`;
+    if (lang === 'fr') return `Pilier ${num} de l'Islam`;
+    if (lang === 'de') return `Säule ${num} des Islam`;
+    if (lang === 'es') return `Pilar ${num} del Islam`;
+    return `Pillar ${num} of Islam`;
+  } else {
+    if (lang === 'ar') return `الركن ${num} من أركان الإيمان`;
+    if (lang === 'ur') return `ایمان کا رکن ${num}`;
+    if (lang === 'bn') return `ঈমানের ${num}নং রুকন`;
+    if (lang === 'ru') return `Столп ${num} Имана`;
+    if (lang === 'tr') return `İmanın ${num}. Şartı`;
+    if (lang === 'id') return `Rukun Iman ke-${num}`;
+    if (lang === 'fr') return `Pilier ${num} de la Foi`;
+    if (lang === 'de') return `Säule ${num} des Glaubens`;
+    if (lang === 'es') return `Pilar ${num} de la Fe`;
+    return `Pillar ${num} of Iman`;
+  }
+}
+
+export function getPillarExploreLabel(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'استكشف وتعلّم',
+    en: 'Explore',
+    fr: 'Explorer',
+    de: 'Entdecken',
+    es: 'Explorar',
+    ru: 'Узнать больше',
+    ur: 'سیکھیں اور جانیں',
+    id: 'Pelajari',
+    bn: 'শিখুন ও জানুন',
+    tr: 'Keşfet',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarProofLabel(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'الدليل من الحديث الشريف:',
+    en: 'Prophetic Proof:',
+    fr: 'Preuve du noble Hadith :',
+    de: 'Beweis aus dem edlen Hadith:',
+    es: 'Prueba del noble Hadiz:',
+    ru: 'Довод из благородного хадиса:',
+    ur: 'حدیثِ نبوی سے دلیل:',
+    id: 'Dalil dari Hadis Nabi:',
+    bn: 'হাদীস শরীফ থেকে প্রমাণ:',
+    tr: 'Hadis-i Şeriften Delil:',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarSimTab(mode: 'wudu' | 'prayer', lang: Language): string {
+  if (mode === 'wudu') {
+    const map: Record<Language, string> = {
+      ar: '🌊 كيف أتوضأ؟ (٨ خطوات)',
+      en: '🌊 How to do Wudu (8 steps)',
+      fr: '🌊 Comment faire ses ablutions (8 étapes)',
+      de: '🌊 Wie vollzieht man Wudu? (8 Schritte)',
+      es: '🌊 ¿Cómo hacer la ablución? (8 pasos)',
+      ru: '🌊 Как совершать омовение? (8 шагов)',
+      ur: '🌊 وضو کا طریقہ (۸ مراحل)',
+      id: '🌊 Cara Berwudu (8 langkah)',
+      bn: '🌊 কীভাবে ওযু করতে হয়? (৮টি ধাপ)',
+      tr: '🌊 Abdest Nasıl Alınır? (8 adım)',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: '🕌 كيف أصلي؟ (١٠ خطوات)',
+      en: '🕌 How to Pray (10 steps)',
+      fr: '🕌 Comment faire la prière (10 étapes)',
+      de: '🕌 Wie betet man? (10 Schritte)',
+      es: '🕌 ¿Cómo rezar? (10 pasos)',
+      ru: '🕌 Как совершать намаз? (10 шагов)',
+      ur: '🕌 نماز کا طریقہ (۱۰ مراحل)',
+      id: '🕌 Cara Salat (10 langkah)',
+      bn: '🕌 কীভাবে নামায পড়তে হয়? (১০টি ধাপ)',
+      tr: '🕌 Namaz Nasıl Kılınır? (10 adım)',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getPillarSimBadge(mode: 'wudu' | 'prayer', lang: Language): string {
+  if (mode === 'wudu') {
+    const map: Record<Language, string> = {
+      ar: 'خطوات الوضوء المبارك',
+      en: 'Steps of Wudu',
+      fr: 'Étapes des ablutions',
+      de: 'Schritte des Wudu',
+      es: 'Pasos de la ablución',
+      ru: 'Шаги омовения',
+      ur: 'وضو کے مبارک مراحل',
+      id: 'Langkah-langkah Wudu',
+      bn: 'পবিত্র ওযুর ধাপসমূহ',
+      tr: 'Mübarek Abdest Adımları',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: 'طريقة وأركان الصلاة',
+      en: 'How to Pray (Step-by-Step)',
+      fr: 'Manière et piliers de la prière',
+      de: 'Ablauf und Säulen des Gebets',
+      es: 'Guía y pilares de la oración',
+      ru: 'Порядок и столпы намаза',
+      ur: 'نماز کا طریقہ اور ارکان',
+      id: 'Panduan dan Rukun Salat',
+      bn: 'নামাযের নিয়ম ও রুকনসমূহ',
+      tr: 'Namazın Kılınışı ve Rükünleri',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getPillarStepCounter(step: number, total: number, lang: Language): string {
+  if (lang === 'ar') return `خطوة ${step} من ${total}`;
+  if (lang === 'ur') return `مرحلہ ${step} از ${total}`;
+  if (lang === 'bn') return `${step}নং ধাপ (${total}টির মধ্যে)`;
+  if (lang === 'ru') return `Шаг ${step} из ${total}`;
+  if (lang === 'id') return `Langkah ${step} dari ${total}`;
+  if (lang === 'tr') return `Adım ${step} / ${total}`;
+  if (lang === 'fr') return `Étape ${step} sur ${total}`;
+  if (lang === 'de') return `Schritt ${step} von ${total}`;
+  if (lang === 'es') return `Paso ${step} de ${total}`;
+  return `Step ${step} of ${total}`;
+}
+
+export function getPillarDhikrLabel(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'ما نقوله في هذه الخطوة:',
+    en: 'What to say in this step:',
+    fr: 'Ce que l’on dit à cette étape :',
+    de: 'Was wir in diesem Schritt sagen:',
+    es: 'Lo que decimos en este paso:',
+    ru: 'Что мы говорим на этом шаге:',
+    ur: 'اس مرحلے میں کیا پڑھتے ہیں:',
+    id: 'Bacaan pada langkah ini:',
+    bn: 'এই ধাপে যা বলতে হয়:',
+    tr: 'Bu adımda söylenen dua:',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarAudioBtnLabel(isPlaying: boolean, lang: Language): string {
+  if (isPlaying) {
+    const map: Record<Language, string> = {
+      ar: 'إيقاف الصوت',
+      en: 'Stop Audio',
+      fr: 'Arrêter l’audio',
+      de: 'Ton anhalten',
+      es: 'Detener audio',
+      ru: 'Остановить',
+      ur: 'آواز روکیں',
+      id: 'Hentikan Audio',
+      bn: 'অডিও থামান',
+      tr: 'Sesi Durdur',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: '🔊 استمع لنطق الذكر',
+      en: '🔊 Listen to Dhikr',
+      fr: '🔊 Écouter l’invocation',
+      de: '🔊 Bittgebet anhören',
+      es: '🔊 Escuchar la súplica',
+      ru: '🔊 Слушать зикр',
+      ur: '🔊 ذکر سنیں',
+      id: '🔊 Dengarkan Zikir',
+      bn: '🔊 যিকির শুনুন',
+      tr: '🔊 Zikri Dinle',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getPillarNavBtnLabel(action: 'prev' | 'next' | 'wuduDone' | 'prayerDone', lang: Language): string {
+  if (action === 'prev') {
+    const map: Record<Language, string> = {
+      ar: 'السابق',
+      en: 'Previous',
+      fr: 'Précédent',
+      de: 'Zurück',
+      es: 'Anterior',
+      ru: 'Назад',
+      ur: 'پچھلا',
+      id: 'Sebelumnya',
+      bn: 'পূর্ববর্তী',
+      tr: 'Önceki',
+    };
+    return map[lang] || map.en;
+  }
+  if (action === 'next') {
+    const map: Record<Language, string> = {
+      ar: 'التالي',
+      en: 'Next',
+      fr: 'Suivant',
+      de: 'Weiter',
+      es: 'Siguiente',
+      ru: 'Далее',
+      ur: 'اگلا',
+      id: 'Berikutnya',
+      bn: 'পরবর্তী',
+      tr: 'Sonraki',
+    };
+    return map[lang] || map.en;
+  }
+  if (action === 'wuduDone') {
+    const map: Record<Language, string> = {
+      ar: 'أتقنت الوضوء ✓',
+      en: 'Wudu Completed ✓',
+      fr: 'Ablutions maîtrisées ✓',
+      de: 'Wudu gemeistert ✓',
+      es: '¡Ablución completada! ✓',
+      ru: 'Омовение освоено ✓',
+      ur: 'وضو مکمل ہوا ✓',
+      id: 'Wudu Selesai ✓',
+      bn: 'ওযু সম্পন্ন হয়েছে ✓',
+      tr: 'Abdest Tamamlandı ✓',
+    };
+    return map[lang] || map.en;
+  }
+  const map: Record<Language, string> = {
+    ar: 'أتقنت الصلاة ✓',
+    en: 'Prayer Completed ✓',
+    fr: 'Prière maîtrisée ✓',
+    de: 'Gebet gemeistert ✓',
+    es: '¡Oración completada! ✓',
+    ru: 'Намаз освоен ✓',
+    ur: 'نماز مکمل ہوئی ✓',
+    id: 'Salat Selesai ✓',
+    bn: 'নামায সম্পন্ন হয়েছে ✓',
+    tr: 'Namaz Tamamlandı ✓',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarQuizTitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'اختبر فهمك يا بطل',
+    en: 'Check Your Knowledge',
+    fr: 'Vérifie tes connaissances',
+    de: 'Teste dein Wissen',
+    es: 'Pon a prueba lo aprendido',
+    ru: 'Проверь свои знания',
+    ur: 'اپنا علم آزمائیں',
+    id: 'Uji Pengetahuanmu',
+    bn: 'তোমার জ্ঞান যাচাই করো',
+    tr: 'Bilgini Test Et',
+  };
+  return map[lang] || map.en;
+}
+
+export function getPillarClaimRewardText(stars: number, lang: Language): string {
+  if (lang === 'ar') return `أتممت الركن! احصل على +${stars} نجوم 🌟`;
+  if (lang === 'ur') return `مکمل ہوا! +${stars} ستارے حاصل کریں 🌟`;
+  if (lang === 'bn') return `সম্পন্ন হয়েছে! +${stars}টি তারা গ্রহণ করো 🌟`;
+  if (lang === 'ru') return `Завершено! Забери +${stars} звёзд 🌟`;
+  if (lang === 'id') return `Selesai! Klaim +${stars} Bintang 🌟`;
+  if (lang === 'tr') return `Tamamlandı! +${stars} Yıldız Kazan 🌟`;
+  if (lang === 'fr') return `Terminé ! Récupère +${stars} étoiles 🌟`;
+  if (lang === 'de') return `Geschafft! Hole dir +${stars} Sterne 🌟`;
+  if (lang === 'es') return `¡Completado! Reclama +${stars} estrellas 🌟`;
+  return `Completed! Claim +${stars} Stars 🌟`;
+}
+
+export function getPillarCelebrationMeta(title: string, lang: Language): { title: string; subtitle: string } {
+  if (lang === 'ar') return { title: 'بارك الله فيك يا بطل!', subtitle: `أتممت تعلم واستيعاب ${title}` };
+  if (lang === 'ur') return { title: 'ماشاءاللہ! شاباش پیارے بچے!', subtitle: `آپ نے کامیابی سے ${title} سیکھ لیا` };
+  if (lang === 'bn') return { title: 'মাশাআল্লাহ! সাবাশ প্রিয় বন্ধু!', subtitle: `তুমি সফলভাবে ${title} শিখেছো` };
+  if (lang === 'ru') return { title: 'МашаАллах! Молодец, герой!', subtitle: `Вы успешно изучили «${title}»` };
+  if (lang === 'id') return { title: 'Masya Allah! Hebat, Juara!', subtitle: `Kamu berhasil mempelajari ${title}` };
+  if (lang === 'tr') return { title: 'MaşaAllah! Harikasın şampiyon!', subtitle: `${title} konusunu başarıyla tamamladın` };
+  if (lang === 'fr') return { title: 'Macha’Allah ! Bravo champion !', subtitle: `Tu as maîtrisé l’apprentissage de : ${title}` };
+  if (lang === 'de') return { title: 'Mascha’Allah! Großartig gemacht!', subtitle: `Du hast ${title} erfolgreich gelernt` };
+  if (lang === 'es') return { title: '¡Masha’Al-lah! ¡Muy bien, campeón!', subtitle: `Has dominado el aprendizaje de ${title}` };
+  return { title: 'Masha’Allah! Champion!', subtitle: `You mastered learning ${title}` };
+}
+
+// --- Sunnah Localizations ---
+export function getHadithActionBtnLabel(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'تدبر وتعلّم',
+    en: 'Learn',
+    fr: 'Découvrir',
+    de: 'Lernen',
+    es: 'Aprender',
+    ru: 'Изучить',
+    ur: 'سیکھیں',
+    id: 'Pelajari',
+    bn: 'শিখুন',
+    tr: 'Öğren',
+  };
+  return map[lang] || map.en;
+}
+
+export function getHadithHabitsIntro(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'طبق هذه السنن المباركة اليوم واكسب النجوم والجواهر!',
+    en: 'Practice these blessed sunnah habits today to earn rewards!',
+    fr: 'Applique ces nobles traditions aujourd’hui pour gagner des récompenses !',
+    de: 'Wende diese edlen Sunnah-Gewohnheiten heute an, um Sterne zu sammeln!',
+    es: '¡Aplica estas nobles tradiciones hoy para ganar estrellas y gemas!',
+    ru: 'Следуйте благословенным суннам сегодня и получайте звёзды и кристаллы!',
+    ur: 'آج ان مبارک سنتوں پر عمل کریں اور ستارے اور ہیرے حاصل کریں!',
+    id: 'Amalkan sunnah yang penuh berkah ini hari ini dan dapatkan bintang serta permata!',
+    bn: 'আজই এই বরকতময় সুন্নাহগুলো পালন করুন এবং তারা ও রত্ন অর্জন করুন!',
+    tr: 'Bu mübarek sünnetleri bugün uygula, yıldız ve elmaslar kazan!',
+  };
+  return map[lang] || map.en;
+}
+
+export function getHadithMiniStoryTitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'قصة مصورة عن الحديث',
+    en: 'Illustrated Mini-Story',
+    fr: 'Mini-histoire illustrée',
+    de: 'Illustrierte Kurzgeschichte',
+    es: 'Mini-historia ilustrada',
+    ru: 'Иллюстрированная история',
+    ur: 'حدیث کی تصویری کہانی',
+    id: 'Cerita Bergambar Hadis',
+    bn: 'চিত্রিত শিক্ষণীয় গল্প',
+    tr: 'Resimli Hadis Hikayesi',
+  };
+  return map[lang] || map.en;
+}
+
+export function getHadithCelebrationSubtitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'أحسنت اختيار السلوك النبوي الشريف!',
+    en: 'Well done choosing the noble Sunnah way!',
+    fr: 'Bravo ! Tu as choisi la noble voie prophétique !',
+    de: 'Gut gemacht! Du hast den edlen prophetischen Weg gewählt!',
+    es: '¡Bien hecho! ¡Elegiste el noble camino de la Sunnah!',
+    ru: 'Отлично! Вы выбрали благородный путь Сунны!',
+    ur: 'شاباش! آپ نے پیاری سنت کا مبارک راستہ چنا!',
+    id: 'Bagus sekali! Kamu telah memilih jalan sunnah yang mulia!',
+    bn: 'সাবাশ! তুমি প্রিয় নবীর আদর্শ ও সুন্নাহর পথ বেছে নিয়েছো!',
+    tr: 'Tebrikler! Nebevî sünnet yolunu en güzel şekilde seçtin!',
+  };
+  return map[lang] || map.en;
+}
+
+// --- Manners Localizations ---
+export function getMannersJournalBannerTitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'دفتر شكر الله والامتنان 🌸',
+    en: 'My Gratitude Journal 🌸',
+    fr: 'Mon Carnet de Gratitude envers Allah 🌸',
+    de: 'Mein Dankbarkeitstagebuch für Allah 🌸',
+    es: 'Mi Diario de Gratitud a Al-lah 🌸',
+    ru: 'Дневник благодарности Аллаху 🌸',
+    ur: 'اللہ کے شکر اور تشکر کی ڈائری 🌸',
+    id: 'Buku Syukur dan Rasa Terima Kasihku 🌸',
+    bn: 'আল্লাহর প্রতি কৃতজ্ঞতার ডায়েরি 🌸',
+    tr: 'Allah’a Şükür Günlüğüm 🌸',
+  };
+  return map[lang] || map.en;
+}
+
+export function getMannersJournalBannerSub(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'سجّل نعمة تشكر الله عليها اليوم واكسب نجوماً!',
+    en: 'Thank Allah for a blessing today & earn stars!',
+    fr: 'Remercie Allah pour un bienfait aujourd’hui et gagne des étoiles !',
+    de: 'Danke Allah heute für einen Segen & verdiene Sterne!',
+    es: '¡Agradece a Al-lah por una bendición hoy y gana estrellas!',
+    ru: 'Поблагодарите Аллаха за милость сегодня и получите звёзды!',
+    ur: 'آج کسی نعمت پر اللہ کا شکر ادا کریں اور ستارے حاصل کریں!',
+    id: 'Ucapkan syukur atas nikmat Allah hari ini dan dapatkan bintang!',
+    bn: 'আজ আল্লাহর একটি নিয়ামতের শুকরিয়া আদায় করো এবং তারা অর্জন করো!',
+    tr: 'Bugün bir nimet için Allah’a şükret ve yıldız kazan!',
+  };
+  return map[lang] || map.en;
+}
+
+export function getMannersBuildingsHeading(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'معالم الأخلاق في المدينة',
+    en: 'Buildings of Manners',
+    fr: 'Édifices des nobles manières',
+    de: 'Stätten der guten Manieren',
+    es: 'Edificios de los buenos modales',
+    ru: 'Здания благородных нравов',
+    ur: 'اخلاق کے خوبصورت مراکز',
+    id: 'Bangunan Akhlak Terpuji',
+    bn: 'উত্তম চরিত্রের ভবনসমূহ',
+    tr: 'Güzel Ahlak Konakları',
+  };
+  return map[lang] || map.en;
+}
+
+export function getMannersLandmarksCountBadge(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: '٥٠ مَعلماً وخُلقاً حسناً',
+    en: '50 Moral Landmarks',
+    fr: '50 monuments moraux',
+    de: '50 moralische Stätten',
+    es: '50 monumentos morales',
+    ru: '50 нравственных мест',
+    ur: '۵۰ اخلاقی مقامات',
+    id: '50 Tempat Akhlak Mulia',
+    bn: '৫০টি চারিত্রিক নিদর্শন',
+    tr: '50 Ahlaki Mekan',
+  };
+  return map[lang] || map.en;
+}
+
+export function getMannersProofType(type: 'ayah' | 'hadith', lang: Language): string {
+  if (type === 'ayah') {
+    const map: Record<Language, string> = {
+      ar: 'من القرآن الكريم',
+      en: 'From the Quran',
+      fr: 'Du Saint Coran',
+      de: 'Aus dem Heiligen Koran',
+      es: 'Del Sagrado Corán',
+      ru: 'Из Священного Корана',
+      ur: 'قرآن مجید سے',
+      id: 'Dari Al-Quran',
+      bn: 'পবিত্র কুরআন থেকে',
+      tr: 'Kur’an-ı Kerim’den',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: 'من الحديث الشريف',
+      en: 'From the Hadith',
+      fr: 'Du noble Hadith',
+      de: 'Aus dem edlen Hadith',
+      es: 'Del noble Hadiz',
+      ru: 'Из благородного хадиса',
+      ur: 'حدیث شریف سے',
+      id: 'Dari Hadis Nabi',
+      bn: 'হাদীস শরীফ থেকে',
+      tr: 'Hadis-i Şerif’ten',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getMannersPledgeText(hasPledged: boolean, lang: Language): string {
+  if (hasPledged) {
+    const map: Record<Language, string> = {
+      ar: 'تم قطع العهد بنجاح!',
+      en: 'Pledge Confirmed!',
+      fr: 'Engagement confirmé !',
+      de: 'Gelöbnis bestätigt!',
+      es: '¡Compromiso confirmado!',
+      ru: 'Обещание дано!',
+      ur: 'عہد کامیابی سے مکمل ہوا!',
+      id: 'Janji Berhasil Diikrarkan!',
+      bn: 'অঙ্গীকার সফলভাবে গৃহীত হয়েছে!',
+      tr: 'Söz Başarıyla Verildi!',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: 'أتعهد وألتزم بهذا الخُلق',
+      en: 'I take this pledge',
+      fr: 'Je prends cet engagement',
+      de: 'Ich nehme dieses Gelöbnis an',
+      es: 'Asumo este compromiso',
+      ru: 'Я обещаю следовать этому нраву',
+      ur: 'میں اس اخلاق پر عمل کا عہد کرتا ہوں',
+      id: 'Saya berjanji menjaga akhlak ini',
+      bn: 'আমি এই উত্তম চরিত্র অনুসরণের অঙ্গীকার করছি',
+      tr: 'Bu ahlaka bağlı kalacağıma söz veriyorum',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getMannersCelebrationSubtitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'بارك الله فيك يا صاحب الخلق الرفيع!',
+    en: 'Masha’Allah for your noble character!',
+    fr: 'Qu’Allah te bénisse pour tes nobles manières !',
+    de: 'Möge Allah dich für deinen edlen Charakter segnen!',
+    es: '¡Que Al-lah te bendiga por tu noble carácter!',
+    ru: 'Да благословит тебя Аллах за твои прекрасные нравы!',
+    ur: 'اللہ آپ کو بہترین اخلاق پر برکت عطا فرمائے!',
+    id: 'Masya Allah atas akhlak muliamu!',
+    bn: 'মাশাআল্লাহ! তোমার উত্তম ও সুন্দর চরিত্রের জন্য শুভকামনা!',
+    tr: 'Allah seni bu güzel ve üstün ahlakınla mübarek kılsın!',
+  };
+  return map[lang] || map.en;
+}
+
+// --- Quran Localizations ---
+export function getQuranSaveBtnLabel(isDownloaded: boolean, lang: Language): string {
+  if (isDownloaded) {
+    const map: Record<Language, string> = {
+      ar: 'محفوظة',
+      en: 'Saved',
+      fr: 'Enregistrée',
+      de: 'Gespeichert',
+      es: 'Guardada',
+      ru: 'Сохранено',
+      ur: 'محفوظ',
+      id: 'Tersimpan',
+      bn: 'সংরক্ষিত',
+      tr: 'Kaydedildi',
+    };
+    return map[lang] || map.en;
+  } else {
+    const map: Record<Language, string> = {
+      ar: 'تنزيل',
+      en: 'Save',
+      fr: 'Télécharger',
+      de: 'Laden',
+      es: 'Descargar',
+      ru: 'Скачать',
+      ur: 'ڈاؤنلوڈ',
+      id: 'Unduh',
+      bn: 'ডাউনলোড',
+      tr: 'İndir',
+    };
+    return map[lang] || map.en;
+  }
+}
+
+export function getQuranStoryShowcaseTitle(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: 'قصة السورة وعبرها المباركة:',
+    en: 'Surah Story & Wisdom:',
+    fr: 'Histoire et sagesse de la sourate :',
+    de: 'Geschichte und Weisheit der Sure:',
+    es: 'Historia y sabiduría de la sura:',
+    ru: 'История суры и её мудрость:',
+    ur: 'سورت کا واقعہ اور مبارک حکمت:',
+    id: 'Kisah Surah & Hikmah Berkahnya:',
+    bn: 'সূরার কাহিনী ও বরকতময় শিক্ষা:',
+    tr: 'Surenin Hikayesi ve Hikmetleri:',
+  };
+  return map[lang] || map.en;
+}
+
+export function getQuranGoldenLessonTag(lang: Language): string {
+  const map: Record<Language, string> = {
+    ar: '🌱 العبرة الذهبية:',
+    en: '🌱 Core Lesson:',
+    fr: '🌱 Leçon clé :',
+    de: '🌱 Wichtigste Lehre:',
+    es: '🌱 Lección clave:',
+    ru: '🌱 Главный урок:',
+    ur: '🌱 سنہری سبق:',
+    id: '🌱 Pelajaran Utama:',
+    bn: '🌱 সোনালী শিক্ষা:',
+    tr: '🌱 Altın Öğüt:',
+  };
+  return map[lang] || map.en;
+}
+

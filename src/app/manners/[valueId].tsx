@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedMannerBuilding, getLocalizedMannerScenario } from '@/services/multilingualContentService';
+import { getLocalizedMannerBuilding, getLocalizedMannerScenario, getMannersProofType, getMannersPledgeText, getMannersCelebrationSubtitle } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
@@ -188,25 +188,7 @@ export default function MannersScenarioPlayerScreen() {
           <View style={styles.proofHeader}>
             <Ionicons name="bookmark" size={16} color={COLORS.primaryDark} />
             <Text style={styles.proofType}>
-              {scenario.supportingProof.type === 'ayah'
-                ? language === 'ar'
-                  ? 'من القرآن الكريم'
-                  : language === 'fr'
-                  ? 'Du Saint Coran'
-                  : language === 'de'
-                  ? 'Aus dem Heiligen Koran'
-                  : language === 'es'
-                  ? 'Del Sagrado Corán'
-                  : 'From the Quran'
-                : language === 'ar'
-                ? 'من الحديث الشريف'
-                : language === 'fr'
-                ? 'Du noble Hadith'
-                : language === 'de'
-                ? 'Aus dem edlen Hadith'
-                : language === 'es'
-                ? 'Del noble Hadiz'
-                : 'From the Hadith'}
+              {getMannersProofType(scenario.supportingProof.type, language)}
             </Text>
           </View>
 
@@ -244,30 +226,12 @@ export default function MannersScenarioPlayerScreen() {
             activeOpacity={0.8}
           >
             <Ionicons
-              name={hasPledged ? 'checkmark-circle' : 'ribbon'}
-              size={20}
-              color={COLORS.textLight}
+              name={hasPledged ? 'checkmark-circle' : 'hand-left'}
+              size={18}
+              color="#ffffff"
             />
             <Text style={styles.pledgeBtnText}>
-              {hasPledged
-                ? (language === 'ar'
-                  ? 'تم قطع العهد بنجاح!'
-                  : language === 'fr'
-                  ? 'Engagement confirmé !'
-                  : language === 'de'
-                  ? 'Gelöbnis bestätigt!'
-                  : language === 'es'
-                  ? '¡Compromiso confirmado!'
-                  : 'Pledge Confirmed!')
-                : (language === 'ar'
-                ? 'أتعهد وألتزم بهذا الخُلق'
-                : language === 'fr'
-                ? 'Je prends cet engagement'
-                : language === 'de'
-                ? 'Ich nehme dieses Gelöbnis an'
-                : language === 'es'
-                ? 'Asumo este compromiso'
-                : 'I take this pledge')}
+              {getMannersPledgeText(hasPledged, language)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -279,17 +243,7 @@ export default function MannersScenarioPlayerScreen() {
         starsEarned={2}
         gemsEarned={4}
         title={t.congratulations}
-        subtitle={
-          language === 'ar'
-            ? 'بارك الله فيك يا صاحب الخلق الرفيع!'
-            : language === 'fr'
-            ? 'Qu’Allah te bénisse pour tes nobles manières !'
-            : language === 'de'
-            ? 'Möge Allah dich für deinen edlen Charakter segnen!'
-            : language === 'es'
-            ? '¡Que Al-lah te bendiga por tu noble carácter!'
-            : 'Masha’Allah for your noble character!'
-        }
+        subtitle={getMannersCelebrationSubtitle(language)}
         onDismiss={() => {
           setShowCelebration(false);
           router.replace('/manners');

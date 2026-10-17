@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedMannerBuilding } from '@/services/multilingualContentService';
+import { getLocalizedMannerBuilding, getMannersJournalBannerTitle, getMannersJournalBannerSub, getMannersBuildingsHeading, getMannersLandmarksCountBadge } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 
@@ -134,15 +134,7 @@ export default function MannersTownScreen() {
                     language === 'ar' && { textAlign: 'right' },
                   ]}
                 >
-                  {language === 'ar'
-                    ? 'دفتر شكر الله والامتنان 🌸'
-                    : language === 'fr'
-                    ? 'Mon Carnet de Gratitude envers Allah 🌸'
-                    : language === 'de'
-                    ? 'Mein Dankbarkeitstagebuch für Allah 🌸'
-                    : language === 'es'
-                    ? 'Mi Diario de Gratitud a Al-lah 🌸'
-                    : 'My Gratitude Journal 🌸'}
+                  {getMannersJournalBannerTitle(language)}
                 </Text>
                 <Text
                   style={[
@@ -150,15 +142,7 @@ export default function MannersTownScreen() {
                     language === 'ar' && { textAlign: 'right' },
                   ]}
                 >
-                  {language === 'ar'
-                    ? 'سجّل نعمة تشكر الله عليها اليوم واكسب نجوماً!'
-                    : language === 'fr'
-                    ? 'Remercie Allah pour un bienfait aujourd’hui et gagne des étoiles !'
-                    : language === 'de'
-                    ? 'Danke Allah heute für einen Segen & verdiene Sterne!'
-                    : language === 'es'
-                    ? '¡Agradece a Al-lah por una bendición hoy y gana estrellas!'
-                    : 'Thank Allah for a blessing today & earn stars!'}
+                  {getMannersJournalBannerSub(language)}
                 </Text>
               </View>
             </View>
@@ -242,20 +226,12 @@ export default function MannersTownScreen() {
 
         <View style={styles.sectionHeadingRow}>
           <Text style={styles.sectionHeading}>
-            {language === 'ar'
-              ? 'معالم الأخلاق في المدينة'
-              : language === 'fr'
-              ? 'Édifices des nobles manières'
-              : language === 'de'
-              ? 'Stätten der guten Manieren'
-              : language === 'es'
-              ? 'Edificios de los buenos modales'
-              : 'Buildings of Manners'}
+            {getMannersBuildingsHeading(language)}
           </Text>
           <View style={styles.landmarksCountBadge}>
             <Ionicons name="sparkles" size={13} color="#0284c7" />
             <Text style={styles.landmarksCountText}>
-              {language === 'ar' ? '٥٠ مَعلماً وخُلقاً حسناً' : '50 Moral Landmarks'}
+              {getMannersLandmarksCountBadge(language)}
             </Text>
           </View>
         </View>

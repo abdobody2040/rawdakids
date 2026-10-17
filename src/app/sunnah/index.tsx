@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedHadith } from '@/services/multilingualContentService';
+import { getLocalizedHadith, getHadithActionBtnLabel, getHadithHabitsIntro } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
@@ -104,15 +104,7 @@ export default function SunnahPathScreen() {
                     </View>
                     <View style={styles.hadithActionBtn}>
                       <Text style={styles.hadithActionBtnText}>
-                        {language === 'ar'
-                          ? 'تدبر وتعلّم'
-                          : language === 'fr'
-                          ? 'Découvrir'
-                          : language === 'de'
-                          ? 'Lernen'
-                          : language === 'es'
-                          ? 'Aprender'
-                          : 'Learn'}
+                        {getHadithActionBtnLabel(language)}
                       </Text>
                       <Ionicons
                         name={language === 'ar' ? 'arrow-back' : 'arrow-forward'}
@@ -130,15 +122,7 @@ export default function SunnahPathScreen() {
         {activeTab === 'habits' && (
           <View style={styles.listArea}>
             <Text style={styles.habitsIntro}>
-              {language === 'ar'
-                ? 'طبق هذه السنن المباركة اليوم واكسب النجوم والجواهر!'
-                : language === 'fr'
-                ? 'Applique ces nobles traditions aujourd’hui pour gagner des récompenses !'
-                : language === 'de'
-                ? 'Wende diese edlen Sunnah-Gewohnheiten heute an, um Sterne zu sammeln!'
-                : language === 'es'
-                ? '¡Aplica estas nobles tradiciones hoy para ganar estrellas y gemas!'
-                : 'Practice these blessed sunnah habits today to earn rewards!'}
+              {getHadithHabitsIntro(language)}
             </Text>
 
             {hadiths.map((h) => {

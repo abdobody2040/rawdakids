@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native
 import { Image } from 'expo-image';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
+import { Language, isRTL } from '@/constants/i18n';
 import { SHADOWS } from '@/constants/theme';
 
 const NAV_HOME_IMG = require('../../assets/images/nav-home-3d.jpg');
@@ -10,6 +11,81 @@ const NAV_SUNNAH_IMG = require('../../assets/images/nav-sunnah-3d.jpg');
 const NAV_PROPHETS_IMG = require('../../assets/images/nav-prophets-3d.jpg');
 const NAV_MANNERS_IMG = require('../../assets/images/nav-manners-3d.jpg');
 const NAV_REWARDS_IMG = require('../../assets/images/nav-rewards-3d.jpg');
+
+const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
+  home: {
+    ar: 'الرئيسية',
+    en: 'Home',
+    fr: 'Accueil',
+    de: 'Start',
+    es: 'Inicio',
+    ru: 'Главная',
+    ur: 'ہوم',
+    id: 'Beranda',
+    bn: 'হোম',
+    tr: 'Ana Sayfa',
+  },
+  quran: {
+    ar: 'القرآن',
+    en: 'Quran',
+    fr: 'Coran',
+    de: 'Koran',
+    es: 'Corán',
+    ru: 'Коран',
+    ur: 'قرآن',
+    id: 'Al-Quran',
+    bn: 'কুরআন',
+    tr: 'Kuran',
+  },
+  sunnah: {
+    ar: 'السنّة',
+    en: 'Sunnah',
+    fr: 'Sunnah',
+    de: 'Sunnah',
+    es: 'Sunna',
+    ru: 'Сунна',
+    ur: 'سنت',
+    id: 'Sunnah',
+    bn: 'সুন্নাহ',
+    tr: 'Sünnet',
+  },
+  prophets: {
+    ar: 'الأنبياء',
+    en: 'Stories',
+    fr: 'Histoires',
+    de: 'Geschichten',
+    es: 'Historias',
+    ru: 'Истории',
+    ur: 'کہانیاں',
+    id: 'Kisah',
+    bn: 'গল্পমালা',
+    tr: 'Hikayeler',
+  },
+  manners: {
+    ar: 'الأخلاق',
+    en: 'Manners',
+    fr: 'Manières',
+    de: 'Manieren',
+    es: 'Modales',
+    ru: 'Нравы',
+    ur: 'اخلاق',
+    id: 'Akhlak',
+    bn: 'আচরণ',
+    tr: 'Ahlak',
+  },
+  rewards: {
+    ar: 'الكنوز',
+    en: 'Treasures',
+    fr: 'Trésors',
+    de: 'Schätze',
+    es: 'Tesoros',
+    ru: 'Сокровища',
+    ur: 'خزانے',
+    id: 'Hadiah',
+    bn: 'পুরস্কার',
+    tr: 'Ödüller',
+  },
+};
 
 export default function AppBottomNav() {
   const router = useRouter();
@@ -98,7 +174,7 @@ export default function AppBottomNav() {
       <View
         style={[
           styles.container,
-          { flexDirection: isAr ? 'row-reverse' : 'row' },
+          { flexDirection: isRTL(language) ? 'row-reverse' : 'row' },
         ]}
       >
         {tabs.map((tab) => {
@@ -139,7 +215,7 @@ export default function AppBottomNav() {
                 ]}
                 numberOfLines={1}
               >
-                {isAr ? tab.labelAr : tab.labelEn}
+                {NAV_TAB_LABELS[tab.id]?.[language] || tab.labelEn}
               </Text>
 
               {tab.isActive && (
