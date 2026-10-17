@@ -179,8 +179,8 @@ export default function OnboardingScreen() {
                         {LANGUAGE_LOCALIZED_NAMES[language]?.[lang.code] || lang.nameNative}
                       </Text>
                       {isSelected && (
-                        <View style={styles.langCheckBadge}>
-                          <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                        <View style={styles.langCheckBadgeCircle}>
+                          <Text style={styles.langCheckBadgeText}>✓</Text>
                         </View>
                       )}
                     </TouchableOpacity>
@@ -195,11 +195,9 @@ export default function OnboardingScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>{t.continue}</Text>
-              <Ionicons
-                name={language === 'ar' ? 'arrow-back' : 'arrow-forward'}
-                size={20}
-                color={COLORS.textLight}
-              />
+              <Text style={styles.buttonArrowText}>
+                {language === 'ar' ? '←' : '→'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -353,8 +351,8 @@ export default function OnboardingScreen() {
                       {language === 'ar' ? 'صورتي' : 'My Photo'}
                     </Text>
                     {selectedAvatar === customPhotoUri && (
-                      <View style={styles.avatarSelectedBadge}>
-                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                      <View style={styles.avatarSelectedBadgeCircle}>
+                        <Text style={styles.avatarSelectedBadgeText}>✓</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -383,8 +381,8 @@ export default function OnboardingScreen() {
                         {getAvatarDisplayName(av.id, childName, language)}
                       </Text>
                       {isSelected && (
-                        <View style={styles.avatarSelectedBadge}>
-                          <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                        <View style={styles.avatarSelectedBadgeCircle}>
+                          <Text style={styles.avatarSelectedBadgeText}>✓</Text>
                         </View>
                       )}
                     </TouchableOpacity>
@@ -470,7 +468,9 @@ export default function OnboardingScreen() {
                         },
                       ]}
                     >
-                      {isSelected && <Ionicons name="checkmark" size={14} color="#ffffff" />}
+                      {isSelected && (
+                        <Text style={styles.worldRadioCheckText}>✓</Text>
+                      )}
                     </View>
                   </TouchableOpacity>
                 );
@@ -483,7 +483,7 @@ export default function OnboardingScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>{t.start}</Text>
-              <Ionicons name="sparkles" size={20} color={COLORS.textLight} />
+              <Text style={styles.buttonSparkleText}>✨</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -638,6 +638,31 @@ const styles = StyleSheet.create({
     top: 6,
     right: 6,
   },
+  langCheckBadgeCircle: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.soft,
+  },
+  langCheckBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '900',
+    lineHeight: 14,
+    textAlign: 'center',
+  },
+  buttonArrowText: {
+    color: COLORS.textLight,
+    fontSize: 20,
+    fontWeight: '900',
+    marginLeft: 6,
+  },
   fieldGroup: {
     marginBottom: SPACING.md,
   },
@@ -780,6 +805,36 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: 4,
+  },
+  avatarSelectedBadgeCircle: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#059669',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.soft,
+  },
+  avatarSelectedBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '900',
+    lineHeight: 14,
+    textAlign: 'center',
+  },
+  worldRadioCheckText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '900',
+    lineHeight: 14,
+    textAlign: 'center',
+  },
+  buttonSparkleText: {
+    fontSize: 18,
+    marginLeft: 6,
   },
   worldsPreviewList: {
     gap: SPACING.sm,
