@@ -181,6 +181,19 @@ export const STICKERS_DATA: Sticker[] = [
   { id: 'st-dates', nameAr: 'تمور المدينة', nameEn: 'Sweet Dates', iconName: 'leaf', category: 'sunnah' },
   { id: 'st-camel', nameAr: 'جمل القافلة', nameEn: 'Caravan Camel', iconName: 'paw', category: 'prophets' },
   { id: 'st-star', nameAr: 'نجمة التفوق', nameEn: 'Brilliant Star', iconName: 'star', category: 'manners' },
+  // Animals in the Quran Stickers
+  { id: 'st-isa-bird', nameAr: 'طير عيسى بإذن الله', nameEn: 'Isa’s Bird of Clay', iconName: 'airplane', category: 'prophets' },
+  { id: 'st-musa-staff', nameAr: 'عصا موسى الشجاعة', nameEn: 'Staff of Musa', iconName: 'shield', category: 'prophets' },
+  { id: 'st-ismail-ram', nameAr: 'كبش الفداء المبارك', nameEn: 'Ransom Ram of Ismail', iconName: 'heart', category: 'prophets' },
+  { id: 'st-crow', nameAr: 'غراب ابني آدم الحكيم', nameEn: 'The Wise Crow', iconName: 'eye', category: 'prophets' },
+  { id: 'st-ant', nameAr: 'نملة سليمان المنظمة', nameEn: 'Solomon’s Ant', iconName: 'leaf', category: 'quran' },
+  { id: 'st-bee', nameAr: 'نحلة العسل المباركة', nameEn: 'The Honeybee', iconName: 'sparkles', category: 'quran' },
+  { id: 'st-hoopoe', nameAr: 'هدهد سليمان الوفي', nameEn: 'The Faithful Hoopoe', iconName: 'navigate', category: 'prophets' },
+  { id: 'st-elephant', nameAr: 'فيل عام الفيل', nameEn: 'The Kaaba Elephant', iconName: 'shield-checkmark', category: 'quran' },
+  { id: 'st-whale', nameAr: 'حوت يونس المسبّح', nameEn: 'Yunus’s Whale', iconName: 'water', category: 'prophets' },
+  { id: 'st-she-camel', nameAr: 'ناقة صالح المعجزة', nameEn: 'Salih’s She-Camel', iconName: 'sunny', category: 'prophets' },
+  { id: 'st-spider', nameAr: 'عنكبوت الغار', nameEn: 'Cave Spider', iconName: 'globe', category: 'quran' },
+  { id: 'st-kind-dog', nameAr: 'كلب أهل الكهف', nameEn: 'The Cave Dog', iconName: 'paw', category: 'quran' },
 ];
 
 export const AVATAR_OPTIONS: AvatarOption[] = [

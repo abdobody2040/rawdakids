@@ -12,7 +12,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
 import { useAppStore } from '@/store/useAppStore';
-import { TRANSLATIONS } from '@/constants/i18n';
+import { TRANSLATIONS, isRTL } from '@/constants/i18n';
 import { getLocalizedHadith, getHadithActionBtnLabel, getHadithHabitsIntro } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
@@ -24,6 +24,7 @@ export default function SunnahPathScreen() {
   const params = useLocalSearchParams<{ tab?: string }>();
   const { language, hadithProgress, dailyHabitsDone, toggleDailyHabit } = useAppStore();
   const t = TRANSLATIONS[language];
+  const isRtl = isRTL(language);
 
   const resolvedTab: SunnahTab = params.tab === 'habits' ? 'habits' : 'hadiths';
   const [selectedTab, setSelectedTab] = useState<SunnahTab | null>(null);
@@ -58,6 +59,30 @@ export default function SunnahPathScreen() {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* Animal Kindness in Sunnah Shortcut Card */}
+        <TouchableOpacity
+          style={styles.animalKindnessCard}
+          onPress={() => router.push({ pathname: '/animals' as any, params: { tab: 'sunnah' } })}
+          activeOpacity={0.85}
+        >
+          <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 12 }}>
+            <Text style={{ fontSize: 30 }}>🐾</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.animalKindnessTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {language === 'ar' ? 'الرحمة والرفق بالحيوان في السنة' : 'Kindness to Animals in the Sunnah'}
+              </Text>
+              <Text style={[styles.animalKindnessSub, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {language === 'ar' ? 'قصة ساقي الكلب العطشان ولعبة "ساعد الحيوان"' : 'The Thirsty Dog story & "Help the Animal" game'}
+              </Text>
+            </View>
+            <Ionicons
+              name={isRtl ? 'arrow-back' : 'arrow-forward'}
+              size={18}
+              color="#059669"
+            />
+          </View>
+        </TouchableOpacity>
+
         {activeTab === 'hadiths' && (
           <View style={styles.listArea}>
             {hadiths.map((hadith) => {
@@ -410,5 +435,24 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#0369A1',
+  },
+  animalKindnessCard: {
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    ...SHADOWS.soft,
+  },
+  animalKindnessTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  animalKindnessSub: {
+    fontSize: 11,
+    color: '#047857',
+    marginTop: 2,
   },
 });

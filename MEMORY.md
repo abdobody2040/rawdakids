@@ -1405,6 +1405,27 @@
   - `npm.cmd run build` -> Clean export of 24 static routes into `dist/`.
   - `git commit` & `git push origin main` -> Pushed to GitHub repository for automatic Vercel deployment.
 
+### Milestone 25: Animals in the Quran and Sunnah (حديقة الحيوان في القرآن والسنة)
+- **1. User Request:**
+  Add a comprehensive animal world feature including:
+  1. **🕊️ طير عيسى عليه السلام بإذن الله:** (Al-Imran 3:49, Al-Ma'idah 5:110, age 6+, dual age texts, value: miracles by Allah's permission alone, 3 quiz questions).
+  2. **🐍 عصا موسى:** (Taha 20:17–23, Al-A'raf 7:107, Ash-Shu'ara 26:32, Al-Qasas 28:31, age 5+, value: courage in Allah, interactive "لا تخف" activity, 3 quiz questions, no scary gore).
+  3. **🐏 فداء إسماعيل (الذبح العظيم):** (As-Saffat 37:99–111, age 7+, value: obedience & Eid al-Adha origin, gentle kid-friendly presentation without blood, 3 quiz questions).
+  4. **🌿 الرحمة والرفق بالحيوان في السنة:** Authentic Muttafaq 'alayh Hadiths (thirsty dog & well, cat imprisoned by woman) + 3 interactive "ساعد الحيوان" kindness scenarios with rewards.
+  5. **📚 فهرس سريع: ١٦ حيواناً في القرآن:** Complete catalog of all 16 animals mentioned in the Holy Quran with Surah citations, facts, and Ayah audio playback via EveryAyah.
+  6. **🎮 لعبة "خمّن الحيوان":** Multi-round clue/sound/silhouette guessing game with Quranic Ayah reveal and sticker rewards.
+  7. **🦅 غراب ابني آدم والندم:** (Al-Ma'idah 5:27–31, age 9+, dual age texts, value: learning from Allah's creatures and admitting mistakes).
+- **2. Architecture & Data Structures:**
+  - [`src/data/animalsData.ts`](file:///g:/quran%20app%20for%20kids/src/data/animalsData.ts): Complete authentic dataset with 4 prophetic miracle stories, 2 Muttafaq 'alayh Hadiths, 3 kindness scenarios, 16 Quran animal catalog items, and 6 guessing game rounds.
+  - [`src/data/badgesData.ts`](file:///g:/quran%20app%20for%20kids/src/data/badgesData.ts): Added 12 collectible animal stickers (`st-isa-bird`, `st-musa-staff`, `st-ismail-ram`, `st-crow`, `st-ant`, `st-bee`, `st-hoopoe`, `st-elephant`, `st-whale`, `st-she-camel`, `st-spider`, `st-kind-dog`).
+  - [`src/app/animals/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/animals/index.tsx): Interactive Hub with 4 dynamic tabs (`miracles`, `sunnah`, `cards`, `game`), audio playback, kindness scenarios, and celebration modal.
+  - [`src/app/animals/[storyId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/animals/%5BstoryId%5D.tsx): Interactive reader with age band switch (صغار 4-6 / كبار 7+), multi-scene carousel with audio narration, linked Ayah recitation, interactive courage activity, and 3-question quiz.
+  - Placement: Added "عالم الحيوان في القرآن" card to Home Worlds carousel in [`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx), miracle shortcut in [`src/app/prophets/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/index.tsx), and kindness shortcut in [`src/app/sunnah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/sunnah/index.tsx).
+- **3. Verification:**
+  - `npx.cmd tsc --noEmit` -> 0 errors.
+  - `npm.cmd run build` -> Clean export of 26 static routes into `dist/`.
+  - Tested on `http://localhost:3000/animals`.
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents

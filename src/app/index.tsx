@@ -193,6 +193,15 @@ export default function HomeScreen() {
       gradient: ['#e0f2fe', '#bae6fd'] as const,
       route: '/arkan/salah',
     },
+    {
+      id: 'animals',
+      title: isAr ? 'حديقة الحيوان في القرآن' : 'Animals in the Quran',
+      subtitle: isAr ? 'معجزات الأنبياء والرفق بالحيوان' : 'Prophetic Miracles & Sunnah Kindness',
+      count: isAr ? '١٦ حيواناً وقصة' : '16 Animals & Stories',
+      emoji: '🐾',
+      gradient: ['#dcfce7', '#bbf7d0'] as const,
+      route: '/animals',
+    },
   ];
 
   return (

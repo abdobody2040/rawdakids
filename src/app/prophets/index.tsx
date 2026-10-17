@@ -67,6 +67,39 @@ export default function ProphetsTimelineScreen() {
           </ImageBackground>
         </View>
 
+        {/* Animal Miracles Feature Shortcut Banner */}
+        <TouchableOpacity
+          style={styles.animalsShortcutBanner}
+          onPress={() => router.push('/animals' as any)}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={['#059669', '#047857']}
+            style={styles.animalsShortcutGradient}
+          >
+            <Text style={{ fontSize: 32 }}>🐾</Text>
+            <View style={{ flex: 1 }}>
+              <View style={styles.animalsShortcutBadge}>
+                <Ionicons name="sparkles" size={11} color="#FEF3C7" />
+                <Text style={styles.animalsShortcutBadgeText}>
+                  {language === 'ar' ? 'معجزات الحيوان في القرآن' : 'Animal Miracles'}
+                </Text>
+              </View>
+              <Text style={styles.animalsShortcutTitle}>
+                {language === 'ar' ? 'طير عيسى، عصا موسى، وفداء إسماعيل 🕊️🐍' : 'Isa’s Bird, Musa’s Staff & Ismail’s Ram 🕊️🐍'}
+              </Text>
+              <Text style={styles.animalsShortcutSub}>
+                {language === 'ar' ? 'قصص تفاعلية، تحديات وأنشطة لكل الأعمار' : 'Interactive stories, challenges & quizzes'}
+              </Text>
+            </View>
+            <Ionicons
+              name={language === 'ar' ? 'arrow-back' : 'arrow-forward'}
+              size={18}
+              color="#FFFFFF"
+            />
+          </LinearGradient>
+        </TouchableOpacity>
+
         <Text style={styles.timelineHeading}>{t.prophetsTimeline}</Text>
 
         {/* Vertical Timeline Path */}
@@ -338,5 +371,43 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     color: COLORS.primaryDark,
+  },
+  animalsShortcutBanner: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    ...SHADOWS.soft,
+  },
+  animalsShortcutGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    gap: SPACING.md,
+  },
+  animalsShortcutBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginBottom: 4,
+  },
+  animalsShortcutBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FEF3C7',
+  },
+  animalsShortcutTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  animalsShortcutSub: {
+    fontSize: 11,
+    color: '#D1FAE5',
   },
 });
