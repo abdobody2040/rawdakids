@@ -12,7 +12,7 @@ export interface LocalizedProphetMeta {
   location: string;
 }
 
-const PROPHET_NAMES_LOCALIZED: Record<string, Record<Language, LocalizedProphetMeta>> = {
+const PROPHET_NAMES_LOCALIZED: Record<string, Partial<Record<Language, LocalizedProphetMeta>>> = {
   adam: {
     ar: { name: 'آدم', honorific: 'عليه السلام', titleBadge: 'أبو البشر وأول الأنبياء', era: 'بداية الخلق', location: 'الجنة ثم الأرض المباركة' },
     en: { name: 'Adam', honorific: 'peace be upon him', titleBadge: 'Father of Mankind & First Prophet', era: 'The Beginning of Creation', location: 'Paradise, then Earth' },
@@ -142,7 +142,7 @@ const PROPHET_NAMES_LOCALIZED: Record<string, Record<Language, LocalizedProphetM
 };
 
 // Comprehensive 10 Scenes for Prophet Adam in French, German, Spanish
-const ADAM_SCENES_LOCALIZED: Record<Language, { title: string; narration: string; symbolDescription: string }[]> = {
+const ADAM_SCENES_LOCALIZED: Partial<Record<Language, { title: string; narration: string; symbolDescription: string }[]>> = {
   ar: [], // Handled by native fields
   en: [], // Handled by native fields
   fr: [
@@ -317,10 +317,20 @@ export function getLocalizedProphetMeta(prophet: ProphetStory, lang: Language): 
     };
   }
 
-  // English fallback or European translations
+  // English fallback or multilingual translations
   const baseName = prophet.nameEn;
   const honorific =
-    lang === 'fr'
+    lang === 'ur'
+      ? (prophet.id === 'muhammad' ? 'صلی اللہ علیہ وسلم' : 'علیہ السلام')
+      : lang === 'ru'
+      ? (prophet.id === 'muhammad' ? 'мир ему и благословение Аллаха' : 'мир ему')
+      : lang === 'id'
+      ? (prophet.id === 'muhammad' ? 'shallallahu ‘alaihi wa sallam' : '‘alaihissalam')
+      : lang === 'bn'
+      ? (prophet.id === 'muhammad' ? 'সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম' : 'আলাইহিস সালাম')
+      : lang === 'tr'
+      ? (prophet.id === 'muhammad' ? 'sallallahu aleyhi ve sellem' : 'aleyhisselam')
+      : lang === 'fr'
       ? (prophet.id === 'muhammad' ? 'que la paix et les bénédictions soient sur lui' : 'que la paix soit sur lui')
       : lang === 'de'
       ? (prophet.id === 'muhammad' ? 'Friede und Segen seien auf ihm' : 'Friede sei mit ihm')
@@ -778,7 +788,23 @@ export function getLocalizedPillarStep(
 
 export function formatLocalizedTodayDate(lang: Language): string {
   if (lang === 'ar') return 'الأحد، ٤ ربيع الأول';
-  const locale = lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'es' ? 'es-ES' : 'en-US';
+  if (lang === 'ur') return 'اتوار، 4 ربیع الاول';
+  const locale =
+    lang === 'fr'
+      ? 'fr-FR'
+      : lang === 'de'
+      ? 'de-DE'
+      : lang === 'es'
+      ? 'es-ES'
+      : lang === 'ru'
+      ? 'ru-RU'
+      : lang === 'id'
+      ? 'id-ID'
+      : lang === 'bn'
+      ? 'bn-BD'
+      : lang === 'tr'
+      ? 'tr-TR'
+      : 'en-US';
   return new Date().toLocaleDateString(locale, {
     weekday: 'long',
     month: 'long',

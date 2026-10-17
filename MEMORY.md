@@ -1370,8 +1370,22 @@
 - **3. System Integration:**
   - Registered all 12 avatars in [`src/components/KidAvatar.tsx`](file:///g:/quran%20app%20for%20kids/src/components/KidAvatar.tsx) (`AVATAR_IMAGES`, `PRESET_AVATARS`, and `getAvatarDisplayName`).
   - Added new avatars with emoji, localized descriptions, and unlock gem costs to `AVATAR_OPTIONS` in [`src/data/badgesData.ts`](file:///g:/quran%20app%20for%20kids/src/data/badgesData.ts).
-  - Automatically propagated across onboarding ([`src/app/onboarding.tsx`](file:///g:/quran%20app%20for%20kids/src/app/onboarding.tsx)), Profile Switcher Modal ([`src/components/ChildProfileSwitchModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/ChildProfileSwitchModal.tsx)), and Parents' Child Profiles Card ([`src/components/parents/ChildProfilesCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/ChildProfilesCard.tsx)).
-- **4. Verification:** `npx tsc --noEmit` (0 errors), `npm run build` (successful static bundle export), pushed to `origin main`.
+### Milestone 23: Multilingual Expansion to 10 Global Languages
+- **1. User Request:** Added 5 new major Islamic/world languages (`russian - urdu - indonisian - bngali - turkie`) matching existing language coverage.
+- **2. Added Languages:**
+  - `ru`: **Русский (Russian)** — 🇷🇺 Flag, LTR, authoritative Elmir Kuliev Quran translation (`ru.kuliev`), Russian date formatting (`ru-RU`).
+  - `ur`: **اردو (Urdu)** — 🇵🇰 Flag, RTL (`isRtl: true`), Fateh Muhammad Jalandhry Quran translation (`ur.jalandhry`), Islamic honorifics (صلی اللہ علیہ وسلم / علیہ السلام), Urdu Hijri date formatting (`ur-PK`).
+  - `id`: **Bahasa Indonesia** — 🇮🇩 Flag, LTR, Indonesian Ministry of Religious Affairs (Kemenag) translation (`id.indonesian`), Indonesian date formatting (`id-ID`).
+  - `bn`: **বাংলা (Bengali)** — 🇧🇩 Flag, LTR, Muhiuddin Khan translation (`bn.bengali`), Bengali date formatting (`bn-BD`).
+  - `tr`: **Türkçe (Turkish)** — 🇹🇷 Flag, LTR, Diyanet İşleri Başkanlığı translation (`tr.diyanet`), Turkish date formatting (`tr-TR`).
+- **3. Complete Parity & System Architecture:**
+  - Added 153 translation keys for each of the 5 new languages with 100% dictionary parity in [`src/constants/i18n.ts`](file:///g:/quran%20app%20for%20kids/src/constants/i18n.ts).
+  - Extended `LANGUAGE_LOCALIZED_NAMES` to 10x10 cross-localized names.
+  - Added `isRTL` helper supporting both Arabic and Urdu.
+  - Updated [`src/services/quranService.ts`](file:///g:/quran%20app%20for%20kids/src/services/quranService.ts) to query official editions for all 10 languages.
+  - Updated [`src/services/multilingualContentService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualContentService.ts) with `Partial<Record<Language, ...>>`, honorifics, and date formatters.
+  - Upgraded [`src/components/Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx) and [`src/app/parents/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/parents/index.tsx) with seamless `<LanguageSelectModal>` integration for quick access to all 10 languages from anywhere in the app.
+- **4. Verification:** `npx tsc --noEmit` (0 errors), `npm run build` (successful static bundle export).
 
 
 ---

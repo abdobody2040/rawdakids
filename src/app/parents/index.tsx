@@ -18,6 +18,7 @@ import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/c
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import InstallAndroidModal from '@/components/InstallAndroidModal';
+import LanguageSelectModal from '@/components/LanguageSelectModal';
 import { RECITERS } from '@/data/quranData';
 import { notificationService, DEFAULT_KID_REMINDERS } from '@/services/notificationService';
 
@@ -53,6 +54,7 @@ export default function ParentsCornerScreen() {
   const t = TRANSLATIONS[language];
   const [testNotificationSent, setTestNotificationSent] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
   const handleTestNotification = async () => {
     const granted = await notificationService.requestPermission();
@@ -392,7 +394,43 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
 
-        {/* 6. Daily Gentle Reminders Card */}
+        {/* 6. App Language Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="globe-outline" size={20} color={COLORS.primaryDark} />
+            <Text style={styles.sectionTitle}>{t.changeLanguage}</Text>
+          </View>
+          <Text style={styles.settingDesc}>
+            {language === 'ar'
+              ? 'اختر اللغة المناسبة لواجهة التطبيق، الترجمات والقصص المصورة.'
+              : 'Choose your preferred language for interface, translations, and stories.'}
+          </Text>
+          <TouchableOpacity
+            style={styles.langSelectCardBtn}
+            onPress={() => setLanguageModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.langSelectCardLeft}>
+              <Text style={{ fontSize: 26 }}>
+                {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
+              </Text>
+              <View>
+                <Text style={styles.langSelectCardTitle}>
+                  {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.nameNative}
+                </Text>
+                <Text style={styles.langSelectCardSubtitle}>
+                  {LANGUAGE_LOCALIZED_NAMES[language]?.[language] || language.toUpperCase()}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.langChangeBtnBadge}>
+              <Text style={styles.langChangeBtnBadgeText}>{t.changeLanguage}</Text>
+              <Ionicons name="chevron-forward" size={14} color="#047857" />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* 7. Daily Gentle Reminders Card */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="notifications" size={20} color={COLORS.primaryDark} />
@@ -636,6 +674,11 @@ export default function ParentsCornerScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <LanguageSelectModal
+        visible={languageModalVisible}
+        onClose={() => setLanguageModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1032,5 +1075,48 @@ const styles = StyleSheet.create({
     color: '#15803D',
     flex: 1,
     lineHeight: 15,
+  },
+  langSelectCardBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginTop: SPACING.sm,
+  },
+  langSelectCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  langSelectCardTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  langSelectCardSubtitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  langChangeBtnBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: RADIUS.full,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 4,
+  },
+  langChangeBtnBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047857',
   },
 });

@@ -108,6 +108,16 @@ export const quranService = {
       editionTag = 'de.aburida';
     } else if (language === 'es') {
       editionTag = 'es.cortes';
+    } else if (language === 'ru') {
+      editionTag = 'ru.kuliev';
+    } else if (language === 'ur') {
+      editionTag = 'ur.jalandhry';
+    } else if (language === 'id') {
+      editionTag = 'id.indonesian';
+    } else if (language === 'bn') {
+      editionTag = 'bn.bengali';
+    } else if (language === 'tr') {
+      editionTag = 'tr.diyanet';
     } else if (translationSource === 'clearquran') {
       editionTag = 'en.sahih';
     } else if (translationSource === 'abdelhaleem') {

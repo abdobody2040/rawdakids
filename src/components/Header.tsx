@@ -5,9 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { AVAILABLE_LANGUAGES } from '@/constants/i18n';
 import ParentGateModal from './ParentGateModal';
 import SmartSearchModal from './SmartSearchModal';
 import ChildProfileSwitchModal from './ChildProfileSwitchModal';
+import LanguageSelectModal from './LanguageSelectModal';
 
 const ICON_STAR_IMG = require('../../assets/images/icon-star-3d.jpg');
 const ICON_GEM_IMG = require('../../assets/images/icon-gem-3d.jpg');
@@ -43,6 +45,7 @@ export default function Header({
   const [parentGateVisible, setParentGateVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [profileSwitcherVisible, setProfileSwitcherVisible] = useState(false);
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
 
@@ -156,29 +159,22 @@ export default function Header({
           </TouchableOpacity>
         )}
 
-        {/* Language switch & Parent Lock (only on screens without back navigation) */}
+        {/* Multilingual Selector & Parent Lock (only on screens without back navigation) */}
         {!showBack && (
           <>
-            <View style={styles.langSwitchPill}>
-              <TouchableOpacity
-                style={[styles.langOption, language === 'ar' && styles.langOptionActive]}
-                onPress={() => setLanguage('ar')}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.langOptionText, language === 'ar' && styles.langOptionTextActive]}>
-                  عربي
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.langOption, language === 'en' && styles.langOptionActive]}
-                onPress={() => setLanguage('en')}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.langOptionText, language === 'en' && styles.langOptionTextActive]}>
-                  EN
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.langSelectorBtn}
+              onPress={() => setLanguageModalVisible(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langSelectorFlag}>
+                {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
+              </Text>
+              <Text style={styles.langSelectorCode}>
+                {language.toUpperCase()}
+              </Text>
+              <Ionicons name="chevron-down" size={11} color="#267960" />
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.parentLockButton}
@@ -190,6 +186,11 @@ export default function Header({
           </>
         )}
       </View>
+
+      <LanguageSelectModal
+        visible={languageModalVisible}
+        onClose={() => setLanguageModalVisible(false)}
+      />
 
       <ParentGateModal
         visible={parentGateVisible}
@@ -304,30 +305,24 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.text,
   },
-  langSwitchPill: {
+  langSelectorBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
     borderRadius: RADIUS.full,
-    padding: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  langOption: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
+  langSelectorFlag: {
+    fontSize: 13,
   },
-  langOptionActive: {
-    backgroundColor: COLORS.primary,
-  },
-  langOptionText: {
-    fontSize: 10,
+  langSelectorCode: {
+    fontSize: 11,
     fontWeight: '800',
-    color: COLORS.textSecondary,
-  },
-  langOptionTextActive: {
-    color: '#ffffff',
+    color: '#0F172A',
   },
   parentLockButton: {
     width: 30,
