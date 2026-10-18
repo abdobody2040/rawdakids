@@ -156,7 +156,12 @@ export default function SunnahHeroHeader({ activeTab, onTabChange }: SunnahHeroH
                       ]}
                       numberOfLines={1}
                     >
-                      {isAr ? tab.labelAr : tab.labelEn}
+                      {tab.id === 'hadiths' ? (t.tabHadiths || (isAr ? tab.labelAr : tab.labelEn))
+                        : tab.id === 'habits' ? (t.tabDailyHabits || (isAr ? tab.labelAr : tab.labelEn))
+                        : tab.id === 'adhkar' ? (t.tabAdhkar || (isAr ? tab.labelAr : tab.labelEn))
+                        : tab.id === 'duas' ? (t.tabDuas || (isAr ? tab.labelAr : tab.labelEn))
+                        : tab.id === 'cards' ? (t.tabCards || (isAr ? tab.labelAr : tab.labelEn))
+                        : (t.tabTasbih || (isAr ? tab.labelAr : tab.labelEn))}
                     </Text>
                   </TouchableOpacity>
                 );

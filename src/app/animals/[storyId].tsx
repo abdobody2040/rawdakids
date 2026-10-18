@@ -24,6 +24,8 @@ import { ANIMAL_MIRACLE_STORIES, AnimalMiracleStory } from '@/data/animalsData';
 import {
   getLocalizedPlayerLabel,
   getLocalizedAnimalStoryMeta,
+  getLocalizedAyahTranslation,
+  getLocalizedStoryScene,
 } from '@/services/multilingualAnimalsService';
 
 const STORY_IMAGES: Record<string, any> = {
@@ -32,6 +34,22 @@ const STORY_IMAGES: Record<string, any> = {
   'ismail-ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
   'qabil-crow': require('../../../assets/images/scene-qabil-crow.jpg'),
 };
+
+
+function getLocalizedAgeBadge(minAge: number, lang: string): string {
+  const map: Record<string, string> = {
+    ar: `الفئة ${minAge}+ سنوات`,
+    bn: `বয়স ${minAge}+ বছর`,
+    ru: `Возраст ${minAge}+`,
+    ur: `عمر ${minAge}+ سال`,
+    id: `Usia ${minAge}+`,
+    tr: `Yaş ${minAge}+`,
+    fr: `Âge ${minAge}+`,
+    de: `Alter ${minAge}+`,
+    es: `Edad ${minAge}+`,
+  };
+  return map[lang] || `Age ${minAge}+`;
+}
 
 export default function AnimalStoryScreen() {
   const router = useRouter();
@@ -147,7 +165,7 @@ export default function AnimalStoryScreen() {
                   <View style={styles.badgeCluster}>
                     <View style={styles.ageBadgePill}>
                       <Text style={styles.ageBadgeText}>
-                        {isAr ? `الفئة ${story.minAge}+ سنوات` : `Age ${story.minAge}+`}
+                        {getLocalizedAgeBadge(story.minAge, language)}
                       </Text>
                     </View>
                     <Text style={styles.prophetTag}>
@@ -209,7 +227,7 @@ export default function AnimalStoryScreen() {
             <View style={[styles.ayahHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <Ionicons name="book" size={16} color="#059669" />
               <Text style={styles.ayahSurahTag}>
-                {isAr ? `${story.linkedAyah.surahNameAr} [آية ${story.linkedAyah.ayahNumber}]` : `${story.linkedAyah.surahNameEn} [Ayah ${story.linkedAyah.ayahNumber}]`}
+                {isAr ? `${story.linkedAyah.surahNameAr} [آية ${story.linkedAyah.ayahNumber}]` : (language === 'bn' ? `${story.linkedAyah.surahNameAr} [আয়াত ${story.linkedAyah.ayahNumber}]` : (language === 'ur' ? `${story.linkedAyah.surahNameAr} [آیت ${story.linkedAyah.ayahNumber}]` : `${story.linkedAyah.surahNameEn} [Ayah ${story.linkedAyah.ayahNumber}]`))}
               </Text>
             </View>
 
@@ -219,7 +237,7 @@ export default function AnimalStoryScreen() {
 
             {language !== 'ar' && (
               <Text style={styles.ayahTransText}>
-                "{story.linkedAyah.translationEn}"
+                "{getLocalizedAyahTranslation(story.id, language) || story.linkedAyah.translationEn}"
               </Text>
             )}
 
@@ -235,8 +253,8 @@ export default function AnimalStoryScreen() {
               />
               <Text style={styles.playAyahBtnText}>
                 {isPlayingAyah
-                  ? (isAr ? 'إيقاف التلاوة' : 'Stop Recitation')
-                  : (isAr ? '🔊 استمع للآية بصوت القارئ' : '🔊 Listen to Ayah')}
+                  ? ((t as any).stopAyahBtn || (isAr ? 'إيقاف التلاوة' : 'Stop Recitation'))
+                  : ((t as any).listenAyahBtn || (isAr ? '🔊 استمع للآية بصوت القارئ' : '🔊 Listen to Ayah'))}
               </Text>
             </TouchableOpacity>
           </View>
@@ -247,9 +265,11 @@ export default function AnimalStoryScreen() {
               <View style={styles.sceneCounterPill}>
                 <Ionicons name="images" size={13} color="#0284C7" />
                 <Text style={styles.sceneCounterText}>
-                  {isAr
-                    ? `مشهد ${currentSceneIdx + 1} من ${story.scenes.length}`
-                    : `Scene ${currentSceneIdx + 1} of ${story.scenes.length}`}
+                  {(t as any).sceneCounterLabel
+                    ? (t as any).sceneCounterLabel.replace('{current}', String(currentSceneIdx + 1)).replace('{total}', String(story.scenes.length))
+                    : (isAr
+                      ? `مشهد ${currentSceneIdx + 1} من ${story.scenes.length}`
+                      : `Scene ${currentSceneIdx + 1} of ${story.scenes.length}`)}
                 </Text>
               </View>
 
@@ -272,28 +292,31 @@ export default function AnimalStoryScreen() {
             </View>
 
             {/* Scene Content Box */}
-            <View style={styles.sceneBox}>
-              <View style={styles.sceneIconRing}>
-                <Ionicons name={currentScene.symbolIcon as any} size={28} color={story.themeColor} />
-              </View>
+            {(() => {
+              const sceneData = getLocalizedStoryScene(story.id, currentSceneIdx, currentScene, ageMode, language);
+              return (
+                <View style={styles.sceneBox}>
+                  <View style={styles.sceneIconRing}>
+                    <Ionicons name={currentScene.symbolIcon as any} size={28} color={story.themeColor} />
+                  </View>
 
-              <Text style={[styles.sceneTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
-                {isAr ? currentScene.titleAr : currentScene.titleEn}
-              </Text>
+                  <Text style={[styles.sceneTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                    {sceneData.title}
+                  </Text>
 
-              <Text style={[styles.sceneNarration, { textAlign: isRtl ? 'right' : 'left' }]}>
-                {ageMode === 'young'
-                  ? (isAr ? currentScene.narrationYoungAr : currentScene.narrationYoungEn)
-                  : (isAr ? currentScene.narrationOlderAr : currentScene.narrationOlderEn)}
-              </Text>
+                  <Text style={[styles.sceneNarration, { textAlign: isRtl ? 'right' : 'left' }]}>
+                    {sceneData.narration}
+                  </Text>
 
-              <View style={[styles.sceneReflectionBox, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Ionicons name="bulb" size={15} color="#D97706" />
-                <Text style={[styles.sceneReflectionText, { textAlign: isRtl ? 'right' : 'left' }]}>
-                  {isAr ? currentScene.reflectionAr : currentScene.reflectionEn}
-                </Text>
-              </View>
-            </View>
+                  <View style={[styles.sceneReflectionBox, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                    <Ionicons name="bulb" size={15} color="#D97706" />
+                    <Text style={[styles.sceneReflectionText, { textAlign: isRtl ? 'right' : 'left' }]}>
+                      {sceneData.reflection}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })()}
 
             {/* Scene Pagination Dots & Buttons */}
             <View style={[styles.scenePaginationRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
@@ -313,7 +336,7 @@ export default function AnimalStoryScreen() {
                   color={currentSceneIdx === 0 ? '#9CA3AF' : '#1F2937'}
                 />
                 <Text style={[styles.scenePageBtnText, currentSceneIdx === 0 && { color: '#9CA3AF' }]}>
-                  {isAr ? 'السابق' : 'Prev'}
+                  {(t as any).prevBtn || (isAr ? 'السابق' : 'Prev')}
                 </Text>
               </TouchableOpacity>
 
@@ -348,7 +371,7 @@ export default function AnimalStoryScreen() {
                     currentSceneIdx === story.scenes.length - 1 && { color: '#9CA3AF' },
                   ]}
                 >
-                  {isAr ? 'التالي' : 'Next'}
+                  {(t as any).nextBtn || (isAr ? 'التالي' : 'Next')}
                 </Text>
                 <Ionicons
                   name={isRtl ? 'arrow-back' : 'arrow-forward'}

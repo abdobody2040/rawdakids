@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS, isRTL } from '@/constants/i18n';
-import { getLocalizedHadith, getHadithActionBtnLabel, getHadithHabitsIntro } from '@/services/multilingualContentService';
+import { getLocalizedHadith, getHadithActionBtnLabel, getHadithHabitsIntro, getLocalizedHabit } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
@@ -69,10 +69,10 @@ export default function SunnahPathScreen() {
             <Text style={{ fontSize: 30 }}>🐾</Text>
             <View style={{ flex: 1 }}>
               <Text style={[styles.animalKindnessTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
-                {language === 'ar' ? 'الرحمة والرفق بالحيوان في السنة' : 'Kindness to Animals in the Sunnah'}
+                {(t as any).kindnessAnimalsBannerTitle || (language === 'ar' ? 'الرحمة والرفق بالحيوان في السنة' : 'Kindness to Animals in the Sunnah')}
               </Text>
               <Text style={[styles.animalKindnessSub, { textAlign: isRtl ? 'right' : 'left' }]}>
-                {language === 'ar' ? 'قصة ساقي الكلب العطشان ولعبة "ساعد الحيوان"' : 'The Thirsty Dog story & "Help the Animal" game'}
+                {(t as any).kindnessAnimalsBannerSubtitle || (language === 'ar' ? 'قصة ساقي الكلب العطشان ولعبة "ساعد الحيوان"' : 'The Thirsty Dog story & "Help the Animal" game')}
               </Text>
             </View>
             <Ionicons
@@ -169,12 +169,10 @@ export default function SunnahPathScreen() {
                     <Text
                       style={[styles.habitItemTitle, isDone && styles.habitTextDone]}
                     >
-                      {language === 'ar' ? h.linkedHabit.nameAr : h.linkedHabit.nameEn}
+                      {getLocalizedHabit(h.linkedHabit, language).name}
                     </Text>
                     <Text style={styles.habitItemAction}>
-                      {language === 'ar'
-                        ? h.linkedHabit.actionAr
-                        : h.linkedHabit.actionEn}
+                      {getLocalizedHabit(h.linkedHabit, language).action}
                     </Text>
                   </View>
                   <View style={styles.habitStarBadge}>

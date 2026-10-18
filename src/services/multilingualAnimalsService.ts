@@ -735,3 +735,177 @@ export function getLocalizedPlayerLabel(key: string, lang: Language): string {
   if (!item) return key;
   return item[lang] || item.en || item.ar || key;
 }
+
+export const AYAH_TRANSLATIONS: Record<string, Partial<Record<Language, string>>> = {
+  'ismail-ram': {
+    ar: '«وَفَدَيْنَاهُ بِذِبْحٍ عَظِيمٍ»',
+    en: 'And We ransomed him with a great sacrifice.',
+    bn: 'এবং আমরা এক মহান কুরবানির মাধ্যমে তাকে মুক্ত করলাম।',
+    ru: 'И Мы выкупили его великой жертвой.',
+    ur: 'اور ہم نے ایک عظیم قربانی کے ذریعے اس کا فدیہ دیا۔',
+    id: 'Dan Kami tebus anak itu dengan seekor sembelihan yang besar.',
+    tr: 'Ve ona büyük bir kurbanı fidye olarak verdik.',
+    fr: 'Et Nous le rançonnâmes d’une généreuse immolation.',
+    de: 'Und Wir lösten ihn mit einem großartigen Schlachtopfer aus.',
+    es: 'Y lo rescatamos con un gran sacrificio.',
+  },
+  'isa-bird': {
+    ar: '«وَإِذْ تَخْلُقُ مِنَ الطِّينِ كَهَيْئَةِ الطَّيْرِ بِإِذْنِي فَتَنفُخُ فِيهَا فَتَكُونُ طَيْرًا بِإِذْنِي»',
+    en: 'And when you shaped from clay the likeness of a bird by My permission, then you breathed into it and it became a bird by My permission.',
+    bn: 'এবং যখন তুমি আমার আদেশে মাটি দিয়ে পাখির মতো রূপ দিতে, অতঃপর তাতে ফুঁ দিতে আর তা আমার আদেশে পাখি হয়ে যেত।',
+    ru: 'И вот ты лепил из глины подобие птицы с Моего соизволения, дул на нее, и она становилась птицей с Моего соизволения.',
+    ur: 'اور جب تم میرے حکم سے مٹی سے پرندے کا پتلا بناتے، پھر اس میں پھونکتے تو وہ میرے حکم سے پرندہ بن جاتا۔',
+    id: 'Dan ketika kamu membuat dari tanah liat seperti bentuk burung dengan izin-Ku, lalu kamu meniupnya, lalu menjadi burung dengan izin-Ku.',
+    tr: 'Hani Benim iznimle çamurdan kuş şeklinde bir şey yapıyor, sonra ona üflüyordun da Benim iznimle kuş oluyordu.',
+    fr: 'Et quand tu façonnais d’argile une forme d’oiseau, par Ma permission, puis tu soufflais dedans et elle devenait oiseau par Ma permission.',
+    de: 'Und als du aus Lehm mit Meiner Erlaubnis die Gestalt eines Vogels schufst, dann hineinbliesest und er mit Meiner Erlaubnis ein Vogel wurde.',
+    es: 'Y cuando modelabas con arcilla la figura de un pájaro con Mi permiso, y soplaba en ella y se convertía en pájaro con Mi permiso.',
+  },
+  'musa-staff': {
+    ar: '«قَالَ أَلْقِهَا يَا مُوسَىٰ * فَأَلْقَاهَا فَإِذَا هِيَ حَيَّةٌ تَسْعَىٰ»',
+    en: 'He said: Cast it down, O Musa! So he cast it down, and behold, it was a moving serpent!',
+    bn: 'তিনি বললেন: হে মুসা! তা ফেলে দাও। অতঃপর তিনি তা নিক্ষেপ করলেন, আর তখনই তা ছুটাছুটি করা একটি সাপে পরিণত হলো!',
+    ru: 'Аллах сказал: "Брось его, о Муса!" Он бросил его, и вот, он стал змеей, которая быстро ползет.',
+    ur: 'فرمایا: اے موسیٰ! اسے ڈال دو۔ تو انہوں نے اسے ڈال دیا، پس اچانک وہ ایک دوڑتا ہوا سانپ بن گیا!',
+    id: 'Allah berfirman: "Lemparkanlah ia, wahai Musa!" Lalu ia melemparkannya, maka tiba-tiba ia menjadi seekor ular yang merayap cepat!',
+    tr: 'Allah: "Bırak onu ey Musa!" buyurdu. O da onu bıraktı; bir de ne görsün, o koşan bir yılan olmuş!',
+    fr: 'Il dit: "Jette-le, ô Moïse." Il le jeta, et voici que c’était un serpent qui rampait vivement.',
+    de: 'Er sprach: "Wirf ihn hin, o Musa!" Da warf er ihn hin, und sogleich war er eine Schlange, die sich rasch bewegte.',
+    es: 'Dijo: "¡Tíralo, oh Moisés!" Lo tiró, y he aquí que era una serpiente que se arrastraba con rapidez.',
+  },
+  'qabil-crow': {
+    ar: '«فَبَعَثَ اللَّهُ غُرَابًا يَبْحَثُ فِي الْأَرْضِ لِيُرِيَهُ كَيْفَ يُوَارِي سَوْءَةَ أَخِيهِ»',
+    en: 'Then Allah sent a crow scratching in the ground to show him how to bury the body of his brother.',
+    bn: 'অতঃপর আল্লাহ একটি কাক পাঠালেন যা মাটি খুঁড়ছিল, তাকে দেখিয়ে দেওয়ার জন্য কীভাবে সে তার ভাইয়ের মরদেহ সমাহিত করবে।',
+    ru: 'Затем Аллах послал ворона, который стал разгребать землю, чтобы показать ему, как скрыть тело брата.',
+    ur: 'پھر اللہ نے ایک کوا بھیجا جو زمین کھود رہا تھا تاکہ اسے دکھائے کہ وہ اپنے بھائی کی میت کو کیسے چھپائے۔',
+    id: 'Kemudian Allah mengutus seekor burung gagak menggali tanah untuk memperlihatkan kepadanya bagaimana menguburkan mayat saudaranya.',
+    tr: 'Derken Allah, kardeşinin cesedini nasıl gömeceğini göstermek için yeri eşeleyen bir karga gönderdi.',
+    fr: 'Puis Allah envoya un corbeau qui se mit à fouiller la terre pour lui montrer comment ensevelir le corps de son frère.',
+    de: 'Da sandte Allah einen Raben, der in der Erde scharrte, um ihm zu zeigen, wie er den Leichnam seines Bruders verbergen sollte.',
+    es: 'Entonces Alá envió un cuervo que escarbaba la tierra para mostrarle cómo enterrar el cadáver de su hermano.',
+  },
+};
+
+export function getLocalizedAyahTranslation(storyId: string, lang: Language): string {
+  const item = AYAH_TRANSLATIONS[storyId];
+  if (!item) return '';
+  return item[lang] || item.en || item.ar || '';
+}
+
+export interface LocalizedSceneContent {
+  title: string;
+  narration: string;
+  reflection: string;
+}
+
+const SCENE_TRANSLATIONS: Record<string, Record<number, Partial<Record<Language, LocalizedSceneContent>>>> = {
+  'ismail-ram': {
+    0: {
+      bn: {
+        title: 'আনুগত্যশীল ও ভালোবাসাময় পুত্র',
+        narration: 'হযরত ইসমাইল (আ.) ছিলেন এক নেককার পুত্র যিনি আল্লাহকে গভীরভাবে ভালোবাসতেন এবং পিতা হযরত ইব্রাহিম (আ.)-এর প্রতি পরম শ্রদ্ধা প্রদর্শন করতেন।',
+        reflection: 'আমরা মা-বাবাকে ভালোবাসি ও সদাচরণ করি!',
+      },
+      ru: {
+        title: 'Послушный и любящий сын',
+        narration: 'Исмаил был праведным и богобоязненным сыном, который любил Аллаха и проявлял величайшее почтение к отцу Ибрахиму.',
+        reflection: 'Мы проявляем послушание и любовь к родителям!',
+      },
+      ur: {
+        title: 'فرمانبردار اور پیارا بیٹا',
+        narration: 'حضرت اسماعیل علیہ السلام ایک نیک اور فرماں بردار بیٹے تھے جو اللہ سے محبت کرتے تھے اور والد حضرت ابراہیم کی اطاعت کرتے تھے۔',
+        reflection: 'ہم اپنے والدین سے محبت اور احترام کا برتاؤ کرتے ہیں!',
+      },
+      id: {
+        title: 'Putra yang Taat dan Berbakti',
+        narration: 'Ismail adalah seorang anak shaleh yang sangat mencintai Allah dan berbakti kepada ayahnya, Nabi Ibrahim.',
+        reflection: 'Kita senantiasa berbakti dan menyayangi orang tua!',
+      },
+      tr: {
+        title: 'İtaatkar ve Sevgi Dolu Evlat',
+        narration: 'İsmail (a.s.), Allah’ı yürekten seven ve babası İbrahim’e sonsuz saygı ve sevgi gösteren salih bir evlattı.',
+        reflection: 'Anne babamıza daima saygı ve sevgiyle davranırız!',
+      },
+    },
+    1: {
+      bn: {
+        title: 'আল্লাহর আদেশের প্রতি চরম সমর্পণ',
+        narration: 'যখন হযরত ইব্রাহিম (আ.) আল্লাহর নির্দেশ জানালেন, তখন ইসমাইল (আ.) বিনম্রভাবে বললেন: হে পিতা, আপনাকে যা আদেশ করা হয়েছে তা পালন করুন, ইনশাআল্লাহ আপনি আমাকে ধৈর্যশীল পাবেন।',
+        reflection: 'আমরা সর্বদা বলি: আমরা আল্লাহর ফয়সালায় সন্তুষ্ট!',
+      },
+      ru: {
+        title: 'Великая покорность воле Аллаха',
+        narration: 'Когда Ибрахим поведал сыну о повелении Аллаха, юный Исмаил ответил: "О отец мой! Делай то, что велено; ты найдешь меня терпеливым".',
+        reflection: 'Мы уповаем на Аллаха и проявляем прекрасное терпение!',
+      },
+      ur: {
+        title: 'حکمِ الٰہی پر تسلیم و رضا',
+        narration: 'جب حضرت ابراہیم نے اللہ کا حکم بتایا، تو اسماعیل نے ادب سے کہا: اباجان! آپ کو جو حکم ملا ہے کیجیے، آپ مجھے صبر کرنے والوں میں پائیں گے۔',
+        reflection: 'ہم اللہ کے ہر فیصلے پر راضی رہتے ہیں!',
+      },
+      id: {
+        title: 'Kepatuhan yang Agung',
+        narration: 'Ketika Nabi Ibrahim menyampaikan wahyu Allah, Ismail dengan ikhlas menjawab: "Wahai ayahku, kerjakanlah apa yang diperintahkan kepadamu; insya Allah engkau akan mendapatiku termasuk orang-orang yang sabar."',
+        reflection: 'Kita selalu ridha dan tunduk pada perintah Allah!',
+      },
+      tr: {
+        title: 'İlahi Emre Sonsuz Teslimiyet',
+        narration: 'İbrahim (a.s.) vahyi anlattığında, İsmail teslimiyetle: "Babacığım! Sana emrolunanı yap; inşallah beni sabredenlerden bulacaksın" dedi.',
+        reflection: 'Her zaman Allah’ın hükmüne rıza gösterir ve sabrederiz!',
+      },
+    },
+    2: {
+      bn: {
+        title: 'আসমানী দুম্বা ও ঈদের আনন্দ',
+        narration: 'আল্লাহ তাদের একনিষ্ঠতা দেখে জান্নাত থেকে এক বিশাল শিংওয়ালা বরকতময় দুম্বা পাঠালেন এবং ইসমাইলকে রক্ষা করলেন। সেখান থেকেই কুরবানির মহান সুন্নাহ চালু হলো।',
+        reflection: 'আলহামদুলিল্লাহ! আল্লাহর আনুগত্যে রয়েছে মহাকল্যাণ!',
+      },
+      ru: {
+        title: 'Небесный баран и праздник радости',
+        narration: 'Аллах вознаградил их за искренность и веру, ниспослав прекрасного белого барана на замену сыну, что положило начало благословенному празднику Курбан-байрам.',
+        reflection: 'Хвала Аллаху! Покорность Творцу всегда ведет к спасению!',
+      },
+      ur: {
+        title: 'جنتی مینڈھا اور قربانی کا انعام',
+        narration: 'اللہ نے ان کی کامل اخلاص اور وفاداری کے بدلے جنت سے ایک شاندار مینڈھا بھیجا اور اسماعیل کو بچا لیا، اور یہ سنت عیدالاضحیٰ بن گئی۔',
+        reflection: 'الحمدللہ! اللہ کی فرمانبرداری میں ہی دونوں جہانوں کی کامیابی ہے!',
+      },
+      id: {
+        title: 'Domba dari Surga dan Hari Raya',
+        narration: 'Allah menggantikan Ismail dengan seekor domba besar yang indah dari surga, sebagai anugerah atas ketulusan iman mereka, yang menjadi asal mula Idul Adha.',
+        reflection: 'Alhamdulillah! Ketaatan kepada Allah berbuah kebahagiaan!',
+      },
+      tr: {
+        title: 'Cennetten Gelen Koç ve Bayram Sevinci',
+        narration: 'Allah onların sadakatini mükafatlandırdı ve İsmail’in yerine kurban edilmek üzere cennetten bir koç indirdi; bu da Kurban Bayramı’nın başlangıcı oldu.',
+        reflection: 'Elhamdülillah! Allah’a itaat her zaman kurtuluş ve zafer getirir!',
+      },
+    },
+  },
+};
+
+export function getLocalizedStoryScene(
+  storyId: string,
+  sceneIdx: number,
+  defaultScene: { titleAr: string; titleEn: string; narrationYoungAr: string; narrationYoungEn: string; narrationOlderAr: string; narrationOlderEn: string; reflectionAr: string; reflectionEn: string },
+  ageMode: 'young' | 'older',
+  lang: Language
+): LocalizedSceneContent {
+  if (lang === 'ar') {
+    return {
+      title: defaultScene.titleAr,
+      narration: ageMode === 'young' ? defaultScene.narrationYoungAr : defaultScene.narrationOlderAr,
+      reflection: defaultScene.reflectionAr,
+    };
+  }
+  const custom = SCENE_TRANSLATIONS[storyId]?.[sceneIdx]?.[lang];
+  if (custom) {
+    return custom;
+  }
+  return {
+    title: defaultScene.titleEn,
+    narration: ageMode === 'young' ? defaultScene.narrationYoungEn : defaultScene.narrationOlderEn,
+    reflection: defaultScene.reflectionEn,
+  };
+}

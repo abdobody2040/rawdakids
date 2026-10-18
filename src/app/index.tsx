@@ -27,6 +27,7 @@ import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
 import LanguageSelectModal from '@/components/LanguageSelectModal';
 import { AVAILABLE_LANGUAGES, TRANSLATIONS } from '@/constants/i18n';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
+import { getLocalizedHadith } from '@/services/multilingualContentService';
 import { formatLocalizedTodayDate } from '@/services/multilingualContentService';
 
 const HERO_OASIS_IMG = require('../../assets/images/hero-oasis.jpg');
@@ -155,7 +156,7 @@ export default function HomeScreen() {
       id: 'quran',
       title: t.quran,
       subtitle: t.quranDesc,
-      count: isAr ? '١١٤ سورة مباركة' : '114 Surahs',
+      count: (t as any).surahsCount || (isAr ? '١١٤ سورة مباركة' : '114 Surahs'),
       emoji: '📖',
       gradient: ['#e5f5df', '#daf0e6'] as const,
       route: '/quran',
@@ -164,7 +165,7 @@ export default function HomeScreen() {
       id: 'sunnah',
       title: t.sunnah,
       subtitle: t.sunnahDesc,
-      count: isAr ? '١٠٠ حديث نبوي وسُنّة' : '100 Hadiths',
+      count: (t as any).hadithsCount || (isAr ? '١٠٠ حديث نبوي وسُنّة' : '100 Hadiths'),
       emoji: '🌙',
       gradient: ['#fff1ce', '#ffe6c9'] as const,
       route: '/sunnah',
@@ -173,7 +174,7 @@ export default function HomeScreen() {
       id: 'prophets',
       title: t.prophets,
       subtitle: t.prophetsDesc,
-      count: isAr ? '٢٥ قصة نبي' : '25 Prophet Stories',
+      count: (t as any).prophetsCount || (isAr ? '٢٥ قصة نبي' : '25 Prophet Stories'),
       emoji: '🕊️',
       gradient: ['#e9e8fb', '#dceafa'] as const,
       route: '/prophets',
@@ -182,7 +183,7 @@ export default function HomeScreen() {
       id: 'manners',
       title: t.manners,
       subtitle: t.mannersDesc,
-      count: isAr ? '٥٠ مَعلماً وخُلقاً حسناً' : '50 Manners',
+      count: (t as any).mannersCount || (isAr ? '٥٠ مَعلماً وخُلقاً حسناً' : '50 Manners'),
       emoji: '🌟',
       gradient: ['#ffe8dc', '#fce3ed'] as const,
       route: '/manners',
@@ -191,7 +192,7 @@ export default function HomeScreen() {
       id: 'arkan',
       title: t.pillarsAcademy,
       subtitle: `${t.pillarsIslam} & ${t.pillarsIman}`,
-      count: isAr ? '١١ ركناً مباركاً' : '11 Pillars',
+      count: (t as any).pillarsCount || (isAr ? '١١ ركناً مباركاً' : '11 Pillars'),
       emoji: '🕌',
       gradient: ['#fef3c7', '#fed7aa'] as const,
       route: '/arkan',
@@ -339,10 +340,10 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.greetingTextWrap, isAr && { alignItems: 'flex-end' }]}>
                     <Text style={[styles.greetingSub, isAr && { textAlign: 'right' }]}>
-                      {isAr ? 'السلام عليكم ورحمة الله 🌿' : 'As-salamu alaykum 🌿'}
+                      {isAr ? 'السلام عليكم ورحمة الله 🌿' : (language === 'bn' ? 'আস-সালামু আলাইকুম 🌿' : (language === 'ur' ? 'السلام علیکم ورحمۃ اللہ 🌿' : 'As-salamu alaykum 🌿'))}
                     </Text>
                     <Text style={[styles.greetingMain, isAr && { textAlign: 'right' }]}>
-                      {isAr ? 'أهلاً يا ' : 'Welcome, '}
+                      {(t as any).welcomePrefix || (isAr ? 'أهلاً يا ' : 'Welcome, ')}
                       <Text style={styles.greetingName}>{activeProfile.name}</Text>
                       {' 🌟'}
                     </Text>
@@ -517,10 +518,10 @@ export default function HomeScreen() {
                       ]}
                     >
                       {activeProfile?.ageBand === '4-6'
-                        ? (isAr ? 'أهلاً بصديقنا الصغير!\nنستمع للقرآن معاً؟' : 'Welcome little friend!\nLet’s listen together!')
+                        ? ((t as any).heroAge4_6Title || (isAr ? 'أهلاً بصديقنا الصغير!\nنستمع للقرآن معاً؟' : 'Welcome little friend!\nLet’s listen together!'))
                         : activeProfile?.ageBand === '10-13'
-                        ? (isAr ? 'مرحباً بباحث المعرفة!\nتدبّر آيات الحكمة' : 'Welcome seeker of wisdom!\nContemplate divine verses')
-                        : (isAr ? 'جاهز لمغامرة\nاليوم يا بطل؟' : 'Ready for a\nlittle adventure?')}
+                        ? ((t as any).heroAge10_13Title || (isAr ? 'مرحباً بباحث المعرفة!\nتدبّر آيات الحكمة' : 'Welcome seeker of wisdom!\nContemplate divine verses'))
+                        : ((t as any).heroAge7_9Title || (isAr ? 'جاهز لمغامرة\nاليوم يا بطل؟' : 'Ready for a\nlittle adventure?'))}
                     </Text>
                     <Text
                       style={[
@@ -538,7 +539,7 @@ export default function HomeScreen() {
                       activeOpacity={0.85}
                     >
                       <Text style={styles.heroCtaText}>
-                        {isAr ? 'أكمل رحلتي الآن' : 'Continue my journey'}
+                        {(t as any).continueJourney || (isAr ? 'أكمل رحلتي الآن' : 'Continue my journey')}
                       </Text>
                       <Text style={styles.heroCtaArrow}>{isAr ? '←' : '→'}</Text>
                     </TouchableOpacity>
@@ -555,11 +556,11 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.sectionTitle}>
-                {isAr ? 'مهمة اليوم اللطيفة' : 'Today’s little mission'}
+                {(t as any).dailyMissionTitle || (isAr ? 'مهمة اليوم اللطيفة' : 'Today’s little mission')}
               </Text>
               <TouchableOpacity onPress={() => router.push('/quran')}>
                 <Text style={styles.sectionLink}>
-                  {isAr ? 'عرض الكل ←' : 'See all →'}
+                  {(t as any).seeAll || (isAr ? 'عرض الكل ←' : 'See all →')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -581,12 +582,12 @@ export default function HomeScreen() {
 
                 <View style={[styles.missionTextBox, isAr && { alignItems: 'flex-end' }]}>
                   <Text style={styles.missionHeading}>
-                    {isAr ? 'تعلَّم شيئاً جميلاً' : 'Learn something lovely'}
+                    {(t as any).learnSomethingLovely || (isAr ? 'تعلَّم شيئاً جميلاً' : 'Learn something lovely')}
                   </Text>
                   <Text style={styles.missionDesc}>
-                    {isAr
+                    {(t as any).missionIkhlasDesc || (isAr
                       ? 'استمع لسورة الإخلاص وتدبّر معناها العظيم'
-                      : 'Listen to Al-Ikhlas and discover its meaning'}
+                      : 'Listen to Al-Ikhlas and discover its meaning')}
                   </Text>
                 </View>
 
@@ -595,7 +596,7 @@ export default function HomeScreen() {
                     <View style={styles.missionProgressFill} />
                   </View>
                   <Text style={styles.missionProgressText}>
-                    {isAr ? '٢ من ٣' : '2 of 3'}
+                    {(t as any).twoOfThree || (isAr ? '٢ من ٣' : '2 of 3')}
                   </Text>
                 </View>
               </View>
@@ -628,7 +629,7 @@ export default function HomeScreen() {
                       resizeMode="cover"
                     />
                     <Text style={styles.hodLabel}>
-                      {isAr ? 'حديث اليوم المبارك' : 'Hadith of the Day'}
+                      {(t as any).hadithOfTheDayLabel || (isAr ? 'حديث اليوم المبارك' : 'Hadith of the Day')}
                     </Text>
                   </View>
                   <View style={styles.hodGradePill}>
@@ -655,9 +656,7 @@ export default function HomeScreen() {
                     isAr && { textAlign: 'right' },
                   ]}
                 >
-                  {isAr
-                    ? hadithOfTheDay.explanationAr
-                    : hadithOfTheDay.explanationEn}
+                  {getLocalizedHadith(hadithOfTheDay, language).explanation}
                 </Text>
 
                 {/* Actions Row */}
@@ -686,9 +685,9 @@ export default function HomeScreen() {
                         ? isAr
                           ? 'جارٍ الاستماع... (إيقاف)'
                           : 'Listening... (Pause)'
-                        : isAr
+                        : ((t as any).listenHadith || (isAr
                         ? 'استمع للحديث'
-                        : 'Listen to Hadith'}
+                        : 'Listen to Hadith'))}
                     </Text>
                   </TouchableOpacity>
 
@@ -698,7 +697,7 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.hodPracticeBtnText}>
-                      {isAr ? 'قصة وعمل اليوم ➔' : 'Story & Action ➔'}
+                      {(t as any).storyAndAction || (isAr ? 'قصة وعمل اليوم ➔' : 'Story & Action ➔')}
                     </Text>
                   </TouchableOpacity>
 
@@ -708,7 +707,7 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.hodCardsLinkText}>
-                      {isAr ? '☀️ الأذكار' : '☀️ Adhkar'}
+                      {(t as any).tabAdhkar ? `☀️ ${(t as any).tabAdhkar}` : (isAr ? '☀️ الأذكار' : '☀️ Adhkar')}
                     </Text>
                   </TouchableOpacity>
 
@@ -718,7 +717,7 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.hodCardsLinkText}>
-                      {isAr ? '🎴 البطاقات' : '🎴 Cards'}
+                      {(t as any).tabCards ? `🎴 ${(t as any).tabCards}` : (isAr ? '🎴 البطاقات' : '🎴 Cards')}
                     </Text>
                   </TouchableOpacity>
 
@@ -728,7 +727,7 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.hodCardsLinkText}>
-                      {isAr ? '📿 المسبحة' : '📿 Tasbih'}
+                      {(t as any).tabTasbih ? `📿 ${(t as any).tabTasbih}` : (isAr ? '📿 المسبحة' : '📿 Tasbih')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -739,12 +738,12 @@ export default function HomeScreen() {
             {/* PICK A PATH: 5 WORLDS */}
             <View style={styles.worldsHeader}>
               <Text style={[styles.sectionTitle, isAr && { textAlign: 'right' }]}>
-                {isAr ? 'اختر مسارك يا بطل!' : 'Pick a path, little explorer!'}
+                {(t as any).pickPathTitle || (isAr ? 'اختر مسارك يا بطل!' : 'Pick a path, little explorer!')}
               </Text>
               <Text style={[styles.worldsSubtitle, isAr && { textAlign: 'right' }]}>
-                {isAr
+                {(t as any).pickPathSubtitle || (isAr
                   ? 'ستة عوالم مباركة بانتظار استكشافك!'
-                  : 'Six wonderful worlds are waiting for you!'}
+                  : 'Six wonderful worlds are waiting for you!')}
               </Text>
             </View>
 

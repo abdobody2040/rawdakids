@@ -470,6 +470,112 @@ export function getLocalizedProphetTakeaway(
   };
 }
 
+const HADITH_TEXT_LOCALIZATIONS: Record<string, Partial<Record<Language, { title: string; explanation: string }>>> = {
+  'smile-charity': {
+    bn: {
+      title: 'হাসিমুখে তাকানো একটি সদকা',
+      explanation: 'তোমার ভাই বা বোনের মুখে মিষ্টি হাসি উপহার দেওয়া আল্লাহর কাছে সদকা হিসেবে গণ্য হয়!',
+    },
+    ru: {
+      title: 'Улыбка — это милостыня',
+      explanation: 'Когда ты искренне улыбаешься брату или сестре, Аллах записывает это как добрую милостыню!',
+    },
+    ur: {
+      title: 'مسکرانا صدقہ ہے',
+      explanation: 'اپنے بھائی یا بہن کے سامنے پیار سے مسکرانا اللہ کے نزدیک صدقہ شمار ہوتا ہے!',
+    },
+    id: {
+      title: 'Senyum adalah Sedekah',
+      explanation: 'Tersenyum ramah kepada saudara atau saudarimu dicatat oleh Allah sebagai sedekah!',
+    },
+    tr: {
+      title: 'Gülümsemek Sadakadır',
+      explanation: 'Kardeşine sıcak bir tebessümle bakmak, Allah katında sadaka olarak kabul edilir!',
+    },
+    fr: {
+      title: 'Sourire est une aumône',
+      explanation: 'Sourire chaleureusement à ton frère ou ta sœur est inscrit comme une aumône auprès d’Allah !',
+    },
+    de: {
+      title: 'Lächeln ist ein Almosen',
+      explanation: 'Ein herzliches Lächeln für deinen Bruder oder deine Schwester wird von Allah als Almosen belohnt!',
+    },
+    es: {
+      title: 'Sonreír es caridad',
+      explanation: '¡Sonreír con cariño a tu hermano o hermana es considerado una obra de caridad ante Allah!',
+    },
+  },
+  'believer-mirrors-brother': {
+    bn: {
+      title: 'মুমিন তার মুমিন ভাইয়ের আয়না',
+      explanation: 'যেভাবে একটি আয়না কোনো হৈচৈ ছাড়াই মৃদুভাবে ত্রুটি দেখিয়ে দেয় তা সংশোধনের জন্য, ঠিক তেমনি একজন মুমিন তার ভাইকে গোপনে ও নম্রভাবে উপদেশ দেয়।',
+    },
+    ru: {
+      title: 'Верующий — зеркало для своего брата',
+      explanation: 'Подобно тому, как зеркало мягко показывает недостатки без шума, верующий наставляет своего брата с кротостью и наедине.',
+    },
+    ur: {
+      title: 'مومن اپنے بھائی کا آئینہ ہے',
+      explanation: 'جیسے آئینہ بغیر کسی شور کے عیب نرمی سے دکھاتا ہے، ویسے ہی مومن اپنے بھائی کو تنہائی میں پیار سے سمجھاتا ہے۔',
+    },
+    id: {
+      title: 'Seorang Mukmin adalah Cermin bagi Saudaranya',
+      explanation: 'Sebagaimana cermin dengan lembut menampakkan cela untuk diperbaiki tanpa gaduh, seorang mukmin menasihati saudaranya dengan lembut dan bijak.',
+    },
+    tr: {
+      title: 'Mümin, Mümin Kardeşinin Aynasıdır',
+      explanation: 'Bir aynanın kusurları incitmeden ve sessizce göstermesi gibi, mümin de kardeşine gizlice ve nezaketle nasihat eder.',
+    },
+    fr: {
+      title: 'Le croyant est le miroir de son frère',
+      explanation: 'Tout comme le miroir montre les défauts sans bruit pour les corriger, le croyant conseille son frère avec discrétion et douceur.',
+    },
+    de: {
+      title: 'Der Gläubige ist der Spiegel seines Bruders',
+      explanation: 'So wie ein Spiegel Fehler still und sanft zeigt, so berät der Gläubige seinen Bruder mit Milde und im Verborgenen.',
+    },
+    es: {
+      title: 'El creyente es el espejo de su hermano',
+      explanation: 'Así como el espejo muestra los defectos en silencio para corregirlos, el creyente aconseja a su hermano con gentileza y en privado.',
+    },
+  },
+};
+
+const HABIT_LOCALIZATIONS: Record<string, Partial<Record<Language, { name: string; action: string }>>> = {
+  'habit-smile': {
+    bn: { name: 'আজ ৩ জন মানুষকে মিষ্টি হাসি উপহার দাও', action: 'আজ তোমার পিতা-মাতা, শিক্ষক ও বন্ধুদের হাসিমুখে অভিবাদন জানাও' },
+    ru: { name: 'Улыбнись трем людям сегодня', action: 'Подари добрую улыбку родителям, учителю или друзьям' },
+    ur: { name: 'آج 3 لوگوں کو مسکرا کر دیکھیں', action: 'اپنے والدین، استاد اور دوستوں کو پیاری مسکراہٹ دیں' },
+    id: { name: 'Tersenyum kepada 3 orang hari ini', action: 'Berikan senyum hangat kepada orang tua, guru, atau temanmu' },
+    tr: { name: 'Bugün 3 kişiye gülümse', action: 'Anne babana, öğretmenine veya arkadaşlarına sıcak bir tebessüm et' },
+    fr: { name: 'Souris à 3 personnes aujourd’hui', action: 'Offre un beau sourire à tes parents, ton enseignant ou tes amis' },
+    de: { name: 'Lächle heute 3 Menschen an', action: 'Schenke deinen Eltern, Lehrern oder Freunden ein herzliches Lächeln' },
+    es: { name: 'Sonríe a 3 personas hoy', action: 'Dedica una sonrisa alegre a tus padres, maestros o amigos hoy' },
+  },
+  'habit-bismillah': {
+    bn: { name: 'বিসমিল্লাহ বলা ও ডান হাতে খাওয়া', action: 'খাওয়ার শুরুতে বিসমিল্লাহ বলো ও ডান হাত ব্যবহার করো' },
+    ru: { name: 'Произнесение Бисмиллях и еда правой рукой', action: 'Всегда говори Бисмиллях перед едой и кушай правой рукой' },
+    ur: { name: 'بسم اللہ پڑھنا اور دائیں ہاتھ سے کھانا', action: 'کھانے سے پہلے بسم اللہ کہیں اور دائیں ہاتھ سے کھائیں' },
+    id: { name: 'Membaca Bismillah dan makan dengan tangan kanan', action: 'Ucapkan Bismillah sebelum makan dan gunakan selalu tangan kananmu' },
+    tr: { name: 'Bismillah demek ve sağ elle yemek', action: 'Yemekten önce Bismillah de ve daima sağ elinle ye' },
+    fr: { name: 'Dire Bismillah et manger de la main droite', action: 'Dis Bismillah avant de manger et sers-toi toujours de la main droite' },
+    de: { name: 'Bismillah sagen und mit der rechten Hand essen', action: 'Sage vor dem Essen Bismillah und nutze deine rechte Hand' },
+    es: { name: 'Decir Bismillah y comer con la mano derecha', action: 'Di Bismillah antes de comer y usa siempre la mano derecha' },
+  },
+};
+
+export function getLocalizedHabit(
+  habit: { id: string; nameAr: string; nameEn: string; actionAr: string; actionEn: string },
+  lang: Language
+): { name: string; action: string } {
+  if (lang === 'ar') {
+    return { name: habit.nameAr, action: habit.actionAr };
+  }
+  const custom = HABIT_LOCALIZATIONS[habit.id]?.[lang];
+  if (custom) return custom;
+  return { name: habit.nameEn, action: habit.actionEn };
+}
+
 export function getLocalizedHadith(
   hadith: KidHadith,
   lang: Language
@@ -508,10 +614,12 @@ export function getLocalizedHadith(
     };
   }
 
+  const customText = HADITH_TEXT_LOCALIZATIONS[hadith.id]?.[lang];
+
   return {
-    title: hadith.titleEn,
+    title: customText ? customText.title : hadith.titleEn,
     narrator: hadith.narratorEn,
-    explanation: hadith.explanationEn,
+    explanation: customText ? customText.explanation : hadith.explanationEn,
     miniStory: hadith.miniStory.map((s) => ({
       sceneNumber: s.sceneNumber,
       title: s.titleEn,

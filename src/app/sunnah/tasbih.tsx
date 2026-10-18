@@ -33,6 +33,112 @@ export interface DhikrItem {
   colorScheme: readonly [string, string];
 }
 
+
+const DHIKR_LOCALIZATIONS: Record<string, Partial<Record<string, { meaning: string; reward: string }>>> = {
+  subhanallah: {
+    bn: { meaning: 'সকল ত্রুটি ও অপূর্ণতা থেকে আল্লাহ মহাপবিত্র', reward: 'জান্নাতে তোমার জন্য একটি বরকতময় খেজুর গাছ রোপণ করা হলো 🌴' },
+    ru: { meaning: 'Пречист Аллах от всякого недостатка', reward: 'Благословенная пальма сажается для тебя в Раю 🌴' },
+    ur: { meaning: 'اللہ تعالیٰ ہر عیب اور نقص سے پاک ہے', reward: 'جنت میں آپ کے لیے ایک مبارک کھجور کا درخت لگا دیا گیا 🌴' },
+    id: { meaning: 'Maha Suci Allah dari segala kekurangan', reward: 'Pohon kurma penuh berkah ditanam untukmu di Surga 🌴' },
+    tr: { meaning: 'Allah her türlü noksanlıktan münezzehtir', reward: 'Cennette senin için mübarek bir hurma ağacı dikildi 🌴' },
+    fr: { meaning: 'Gloire à Allah au-delà de toute imperfection', reward: 'Un palmier béni est planté pour toi au Paradis 🌴' },
+    de: { meaning: 'Gepriesen sei Allah über jeden Mangel erhaben', reward: 'Eine gesegnete Palme wird für dich im Paradies gepflanzt 🌴' },
+    es: { meaning: 'Gloria a Allah por encima de toda imperfección', reward: 'Una palmera bendita se planta para ti en el Paraíso 🌴' },
+  },
+  alhamdulillah: {
+    bn: { meaning: 'সকল প্রশংসা ও কৃতজ্ঞতা কেবল আল্লাহর জন্য', reward: 'নেকির পাল্লাকে মহান আলো ও কল্যাণে পূর্ণ করে ⚖️' },
+    ru: { meaning: 'Вся хвала и благодарность принадлежат Аллаху', reward: 'Наполняет чашу добрых дел великим светом ⚖️' },
+    ur: { meaning: 'تمام تعریفیں اور شکر اللہ کے لیے ہیں', reward: 'نیکیوں کے ترازو کو عظیم خیر سے بھر دیتا ہے ⚖️' },
+    id: { meaning: 'Segala puji dan syukur hanya milik Allah', reward: 'Memenuhi timbangan amal kebaikan dengan cahaya ⚖️' },
+    tr: { meaning: 'Bütün hamd ve şükürler yalnızca Allah’a aittir', reward: 'Mizanı büyük bir hayır ve nur ile doldurur ⚖️' },
+    fr: { meaning: 'Toute louange et gratitude reviennent à Allah', reward: 'Remplit la balance des bonnes actions de lumière ⚖️' },
+    de: { meaning: 'Alles Lob und aller Dank gebührt Allah', reward: 'Füllt die Waage der guten Taten mit Licht ⚖️' },
+    es: { meaning: 'Toda alabanza y gratitud pertenecen a Allah', reward: 'Llena la balanza de las buenas obras de luz ⚖️' },
+  },
+  allahuakbar: {
+    bn: { meaning: 'আল্লাহ সবকিছুর চেয়ে মহান ও শ্রেষ্ঠতম', reward: 'অন্তরকে শক্তি, সাহস ও প্রশান্তিতে ভরিয়ে দেয় 🛡️' },
+    ru: { meaning: 'Аллах превыше и величественнее всего', reward: 'Наполняет сердце мужеством и спокойствием 🛡️' },
+    ur: { meaning: 'اللہ تعالیٰ ہر چیز سے بڑا اور بلند ہے', reward: 'دل کو سکون اور ایمان کی طاقت عطا کرتا ہے 🛡️' },
+    id: { meaning: 'Allah Maha Besar atas segala sesuatu', reward: 'Memenuhi hati dengan ketenangan dan keberanian 🛡️' },
+    tr: { meaning: 'Allah her şeyden daha büyük ve yücedir', reward: 'Kalbe huzur, cesaret ve manevi güç verir 🛡️' },
+    fr: { meaning: 'Allah est plus Grand que toute chose', reward: 'Remplit le cœur d’apaisement et de courage 🛡️' },
+    de: { meaning: 'Allah ist größer als alles andere', reward: 'Erfüllt das Herz mit Ruhe und Mut 🛡️' },
+    es: { meaning: 'Allah es Más Grande que todas las cosas', reward: 'Llena el corazón de paz y valentía 🛡️' },
+  },
+  lailahaillallah: {
+    bn: { meaning: 'আল্লাহ ব্যতীত সত্য কোনো উপাস্য নেই', reward: 'সর্বোত্তম জিকির এবং জান্নাতের চাবিকাঠি 🗝️' },
+    ru: { meaning: 'Нет бога достойного поклонения кроме Аллаха', reward: 'Лучшее поминание и ключ к Раю 🗝️' },
+    ur: { meaning: 'اللہ کے سوا کوئی سچا معبود نہیں', reward: 'افضل ترین ذکر اور جنت کی چابی 🗝️' },
+    id: { meaning: 'Tiada Tuhan yang berhak disembah selain Allah', reward: 'Dzikir terbaik dan kunci pintu Surga 🗝️' },
+    tr: { meaning: 'Allah’tan başka hak ilah yoktur', reward: 'Zikirlerin en faziletlisi ve Cennetin anahtarıdır 🗝️' },
+    fr: { meaning: 'Nul n’est digne d’adoration excepté Allah', reward: 'La meilleure évocation et la clé du Paradis 🗝️' },
+    de: { meaning: 'Es gibt keinen anbetungswürdigen Gott außer Allah', reward: 'Das beste Gedenken und der Schlüssel zum Paradies 🗝️' },
+    es: { meaning: 'No hay más deidad digna de adoración que Allah', reward: 'El mejor recuerdo y la llave del Paraíso 🗝️' },
+  },
+  salawat: {
+    bn: { meaning: 'আমাদের প্রিয় নবী ﷺ-এর ওপর শান্তি ও বরকত বর্ষিত হোক', reward: 'যে একবার দরুদ পড়ে, আল্লাহ তাকে দশটি রহমত দান করেন 🌸' },
+    ru: { meaning: 'Мир и благословение нашему любимому Пророку ﷺ', reward: 'Кто призовет благословение один раз, того Аллах благословит десятикратно 🌸' },
+    ur: { meaning: 'ہمارے پیارے نبی ﷺ پر درود اور سلام', reward: 'جو آپ ﷺ پر ایک بار درود بھیجے، اللہ اس پر دس رحمتیں نازل فرماتا ہے 🌸' },
+    id: { meaning: 'Shalawat dan berkah untuk Nabi kita tercinta ﷺ', reward: 'Barangsiapa bershalawat sekali, Allah melimpahkan sepuluh rahmat 🌸' },
+    tr: { meaning: 'Sevgili Peygamberimiz Hz. Muhammed’e ﷺ salat ve selam olsun', reward: 'Kim O’na bir salavat getirirse, Allah ona on rahmet bahşeder 🌸' },
+    fr: { meaning: 'Paix et bénédictions sur notre bien-aimé Prophète ﷺ', reward: 'Quiconque prie sur lui une fois, Allah le bénit dix fois 🌸' },
+    de: { meaning: 'Frieden und Segen auf unserem geliebten Propheten ﷺ', reward: 'Wer einmal für ihn betet, den segnet Allah zehnfach 🌸' },
+    es: { meaning: 'Paz y bendiciones sobre nuestro amado Profeta ﷺ', reward: 'Quien pida bendiciones para él una vez, Allah le bendice diez veces 🌸' },
+  },
+  istighfar: {
+    bn: { meaning: 'আমি আল্লাহর ক্ষমা চাই এবং তাওবা করে তাঁর দিকেই ফিরছি', reward: 'গুনাহ মোচন করে এবং জীবনে রহমত ও রিজিক আনে 🌧️' },
+    ru: { meaning: 'Я прошу прощения у Аллаха и каюсь перед Ним', reward: 'Стирает грехи и приносит облегчение и удел 🌧️' },
+    ur: { meaning: 'میں اللہ سے بخشش مانگتا ہوں اور اسی کی طرف رجوع کرتا ہوں', reward: 'گناہوں کو مٹاتا ہے اور رزق و آسانی لاتا ہے 🌧️' },
+    id: { meaning: 'Aku memohon ampunan Allah dan bertobat kepada-Nya', reward: 'Menghapus dosa serta mendatangkan kemudahan dan rezeki 🌧️' },
+    tr: { meaning: 'Allah’tan mağfiret diler ve O’na tövbe ederim', reward: 'Günahları siler, ferahlık ve bereketli rızık getirir 🌧️' },
+    fr: { meaning: 'Je demande pardon à Allah et je reviens à Lui', reward: 'Efface les péchés et apporte le soulagement 🌧️' },
+    de: { meaning: 'Ich bitte Allah um Vergebung und kehre reuig zu Ihm zurück', reward: 'Tilgt Sünden und schenkt Erleichterung und Segen 🌧️' },
+    es: { meaning: 'Pido perdón a Allah y me vuelvo a Él con arrepentimiento', reward: 'Borra los errores y trae alivio y bendición 🌧️' },
+  },
+  subhanallahi_wabihamdih: {
+    bn: { meaning: 'মুখে উচ্চারণে সহজ, মীজানের পাল্লায় ভারী ও রহমানের নিকট অতি প্রিয়', reward: 'মীজানে ভারী এবং পরম দয়াময়ের প্রিয় ⭐' },
+    ru: { meaning: 'Два слова, легкие для языка и тяжелые на Весах', reward: 'Любимы Милостивым и тяжелы на Весах деяний ⭐' },
+    ur: { meaning: 'زبان پر ہلکے اور میزان میں بھاری کلمات', reward: 'رحمان کو محبوب اور نیکیوں کے ترازو میں بھاری ⭐' },
+    id: { meaning: 'Dua kalimat yang ringan di lisan dan berat di timbangan', reward: 'Dicintai oleh Ar-Rahman dan berat di timbangan ⭐' },
+    tr: { meaning: 'Dile hafif, mizanda ağır, Rahman’a çok sevimli iki kelime', reward: 'Mizanda çok ağır ve Rahman olan Allah’a pek sevimlidir ⭐' },
+    fr: { meaning: 'Deux paroles légères sur la langue, lourdes sur la balance', reward: 'Aimées du Tout-Miséricordieux et lourdes sur la balance ⭐' },
+    de: { meaning: 'Zwei Worte, leicht auf der Zunge, schwer auf der Waage', reward: 'Geliebt vom Allerbarmer und schwer auf der Waage ⭐' },
+    es: { meaning: 'Dos palabras ligeras en la lengua, pesadas en la balanza', reward: 'Amadas por el Clementísimo y pesadas en la balanza ⭐' },
+  },
+  hawqalah: {
+    bn: { meaning: 'আল্লাহর সাহায্য ও শক্তি ব্যতীত কোনো শক্তি বা সামর্থ্য নেই', reward: 'জান্নাতের অমূল্য ভাণ্ডারসমূহের একটি রত্ন 💎' },
+    ru: { meaning: 'Нет мощи и силы ни у кого кроме как с помощью Аллаха', reward: 'Одно из драгоценных сокровищ Рая 💎' },
+    ur: { meaning: 'اللہ کی مدد کے بغیر کسی برائی سے بچنے اور نیکی کرنے کی طاقت نہیں', reward: 'جنت کے خزانوں میں سے ایک قیمتی خزانہ 💎' },
+    id: { meaning: 'Tiada daya dan kekuatan kecuali dengan pertolongan Allah', reward: 'Salah satu simpanan harta berharga di Surga 💎' },
+    tr: { meaning: 'Allah’ın güç ve yardımı olmadan hiçbir şeye güç yetmez', reward: 'Cennet hazinelerinden çok kıymetli bir hazine 💎' },
+    fr: { meaning: 'Il n’y a de puissance ni de force qu’en Allah', reward: 'Un trésor précieux parmi les trésors du Paradis 💎' },
+    de: { meaning: 'Es gibt keine Macht noch Kraft außer durch Allah', reward: 'Ein kostbarer Schatz aus den Schätzen des Paradieses 💎' },
+    es: { meaning: 'No hay poder ni fuerza sino con Allah', reward: 'Un tesoro precioso de los tesoros del Paraíso 💎' },
+  },
+};
+
+const TASBIH_PROPHET_BENEFITS: Record<string, string> = {
+  ar: '«مَنْ سَبَّحَ اللَّهَ فِي دُبُرِ كُلِّ صَلاةٍ ثَلاثاً وَثَلاثِينَ، وَحَمِدَ اللَّهَ ثَلاثاً وَثَلاثِينَ، وَكَبَّرَ اللَّهَ ثَلاثاً وَثَلاثِينَ، فَتِلْكَ تِسْعَةٌ وَتِسْعُونَ، وَقَالَ تَمَامَ الْمِائَةِ: لا إِلَهَ إِلا اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ... غُفِرَتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ»',
+  en: 'Saying SubhanAllah (33), Alhamdulillah (33), and Allahu Akbar (33) after prayer forgives shortcomings and brings immense peace.',
+  bn: 'ফরজ সালাতের পর ৩৩ বার সুবহানাল্লাহ, ৩৩ বার আলহামদুলিল্লাহ ও ৩৩ বার আল্লাহু আকবার পাঠ করলে অন্তর শান্তিময় হয় এবং গুনাহ মাফ হয়।',
+  ru: 'Произнесение после молитвы Субханаллах (33), Альхамдулиллях (33) и Аллаху Акбар (33) очищает от грехов и приносит глубокий покой.',
+  ur: 'نماز کے بعد 33 بار سبحان اللہ، 33 بار الحمد للہ اور 33 بار اللہ اکبر پڑھنا گناہوں کی بخشش اور دل کے سکون کا ذریعہ ہے۔',
+  id: 'Membaca Subhanallah (33x), Alhamdulillah (33x), dan Allahu Akbar (33x) setiap selesai shalat membawa ketenangan dan ampunan dosa.',
+  tr: 'Namazlardan sonra 33 defa Sübhanallah, 33 defa Elhamdülillah ve 33 defa Allahu Ekber demek kalbe huzur verir ve günahları bağışlatır.',
+  fr: 'Dire SubhanAllah (33 fois), Alhamdulillah (33 fois) et Allahu Akbar (33 fois) après la prière apporte paix au cœur et pardon.',
+  de: 'Das Aufsagen von SubhanAllah (33), Alhamdulillah (33) und Allahu Akbar (33) nach dem Gebet schenkt inneren Frieden und Vergebung.',
+  es: 'Decir SubhanAllah (33), Alhamdülillah (33) y Allahu Akbar (33) tras la oración trae paz al corazón y perdón de faltas.',
+};
+
+function getLocalizedDhikr(dhikr: DhikrItem, lang: string): { meaning: string; reward: string } {
+  if (lang === 'ar') {
+    return { meaning: dhikr.meaningAr, reward: dhikr.rewardNoteAr };
+  }
+  const custom = DHIKR_LOCALIZATIONS[dhikr.id]?.[lang];
+  if (custom) return custom;
+  return { meaning: dhikr.meaningEn, reward: dhikr.rewardNoteEn };
+}
+
 export const DHIKR_LIST: DhikrItem[] = [
   {
     id: 'subhanallah',
@@ -294,7 +400,7 @@ export default function TasbihScreen() {
           {/* Horizontal Dhikr Selector Chips */}
           <View style={styles.dhikrListWrap}>
             <Text style={[styles.sectionLabel, { textAlign: isAr ? 'right' : 'left' }]}>
-              {isAr ? 'اختر الذكر المبارك:' : 'Choose Dhikr:'}
+              {(t as any).chooseDhikr || (isAr ? 'اختر الذكر المبارك:' : 'Choose Dhikr:')}
             </Text>
             <ScrollView
               horizontal
@@ -362,13 +468,13 @@ export default function TasbihScreen() {
             <Text style={styles.activeDhikrTranslit}>{activeDhikr.transliteration}</Text>
             <View style={styles.activeDhikrDivider} />
             <Text style={styles.activeDhikrMeaning}>
-              {isAr ? activeDhikr.meaningAr : activeDhikr.meaningEn}
+              {getLocalizedDhikr(activeDhikr, language).meaning}
             </Text>
 
             <View style={styles.rewardPill}>
               <Ionicons name="gift-outline" size={14} color="#FEF3C7" />
               <Text style={styles.rewardPillText}>
-                {isAr ? activeDhikr.rewardNoteAr : activeDhikr.rewardNoteEn}
+                {getLocalizedDhikr(activeDhikr, language).reward}
               </Text>
             </View>
           </LinearGradient>
@@ -411,7 +517,7 @@ export default function TasbihScreen() {
             <View style={styles.roundsPill}>
               <Ionicons name="refresh-circle" size={16} color="#047857" />
               <Text style={styles.roundsPillText}>
-                {isAr ? `الدورات: ${completedRounds}` : `Rounds: ${completedRounds}`}
+                {(t as any).roundsLabel ? `${(t as any).roundsLabel} ${completedRounds}` : (isAr ? `الدورات: ${completedRounds}` : `Rounds: ${completedRounds}`)}
               </Text>
             </View>
 
@@ -422,7 +528,7 @@ export default function TasbihScreen() {
               activeOpacity={0.7}
             >
               <Ionicons name="reload" size={15} color="#64748B" />
-              <Text style={styles.resetBtnText}>{isAr ? 'تصفير' : 'Reset'}</Text>
+              <Text style={styles.resetBtnText}>{(t as any).resetBtn || (isAr ? 'تصفير' : 'Reset')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -469,7 +575,7 @@ export default function TasbihScreen() {
                     <View style={styles.tapPromptBadge}>
                       <Ionicons name="finger-print" size={20} color="#FFFFFF" />
                       <Text style={styles.tapPromptText}>
-                        {isAr ? 'المس للتسبيح 👆' : 'Tap to Count 👆'}
+                        {(t as any).tapToCount || (isAr ? 'المس للتسبيح 👆' : 'Tap to Count 👆')}
                       </Text>
                     </View>
                   </View>
@@ -486,7 +592,7 @@ export default function TasbihScreen() {
                 { textAlign: isAr ? 'right' : 'left' },
               ]}
             >
-              {isAr ? '💡 هَدْيُ النَّبِيِّ ﷺ فِي التَّسْبِيحِ:' : '💡 Prophet Muhammad ﷺ taught us:'}
+              {(t as any).tasbihProphetTeaching || (isAr ? '💡 هَدْيُ النَّبِيِّ ﷺ فِي التَّسْبِيحِ:' : '💡 Prophet Muhammad ﷺ taught us:')}
             </Text>
             <Text
               style={[
@@ -494,9 +600,7 @@ export default function TasbihScreen() {
                 { textAlign: isAr ? 'right' : 'left' },
               ]}
             >
-              {isAr
-                ? '«مَنْ سَبَّحَ اللَّهَ فِي دُبُرِ كُلِّ صَلاةٍ ثَلاثاً وَثَلاثِينَ، وَحَمِدَ اللَّهَ ثَلاثاً وَثَلاثِينَ، وَكَبَّرَ اللَّهَ ثَلاثاً وَثَلاثِينَ، فَتِلْكَ تِسْعَةٌ وَتِسْعُونَ، وَقَالَ تَمَامَ الْمِائَةِ: لا إِلَهَ إِلا اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ... غُفِرَتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ»'
-                : 'Saying SubhanAllah (33), Alhamdulillah (33), and Allahu Akbar (33) after prayer forgives shortcomings and brings immense peace.'}
+              {TASBIH_PROPHET_BENEFITS[language] || TASBIH_PROPHET_BENEFITS.en}
             </Text>
           </View>
         </ScrollView>
@@ -508,8 +612,8 @@ export default function TasbihScreen() {
         visible={showCelebration}
         starsEarned={1}
         gemsEarned={2}
-        title={isAr ? `أتممت ${customTarget} تسبيحة مباركة! 🎉` : `Completed ${customTarget} Tasbihs! 🎉`}
-        subtitle={isAr ? 'ما شاء الله! نورت قلبك وحفظت لسانك 🌴' : 'Masha’Allah! Light and blessings for your soul 🌴'}
+        title={((t as any).tasbihCompletedTitle || (isAr ? 'أتممت {count} تسبيحة مباركة! 🎉' : 'Completed {count} Tasbihs! 🎉')).replace('{count}', String(customTarget))}
+        subtitle={(t as any).tasbihCompletedSubtitle || (isAr ? 'ما شاء الله! نورت قلبك وحفظت لسانك 🌴' : 'Masha’Allah! Light and blessings for your soul 🌴')}
         onDismiss={() => setShowCelebration(false)}
       />
     </SafeAreaView>
