@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -28,6 +30,18 @@ import {
   AnimalMiracleStory,
   QuranAnimalItem,
 } from '@/data/animalsData';
+import {
+  getAnimalsHubLabel,
+  getLocalizedAnimalStoryMeta,
+} from '@/services/multilingualAnimalsService';
+
+const ANIMALS_WORLD_COVER = require('../../../assets/images/animals-world.jpg');
+const STORY_IMAGES: Record<string, any> = {
+  'isa-bird': require('../../../assets/images/scene-isa-bird.jpg'),
+  'musa-staff': require('../../../assets/images/scene-musa-staff.jpg'),
+  'ismail-ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
+  'qabil-crow': require('../../../assets/images/scene-qabil-crow.jpg'),
+};
 
 type AnimalHubTab = 'miracles' | 'sunnah' | 'cards' | 'game';
 
@@ -120,92 +134,97 @@ export default function AnimalsHubScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
-        <Header showBack fallbackRoute="/" title={isAr ? 'حديقة الحيوان في القرآن' : 'Animals in the Quran'} />
+        <Header showBack fallbackRoute="/" title={getAnimalsHubLabel('hubTitle', language)} />
 
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Hero Banner */}
+          {/* Hero Banner with 3D Background */}
           <View style={styles.heroBanner}>
-            <LinearGradient
-              colors={['#047857', '#065F46']}
-              style={styles.heroGradient}
+            <ImageBackground
+              source={ANIMALS_WORLD_COVER}
+              style={styles.heroBackground}
+              imageStyle={{ borderRadius: RADIUS.xl }}
+              resizeMode="cover"
             >
-              <View style={[styles.heroRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <View style={[styles.heroTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
-                  <View style={styles.heroBadgePill}>
-                    <Text style={styles.heroBadgeText}>
-                      {isAr ? '🐾 عالم المخلوقات والآيات' : '🐾 World of Wonders & Signs'}
+              <LinearGradient
+                colors={['rgba(6, 78, 59, 0.72)', 'rgba(4, 120, 87, 0.92)']}
+                style={styles.heroGradient}
+              >
+                <View style={[styles.heroRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <View style={[styles.heroTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                    <View style={styles.heroBadgePill}>
+                      <Text style={styles.heroBadgeText}>
+                        {getAnimalsHubLabel('hubBadge', language)}
+                      </Text>
+                    </View>
+                    <Text style={styles.heroTitle}>
+                      {getAnimalsHubLabel('hubTitle', language)}
+                    </Text>
+                    <Text style={[styles.heroSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                      {getAnimalsHubLabel('hubSubtitle', language)}
                     </Text>
                   </View>
-                  <Text style={styles.heroTitle}>
-                    {isAr ? 'حديقة الحيوان في القرآن' : 'Animals in the Quran'}
-                  </Text>
-                  <Text style={[styles.heroSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
-                    {isAr
-                      ? 'اكتشف معجزات الأنبياء مع الحيوانات، وهدي النبي ﷺ في الرحمة والرفق بكل كائن حي!'
-                      : 'Explore prophetic miracles with animals, and the Prophet’s guidance on kindness to all living beings!'}
-                  </Text>
+                  <View style={styles.heroEmojiCluster}>
+                    <Text style={{ fontSize: 36 }}>🕊️</Text>
+                    <Text style={{ fontSize: 28, marginTop: -8 }}>🐍</Text>
+                  </View>
                 </View>
-                <View style={styles.heroEmojiCluster}>
-                  <Text style={{ fontSize: 36 }}>🕊️</Text>
-                  <Text style={{ fontSize: 28, marginTop: -8 }}>🐍</Text>
-                </View>
-              </View>
 
-              {/* 4-Hub Navigation Switcher */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[styles.navTabsScroll, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
-              >
-                <TouchableOpacity
-                  style={[styles.hubTabBtn, activeTab === 'miracles' && styles.hubTabBtnActive]}
-                  onPress={() => setActiveTab('miracles')}
-                  activeOpacity={0.8}
+                {/* 4-Hub Navigation Switcher */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={[styles.navTabsScroll, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
                 >
-                  <Text style={styles.hubTabIcon}>🕊️</Text>
-                  <Text style={[styles.hubTabBtnText, activeTab === 'miracles' && styles.hubTabBtnTextActive]}>
-                    {isAr ? 'معجزات الأنبياء' : 'Miracles'}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.hubTabBtn, activeTab === 'miracles' && styles.hubTabBtnActive]}
+                    onPress={() => setActiveTab('miracles')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hubTabIcon}>🕊️</Text>
+                    <Text style={[styles.hubTabBtnText, activeTab === 'miracles' && styles.hubTabBtnTextActive]}>
+                      {getAnimalsHubLabel('tabMiracles', language)}
+                    </Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[styles.hubTabBtn, activeTab === 'sunnah' && styles.hubTabBtnActive]}
-                  onPress={() => setActiveTab('sunnah')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.hubTabIcon}>🌿</Text>
-                  <Text style={[styles.hubTabBtnText, activeTab === 'sunnah' && styles.hubTabBtnTextActive]}>
-                    {isAr ? 'الرفق بالحيوان' : 'Kindness in Sunnah'}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.hubTabBtn, activeTab === 'sunnah' && styles.hubTabBtnActive]}
+                    onPress={() => setActiveTab('sunnah')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hubTabIcon}>🌿</Text>
+                    <Text style={[styles.hubTabBtnText, activeTab === 'sunnah' && styles.hubTabBtnTextActive]}>
+                      {getAnimalsHubLabel('tabSunnah', language)}
+                    </Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[styles.hubTabBtn, activeTab === 'cards' && styles.hubTabBtnActive]}
-                  onPress={() => setActiveTab('cards')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.hubTabIcon}>📚</Text>
-                  <Text style={[styles.hubTabBtnText, activeTab === 'cards' && styles.hubTabBtnTextActive]}>
-                    {isAr ? '١٦ حيواناً بالقرآن' : '16 Quran Animals'}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.hubTabBtn, activeTab === 'cards' && styles.hubTabBtnActive]}
+                    onPress={() => setActiveTab('cards')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hubTabIcon}>📚</Text>
+                    <Text style={[styles.hubTabBtnText, activeTab === 'cards' && styles.hubTabBtnTextActive]}>
+                      {getAnimalsHubLabel('tabCards', language)}
+                    </Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[styles.hubTabBtn, activeTab === 'game' && styles.hubTabBtnActive]}
-                  onPress={() => setActiveTab('game')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.hubTabIcon}>🎮</Text>
-                  <Text style={[styles.hubTabBtnText, activeTab === 'game' && styles.hubTabBtnTextActive]}>
-                    {isAr ? 'خمّن الحيوان' : 'Guessing Game'}
-                  </Text>
-                </TouchableOpacity>
-              </ScrollView>
-            </LinearGradient>
+                  <TouchableOpacity
+                    style={[styles.hubTabBtn, activeTab === 'game' && styles.hubTabBtnActive]}
+                    onPress={() => setActiveTab('game')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hubTabIcon}>🎮</Text>
+                    <Text style={[styles.hubTabBtnText, activeTab === 'game' && styles.hubTabBtnTextActive]}>
+                      {getAnimalsHubLabel('tabGame', language)}
+                    </Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </LinearGradient>
+            </ImageBackground>
           </View>
 
           {/* TAB 1: MIRACLES STORIES */}
@@ -214,62 +233,82 @@ export default function AnimalsHubScreen() {
               <View style={[styles.sectionTitleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="sparkles" size={18} color="#D97706" />
                 <Text style={styles.sectionHeaderTitle}>
-                  {isAr ? 'قصص معجزات الحيوان مع الأنبياء' : 'Prophetic Miracles with Animals'}
+                  {getAnimalsHubLabel('miraclesSectionTitle', language)}
                 </Text>
               </View>
 
               <View style={styles.storiesGrid}>
-                {ANIMAL_MIRACLE_STORIES.map((story) => (
-                  <TouchableOpacity
-                    key={story.id}
-                    style={styles.storyCard}
-                    onPress={() => router.push({ pathname: '/animals/[storyId]' as any, params: { storyId: story.id } })}
-                    activeOpacity={0.85}
-                  >
-                    <View style={[styles.storyCardHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                      <View style={[styles.storyEmojiBox, { backgroundColor: story.themeColor + '18' }]}>
-                        <Text style={{ fontSize: 32 }}>{story.animalEmoji}</Text>
-                      </View>
-                      <View style={{ flex: 1, alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-                        <View style={[styles.agePill, { backgroundColor: story.themeColor + '20' }]}>
-                          <Text style={[styles.agePillText, { color: story.themeColor }]}>
-                            {isAr ? `سن ${story.minAge}+` : `Age ${story.minAge}+`}
-                          </Text>
-                        </View>
-                        <Text style={[styles.storyProphetName, { textAlign: isRtl ? 'right' : 'left' }]}>
-                          {isAr ? story.prophetNameAr : story.prophetNameEn}
-                        </Text>
-                        <Text style={[styles.storyTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
-                          {isAr ? story.titleAr : story.titleEn}
-                        </Text>
-                      </View>
-                    </View>
+                {ANIMAL_MIRACLE_STORIES.map((story) => {
+                  const storyMeta = getLocalizedAnimalStoryMeta(story.id, language);
+                  const storyTitle = storyMeta ? storyMeta.title : (isAr ? story.titleAr : story.titleEn);
+                  const prophetName = storyMeta ? storyMeta.prophetName : (isAr ? story.prophetNameAr : story.prophetNameEn);
+                  const summaryText = storyMeta ? storyMeta.summaryYoung : (isAr ? story.shortSummaryYoungAr : story.shortSummaryYoungEn);
 
-                    <Text
-                      style={[styles.storySummaryText, { textAlign: isRtl ? 'right' : 'left' }]}
-                      numberOfLines={2}
+                  return (
+                    <TouchableOpacity
+                      key={story.id}
+                      style={styles.storyCard}
+                      onPress={() => router.push({ pathname: '/animals/[storyId]' as any, params: { storyId: story.id } })}
+                      activeOpacity={0.85}
                     >
-                      {isAr ? story.shortSummaryYoungAr : story.shortSummaryYoungEn}
-                    </Text>
+                      {/* 3D Story Image Cover Thumbnail */}
+                      {STORY_IMAGES[story.id] && (
+                        <View style={styles.storyThumbWrap}>
+                          <Image source={STORY_IMAGES[story.id]} style={styles.storyThumbImg} resizeMode="cover" />
+                          <LinearGradient
+                            colors={['transparent', 'rgba(0,0,0,0.55)']}
+                            style={styles.storyThumbGradient}
+                          />
+                          <View style={[styles.storyThumbBadge, isRtl ? { right: 12 } : { left: 12 }]}>
+                            <Text style={{ fontSize: 26 }}>{story.animalEmoji}</Text>
+                          </View>
+                        </View>
+                      )}
 
-                    <View style={[styles.storyFooterRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                      <View style={styles.rewardTag}>
-                        <Ionicons name="star" size={13} color="#F59E0B" />
-                        <Text style={styles.rewardTagText}>+10 {t.stars}</Text>
-                      </View>
-                      <View style={[styles.exploreBtn, { backgroundColor: story.themeColor }]}>
-                        <Text style={styles.exploreBtnText}>
-                          {isAr ? 'اقرأ القصة والتحدي' : 'Read & Explore'}
+                      <View style={{ padding: SPACING.md }}>
+                        <View style={[styles.storyCardHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                          <View style={{ flex: 1, alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
+                            <View style={[styles.agePill, { backgroundColor: story.themeColor + '20' }]}>
+                              <Text style={[styles.agePillText, { color: story.themeColor }]}>
+                                {isAr ? `سن ${story.minAge}+` : `Age ${story.minAge}+`}
+                              </Text>
+                            </View>
+                            <Text style={[styles.storyProphetName, { textAlign: isRtl ? 'right' : 'left' }]}>
+                              {prophetName}
+                            </Text>
+                            <Text style={[styles.storyTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                              {storyTitle}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <Text
+                          style={[styles.storySummaryText, { textAlign: isRtl ? 'right' : 'left' }]}
+                          numberOfLines={2}
+                        >
+                          {summaryText}
                         </Text>
-                        <Ionicons
-                          name={isRtl ? 'arrow-back' : 'arrow-forward'}
-                          size={13}
-                          color="#FFFFFF"
-                        />
+
+                        <View style={[styles.storyFooterRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                          <View style={styles.rewardTag}>
+                            <Ionicons name="star" size={13} color="#F59E0B" />
+                            <Text style={styles.rewardTagText}>+10 {t.stars}</Text>
+                          </View>
+                          <View style={[styles.exploreBtn, { backgroundColor: story.themeColor }]}>
+                            <Text style={styles.exploreBtnText}>
+                              {getAnimalsHubLabel('readStoryBtn', language)}
+                            </Text>
+                            <Ionicons
+                              name={isRtl ? 'arrow-back' : 'arrow-forward'}
+                              size={13}
+                              color="#FFFFFF"
+                            />
+                          </View>
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
           )}
@@ -280,7 +319,7 @@ export default function AnimalsHubScreen() {
               <View style={[styles.sectionTitleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="heart" size={18} color="#059669" />
                 <Text style={styles.sectionHeaderTitle}>
-                  {isAr ? 'الرحمة بالحيوان في السنة النبوية الشريفة' : 'Kindness to Animals in the Sunnah'}
+                  {getAnimalsHubLabel('sunnahSectionTitle', language)}
                 </Text>
               </View>
 
@@ -317,7 +356,7 @@ export default function AnimalsHubScreen() {
                 <View style={[styles.sectionTitleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                   <Ionicons name="hand-left" size={18} color="#D97706" />
                   <Text style={styles.sectionHeaderTitle}>
-                    {isAr ? 'لعبة: ساعد الحيوان واكسب الحسنات 🐾' : 'Activity: Help the Animal 🐾'}
+                    {getAnimalsHubLabel('helpAnimalTitle', language)}
                   </Text>
                 </View>
 
@@ -391,7 +430,7 @@ export default function AnimalsHubScreen() {
               <View style={[styles.sectionTitleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="book" size={18} color="#0284C7" />
                 <Text style={styles.sectionHeaderTitle}>
-                  {isAr ? 'فهرس الـ ١٦ حيواناً المذكورة في القرآن الكريم' : '16 Animals Mentioned in the Quran'}
+                  {getAnimalsHubLabel('catalogSectionTitle', language)}
                 </Text>
               </View>
 
@@ -412,7 +451,7 @@ export default function AnimalsHubScreen() {
                           <View style={styles.stickerBadgePill}>
                             <Ionicons name="sparkles" size={10} color="#D97706" />
                             <Text style={styles.stickerBadgeText}>
-                              {isAr ? 'ملصق مفتوح' : 'Unlocked'}
+                              {getAnimalsHubLabel('unlockedBadge', language)}
                             </Text>
                           </View>
                         )}
@@ -477,15 +516,15 @@ export default function AnimalsHubScreen() {
                         />
                         <Text style={styles.listenAyahBtnText}>
                           {isPlayingAyahAudio
-                            ? (isAr ? 'إيقاف التلاوة' : 'Stop Audio')
-                            : (isAr ? '🔊 استمع للآية بصوت القارئ' : '🔊 Listen to Ayah')}
+                            ? getAnimalsHubLabel('stopAyahBtn', language)
+                            : getAnimalsHubLabel('listenAyahBtn', language)}
                         </Text>
                       </TouchableOpacity>
                     </View>
 
                     <View style={styles.detailFactBox}>
                       <Text style={styles.detailFactTitle}>
-                        {isAr ? '💡 حقيقة مدهشة:' : '💡 Amazing Fact:'}
+                        {getAnimalsHubLabel('amazingFactTitle', language)}
                       </Text>
                       <Text style={[styles.detailFactText, { textAlign: isRtl ? 'right' : 'left' }]}>
                         {isAr ? selectedCard.factAr : selectedCard.factEn}
@@ -504,13 +543,11 @@ export default function AnimalsHubScreen() {
                 <View style={styles.scorePill}>
                   <Ionicons name="trophy" size={15} color="#F59E0B" />
                   <Text style={styles.scorePillText}>
-                    {isAr ? `نقاط الفوز: ${gameScore}` : `Score: ${gameScore}`}
+                    {`${getAnimalsHubLabel('scoreTitle', language)} ${gameScore}`}
                   </Text>
                 </View>
                 <Text style={styles.gameRoundCounter}>
-                  {isAr
-                    ? `جولة ${currentRoundIdx + 1} من ${GUESS_ANIMAL_ROUNDS.length}`
-                    : `Round ${currentRoundIdx + 1} of ${GUESS_ANIMAL_ROUNDS.length}`}
+                  {`${getAnimalsHubLabel('roundText', language)} ${currentRoundIdx + 1} ${getAnimalsHubLabel('ofText', language)} ${GUESS_ANIMAL_ROUNDS.length}`}
                 </Text>
               </View>
 
@@ -600,8 +637,8 @@ export default function AnimalsHubScreen() {
                             />
                             <Text style={styles.listenAyahBtnText}>
                               {isPlayingAyahAudio
-                                ? (isAr ? 'إيقاف التلاوة' : 'Stop Audio')
-                                : (isAr ? '🔊 استمع للآية بصوت القارئ' : '🔊 Listen to Ayah')}
+                                ? getAnimalsHubLabel('stopAyahBtn', language)
+                                : getAnimalsHubLabel('listenAyahBtn', language)}
                             </Text>
                           </TouchableOpacity>
                         </>
@@ -615,8 +652,8 @@ export default function AnimalsHubScreen() {
                     >
                       <Text style={styles.nextRoundBtnText}>
                         {currentRoundIdx === GUESS_ANIMAL_ROUNDS.length - 1
-                          ? (isAr ? 'أنهِ التحدي واحصل على الجائزة 🌟' : 'Finish Challenge 🌟')
-                          : (isAr ? 'الجولة التالية ➔' : 'Next Round ➔')}
+                          ? getAnimalsHubLabel('finishChallengeBtn', language)
+                          : getAnimalsHubLabel('nextRoundBtn', language)}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -662,6 +699,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...SHADOWS.medium,
   },
+  heroBackground: {
+    width: '100%',
+  },
   heroGradient: {
     padding: SPACING.lg,
   },
@@ -674,7 +714,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroBadgePill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: RADIUS.full,
@@ -709,7 +749,7 @@ const styles = StyleSheet.create({
   hubTabBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: RADIUS.full,
@@ -749,22 +789,40 @@ const styles = StyleSheet.create({
   storyCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.xl,
-    padding: SPACING.md,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    ...SHADOWS.soft,
+  },
+  storyThumbWrap: {
+    width: '100%',
+    height: 140,
+    position: 'relative',
+  },
+  storyThumbImg: {
+    width: '100%',
+    height: '100%',
+  },
+  storyThumbGradient: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  storyThumbBadge: {
+    position: 'absolute',
+    bottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.full,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     ...SHADOWS.soft,
   },
   storyCardHeader: {
     alignItems: 'center',
     gap: SPACING.md,
     marginBottom: SPACING.xs,
-  },
-  storyEmojiBox: {
-    width: 58,
-    height: 58,
-    borderRadius: RADIUS.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   agePill: {
     paddingHorizontal: 8,

@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +21,17 @@ import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { audioService } from '@/services/audioService';
 import { getAyahAudioUrl } from '@/data/quranData';
 import { ANIMAL_MIRACLE_STORIES, AnimalMiracleStory } from '@/data/animalsData';
+import {
+  getLocalizedPlayerLabel,
+  getLocalizedAnimalStoryMeta,
+} from '@/services/multilingualAnimalsService';
+
+const STORY_IMAGES: Record<string, any> = {
+  'isa-bird': require('../../../assets/images/scene-isa-bird.jpg'),
+  'musa-staff': require('../../../assets/images/scene-musa-staff.jpg'),
+  'ismail-ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
+  'qabil-crow': require('../../../assets/images/scene-qabil-crow.jpg'),
+};
 
 export default function AnimalStoryScreen() {
   const router = useRouter();
@@ -30,6 +43,12 @@ export default function AnimalStoryScreen() {
 
   const story: AnimalMiracleStory =
     ANIMAL_MIRACLE_STORIES.find((s) => s.id === storyId) || ANIMAL_MIRACLE_STORIES[0];
+
+  const meta = getLocalizedAnimalStoryMeta(story.id, language);
+  const storyTitle = meta ? meta.title : (isAr ? story.titleAr : story.titleEn);
+  const prophetName = meta ? meta.prophetName : (isAr ? story.prophetNameAr : story.prophetNameEn);
+  const moralValue = meta ? meta.moralValue : (isAr ? story.moralValueAr : story.moralValueEn);
+  const coreLesson = meta ? meta.coreLesson : (isAr ? story.coreLessonAr : story.coreLessonEn);
 
   // Age band toggle: 'young' (4-6) or 'older' (7+)
   const [ageMode, setAgeMode] = useState<'young' | 'older'>('young');
@@ -84,94 +103,105 @@ export default function AnimalStoryScreen() {
     });
   };
 
-  const handleSelectQuiz = (qIdx: number, optIdx: number) => {
-    setSelectedAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
+  const handleSelectQuiz = (questionIdx: number, optionIdx: number) => {
+    if (selectedAnswers[questionIdx] !== undefined) return;
+    setSelectedAnswers((prev) => ({ ...prev, [questionIdx]: optionIdx }));
+
+    if (optionIdx === story.quiz[questionIdx]?.correctIndex) {
+      addStars(3);
+    }
   };
 
   const handleFinishStory = () => {
-    if (!hasClaimedReward) {
-      addStars(10);
-      addGems(5);
-      unlockSticker(story.stickerId);
-      setHasClaimedReward(true);
-    }
+    if (hasClaimedReward) return;
+    setHasClaimedReward(true);
+    addStars(10);
+    addGems(5);
+    unlockSticker(story.stickerId);
     setShowCelebration(true);
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
-        <Header showBack fallbackRoute="/animals" title={isAr ? story.titleAr : story.titleEn} />
+        <Header showBack fallbackRoute="/animals" title={storyTitle} />
 
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Story Hero Header Card */}
+          {/* Story Hero Header Card with 3D Background */}
           <View style={styles.heroCard}>
-            <LinearGradient
-              colors={[story.themeColor, story.themeColor + 'DD']}
-              style={styles.heroGradient}
+            <ImageBackground
+              source={STORY_IMAGES[story.id]}
+              style={styles.heroBackground}
+              imageStyle={{ borderRadius: RADIUS.xl }}
+              resizeMode="cover"
             >
-              <View style={[styles.heroTopRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <View style={styles.badgeCluster}>
-                  <View style={styles.ageBadgePill}>
-                    <Text style={styles.ageBadgeText}>
-                      {isAr ? `الفئة ${story.minAge}+ سنوات` : `Age ${story.minAge}+`}
+              <LinearGradient
+                colors={['rgba(15, 23, 42, 0.45)', 'rgba(6, 78, 59, 0.92)']}
+                style={styles.heroGradient}
+              >
+                <View style={[styles.heroTopRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <View style={styles.badgeCluster}>
+                    <View style={styles.ageBadgePill}>
+                      <Text style={styles.ageBadgeText}>
+                        {isAr ? `الفئة ${story.minAge}+ سنوات` : `Age ${story.minAge}+`}
+                      </Text>
+                    </View>
+                    <Text style={styles.prophetTag}>
+                      {prophetName}
                     </Text>
                   </View>
-                  <Text style={styles.prophetTag}>
-                    {isAr ? story.prophetNameAr : story.prophetNameEn}
-                  </Text>
+                  <View style={styles.heroEmojiCircle}>
+                    <Text style={{ fontSize: 36 }}>{story.animalEmoji}</Text>
+                  </View>
                 </View>
-                <View style={styles.heroEmojiCircle}>
-                  <Text style={{ fontSize: 40 }}>{story.animalEmoji}</Text>
-                </View>
-              </View>
 
-              <Text style={[styles.heroTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
-                {isAr ? story.titleAr : story.titleEn}
-              </Text>
-
-              <View style={[styles.valuePill, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Ionicons name="sparkles" size={13} color="#FDE68A" />
-                <Text style={styles.valueText}>
-                  {isAr ? story.moralValueAr : story.moralValueEn}
+                <Text style={[styles.heroTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                  {storyTitle}
                 </Text>
-              </View>
 
-              {/* Age Switcher Toggle */}
-              <View style={[styles.ageToggleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <TouchableOpacity
-                  style={[styles.ageToggleBtn, ageMode === 'young' && styles.ageToggleBtnActive]}
-                  onPress={() => {
-                    audioService.stopDua();
-                    setIsPlayingNarration(false);
-                    setAgeMode('young');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.ageToggleBtnText, ageMode === 'young' && styles.ageToggleBtnTextActive]}>
-                    {isAr ? '🌱 براعم (٤-٦ سنوات)' : '🌱 Young Learners (4-6)'}
+                <View style={[styles.valuePill, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <Ionicons name="sparkles" size={13} color="#FDE68A" />
+                  <Text style={styles.valueText}>
+                    {moralValue}
                   </Text>
-                </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity
-                  style={[styles.ageToggleBtn, ageMode === 'older' && styles.ageToggleBtnActive]}
-                  onPress={() => {
-                    audioService.stopDua();
-                    setIsPlayingNarration(false);
-                    setAgeMode('older');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.ageToggleBtnText, ageMode === 'older' && styles.ageToggleBtnTextActive]}>
-                    {isAr ? '🌟 أبطال (٧+ سنوات)' : '🌟 Young Champions (7+)'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
+                {/* Age Switcher Toggle */}
+                <View style={[styles.ageToggleRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <TouchableOpacity
+                    style={[styles.ageToggleBtn, ageMode === 'young' && styles.ageToggleBtnActive]}
+                    onPress={() => {
+                      audioService.stopDua();
+                      setIsPlayingNarration(false);
+                      setAgeMode('young');
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.ageToggleBtnText, ageMode === 'young' && styles.ageToggleBtnTextActive]}>
+                      {getLocalizedPlayerLabel('youngModeBtn', language)}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.ageToggleBtn, ageMode === 'older' && styles.ageToggleBtnActive]}
+                    onPress={() => {
+                      audioService.stopDua();
+                      setIsPlayingNarration(false);
+                      setAgeMode('older');
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.ageToggleBtnText, ageMode === 'older' && styles.ageToggleBtnTextActive]}>
+                      {getLocalizedPlayerLabel('olderModeBtn', language)}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            </ImageBackground>
           </View>
 
           {/* Linked Quranic Ayah Card with Audio Player */}
@@ -235,8 +265,8 @@ export default function AnimalStoryScreen() {
                 />
                 <Text style={[styles.audioNarrationBtnText, isPlayingNarration && { color: '#DC2626' }]}>
                   {isPlayingNarration
-                    ? (isAr ? 'إيقاف الراوي' : 'Stop')
-                    : (isAr ? '🔊 اقرأ لي' : '🔊 Read to me')}
+                    ? getLocalizedPlayerLabel('playingStoryBtn', language)
+                    : getLocalizedPlayerLabel('listenStoryBtn', language)}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -258,17 +288,17 @@ export default function AnimalStoryScreen() {
               </Text>
 
               <View style={[styles.sceneReflectionBox, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Ionicons name="bulb" size={16} color="#D97706" />
+                <Ionicons name="bulb" size={15} color="#D97706" />
                 <Text style={[styles.sceneReflectionText, { textAlign: isRtl ? 'right' : 'left' }]}>
                   {isAr ? currentScene.reflectionAr : currentScene.reflectionEn}
                 </Text>
               </View>
             </View>
 
-            {/* Scene Navigation Buttons */}
-            <View style={[styles.sceneNavRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+            {/* Scene Pagination Dots & Buttons */}
+            <View style={[styles.scenePaginationRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <TouchableOpacity
-                style={[styles.sceneNavBtn, currentSceneIdx === 0 && styles.sceneNavBtnDisabled]}
+                style={[styles.scenePageBtn, currentSceneIdx === 0 && styles.scenePageBtnDisabled]}
                 onPress={() => {
                   audioService.stopDua();
                   setIsPlayingNarration(false);
@@ -279,58 +309,63 @@ export default function AnimalStoryScreen() {
               >
                 <Ionicons
                   name={isRtl ? 'arrow-forward' : 'arrow-back'}
-                  size={15}
+                  size={16}
                   color={currentSceneIdx === 0 ? '#9CA3AF' : '#1F2937'}
                 />
-                <Text style={[styles.sceneNavBtnText, currentSceneIdx === 0 && { color: '#9CA3AF' }]}>
-                  {isAr ? 'السابق' : 'Previous'}
+                <Text style={[styles.scenePageBtnText, currentSceneIdx === 0 && { color: '#9CA3AF' }]}>
+                  {isAr ? 'السابق' : 'Prev'}
                 </Text>
               </TouchableOpacity>
 
-              {/* Dots */}
-              <View style={styles.dotsCluster}>
-                {story.scenes.map((_, idx) => (
+              <View style={styles.dotsRow}>
+                {story.scenes.map((_, dotIdx) => (
                   <View
-                    key={idx}
+                    key={dotIdx}
                     style={[
                       styles.sceneDot,
-                      idx === currentSceneIdx && [styles.sceneDotActive, { backgroundColor: story.themeColor }],
+                      dotIdx === currentSceneIdx && [styles.sceneDotActive, { backgroundColor: story.themeColor }],
                     ]}
                   />
                 ))}
               </View>
 
               <TouchableOpacity
-                style={[styles.sceneNavBtn, styles.sceneNavBtnNext, { backgroundColor: story.themeColor }]}
+                style={[
+                  styles.scenePageBtn,
+                  currentSceneIdx === story.scenes.length - 1 && styles.scenePageBtnDisabled,
+                ]}
                 onPress={() => {
                   audioService.stopDua();
                   setIsPlayingNarration(false);
-                  if (currentSceneIdx < story.scenes.length - 1) {
-                    setCurrentSceneIdx((prev) => prev + 1);
-                  }
+                  setCurrentSceneIdx((prev) => Math.min(story.scenes.length - 1, prev + 1));
                 }}
                 disabled={currentSceneIdx === story.scenes.length - 1}
                 activeOpacity={0.8}
               >
-                <Text style={styles.sceneNavBtnNextText}>
+                <Text
+                  style={[
+                    styles.scenePageBtnText,
+                    currentSceneIdx === story.scenes.length - 1 && { color: '#9CA3AF' },
+                  ]}
+                >
                   {isAr ? 'التالي' : 'Next'}
                 </Text>
                 <Ionicons
                   name={isRtl ? 'arrow-back' : 'arrow-forward'}
-                  size={15}
-                  color="#FFFFFF"
+                  size={16}
+                  color={currentSceneIdx === story.scenes.length - 1 ? '#9CA3AF' : '#1F2937'}
                 />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Fear / Courage Activity if Available (Story 14) */}
+          {/* Fear Activity "لا تخف" for Musa Story */}
           {story.fearActivity && (
-            <View style={styles.fearActivityCard}>
+            <View style={styles.activityCard}>
               <View style={[styles.activityHead, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Ionicons name="shield-checkmark" size={18} color="#059669" />
+                <Ionicons name="shield-checkmark" size={20} color="#059669" />
                 <Text style={styles.activityHeadTitle}>
-                  {isAr ? story.fearActivity.titleAr : story.fearActivity.titleEn}
+                  {getLocalizedPlayerLabel('courageActivityTitle', language)}
                 </Text>
               </View>
               <Text style={[styles.activityHeadDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
@@ -395,11 +430,11 @@ export default function AnimalStoryScreen() {
             <View style={[styles.lessonHeadRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <Ionicons name="star" size={18} color="#D97706" />
               <Text style={styles.lessonHeadTitle}>
-                {isAr ? 'العبرة الذهبية من القصة:' : 'Golden Lesson:'}
+                {getLocalizedPlayerLabel('goldenLessonTitle', language)}
               </Text>
             </View>
             <Text style={[styles.lessonText, { textAlign: isRtl ? 'right' : 'left' }]}>
-              {isAr ? story.coreLessonAr : story.coreLessonEn}
+              {coreLesson}
             </Text>
           </View>
 
@@ -409,7 +444,7 @@ export default function AnimalStoryScreen() {
               <View style={styles.quizBadge}>
                 <Ionicons name="help-circle" size={16} color="#D97706" />
                 <Text style={styles.quizBadgeText}>
-                  {isAr ? 'اختبر فهمك يا بطل' : 'Check Your Knowledge'}
+                  {getLocalizedPlayerLabel('quizTitle', language)}
                 </Text>
               </View>
               <Text style={styles.quizRewardBadge}>+10 ⭐</Text>
@@ -483,9 +518,7 @@ export default function AnimalStoryScreen() {
             >
               <Ionicons name="trophy" size={20} color="#FFFFFF" />
               <Text style={styles.claimRewardBtnText}>
-                {isAr
-                  ? `أتممت القصة! احصل على +10 نجوم وملصق ${story.stickerTitleAr}`
-                  : `Complete! Claim +10 Stars & Unlock Sticker 🌟`}
+                {getLocalizedPlayerLabel('claimRewardBtn', language)}
               </Text>
             </TouchableOpacity>
           </View>
@@ -500,7 +533,7 @@ export default function AnimalStoryScreen() {
           subtitle={
             isAr
               ? `أتممت قصة ${story.titleAr} وفتحت ملصق ${story.stickerTitleAr}!`
-              : `You mastered ${story.titleEn} and unlocked the sticker!`
+              : `You mastered ${storyTitle} and unlocked the sticker!`
           }
           onDismiss={() => {
             setShowCelebration(false);
@@ -533,6 +566,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...SHADOWS.medium,
   },
+  heroBackground: {
+    width: '100%',
+  },
   heroGradient: {
     padding: SPACING.lg,
   },
@@ -545,9 +581,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ageBadgePill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: RADIUS.full,
     alignSelf: 'flex-start',
     marginBottom: 4,
@@ -559,12 +595,12 @@ const styles = StyleSheet.create({
   },
   prophetTag: {
     fontSize: 13,
-    color: '#FDE68A',
+    color: '#FEF3C7',
     fontWeight: '700',
   },
   heroEmojiCircle: {
-    width: 62,
-    height: 62,
+    width: 60,
+    height: 60,
     borderRadius: RADIUS.full,
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     alignItems: 'center',
@@ -578,41 +614,39 @@ const styles = StyleSheet.create({
   },
   valuePill: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: RADIUS.md,
-    gap: 6,
+    borderRadius: RADIUS.full,
+    alignSelf: 'flex-start',
     marginBottom: SPACING.md,
   },
   valueText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#FEF3C7',
-    fontWeight: '600',
-    flex: 1,
+    fontWeight: '700',
   },
   ageToggleRow: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: RADIUS.full,
-    padding: 3,
-    gap: 4,
+    gap: 8,
   },
   ageToggleBtn: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
   },
   ageToggleBtnActive: {
     backgroundColor: '#FFFFFF',
   },
   ageToggleBtnText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     color: '#FFFFFF',
   },
   ageToggleBtnTextActive: {
-    color: '#1F2937',
+    color: '#065F46',
   },
   ayahCard: {
     marginHorizontal: SPACING.md,
@@ -738,74 +772,62 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sceneNarration: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#374151',
-    lineHeight: 22,
-    marginBottom: SPACING.md,
+    lineHeight: 20,
+    marginBottom: SPACING.sm,
     width: '100%',
   },
   sceneReflectionBox: {
     alignItems: 'center',
+    gap: 6,
     backgroundColor: '#FEF3C7',
     padding: SPACING.sm,
     borderRadius: RADIUS.md,
-    gap: 6,
     width: '100%',
   },
   sceneReflectionText: {
     fontSize: 12,
-    color: '#92400E',
     fontWeight: '600',
+    color: '#92400E',
     flex: 1,
   },
-  sceneNavRow: {
+  scenePaginationRow: {
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingTop: SPACING.xs,
   },
-  sceneNavBtn: {
+  scenePageBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: RADIUS.full,
     gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#F3F4F6',
   },
-  sceneNavBtnDisabled: {
-    opacity: 0.4,
+  scenePageBtnDisabled: {
+    opacity: 0.5,
   },
-  sceneNavBtnText: {
+  scenePageBtnText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#1F2937',
   },
-  dotsCluster: {
+  dotsRow: {
     flexDirection: 'row',
     gap: 6,
   },
   sceneDot: {
-    width: 7,
-    height: 7,
-    borderRadius: RADIUS.full,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#D1D5DB',
   },
   sceneDotActive: {
-    width: 18,
+    width: 20,
   },
-  sceneNavBtnNext: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: RADIUS.full,
-    gap: 4,
-  },
-  sceneNavBtnNextText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  fearActivityCard: {
+  activityCard: {
     marginHorizontal: SPACING.md,
     marginTop: SPACING.md,
     backgroundColor: '#FFFFFF',
@@ -933,7 +955,7 @@ const styles = StyleSheet.create({
   quizRewardBadge: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#D97706',
+    color: '#B45309',
     backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -943,10 +965,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   quizQuestionText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#1F2937',
-    marginBottom: 6,
+    marginBottom: 8,
+    lineHeight: 20,
   },
   quizOptionsCol: {
     gap: 6,
@@ -970,27 +993,28 @@ const styles = StyleSheet.create({
     borderColor: '#EF4444',
   },
   quizOptionText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#374151',
     flex: 1,
   },
   quizOptionCorrectText: {
-    color: '#065F46',
+    color: '#047857',
     fontWeight: '700',
   },
   quizOptionWrongText: {
-    color: '#991B1B',
-    fontWeight: '600',
+    color: '#DC2626',
+    fontWeight: '700',
   },
   quizExplanationBox: {
     marginTop: 6,
-    backgroundColor: '#F3F4F6',
-    padding: 6,
-    borderRadius: RADIUS.sm,
+    backgroundColor: '#F0FDF4',
+    padding: 8,
+    borderRadius: RADIUS.md,
   },
   quizExplanationText: {
-    fontSize: 11,
-    color: '#4B5563',
+    fontSize: 12,
+    color: '#166534',
+    lineHeight: 17,
   },
   claimRewardBtn: {
     flexDirection: 'row',

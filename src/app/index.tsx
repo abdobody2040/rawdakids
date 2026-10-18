@@ -50,6 +50,7 @@ const WORLD_IMAGES: Record<string, any> = {
   manners: require('../../assets/images/manners-town.jpg'),
   arkan: require('../../assets/images/hero-oasis.jpg'),
   wudu: require('../../assets/images/wudu-garden.jpg'),
+  animals: require('../../assets/images/animals-world.jpg'),
 };
 
 const WORLD_BADGE_IMAGES: Record<string, any> = {
@@ -59,6 +60,7 @@ const WORLD_BADGE_IMAGES: Record<string, any> = {
   manners: NAV_HOME_IMG,
   arkan: NAV_HOME_IMG,
   wudu: ICON_GEM_IMG,
+  animals: require('../../assets/images/animals-badge-3d.jpg'),
 };
 
 
@@ -195,9 +197,9 @@ export default function HomeScreen() {
     },
     {
       id: 'animals',
-      title: isAr ? 'حديقة الحيوان في القرآن' : 'Animals in the Quran',
-      subtitle: isAr ? 'معجزات الأنبياء والرفق بالحيوان' : 'Prophetic Miracles & Sunnah Kindness',
-      count: isAr ? '١٦ حيواناً وقصة' : '16 Animals & Stories',
+      title: t.animalsWorld,
+      subtitle: t.animalsWorldDesc,
+      count: t.animalsWorldCount,
       emoji: '🐾',
       gradient: ['#dcfce7', '#bbf7d0'] as const,
       route: '/animals',

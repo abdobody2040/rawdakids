@@ -1426,6 +1426,29 @@
   - `npm.cmd run build` -> Clean export of 26 static routes into `dist/`.
   - Tested on `http://localhost:3000/animals`.
 
+### Milestone 26: 3D Pixar Visuals & 100% Multilingual Coverage for Animals World
+- **1. User Request:**
+  - "ضيف هنا قصص الحيوان فالقران واعملها صورة واعمل صور للمحتوى كله واتاتكد انه كله مترجم لكل اللغات"
+  - Add Animals World Card to Home page Worlds Grid with dedicated 3D cover image.
+  - Generate 3D Pixar imagery for all animal stories:
+    - `assets/images/animals-world.jpg` (Magical Quranic animal garden with dove, camel, lamb, stream, and palms).
+    - `assets/images/animals-badge-3d.jpg` (3D emblem dove badge).
+    - `assets/images/scene-isa-bird.jpg` (Prophet Isa's clay bird miracle coming to life with divine light).
+    - `assets/images/scene-musa-staff.jpg` (Prophet Musa's staff glowing with celestial stardust).
+    - `assets/images/scene-qabil-crow.jpg` (The wise crow teaching burial with an olive tree).
+    - `assets/images/scene-ram-sacrifice.jpg` (The blessed ram of Ismail).
+  - Ensure 100% translation across all 10 supported languages (Arabic, English, French, German, Spanish, Russian, Urdu, Indonesian, Bengali, Turkish).
+- **2. Implementation Details:**
+  - Extended [`src/constants/i18n.ts`](file:///g:/quran%20app%20for%20kids/src/constants/i18n.ts) with 7 new keys (`animalsWorld`, `animalsWorldDesc`, `animalsWorldCount`, `animalMiracles`, `animalKindness`, `quranAnimalsCatalog`, `guessAnimalGame`) for each of the 10 languages.
+  - Created [`src/services/multilingualAnimalsService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualAnimalsService.ts) providing complete translations for Hub labels, player controls, dual-age narrations, moral values, and quizzes in all 10 languages.
+  - Upgraded [`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) `WORLD_IMAGES` and `WORLD_BADGE_IMAGES` with `animals-world.jpg` and `animals-badge-3d.jpg`.
+  - Upgraded [`src/app/animals/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/animals/index.tsx) with `ImageBackground` hero banner and story card thumbnails.
+  - Upgraded [`src/app/animals/[storyId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/animals/%5BstoryId%5D.tsx) with story-specific 3D hero cover images and localized reader UI.
+- **3. Verification:**
+  - `npx.cmd tsc --noEmit` -> 0 errors.
+  - `npm.cmd run build` -> Clean export of 26 static routes into `dist/`.
+  - Tested on `http://localhost:3000/animals` and `http://localhost:3000/`.
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
