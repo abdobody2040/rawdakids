@@ -51,6 +51,11 @@ const WORLD_IMAGES: Record<string, any> = {
   arkan: require('../../assets/images/hero-oasis.jpg'),
   wudu: require('../../assets/images/wudu-garden.jpg'),
   animals: require('../../assets/images/animals-world.jpg'),
+  asmaAllah: require('../../assets/images/asma-allah-world.jpg'),
+  companions: require('../../assets/images/companions-world.jpg'),
+  tafakkur: require('../../assets/images/tafakkur-world.jpg'),
+  nations: require('../../assets/images/nations-world.jpg'),
+  seerah: require('../../assets/images/seerah-world.jpg'),
 };
 
 const WORLD_BADGE_IMAGES: Record<string, any> = {
@@ -61,6 +66,11 @@ const WORLD_BADGE_IMAGES: Record<string, any> = {
   arkan: NAV_HOME_IMG,
   wudu: ICON_GEM_IMG,
   animals: require('../../assets/images/animals-badge-3d.jpg'),
+  asmaAllah: require('../../assets/images/asma-allah-badge.jpg'),
+  companions: require('../../assets/images/companions-badge.jpg'),
+  tafakkur: require('../../assets/images/tafakkur-badge.jpg'),
+  nations: STICKER_KAABA_IMG,
+  seerah: STICKER_LANTERN_IMG,
 };
 
 
@@ -203,6 +213,51 @@ export default function HomeScreen() {
       emoji: '🐾',
       gradient: ['#dcfce7', '#bbf7d0'] as const,
       route: '/animals',
+    },
+    {
+      id: 'asmaAllah',
+      title: (t as any).asmaAllahWorld || 'روضة أسماء الله الحسنى',
+      subtitle: (t as any).asmaAllahWorldDesc || 'تعرّف على أسماء الله الحسنى وعش معانيها',
+      count: (t as any).asmaAllahWorldCount || '٧٨ اسماً مباركاً',
+      emoji: '✨',
+      gradient: ['#ede9fe', '#ddd6fe'] as const,
+      route: '/asma-allah',
+    },
+    {
+      id: 'seerah',
+      title: (t as any).seerahWorld || 'السيرة النبوية: رحلة نور',
+      subtitle: (t as any).seerahWorldDesc || 'محطات مضيئة من حياة الحبيب المصطفى ﷺ',
+      count: (t as any).seerahWorldCount || '١٦ محطة مباركة',
+      emoji: '🌙',
+      gradient: ['#dcfce7', '#bbf7d0'] as const,
+      route: '/seerah',
+    },
+    {
+      id: 'companions',
+      title: (t as any).companionsWorld || 'صغار الصحابة: كانوا مثلك',
+      subtitle: (t as any).companionsWorldDesc || 'سير أطفال عهد النبوة ولطف النبي ﷺ معهم',
+      count: (t as any).companionsWorldCount || '١٢ قصة موثقة',
+      emoji: '⭐',
+      gradient: ['#fef3c7', '#fde68a'] as const,
+      route: '/companions',
+    },
+    {
+      id: 'tafakkur',
+      title: (t as any).tafakkurWorld || 'رحلة التفكّر في الكون',
+      subtitle: (t as any).tafakkurWorldDesc || 'تأمّل آيات الله في السماوات والأرض',
+      count: (t as any).tafakkurWorldCount || '١١ محطة تأمل',
+      emoji: '🔭',
+      gradient: ['#e0f2fe', '#bae6fd'] as const,
+      route: '/tafakkur',
+    },
+    {
+      id: 'nations',
+      title: (t as any).nationsWorld || 'عبر الأمم والقصص القرآني',
+      subtitle: (t as any).nationsWorldDesc || 'دروس وعبر في التواضع وشكر النعم (٩+)',
+      count: (t as any).nationsWorldCount || '٧ عبر قرآنية',
+      emoji: '🏛️',
+      gradient: ['#ffedd5', '#fed7aa'] as const,
+      route: '/nations',
     },
   ];
 

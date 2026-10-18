@@ -124,6 +124,12 @@ export default function RootLayout() {
           <Stack.Screen name="rewards/index" />
           <Stack.Screen name="progress/index" />
           <Stack.Screen name="parents/index" />
+          <Stack.Screen name="animals/index" />
+          <Stack.Screen name="asma-allah/index" />
+          <Stack.Screen name="companions/index" />
+          <Stack.Screen name="tafakkur/index" />
+          <Stack.Screen name="nations/index" />
+          <Stack.Screen name="seerah/index" />
         </Stack>
 
         {/* In-App Splash Screen Transition */}
