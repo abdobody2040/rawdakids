@@ -50,8 +50,8 @@ export default function NationsHubScreen() {
       setCelebrationData({
         stars: 5,
         gems: 2,
-        title: isAr ? 'أحسنت يا حكيم! 🏛️' : 'Wise Explorer! 🏛️',
-        subtitle: isAr ? 'تعلّمت عبرة قرآنية خالدة في التواضع وشكر النعم' : 'Learned a timeless Quranic lesson of gratitude',
+        title: getUpgradeLabel('nationsCelebrationTitle', language),
+        subtitle: getUpgradeLabel('nationsCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -98,6 +98,7 @@ export default function NationsHubScreen() {
             {NATIONS_DATA.map(nat => {
               const isSelected = nat.id === currentNation.id;
               const isDone = completedLessons[nat.id];
+              const localizedChip = getLocalizedNationLesson(nat, language);
               return (
                 <TouchableOpacity
                   key={nat.id}
@@ -106,7 +107,7 @@ export default function NationsHubScreen() {
                 >
                   <Text style={styles.natChipEmoji}>{nat.cardEmoji}</Text>
                   <Text style={[styles.natChipTitle, isSelected && styles.natChipTitleActive]} numberOfLines={1}>
-                    {nat.title.split('—')[0].trim()}
+                    {localizedChip.cardTitle || nat.cardTitle}
                   </Text>
                   {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" />}
                 </TouchableOpacity>
@@ -125,7 +126,7 @@ export default function NationsHubScreen() {
                     {localizedNation.title}
                   </Text>
                   <Text style={[styles.lessonRefText, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? `المراجع: ${currentNation.references}` : `References: ${currentNation.references}`}
+                    {`${getUpgradeLabel('sourceLabel', language)} ${currentNation.references}`}
                   </Text>
                 </View>
               </View>
@@ -133,10 +134,10 @@ export default function NationsHubScreen() {
               {/* Quran Narrative */}
               <View style={styles.narrativeBox}>
                 <Text style={[styles.narrativeLabel, isRtl && { textAlign: 'right' }]}>
-                  {isAr ? 'القصة من القرآن الكريم:' : 'Quranic Narrative:'}
+                  {getUpgradeLabel('storyLabel', language)}
                 </Text>
                 <Text style={[styles.narrativeText, isRtl && { textAlign: 'right' }]}>
-                  {currentNation.story}
+                  {localizedNation.story || currentNation.story}
                 </Text>
               </View>
 
@@ -145,10 +146,10 @@ export default function NationsHubScreen() {
                 <Ionicons name="shield-checkmark" size={20} color="#b45309" />
                 <View style={styles.moralTextWrap}>
                   <Text style={[styles.moralLabel, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? 'الدرس والعبرة:' : 'Moral Lesson:'}
+                    {getUpgradeLabel('moralLessonLabel', language)}
                   </Text>
                   <Text style={[styles.moralText, isRtl && { textAlign: 'right' }]}>
-                    {localizedNation.lesson}
+                    {localizedNation.lesson || currentNation.lesson}
                   </Text>
                 </View>
               </View>
@@ -163,7 +164,7 @@ export default function NationsHubScreen() {
                     </Text>
                   </View>
                   <Text style={[styles.discussText, isRtl && { textAlign: 'right' }]}>
-                    {currentNation.discussion}
+                    {localizedNation.discussion || currentNation.discussion}
                   </Text>
                 </View>
               ) : null}
@@ -172,10 +173,10 @@ export default function NationsHubScreen() {
               {currentNation.activity ? (
                 <View style={styles.activityBox}>
                   <Text style={[styles.activityLabel, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? 'نشاط وتطبيق عملي:' : 'Practical Activity:'}
+                    {getUpgradeLabel('practicalActivityLabel', language)}
                   </Text>
                   <Text style={[styles.activityText, isRtl && { textAlign: 'right' }]}>
-                    {currentNation.activity}
+                    {localizedNation.activity || currentNation.activity}
                   </Text>
                 </View>
               ) : null}
@@ -197,7 +198,7 @@ export default function NationsHubScreen() {
                 <View style={styles.cautionBox}>
                   <Ionicons name="information-circle-outline" size={16} color="#64748b" />
                   <Text style={[styles.cautionText, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? `تنبيه: لا نقول ${currentNation.caution}` : `Note: ${currentNation.caution}`}
+                    {`${getUpgradeLabel('cautionLabel', language)}: ${currentNation.caution}`}
                   </Text>
                 </View>
               ) : null}
@@ -215,7 +216,7 @@ export default function NationsHubScreen() {
                 <Text style={styles.completeBtnText}>
                   {completedLessons[currentNation.id]
                     ? getUpgradeLabel('markDone', language)
-                    : (isAr ? 'استوعبت العبرة بنجاح (+5 نجوم)' : 'Lesson Completed (+5 Stars)')}
+                    : getUpgradeLabel('nationsLessonDone', language)}
                 </Text>
               </TouchableOpacity>
             </LinearGradient>

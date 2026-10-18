@@ -50,8 +50,8 @@ export default function SeerahHubScreen() {
       setCelebrationData({
         stars: 5,
         gems: 2,
-        title: isAr ? 'صلى الله عليه وسلم! 🌙' : 'Peace be upon him! 🌙',
-        subtitle: isAr ? 'اقتديت بنبيك الكريم ﷺ في عمل صالح مبارك' : 'You emulated the Prophet’s noble character',
+        title: getUpgradeLabel('seerahCelebrationTitle', language),
+        subtitle: getUpgradeLabel('seerahCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -103,7 +103,7 @@ export default function SeerahHubScreen() {
                 >
                   <Text style={styles.stChipEmoji}>{st.cardEmoji}</Text>
                   <Text style={[styles.stChipNum, isSelected && styles.stChipNumActive]}>
-                    {isAr ? `محطة ${st.stationNumber}` : `Milestone ${st.stationNumber}`}
+                    {`${getUpgradeLabel('milestoneLabel', language)} ${st.stationNumber}`}
                   </Text>
                   {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" />}
                 </TouchableOpacity>
@@ -122,7 +122,7 @@ export default function SeerahHubScreen() {
                     {localizedStation.title}
                   </Text>
                   <Text style={[styles.stSourceText, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? `المصدر: ${currentStation.source}` : `Source: ${currentStation.source}`}
+                    {`${getUpgradeLabel('sourceLabel', language)} ${currentStation.source}`}
                   </Text>
                 </View>
               </View>
@@ -130,10 +130,10 @@ export default function SeerahHubScreen() {
               {/* Story Narrative */}
               <View style={styles.narrativeBox}>
                 <Text style={[styles.narrativeLabel, isRtl && { textAlign: 'right' }]}>
-                  {isAr ? 'حكاية المحطة المباركة:' : 'Milestone Narrative:'}
+                  {getUpgradeLabel('milestoneNarrativeLabel', language)}
                 </Text>
                 <Text style={[styles.narrativeText, isRtl && { textAlign: 'right' }]}>
-                  {currentStation.story}
+                  {localizedStation.story || currentStation.story}
                 </Text>
               </View>
 
@@ -142,10 +142,10 @@ export default function SeerahHubScreen() {
                 <Ionicons name="heart-circle-outline" size={20} color="#059669" />
                 <View style={styles.lessonTextWrap}>
                   <Text style={[styles.lessonLabel, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? 'الدرس النبوي:' : 'Prophetic Lesson:'}
+                    {getUpgradeLabel('propheticLessonLabel', language)}
                   </Text>
                   <Text style={[styles.lessonText, isRtl && { textAlign: 'right' }]}>
-                    {localizedStation.lesson}
+                    {localizedStation.lesson || currentStation.lesson}
                   </Text>
                 </View>
               </View>
@@ -156,7 +156,7 @@ export default function SeerahHubScreen() {
                   {getUpgradeLabel('seerahEmulateAction', language)}
                 </Text>
                 <Text style={[styles.emulateText, isRtl && { textAlign: 'right' }]}>
-                  {localizedStation.emulate}
+                  {localizedStation.emulate || currentStation.emulate}
                 </Text>
                 <TouchableOpacity
                   style={[styles.emulateBtn, emulatedStations[currentStation.id] && styles.emulateBtnDone]}
@@ -170,7 +170,7 @@ export default function SeerahHubScreen() {
                   <Text style={[styles.emulateBtnText, emulatedStations[currentStation.id] && styles.emulateBtnTextDone]}>
                     {emulatedStations[currentStation.id]
                       ? getUpgradeLabel('markDone', language)
-                      : (isAr ? 'سأقتدي به اليوم (+5 نجوم)' : 'I will emulate him today (+5 Stars)')}
+                      : getUpgradeLabel('emulateButtonLabel', language)}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -192,7 +192,7 @@ export default function SeerahHubScreen() {
                 <View style={styles.cautionBox}>
                   <Ionicons name="information-circle-outline" size={16} color="#64748b" />
                   <Text style={[styles.cautionText, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? `تنبيه: لا نقول ${currentStation.caution}` : `Note: ${currentStation.caution}`}
+                    {`${getUpgradeLabel('cautionLabel', language)}: ${currentStation.caution}`}
                   </Text>
                 </View>
               ) : null}

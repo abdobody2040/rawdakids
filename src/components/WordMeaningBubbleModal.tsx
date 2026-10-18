@@ -13,6 +13,8 @@ import { audioService } from '@/services/audioService';
 import { SHADOWS, RADIUS } from '@/constants/theme';
 import { useAppStore } from '@/store/useAppStore';
 
+import { isRTL, SupportedLanguage } from '@/constants/i18n';
+
 const MASCOT_NOOR_IMG = require('../../assets/images/mascot-noor.jpg');
 const ICON_STAR_IMG = require('../../assets/images/icon-star-3d.jpg');
 
@@ -23,6 +25,121 @@ interface WordMeaningBubbleModalProps {
   onClose: () => void;
 }
 
+const WORD_MODAL_I18N: Record<
+  SupportedLanguage,
+  {
+    title: string;
+    fromAyah: string;
+    pronouncing: string;
+    listen: string;
+    meaningLabel: string;
+    exampleLabel: string;
+    rewardText: string;
+    closeBtn: string;
+  }
+> = {
+  ar: {
+    title: 'معجم نور الصغير',
+    fromAyah: 'من الآية الكريمة ({num})',
+    pronouncing: 'نطق الكلمة...',
+    listen: 'استمع لنطق الكلمة',
+    meaningLabel: '🌱 المعنى المبسط:',
+    exampleLabel: '💡 في حياتنا اليومية:',
+    rewardText: 'أحسنت! الاستماع للكلمة يمنحك +1 نجمة ✦',
+    closeBtn: 'فهمت المعنى، شكراً نور! ✨',
+  },
+  en: {
+    title: 'Noor’s Word Garden',
+    fromAyah: 'From Ayah ({num})',
+    pronouncing: 'Pronouncing...',
+    listen: 'Listen to pronunciation',
+    meaningLabel: '🌱 Kid Meaning:',
+    exampleLabel: '💡 In our daily life:',
+    rewardText: 'MashaAllah! Exploring words earns you +1 star ✦',
+    closeBtn: 'I understood, thank you Noor! ✨',
+  },
+  bn: {
+    title: 'নূরের ছোট্ট শব্দকোষ',
+    fromAyah: 'পবিত্র আয়াত ({num}) থেকে',
+    pronouncing: 'উচ্চারণ হচ্ছে...',
+    listen: 'শব্দের উচ্চারণ শুনুন',
+    meaningLabel: '🌱 সহজ অর্থ:',
+    exampleLabel: '💡 আমাদের দৈনন্দিন জীবনে:',
+    rewardText: 'মাশাআল্লাহ! নতুন শব্দ শেখার জন্য +১ তারা ✦',
+    closeBtn: 'বুঝেছি, ধন্যবাদ নূর! ✨',
+  },
+  ru: {
+    title: 'Детский словарик Нура',
+    fromAyah: 'Из благородного аята ({num})',
+    pronouncing: 'Произношение...',
+    listen: 'Послушать произношение',
+    meaningLabel: '🌱 Простое значение:',
+    exampleLabel: '💡 В нашей жизни:',
+    rewardText: 'Молодец! За изучение слова +1 звезда ✦',
+    closeBtn: 'Понятно, спасибо Нур! ✨',
+  },
+  ur: {
+    title: 'نور کی چھوٹی لغت',
+    fromAyah: 'مبارک آیت ({num}) سے',
+    pronouncing: 'تلفظ سن رہے ہیں...',
+    listen: 'لفظ کا تلفظ سنیں',
+    meaningLabel: '🌱 آسان مفہوم:',
+    exampleLabel: '💡 ہماری روزمرہ زندگی میں:',
+    rewardText: 'ماشاء اللہ! لفظ سننے پر +1 ستارہ ✦',
+    closeBtn: 'سمجھ گیا، شکریہ نور! ✨',
+  },
+  id: {
+    title: 'Kamus Cilik Noor',
+    fromAyah: 'Dari Ayat ({num})',
+    pronouncing: 'Melafalkan...',
+    listen: 'Dengarkan pelafalan',
+    meaningLabel: '🌱 Makna Sederhana:',
+    exampleLabel: '💡 Dalam kehidupan kita:',
+    rewardText: 'Masha Allah! Mengenal kata memberimu +1 bintang ✦',
+    closeBtn: 'Aku sudah paham, terima kasih Noor! ✨',
+  },
+  tr: {
+    title: 'Nur’un Küçük Sözlüğü',
+    fromAyah: 'Ayet ({num})’den',
+    pronouncing: 'Seslendiriliyor...',
+    listen: 'Telaffuzunu dinle',
+    meaningLabel: '🌱 Kolay Anlamı:',
+    exampleLabel: '💡 Günlük hayatımızda:',
+    rewardText: 'Maşaallah! Kelimeyi öğrenmek sana +1 yıldız kazandırdı ✦',
+    closeBtn: 'Anladım, teşekkürler Nur! ✨',
+  },
+  fr: {
+    title: 'Le Petit Dictionnaire de Noor',
+    fromAyah: 'Du noble verset ({num})',
+    pronouncing: 'Prononciation...',
+    listen: 'Écouter la prononciation',
+    meaningLabel: '🌱 Sens simple :',
+    exampleLabel: '💡 Dans notre quotidien :',
+    rewardText: 'Macha’Allah ! Découvrir des mots te rapporte +1 étoile ✦',
+    closeBtn: 'J’ai compris, merci Noor ! ✨',
+  },
+  de: {
+    title: 'Noors kleines Wörterbuch',
+    fromAyah: 'Aus Vers ({num})',
+    pronouncing: 'Aussprache...',
+    listen: 'Aussprache anhören',
+    meaningLabel: '🌱 Einfache Bedeutung:',
+    exampleLabel: '💡 Im täglichen Leben:',
+    rewardText: 'Mascha’Allah! Wörter lernen bringt dir +1 Stern ✦',
+    closeBtn: 'Verstanden, danke Noor! ✨',
+  },
+  es: {
+    title: 'El Pequeño Diccionario de Noor',
+    fromAyah: 'De la aleya ({num})',
+    pronouncing: 'Pronunciando...',
+    listen: 'Escuchar pronunciación',
+    meaningLabel: '🌱 Significado sencillo:',
+    exampleLabel: '💡 En nuestra vida diaria:',
+    rewardText: '¡Masha’Allah! Aprender palabras te da +1 estrella ✦',
+    closeBtn: '¡Entendido, gracias Noor! ✨',
+  },
+};
+
 export default function WordMeaningBubbleModal({
   visible,
   wordMeaning,
@@ -30,7 +147,10 @@ export default function WordMeaningBubbleModal({
   onClose,
 }: WordMeaningBubbleModalProps) {
   const { language, addStars } = useAppStore();
-  const isAr = language === 'ar';
+  const isRtl = isRTL(language);
+  const langKey = (WORD_MODAL_I18N[language as SupportedLanguage] ? language : 'en') as SupportedLanguage;
+  const wm = WORD_MODAL_I18N[langKey];
+
   const [isPlayingWord, setIsPlayingWord] = useState(false);
   const [hasAwardedWord, setHasAwardedWord] = useState(false);
 
@@ -79,12 +199,12 @@ export default function WordMeaningBubbleModal({
           <View
             style={[
               styles.headerRow,
-              { flexDirection: isAr ? 'row-reverse' : 'row' },
+              { flexDirection: isRtl ? 'row-reverse' : 'row' },
             ]}
           >
             <View
               style={{
-                flexDirection: isAr ? 'row-reverse' : 'row',
+                flexDirection: isRtl ? 'row-reverse' : 'row',
                 alignItems: 'center',
                 gap: 8,
               }}
@@ -94,11 +214,11 @@ export default function WordMeaningBubbleModal({
               </View>
               <View>
                 <Text style={styles.titleLabel}>
-                  {isAr ? 'معجم نور الصغير' : 'Noor’s Word Garden'}
+                  {wm.title}
                 </Text>
                 {ayahNumber && (
                   <Text style={styles.ayahSub}>
-                    {isAr ? `من الآية الكريمة (${ayahNumber})` : `From Ayah (${ayahNumber})`}
+                    {wm.fromAyah.replace('{num}', String(ayahNumber))}
                   </Text>
                 )}
               </View>
@@ -118,7 +238,7 @@ export default function WordMeaningBubbleModal({
               style={[
                 styles.audioListenBtn,
                 isPlayingWord && styles.audioListenBtnPlaying,
-                { flexDirection: isAr ? 'row-reverse' : 'row' },
+                { flexDirection: isRtl ? 'row-reverse' : 'row' },
               ]}
               onPress={handlePlayWord}
               activeOpacity={0.8}
@@ -134,13 +254,7 @@ export default function WordMeaningBubbleModal({
                   isPlayingWord && { color: '#ffffff' },
                 ]}
               >
-                {isPlayingWord
-                  ? isAr
-                    ? 'نطق الكلمة...'
-                    : 'Pronouncing...'
-                  : isAr
-                  ? 'استمع لنطق الكلمة'
-                  : 'Listen to pronunciation'}
+                {isPlayingWord ? wm.pronouncing : wm.listen}
               </Text>
             </TouchableOpacity>
           </View>
@@ -149,30 +263,30 @@ export default function WordMeaningBubbleModal({
           <View style={styles.contentWrap}>
             <View style={styles.meaningRow}>
               <Text style={styles.badgeLabel}>
-                {isAr ? '🌱 المعنى المبسط:' : '🌱 Kid Meaning:'}
+                {wm.meaningLabel}
               </Text>
               <Text
                 style={[
                   styles.meaningText,
-                  isAr ? { textAlign: 'right' } : { textAlign: 'left' },
+                  isRtl ? { textAlign: 'right' } : { textAlign: 'left' },
                 ]}
               >
-                {isAr ? wordMeaning.meaningAr : wordMeaning.meaningEn}
+                {language === 'ar' ? wordMeaning.meaningAr : wordMeaning.meaningEn}
               </Text>
             </View>
 
             {wordMeaning.childExampleAr && (
               <View style={styles.exampleBox}>
                 <Text style={styles.exampleTitle}>
-                  {isAr ? '💡 في حياتنا اليومية:' : '💡 In our daily life:'}
+                  {wm.exampleLabel}
                 </Text>
                 <Text
                   style={[
                     styles.exampleText,
-                    isAr ? { textAlign: 'right' } : { textAlign: 'left' },
+                    isRtl ? { textAlign: 'right' } : { textAlign: 'left' },
                   ]}
                 >
-                  {isAr ? wordMeaning.childExampleAr : wordMeaning.childExampleEn}
+                  {language === 'ar' ? wordMeaning.childExampleAr : wordMeaning.childExampleEn}
                 </Text>
               </View>
             )}
@@ -182,14 +296,12 @@ export default function WordMeaningBubbleModal({
           <View
             style={[
               styles.rewardRow,
-              { flexDirection: isAr ? 'row-reverse' : 'row' },
+              { flexDirection: isRtl ? 'row-reverse' : 'row' },
             ]}
           >
             <Image source={ICON_STAR_IMG} style={styles.starIcon} resizeMode="contain" />
             <Text style={styles.rewardText}>
-              {isAr
-                ? 'أحسنت! الاستماع للكلمة يمنحك +1 نجمة ✦'
-                : 'MashaAllah! Exploring words earns you +1 star ✦'}
+              {wm.rewardText}
             </Text>
           </View>
 
@@ -200,7 +312,7 @@ export default function WordMeaningBubbleModal({
             activeOpacity={0.85}
           >
             <Text style={styles.actionBtnText}>
-              {isAr ? 'فهمت المعنى، شكراً يا نور! 🌟' : 'I learned it, thank you! 🌟'}
+              {wm.closeBtn}
             </Text>
           </TouchableOpacity>
         </View>

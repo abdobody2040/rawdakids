@@ -52,8 +52,8 @@ export default function TafakkurHubScreen() {
       setCelebrationData({
         stars: 3,
         gems: 1,
-        title: isAr ? 'سبحان الله وبحمده! 🌌' : 'SubhanAllah! 🌌',
-        subtitle: isAr ? 'تأملت في خلق الله وسبّحت بحمده' : 'You contemplated creation and glorified Allah',
+        title: getUpgradeLabel('tafakkurDhikrCelebrationTitle', language),
+        subtitle: getUpgradeLabel('tafakkurDhikrCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -68,8 +68,8 @@ export default function TafakkurHubScreen() {
       setCelebrationData({
         stars: 5,
         gems: 2,
-        title: isAr ? 'شارة المتأمل الصغير! 🔭' : 'Little Contemplator Badge! 🔭',
-        subtitle: isAr ? 'أكملت محطة مباركة من التفكر في الكون' : 'Completed a reflection station in the cosmos',
+        title: getUpgradeLabel('tafakkurDoneCelebrationTitle', language),
+        subtitle: getUpgradeLabel('tafakkurDoneCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -121,7 +121,7 @@ export default function TafakkurHubScreen() {
                 >
                   <Text style={styles.stChipEmoji}>{st.cardEmoji}</Text>
                   <Text style={[styles.stChipNum, isSelected && styles.stChipNumActive]}>
-                    {isAr ? `محطة ${st.stationNumber}` : `Station ${st.stationNumber}`}
+                    {`${getUpgradeLabel('stationLabel', language)} ${st.stationNumber}`}
                   </Text>
                   {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" />}
                 </TouchableOpacity>
@@ -139,7 +139,7 @@ export default function TafakkurHubScreen() {
                 </View>
                 <View style={styles.stTitleWrap}>
                   <Text style={[styles.stStationBadge, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? `المحطة ${currentStation.stationNumber}` : `Station ${currentStation.stationNumber}`}
+                    {`${getUpgradeLabel('stationLabel', language)} ${currentStation.stationNumber}`}
                   </Text>
                   <Text style={[styles.stTitleText, isRtl && { textAlign: 'right' }]}>
                     {localizedStation.title}
@@ -152,7 +152,7 @@ export default function TafakkurHubScreen() {
                 <Ionicons name="sparkles" size={18} color="#0284c7" />
                 <View style={styles.ayahTextWrap}>
                   <Text style={[styles.ayahLabel, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? 'الآيات الكريمة:' : 'Quranic Verses:'}
+                    {getUpgradeLabel('versesLabel', language)}
                   </Text>
                   <Text style={[styles.ayahText, isRtl && { textAlign: 'right' }]}>
                     {currentStation.ayah}
@@ -163,10 +163,10 @@ export default function TafakkurHubScreen() {
               {/* Pause & Ponder */}
               <View style={styles.ponderBox}>
                 <Text style={[styles.ponderLabel, isRtl && { textAlign: 'right' }]}>
-                  {isAr ? '🤔 قف وتأمّل:' : '🤔 Pause & Ponder:'}
+                  {getUpgradeLabel('pausePonderLabel', language)}
                 </Text>
                 <Text style={[styles.ponderText, isRtl && { textAlign: 'right' }]}>
-                  {currentStation.ponder}
+                  {localizedStation.ponder || currentStation.ponder}
                 </Text>
               </View>
 
@@ -176,7 +176,7 @@ export default function TafakkurHubScreen() {
                   {getUpgradeLabel('tafakkurScienceFact', language)}
                 </Text>
                 <Text style={[styles.scienceText, isRtl && { textAlign: 'right' }]}>
-                  {currentStation.scienceFact}
+                  {localizedStation.scienceFact || currentStation.scienceFact}
                 </Text>
               </View>
 
@@ -186,7 +186,7 @@ export default function TafakkurHubScreen() {
                   {getUpgradeLabel('tafakkurActivity', language)}
                 </Text>
                 <Text style={[styles.activityText, isRtl && { textAlign: 'right' }]}>
-                  {currentStation.activity}
+                  {localizedStation.activity || currentStation.activity}
                 </Text>
               </View>
 
@@ -195,11 +195,11 @@ export default function TafakkurHubScreen() {
                 <View style={[styles.dhikrHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                   <Ionicons name="heart" size={18} color="#059669" />
                   <Text style={[styles.dhikrTitle, isRtl && { textAlign: 'right' }]}>
-                    {isAr ? 'الذكر والشكر:' : 'Prophetic Dhikr:'}
+                    {getUpgradeLabel('propheticDhikrLabel', language)}
                   </Text>
                 </View>
                 <Text style={[styles.dhikrPhrase, isRtl && { textAlign: 'right' }]}>
-                  {currentStation.dhikr}
+                  {localizedStation.dhikr || currentStation.dhikr}
                 </Text>
                 <TouchableOpacity
                   style={styles.dhikrBtn}
@@ -207,7 +207,7 @@ export default function TafakkurHubScreen() {
                   activeOpacity={0.8}
                 >
                   <Text style={styles.dhikrBtnText}>
-                    {isAr ? `سبّح واشكر (${dhikrCount[currentStation.id] || 0}/3)` : `Praise & Glorify (${dhikrCount[currentStation.id] || 0}/3)`}
+                    {`${getUpgradeLabel('praiseAndGlorifyLabel', language)} (${dhikrCount[currentStation.id] || 0}/3)`}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -237,7 +237,7 @@ export default function TafakkurHubScreen() {
                 <Text style={styles.completeBtnText}>
                   {completedStations[currentStation.id]
                     ? getUpgradeLabel('markDone', language)
-                    : (isAr ? 'أكملت محطة التأمل (+5 نجوم)' : 'Complete Station (+5 Stars)')}
+                    : getUpgradeLabel('tafakkurStationDone', language)}
                 </Text>
               </TouchableOpacity>
             </LinearGradient>

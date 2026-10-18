@@ -51,8 +51,8 @@ export default function CompanionsHubScreen() {
       setCelebrationData({
         stars: 4,
         gems: 1,
-        title: isAr ? 'أنت بطل مثلهم! 🌟' : 'You are like them! 🌟',
-        subtitle: isAr ? 'طبّقت خلقاً حسناً من أخلاق الصحابة الصغار' : 'You applied a noble companion virtue today',
+        title: getUpgradeLabel('compCelebrationTitle', language),
+        subtitle: getUpgradeLabel('compCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -119,6 +119,7 @@ export default function CompanionsHubScreen() {
                 {COMPANIONS_DATA.map(story => {
                   const isSelected = story.id === currentStory.id;
                   const isDone = appliedStories[story.id];
+                  const localizedChip = getLocalizedCompanionStory(story, language);
                   return (
                     <TouchableOpacity
                       key={story.id}
@@ -127,7 +128,7 @@ export default function CompanionsHubScreen() {
                     >
                       <Text style={styles.storyChipEmoji}>{story.cardEmoji}</Text>
                       <Text style={[styles.storyChipTitle, isSelected && styles.storyChipTitleActive]} numberOfLines={1}>
-                        {story.title.split('—')[0].trim()}
+                        {localizedChip.cardTitle || story.cardTitle}
                       </Text>
                       {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" />}
                     </TouchableOpacity>
@@ -146,7 +147,7 @@ export default function CompanionsHubScreen() {
                         {localizedStory.title}
                       </Text>
                       <Text style={[styles.storySourceText, isRtl && { textAlign: 'right' }]}>
-                        {isAr ? `المصدر: ${currentStory.source}` : `Source: ${currentStory.source}`}
+                        {`${getUpgradeLabel('sourceLabel', language)} ${localizedStory.source || currentStory.source}`}
                       </Text>
                     </View>
                   </View>
@@ -154,10 +155,10 @@ export default function CompanionsHubScreen() {
                   {/* Story Text */}
                   <View style={styles.storyNarrativeBox}>
                     <Text style={[styles.narrativeLabel, isRtl && { textAlign: 'right' }]}>
-                      {isAr ? 'الحكاية المباركة:' : 'The Story:'}
+                      {getUpgradeLabel('storyLabel', language)}
                     </Text>
                     <Text style={[styles.narrativeText, isRtl && { textAlign: 'right' }]}>
-                      {currentStory.story}
+                      {localizedStory.story || currentStory.story}
                     </Text>
                   </View>
 
@@ -166,22 +167,22 @@ export default function CompanionsHubScreen() {
                     <Ionicons name="bulb-outline" size={20} color="#d97706" />
                     <View style={styles.lessonTextWrap}>
                       <Text style={[styles.lessonLabel, isRtl && { textAlign: 'right' }]}>
-                        {isAr ? 'الدرس المستفاد:' : 'Moral Lesson:'}
+                        {getUpgradeLabel('moralLessonLabel', language)}
                       </Text>
                       <Text style={[styles.lessonText, isRtl && { textAlign: 'right' }]}>
-                        {localizedStory.lesson}
+                        {localizedStory.lesson || currentStory.lesson}
                       </Text>
                     </View>
                   </View>
 
                   {/* Are You Like Them? */}
-                  {currentStory.areYouLikeThem ? (
+                  {(localizedStory.areYouLikeThem || currentStory.areYouLikeThem) ? (
                     <View style={styles.areYouBox}>
                       <Text style={[styles.areYouLabel, isRtl && { textAlign: 'right' }]}>
                         {getUpgradeLabel('compAreYouLikeThem', language)}
                       </Text>
                       <Text style={[styles.areYouText, isRtl && { textAlign: 'right' }]}>
-                        {currentStory.areYouLikeThem}
+                        {localizedStory.areYouLikeThem || currentStory.areYouLikeThem}
                       </Text>
                     </View>
                   ) : null}
@@ -192,7 +193,7 @@ export default function CompanionsHubScreen() {
                       {getUpgradeLabel('asmaDailyApply', language)}
                     </Text>
                     <Text style={[styles.applyActionText, isRtl && { textAlign: 'right' }]}>
-                      {localizedStory.apply}
+                      {localizedStory.apply || currentStory.apply}
                     </Text>
                     <TouchableOpacity
                       style={[styles.applyBtn, appliedStories[currentStory.id] && styles.applyBtnDone]}
@@ -206,7 +207,7 @@ export default function CompanionsHubScreen() {
                       <Text style={[styles.applyBtnText, appliedStories[currentStory.id] && styles.applyBtnTextDone]}>
                         {appliedStories[currentStory.id]
                           ? getUpgradeLabel('markDone', language)
-                          : (isAr ? 'طبّقت هذا الخلق (+4 نجوم)' : 'I applied this virtue (+4 Stars)')}
+                          : getUpgradeLabel('applyCompanionButtonLabel', language)}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -230,6 +231,7 @@ export default function CompanionsHubScreen() {
             <View style={styles.badgesAlbumGrid}>
               {COMPANIONS_DATA.map(story => {
                 const isEarned = appliedStories[story.id];
+                const localizedBadge = getLocalizedCompanionStory(story, language);
                 return (
                   <TouchableOpacity
                     key={story.id}
@@ -241,8 +243,10 @@ export default function CompanionsHubScreen() {
                   >
                     <View style={[styles.badgeCard, isEarned ? styles.badgeCardEarned : styles.badgeCardLocked]}>
                       <Text style={styles.badgeEmoji}>{story.cardEmoji}</Text>
-                      <Text style={styles.badgeNum}>{isAr ? `قصة ${story.index}` : `Story ${story.index}`}</Text>
-                      <Text style={styles.badgeName} numberOfLines={2}>{story.cardTitle}</Text>
+                      <Text style={styles.badgeNum}>{`${getUpgradeLabel('storyLabelShort', language)} ${story.index}`}</Text>
+                      <Text style={styles.badgeName} numberOfLines={2}>
+                        {localizedBadge.cardTitle || story.cardTitle}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 );

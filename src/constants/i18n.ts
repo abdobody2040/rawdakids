@@ -1,6 +1,7 @@
 // Internationalization for Noor Kids (Multilingual: Arabic, English, French, German, Spanish, Russian, Urdu, Indonesian, Bengali, Turkish)
 
 export type Language = 'ar' | 'en' | 'fr' | 'de' | 'es' | 'ru' | 'ur' | 'id' | 'bn' | 'tr';
+export type SupportedLanguage = Language;
 
 export interface LanguageOption {
   code: Language;

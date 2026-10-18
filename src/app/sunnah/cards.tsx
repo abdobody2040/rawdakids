@@ -18,14 +18,219 @@ import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import SunnahHeroHeader from '@/components/SunnahHeroHeader';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
-import { TRANSLATIONS } from '@/constants/i18n';
+import { TRANSLATIONS, isRTL, SupportedLanguage } from '@/constants/i18n';
+
+const CARDS_I18N: Record<
+  SupportedLanguage,
+  {
+    hadithCount: string;
+    shuffle: string;
+    showText: string;
+    showMeaning: string;
+    narratedBy: string;
+    playingAudio: string;
+    listenAudio: string;
+    meaningLabel: string;
+    deedLabel: string;
+    tapToFlip: string;
+    prev: string;
+    next: string;
+    memorized: string;
+    markMemorized: string;
+    celebrationTitle: string;
+    celebrationSub: string;
+  }
+> = {
+  ar: {
+    hadithCount: 'حديث {curr} من {total}',
+    shuffle: 'حديث عشوائي',
+    showText: 'المتن الشريف',
+    showMeaning: 'المعنى والدرس',
+    narratedBy: 'عن {narrator}',
+    playingAudio: 'جارٍ الاستماع... (إيقاف)',
+    listenAudio: 'استمع للنطق النبوي الشريف',
+    meaningLabel: '💡 المعنى اللطيف للأبطال:',
+    deedLabel: '🌟 فكرة للتطبيق اليوم:',
+    tapToFlip: '👆 اضغط على البطاقة لقلبها',
+    prev: 'السابق',
+    next: 'التالي',
+    memorized: 'تم الحفظ بنجاح! 🌟',
+    markMemorized: 'حفظت هذا الحديث',
+    celebrationTitle: 'ما شاء الله يا بطل!',
+    celebrationSub: 'لقد حفظت حديثاً نبوياً شريفاً يضيء قلبك وحياتك!',
+  },
+  en: {
+    hadithCount: 'Hadith {curr} of {total}',
+    shuffle: 'Shuffle',
+    showText: 'Show Arabic',
+    showMeaning: 'Show Meaning',
+    narratedBy: 'Narrated by {narrator}',
+    playingAudio: 'Playing Audio... (Pause)',
+    listenAudio: 'Listen to Prophetic Words',
+    meaningLabel: '💡 What it means for you:',
+    deedLabel: '🌟 Practice this today:',
+    tapToFlip: '👆 Tap card to flip',
+    prev: 'Previous',
+    next: 'Next',
+    memorized: 'Memorized! 🌟',
+    markMemorized: 'I Memorized This!',
+    celebrationTitle: 'MashaAllah, Star Learner!',
+    celebrationSub: 'You memorized an authentic Prophetic pearl! Keep shining!',
+  },
+  bn: {
+    hadithCount: '{total} টির মধ্যে {curr} নং হাদিস',
+    shuffle: 'এলোমেলো হাদিস',
+    showText: 'মূল আরবি দেখুন',
+    showMeaning: 'অর্থ ও শিক্ষা দেখুন',
+    narratedBy: '{narrator} হতে বর্ণিত',
+    playingAudio: 'অডিও শুনছি... (বিরতি)',
+    listenAudio: 'নবীজির পবিত্র বাণী শুনুন',
+    meaningLabel: '💡 সহজ অর্থ ও শিক্ষা:',
+    deedLabel: '🌟 আজকের অনুশীলনের ধারণা:',
+    tapToFlip: '👆 কার্ড উল্টাতে ট্যাপ করুন',
+    prev: 'পূর্ববর্তী',
+    next: 'পরবর্তী',
+    memorized: 'আলহামদুলিল্লাহ মুখস্থ হয়েছে! 🌟',
+    markMemorized: 'আমি এই হাদিসটি মুখস্থ করেছি',
+    celebrationTitle: 'মাশাআল্লাহ, প্রিয় শিক্ষার্থী!',
+    celebrationSub: 'তুমি প্রিয় নবীজির একটি মূল্যবান হাদিস মুখস্থ করেছ!',
+  },
+  ru: {
+    hadithCount: 'Хадис {curr} из {total}',
+    shuffle: 'Случайный хадис',
+    showText: 'Показать арабский текст',
+    showMeaning: 'Показать смысл и урок',
+    narratedBy: 'Передал {narrator}',
+    playingAudio: 'Воспроизведение... (Пауза)',
+    listenAudio: 'Послушать благословенные слова',
+    meaningLabel: '💡 Что это значит для тебя:',
+    deedLabel: '🌟 Примени это сегодня:',
+    tapToFlip: '👆 Нажми, чтобы перевернуть',
+    prev: 'Назад',
+    next: 'Вперед',
+    memorized: 'Успешно выучено! 🌟',
+    markMemorized: 'Я выучил этот хадис',
+    celebrationTitle: 'Машааллах, юный знаток!',
+    celebrationSub: 'Ты выучил прекрасный хадис Пророка ﷺ!',
+  },
+  ur: {
+    hadithCount: 'حدیث {curr} از {total}',
+    shuffle: 'کوئی بھی حدیث',
+    showText: 'اصل عربی متن',
+    showMeaning: 'مفہوم اور سبق',
+    narratedBy: 'روایت از {narrator}',
+    playingAudio: 'تلاوت جاری ہے... (وقفہ)',
+    listenAudio: 'پیارے نبی ﷺ کے الفاظ سنیں',
+    meaningLabel: '💡 بچوں کے لیے آسان مفہوم:',
+    deedLabel: '🌟 آج کے عمل کا خیال:',
+    tapToFlip: '👆 الٹنے کے لیے کارڈ چھوئیں',
+    prev: 'پچھلا',
+    next: 'اگلا',
+    memorized: 'کامیابی سے یاد ہو گیا! 🌟',
+    markMemorized: 'میں نے یہ حدیث یاد کر لی',
+    celebrationTitle: 'ماشاء اللہ، شاباش!',
+    celebrationSub: 'آپ نے پیارے نبی ﷺ کی ایک مبارک حدیث یاد کر لی ہے!',
+  },
+  id: {
+    hadithCount: 'Hadis {curr} dari {total}',
+    shuffle: 'Acak',
+    showText: 'Teks Bahasa Arab',
+    showMeaning: 'Makna & Pelajaran',
+    narratedBy: 'Diriwayatkan oleh {narrator}',
+    playingAudio: 'Memutar Audio... (Jeda)',
+    listenAudio: 'Dengarkan Sabda Nabi ﷺ',
+    meaningLabel: '💡 Maknanya bagimu:',
+    deedLabel: '🌟 Praktikkan hari ini:',
+    tapToFlip: '👆 Ketuk kartu untuk membalik',
+    prev: 'Sebelumnya',
+    next: 'Selanjutnya',
+    memorized: 'Berhasil Dihafal! 🌟',
+    markMemorized: 'Saya Menghafal Ini!',
+    celebrationTitle: 'Masha Allah, Hebat Sekali!',
+    celebrationSub: 'Kamu telah menghafal mutiara hadis Nabi ﷺ!',
+  },
+  tr: {
+    hadithCount: '{total} Hadisten {curr}. Hadis',
+    shuffle: 'Rastgele Hadis',
+    showText: 'Arapça Metni Gör',
+    showMeaning: 'Anlamı ve Dersi Gör',
+    narratedBy: '{narrator} rivayetiyle',
+    playingAudio: 'Ses Çalınıyor... (Duraklat)',
+    listenAudio: 'Nebevi Sözleri Dinle',
+    meaningLabel: '💡 Senin için anlamı:',
+    deedLabel: '🌟 Bugün bunu uygula:',
+    tapToFlip: '👆 Çevirmek için dokun',
+    prev: 'Önceki',
+    next: 'Sonraki',
+    memorized: 'Ezberlendi! 🌟',
+    markMemorized: 'Bu Hadisi Ezberledim!',
+    celebrationTitle: 'Maşaallah, Tebrikler!',
+    celebrationSub: 'Sevgili Peygamberimiz ﷺ’in güzel bir hadisini ezberledin!',
+  },
+  fr: {
+    hadithCount: 'Hadith {curr} sur {total}',
+    shuffle: 'Aléatoire',
+    showText: 'Texte arabe',
+    showMeaning: 'Sens & Enseignement',
+    narratedBy: 'Rapporté par {narrator}',
+    playingAudio: 'Lecture en cours... (Pause)',
+    listenAudio: 'Écouter les paroles prophétiques',
+    meaningLabel: '💡 Ce que cela signifie pour toi :',
+    deedLabel: '🌟 Action pratique aujourd’hui :',
+    tapToFlip: '👆 Touche la carte pour la retourner',
+    prev: 'Précédent',
+    next: 'Suivant',
+    memorized: 'Mémorisé ! 🌟',
+    markMemorized: 'J’ai mémorisé ce hadith !',
+    celebrationTitle: 'Macha’Allah, champion !',
+    celebrationSub: 'Tu as mémorisé un noble hadith du Prophète ﷺ !',
+  },
+  de: {
+    hadithCount: 'Hadith {curr} von {total}',
+    shuffle: 'Zufällig',
+    showText: 'Arabischen Text anzeigen',
+    showMeaning: 'Bedeutung & Lehre',
+    narratedBy: 'Überliefert von {narrator}',
+    playingAudio: 'Audio wird abgespielt... (Pause)',
+    listenAudio: 'Prophetische Worte anhören',
+    meaningLabel: '💡 Was es für dich bedeutet:',
+    deedLabel: '🌟 Setze das heute um:',
+    tapToFlip: '👆 Antippen zum Umdrehen',
+    prev: 'Zurück',
+    next: 'Weiter',
+    memorized: 'Gelernt! 🌟',
+    markMemorized: 'Ich habe diesen Hadith gelernt!',
+    celebrationTitle: 'Mascha’Allah, wunderbar!',
+    celebrationSub: 'Du hast einen gesegneten Hadith des Propheten ﷺ gelernt!',
+  },
+  es: {
+    hadithCount: 'Hadiz {curr} de {total}',
+    shuffle: 'Aleatorio',
+    showText: 'Ver texto en árabe',
+    showMeaning: 'Ver significado y lección',
+    narratedBy: 'Narrado por {narrator}',
+    playingAudio: 'Reproduciendo... (Pausar)',
+    listenAudio: 'Escuchar las palabras proféticas',
+    meaningLabel: '💡 Lo que significa para ti:',
+    deedLabel: '🌟 Practica esto hoy:',
+    tapToFlip: '👆 Toca la tarjeta para girarla',
+    prev: 'Anterior',
+    next: 'Siguiente',
+    memorized: '¡Memorizado! 🌟',
+    markMemorized: '¡He memorizado este hadiz!',
+    celebrationTitle: '¡Masha’Allah, excelente!',
+    celebrationSub: '¡Has memorizado un bendito hadiz del Profeta ﷺ!',
+  },
+};
 
 export default function HadithFlashcardsScreen() {
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const { width } = useWindowDimensions();
   const isDesktop = width >= 800;
-  const isAr = language === 'ar';
+  const isRtl = isRTL(language);
+  const langKey = (CARDS_I18N[language as SupportedLanguage] ? language : 'en') as SupportedLanguage;
+  const c = CARDS_I18N[langKey];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -109,14 +314,14 @@ export default function HadithFlashcardsScreen() {
         <View
           style={[
             styles.statusBar,
-            { flexDirection: isAr ? 'row-reverse' : 'row' },
+            { flexDirection: isRtl ? 'row-reverse' : 'row' },
           ]}
         >
           <View style={styles.counterBadge}>
             <Text style={styles.counterText}>
-              {isAr
-                ? `حديث ${currentIndex + 1} من ${hadithList.length}`
-                : `Hadith ${currentIndex + 1} of ${hadithList.length}`}
+              {c.hadithCount
+                .replace('{curr}', String(currentIndex + 1))
+                .replace('{total}', String(hadithList.length))}
             </Text>
           </View>
 
@@ -127,7 +332,7 @@ export default function HadithFlashcardsScreen() {
           >
             <Ionicons name="shuffle" size={18} color="#267960" />
             <Text style={styles.shuffleText}>
-              {isAr ? 'حديث عشوائي' : 'Shuffle'}
+              {c.shuffle}
             </Text>
           </TouchableOpacity>
         </View>
@@ -143,25 +348,19 @@ export default function HadithFlashcardsScreen() {
             <View
               style={[
                 styles.cardTopRow,
-                { flexDirection: isAr ? 'row-reverse' : 'row' },
+                { flexDirection: isRtl ? 'row-reverse' : 'row' },
               ]}
             >
               <View style={styles.themeBadge}>
                 <Text style={styles.themeBadgeText}>
-                  {isAr ? currentHadith.titleAr : currentHadith.titleEn}
+                  {language === 'ar' ? currentHadith.titleAr : currentHadith.titleEn}
                 </Text>
               </View>
 
               <View style={styles.flipHintPill}>
                 <Ionicons name="sync" size={14} color="#789087" />
                 <Text style={styles.flipHintText}>
-                  {isFlipped
-                    ? isAr
-                      ? 'المتن الشريف'
-                      : 'Show Arabic'
-                    : isAr
-                    ? 'المعنى والدرس'
-                    : 'Show Meaning'}
+                  {isFlipped ? c.showText : c.showMeaning}
                 </Text>
               </View>
             </View>
@@ -169,8 +368,11 @@ export default function HadithFlashcardsScreen() {
             {/* CARD FRONT: Arabic Hadith & Audio */}
             {!isFlipped ? (
               <View style={styles.frontContent}>
-                <Text style={styles.narratorText}>
-                  {isAr ? `عن ${currentHadith.narratorAr}` : `Narrated by ${currentHadith.narratorEn}`}
+                <Text style={[styles.narratorText, isRtl && { textAlign: 'right' }]}>
+                  {c.narratedBy.replace(
+                    '{narrator}',
+                    language === 'ar' ? currentHadith.narratorAr : currentHadith.narratorEn
+                  )}
                 </Text>
 
                 <Text style={styles.arabicHadithText}>
@@ -186,6 +388,7 @@ export default function HadithFlashcardsScreen() {
                   style={[
                     styles.audioBtn,
                     isPlayingAudio && styles.audioBtnPlaying,
+                    { flexDirection: isRtl ? 'row-reverse' : 'row' },
                   ]}
                   onPress={(e) => {
                     e.stopPropagation();
@@ -199,13 +402,7 @@ export default function HadithFlashcardsScreen() {
                     color="#ffffff"
                   />
                   <Text style={styles.audioBtnText}>
-                    {isPlayingAudio
-                      ? isAr
-                        ? 'جارٍ الاستماع... (إيقاف)'
-                        : 'Playing Audio... (Pause)'
-                      : isAr
-                      ? 'استمع للنطق النبوي الشريف'
-                      : 'Listen to Prophetic Words'}
+                    {isPlayingAudio ? c.playingAudio : c.listenAudio}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -213,22 +410,22 @@ export default function HadithFlashcardsScreen() {
               /* CARD BACK: Meaning, Kid Story Lesson, and Action */
               <View style={styles.backContent}>
                 <View style={styles.meaningBox}>
-                  <Text style={styles.meaningLabel}>
-                    {isAr ? '💡 المعنى اللطيف للأبطال:' : '💡 What it means for you:'}
+                  <Text style={[styles.meaningLabel, isRtl && { textAlign: 'right' }]}>
+                    {c.meaningLabel}
                   </Text>
-                  <Text style={styles.meaningText}>
-                    {isAr
+                  <Text style={[styles.meaningText, isRtl && { textAlign: 'right' }]}>
+                    {language === 'ar'
                       ? currentHadith.explanationAr
                       : currentHadith.explanationEn}
                   </Text>
                 </View>
 
                 <View style={styles.deedBox}>
-                  <Text style={styles.deedLabel}>
-                    {isAr ? '🌟 فكرة للتطبيق اليوم:' : '🌟 Practice this today:'}
+                  <Text style={[styles.deedLabel, isRtl && { textAlign: 'right' }]}>
+                    {c.deedLabel}
                   </Text>
-                  <Text style={styles.deedText}>
-                    {isAr
+                  <Text style={[styles.deedText, isRtl && { textAlign: 'right' }]}>
+                    {language === 'ar'
                       ? currentHadith.linkedHabit.actionAr
                       : currentHadith.linkedHabit.actionEn}
                   </Text>
@@ -245,7 +442,7 @@ export default function HadithFlashcardsScreen() {
 
             {/* Bottom tap hint */}
             <Text style={styles.tapToFlipHint}>
-              {isAr ? '👆 اضغط على البطاقة لقلبها' : '👆 Tap card to flip'}
+              {c.tapToFlip}
             </Text>
           </View>
         </TouchableOpacity>
@@ -254,21 +451,21 @@ export default function HadithFlashcardsScreen() {
         <View
           style={[
             styles.controlsRow,
-            { flexDirection: isAr ? 'row-reverse' : 'row' },
+            { flexDirection: isRtl ? 'row-reverse' : 'row' },
           ]}
         >
           <TouchableOpacity
-            style={styles.navDeckBtn}
+            style={[styles.navDeckBtn, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
             onPress={handlePrev}
             activeOpacity={0.8}
           >
             <Ionicons
-              name={isAr ? 'arrow-forward' : 'arrow-back'}
+              name={isRtl ? 'arrow-forward' : 'arrow-back'}
               size={22}
               color="#267960"
             />
             <Text style={styles.navDeckBtnText}>
-              {isAr ? 'السابق' : 'Previous'}
+              {c.prev}
             </Text>
           </TouchableOpacity>
 
@@ -276,6 +473,7 @@ export default function HadithFlashcardsScreen() {
             style={[
               styles.memorizeBtn,
               isMemorized && styles.memorizeBtnDone,
+              { flexDirection: isRtl ? 'row-reverse' : 'row' },
             ]}
             onPress={handleMarkMemorized}
             activeOpacity={0.85}
@@ -291,26 +489,20 @@ export default function HadithFlashcardsScreen() {
                 isMemorized && styles.memorizeBtnTextDone,
               ]}
             >
-              {isMemorized
-                ? isAr
-                  ? 'تم الحفظ بنجاح! 🌟'
-                  : 'Memorized! 🌟'
-                : isAr
-                ? 'حفظت هذا الحديث'
-                : 'I Memorized This!'}
+              {isMemorized ? c.memorized : c.markMemorized}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.navDeckBtn}
+            style={[styles.navDeckBtn, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
             onPress={handleNext}
             activeOpacity={0.8}
           >
             <Text style={styles.navDeckBtnText}>
-              {isAr ? 'التالي' : 'Next'}
+              {c.next}
             </Text>
             <Ionicons
-              name={isAr ? 'arrow-back' : 'arrow-forward'}
+              name={isRtl ? 'arrow-back' : 'arrow-forward'}
               size={22}
               color="#267960"
             />
@@ -326,12 +518,8 @@ export default function HadithFlashcardsScreen() {
         visible={showCelebration}
         starsEarned={2}
         gemsEarned={3}
-        title={isAr ? 'ما شاء الله يا بطل!' : 'MashaAllah, Star Learner!'}
-        subtitle={
-          isAr
-            ? 'لقد حفظت حديثاً نبوياً شريفاً يضيء قلبك وحياتك!'
-            : 'You memorized an authentic Prophetic pearl! Keep shining!'
-        }
+        title={c.celebrationTitle}
+        subtitle={c.celebrationSub}
         onDismiss={() => setShowCelebration(false)}
       />
     </SafeAreaView>

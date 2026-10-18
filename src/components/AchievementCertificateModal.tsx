@@ -18,6 +18,8 @@ import { useAppStore } from '@/store/useAppStore';
 const MASCOT_NOOR_IMG = require('../../assets/images/mascot-noor.jpg');
 const ICON_STAR_IMG = require('../../assets/images/icon-star-3d.jpg');
 
+import { isRTL, SupportedLanguage } from '@/constants/i18n';
+
 interface Props {
   visible: boolean;
   onDismiss: () => void;
@@ -26,18 +28,207 @@ interface Props {
   subtitle?: string;
 }
 
-function formatCertificateDate(isAr: boolean): string {
-  return isAr
-    ? new Date().toLocaleDateString('ar-EG', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+const CERTIFICATE_I18N: Record<
+  SupportedLanguage,
+  {
+    heading: string;
+    print: string;
+    ribbon: string;
+    brandTitle: string;
+    brandSubtitle: string;
+    presentation: string;
+    achievement: string;
+    dua: string;
+    dateLabel: string;
+    sealLabel: string;
+    verifiedLabel: string;
+    defaultChampion: string;
+    printPdf: string;
+    continueBtn: string;
+  }
+> = {
+  ar: {
+    heading: '📜 شهادة فخر وإنجاز مباركة',
+    print: 'طباعة الشهادة',
+    ribbon: 'شَهَادَةُ إِتْمَامٍ وَتَمَيُّزٍ رَفِيعٍ',
+    brandTitle: 'تَطْبِيقُ رَوْضَة كِيدْز',
+    brandSubtitle: 'رِحْلَةُ الإِيمَانِ وَالْقُرْآنِ وَالأَخْلاقِ',
+    presentation: 'تَفْخَرُ إِدَارَةُ "رَوْضَة كِيدْز" بِمَنْحِ هَذِهِ الشَّهَادَةِ التَّقْدِيرِيَّةِ لِلْبَطَلِ الْمُجْتَهِدِ:',
+    achievement: 'تَقْدِيراً لِجُهْدِهِ الْمُبَارَكِ وَهِمَّتِهِ الْعَالِيَةِ فِي إِتْمَامِ وَحِفْظِ وَتَدَبُّرِ:',
+    dua: '«سَائِلِينَ اللَّهَ تَعَالَى أَنْ يَجْعَلَ الْقُرْآنَ الْعَظِيمَ رَبِيعَ قَلْبِهِ، وَنُورَ صَدْرِهِ، وَشَفِيعاً لَهُ وَلِوَالِدَيْهِ»',
+    dateLabel: 'تَارِيخُ الإِنْجَازِ',
+    sealLabel: 'خَتْمُ التَّمَيُّزِ',
+    verifiedLabel: 'إِدَارَةُ التَّطْبِيقِ',
+    defaultChampion: 'البطل الصغير',
+    printPdf: '🖨️ طباعة الشهادة أو حفظها كـ PDF',
+    continueBtn: 'متابعة رحلتي ➔',
+  },
+  en: {
+    heading: '📜 Certificate of Honor',
+    print: 'Print Certificate',
+    ribbon: 'CERTIFICATE OF EXCELLENCE',
+    brandTitle: 'RAWDAKIDS APP',
+    brandSubtitle: 'Journey of Faith, Quran & Ethics',
+    presentation: 'Rawdakids proudly awards this Certificate of Honor to the outstanding champion:',
+    achievement: 'In recognition of blessed dedication and high aspiration in completing:',
+    dua: '“May Allah bless this young heart with wisdom, light, and love for the Holy Quran.”',
+    dateLabel: 'Date of Completion',
+    sealLabel: 'GOLD SEAL',
+    verifiedLabel: 'Verified By',
+    defaultChampion: 'Little Champion',
+    printPdf: '🖨️ Print or Save as PDF',
+    continueBtn: 'Continue Journey ➔',
+  },
+  bn: {
+    heading: '📜 সম্মান ও অর্জনের সনদপত্র',
+    print: 'সনদ প্রিন্ট করুন',
+    ribbon: 'কৃতিত্ব ও শ্রেষ্ঠত্বের সনদ',
+    brandTitle: 'রওজা কিডস অ্যাপ',
+    brandSubtitle: 'ঈমান, কুরআন ও উত্তম চরিত্রের অভিযাত্রা',
+    presentation: 'রওজা কিডস পরিবার অত্যন্ত গর্বের সাথে এই সম্মাননা সনদ প্রদান করছে আমাদের প্রিয় নায়ককে:',
+    achievement: 'আন্তরিক প্রচেষ্টা ও উচ্চাকাঙ্ক্ষার সাথে সফলভাবে সমাপ্ত ও মুখস্থ করার স্বীকৃতিস্বরূপ:',
+    dua: '“মহান আল্লাহর নিকট প্রার্থনা, তিনি যেন কুরআনকে তোমার অন্তরের আলো ও পথপ্রদর্শক বানান।”',
+    dateLabel: 'অর্জনের তারিখ',
+    sealLabel: 'স্বর্ণের সিলমোহর',
+    verifiedLabel: 'অনুমোদনকারী',
+    defaultChampion: 'ছোট্ট বিজয়ী',
+    printPdf: '🖨️ প্রিন্ট করুন বা PDF হিসেবে সংরক্ষণ করুন',
+    continueBtn: 'আমার পথচলা অব্যাহত রাখুন ➔',
+  },
+  ru: {
+    heading: '📜 Почетная грамота и свидетельство успеха',
+    print: 'Печать грамоты',
+    ribbon: 'СВИДЕТЕЛЬСТВО ОБ УСПЕШНОМ ЗАВЕРШЕНИИ',
+    brandTitle: 'ПРИЛОЖЕНИЕ РАВДА КИДС',
+    brandSubtitle: 'Путь веры, Корана и нравственности',
+    presentation: 'Администрация «Равда Кидс» с гордостью вручает эту почетную грамоту прилежному герою:',
+    achievement: 'В знак признания благословенного усердия и высокого стремления в изучении и завершении:',
+    dua: '«Молим Всевышнего Аллаха сделать Коран светом твоего сердца и радостью твоей души».',
+    dateLabel: 'Дата достижения',
+    sealLabel: 'ЗОЛОТАЯ ПЕЧАТЬ',
+    verifiedLabel: 'Подтверждено',
+    defaultChampion: 'Юный герой',
+    printPdf: '🖨️ Распечатать или сохранить в PDF',
+    continueBtn: 'Продолжить путешествие ➔',
+  },
+  ur: {
+    heading: '📜 عزت و کامیابی کی سند',
+    print: 'سند پرنٹ کریں',
+    ribbon: 'تکمیل اور نمایاں کامیابی کی سند',
+    brandTitle: 'روضہ کڈز ایپ',
+    brandSubtitle: 'ایمان، قرآن اور اخلاق کا روشن سفر',
+    presentation: 'روضہ کڈز انتظامیہ انتہائی فخر کے ساتھ یہ اعزازی سند پیش کرتی ہے محنتی ہیرو کو:',
+    achievement: 'حفظ، تفہیم اور مکمل کرنے میں مبارک محنت اور بلند ہمتی کے اعتراف میں:',
+    dua: '«اللہ تعالیٰ سے دعا ہے کہ وہ قرآن مجید کو آپ کے دل کی بہار اور نور بنائے»',
+    dateLabel: 'تکمیل کی تاریخ',
+    sealLabel: 'سنہری مہر',
+    verifiedLabel: 'تصدیق کنندہ',
+    defaultChampion: 'ننھا ہیرو',
+    printPdf: '🖨️ پرنٹ کریں یا بطور PDF محفوظ کریں',
+    continueBtn: 'میرا سفر جاری رکھیں ➔',
+  },
+  id: {
+    heading: '📜 Sertifikat Penghargaan & Prestasi',
+    print: 'Cetak Sertifikat',
+    ribbon: 'SERTIFIKAT KELULUSAN & PRESTASI',
+    brandTitle: 'APLIKASI RAWDAKIDS',
+    brandSubtitle: 'Perjalanan Iman, Al-Quran & Akhlak Mulia',
+    presentation: 'Rawdakids dengan bangga menganugerahkan Sertifikat Penghargaan ini kepada sang juara teladan:',
+    achievement: 'Sebagai penghargaan atas ketekunan berkah dan semangat tinggi dalam menyelesaikan:',
+    dua: '“Semoga Allah memberkahi hati yang bersih ini dengan hikmah, cahaya, dan kecintaan pada Al-Quran.”',
+    dateLabel: 'Tanggal Penyelesaian',
+    sealLabel: 'SEGEL EMAS',
+    verifiedLabel: 'Diverifikasi Oleh',
+    defaultChampion: 'Juara Cilik',
+    printPdf: '🖨️ Cetak atau Simpan sebagai PDF',
+    continueBtn: 'Lanjutkan Perjalanan ➔',
+  },
+  tr: {
+    heading: '📜 Başarı ve Onur Belgesi',
+    print: 'Belgeyi Yazdır',
+    ribbon: 'ÜSTÜN BAŞARI VE TAMAMLAMA BELGESİ',
+    brandTitle: 'RAWDAKIDS UYGULAMASI',
+    brandSubtitle: 'İman, Kuran ve Güzel Ahlak Yolculuğu',
+    presentation: 'Rawdakids, bu Onur Belgesini gayretli ve başarılı kahramanımıza gururla takdim eder:',
+    achievement: 'Tamamlama, ezberleme ve tefekkür etmedeki gayretli ve bereketli çabasının takdiriyle:',
+    dua: '“Yüce Allah’tan bu güzel kalbe hikmet, nur ve Kuran sevgisi bahşetmesini dileriz.”',
+    dateLabel: 'Tamamlanma Tarihi',
+    sealLabel: 'ALTIN MÜHÜR',
+    verifiedLabel: 'Onaylayan',
+    defaultChampion: 'Küçük Şampiyon',
+    printPdf: '🖨️ Yazdır veya PDF olarak Kaydet',
+    continueBtn: 'Yolculuğuma Devam Et ➔',
+  },
+  fr: {
+    heading: '📜 Certificat d’Honneur et d’Accomplissement',
+    print: 'Imprimer le certificat',
+    ribbon: 'CERTIFICAT D’EXCELLENCE ET DE RÉUSSITE',
+    brandTitle: 'APPLICATION RAWDAKIDS',
+    brandSubtitle: 'Voyage de foi, de Coran et de belles valeurs',
+    presentation: 'L’équipe de Rawdakids est fière de décerner ce Certificat d’Honneur au vaillant champion :',
+    achievement: 'En reconnaissance de ses efforts bénis et de sa noble détermination à accomplir :',
+    dua: '« Puisse Allah illuminer ce jeune cœur de sagesse, de lumière et d’amour pour le Noble Coran. »',
+    dateLabel: 'Date d’accomplissement',
+    sealLabel: 'SCEAU D’OR',
+    verifiedLabel: 'Vérifié par',
+    defaultChampion: 'Petit Champion',
+    printPdf: '🖨️ Imprimer ou enregistrer en PDF',
+    continueBtn: 'Continuer mon voyage ➔',
+  },
+  de: {
+    heading: '📜 Ehrenurkunde & Auszeichnung',
+    print: 'Zertifikat drucken',
+    ribbon: 'URKUNDE FÜR BESONDERE LEISTUNGEN',
+    brandTitle: 'RAWDAKIDS APP',
+    brandSubtitle: 'Reise des Glaubens, des Korans und der guten Werte',
+    presentation: 'Rawdakids verleiht diese Ehrenurkunde mit Stolz an unseren vorbildlichen Champion:',
+    achievement: 'In Anerkennung des gesegneten Fleißes und der großen Hingabe beim erfolgreichen Lernen von:',
+    dua: '„Möge Allah dieses junge Herz mit Weisheit, Licht und Liebe zum Heiligen Koran segnen.“',
+    dateLabel: 'Datum der Fertigstellung',
+    sealLabel: 'GOLDSIEGEL',
+    verifiedLabel: 'Bestätigt durch',
+    defaultChampion: 'Kleiner Champion',
+    printPdf: '🖨️ Drucken oder als PDF speichern',
+    continueBtn: 'Reise fortsetzen ➔',
+  },
+  es: {
+    heading: '📜 Certificado de Honor y Logro',
+    print: 'Imprimir certificado',
+    ribbon: 'CERTIFICADO DE EXCELENCIA Y LOGRO',
+    brandTitle: 'APLICACIÓN RAWDAKIDS',
+    brandSubtitle: 'Viaje de fe, Corán y valores nobles',
+    presentation: 'Rawdakids concede con orgullo este Certificado de Honor al destacado campeón:',
+    achievement: 'En reconocimiento a su bendito esfuerzo y alta dedicación al completar:',
+    dua: '«Que Alá bendiga este joven corazón con sabiduría, luz y amor por el Sagrado Corán.»',
+    dateLabel: 'Fecha de logro',
+    sealLabel: 'SELLO DE ORO',
+    verifiedLabel: 'Verificado por',
+    defaultChampion: 'Pequeño Campeón',
+    printPdf: '🖨️ Imprimir o guardar como PDF',
+    continueBtn: 'Continuar mi viaje ➔',
+  },
+};
+
+function formatCertificateDate(lang: SupportedLanguage): string {
+  try {
+    const locale =
+      lang === 'ar' ? 'ar-EG' :
+      lang === 'bn' ? 'bn-BD' :
+      lang === 'ru' ? 'ru-RU' :
+      lang === 'ur' ? 'ur-PK' :
+      lang === 'id' ? 'id-ID' :
+      lang === 'tr' ? 'tr-TR' :
+      lang === 'fr' ? 'fr-FR' :
+      lang === 'de' ? 'de-DE' :
+      lang === 'es' ? 'es-ES' : 'en-US';
+    return new Date().toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return new Date().toLocaleDateString('en-US');
+  }
 }
 
 export default function AchievementCertificateModal({
@@ -48,15 +239,19 @@ export default function AchievementCertificateModal({
   subtitle,
 }: Props) {
   const { language, profiles, activeProfileId } = useAppStore();
-  const isAr = language === 'ar';
   const certRef = useRef<View>(null);
+
+  const isRtl = isRTL(language);
+  const isAr = language === 'ar';
+  const langKey = (CERTIFICATE_I18N[language as SupportedLanguage] ? language : 'en') as SupportedLanguage;
+  const c = CERTIFICATE_I18N[langKey];
 
   const activeProfile =
     profiles.find((p) => p.id === activeProfileId) ||
-    profiles[0] || { name: isAr ? 'البطل' : 'Champion' };
+    profiles[0] || { name: c.defaultChampion };
 
   // Date formatting
-  const todayDateStr = useMemo(() => formatCertificateDate(isAr), [isAr]);
+  const todayDateStr = useMemo(() => formatCertificateDate(langKey), [langKey]);
 
   const handlePrint = () => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -76,14 +271,14 @@ export default function AchievementCertificateModal({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           {/* Top Actions Bar (Hidden during print) */}
-          <View style={[styles.topActionBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+          <View style={[styles.topActionBar, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
             <View style={styles.topActionLeft}>
               <Text style={styles.topActionHeading}>
-                {isAr ? '📜 شهادة فخر وإنجاز مباركة' : '📜 Certificate of Honor'}
+                {c.heading}
               </Text>
             </View>
 
-            <View style={[styles.topActionButtons, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            <View style={[styles.topActionButtons, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               {Platform.OS === 'web' && (
                 <TouchableOpacity
                   style={styles.printActionBtn}
@@ -92,7 +287,7 @@ export default function AchievementCertificateModal({
                 >
                   <Ionicons name="print" size={17} color="#FFFFFF" />
                   <Text style={styles.printActionBtnText}>
-                    {isAr ? 'طباعة الشهادة' : 'Print'}
+                    {c.print}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -146,9 +341,7 @@ export default function AchievementCertificateModal({
                     >
                       <Ionicons name="sparkles" size={15} color="#FDE68A" />
                       <Text style={styles.ribbonText}>
-                        {isAr
-                          ? 'شَهَادَةُ إِتْمَامٍ وَتَمَيُّزٍ رَفِيعٍ'
-                          : 'CERTIFICATE OF EXCELLENCE'}
+                        {c.ribbon}
                       </Text>
                       <Ionicons name="sparkles" size={15} color="#FDE68A" />
                     </LinearGradient>
@@ -156,19 +349,17 @@ export default function AchievementCertificateModal({
 
                   {/* App Brand Header */}
                   <Text style={styles.brandTitle}>
-                    {isAr ? 'تَطْبِيقُ رَوْضَة كِيدْز' : 'RAWDAKIDS APP'}
+                    {c.brandTitle}
                   </Text>
                   <Text style={styles.brandSubtitle}>
-                    {isAr ? 'رِحْلَةُ الإِيمَانِ وَالْقُرْآنِ وَالأَخْلاقِ' : 'Journey of Faith, Quran & Ethics'}
+                    {c.brandSubtitle}
                   </Text>
 
                   <View style={styles.goldDivider} />
 
                   {/* Presentation Text */}
                   <Text style={styles.presentationText}>
-                    {isAr
-                      ? 'تَفْخَرُ إِدَارَةُ "رَوْضَة كِيدْز" بِمَنْحِ هَذِهِ الشَّهَادَةِ التَّقْدِيرِيَّةِ لِلْبَطَلِ الْمُجْتَهِدِ:'
-                      : 'Rawdakids proudly awards this Certificate of Honor to the outstanding champion:'}
+                    {c.presentation}
                   </Text>
 
                   {/* Child Name (Spotlight) */}
@@ -180,9 +371,7 @@ export default function AchievementCertificateModal({
 
                   {/* Achievement Text */}
                   <Text style={styles.achievementDesc}>
-                    {isAr
-                      ? `تَقْدِيراً لِجُهْدِهِ الْمُبَارَكِ وَهِمَّتِهِ الْعَالِيَةِ فِي إِتْمَامِ وَحِفْظِ وَتَدَبُّرِ:`
-                      : `In recognition of blessed dedication and high aspiration in completing:`}
+                    {c.achievement}
                   </Text>
 
                   {/* Target Title (Surah / World / Pillar) */}
@@ -197,17 +386,15 @@ export default function AchievementCertificateModal({
 
                   {/* Du'a blessing line */}
                   <Text style={styles.duaBlessingText}>
-                    {isAr
-                      ? '«سَائِلِينَ اللَّهَ تَعَالَى أَنْ يَجْعَلَ الْقُرْآنَ الْعَظِيمَ رَبِيعَ قَلْبِهِ، وَنُورَ صَدْرِهِ، وَشَفِيعاً لَهُ وَلِوَالِدَيْهِ»'
-                      : '“May Allah bless this young heart with wisdom, light, and love for the Holy Quran.”'}
+                    {c.dua}
                   </Text>
 
                   {/* Footer Credentials & Signatures */}
-                  <View style={[styles.certFooterRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  <View style={[styles.certFooterRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                     {/* Date */}
                     <View style={styles.footerCol}>
                       <Text style={styles.footerLabel}>
-                        {isAr ? 'تَارِيخُ الإِنْجَازِ' : 'Date'}
+                        {c.dateLabel}
                       </Text>
                       <Text style={styles.footerValue}>{todayDateStr}</Text>
                     </View>
@@ -217,7 +404,7 @@ export default function AchievementCertificateModal({
                       <View style={styles.sealCircle}>
                         <Image source={ICON_STAR_IMG} style={styles.sealStarImg} resizeMode="contain" />
                         <Text style={styles.sealText}>
-                          {isAr ? 'خَتْمُ التَّمَيُّزِ' : 'GOLD SEAL'}
+                          {c.sealLabel}
                         </Text>
                       </View>
                     </View>
@@ -225,12 +412,12 @@ export default function AchievementCertificateModal({
                     {/* Signature */}
                     <View style={styles.footerCol}>
                       <Text style={styles.footerLabel}>
-                        {isAr ? 'إِدَارَةُ التَّطْبِيقِ' : 'Verified By'}
+                        {c.verifiedLabel}
                       </Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Image source={MASCOT_NOOR_IMG} style={styles.footerMascot} resizeMode="cover" />
                         <Text style={styles.footerValue}>
-                          {isAr ? 'رَوْضَة كِيدْز ☼' : 'Rawdakids ☼'}
+                          {c.brandTitle} ☼
                         </Text>
                       </View>
                     </View>
@@ -241,7 +428,7 @@ export default function AchievementCertificateModal({
           </ScrollView>
 
           {/* Bottom Actions Bar */}
-          <View style={[styles.bottomBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+          <View style={[styles.bottomBar, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
             {Platform.OS === 'web' && (
               <TouchableOpacity
                 style={styles.printBigBtn}
@@ -250,7 +437,7 @@ export default function AchievementCertificateModal({
               >
                 <Ionicons name="print" size={20} color="#FFFFFF" />
                 <Text style={styles.printBigBtnText}>
-                  {isAr ? '🖨️ طباعة الشهادة أو حفظها كـ PDF' : '🖨️ Print or Save as PDF'}
+                  {c.printPdf}
                 </Text>
               </TouchableOpacity>
             )}
@@ -261,7 +448,7 @@ export default function AchievementCertificateModal({
               activeOpacity={0.85}
             >
               <Text style={styles.dismissBtnText}>
-                {isAr ? 'متابعة رحلتي ➔' : 'Continue Journey ➔'}
+                {c.continueBtn}
               </Text>
             </TouchableOpacity>
           </View>

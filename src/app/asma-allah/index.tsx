@@ -59,8 +59,8 @@ export default function AsmaAllahScreen() {
       setCelebrationData({
         stars: 3,
         gems: 1,
-        title: isAr ? 'أحسنت التطبيق يا بطل!' : 'Action Applied!',
-        subtitle: isAr ? 'عشت معنى اسم من أسماء الله الحسنى' : 'You lived a Beautiful Name of Allah today',
+        title: getUpgradeLabel('asmaApplyCelebrationTitle', language),
+        subtitle: getUpgradeLabel('asmaApplyCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -76,8 +76,8 @@ export default function AsmaAllahScreen() {
       setCelebrationData({
         stars: 5,
         gems: 2,
-        title: isAr ? 'إجابة صحيحة وممتازة! 🌟' : 'Excellent Answer! 🌟',
-        subtitle: isAr ? 'اكتسبت معرفة مباركة عن أسماء الله' : 'You learned about Allah’s Beautiful Names',
+        title: getUpgradeLabel('asmaQuizCelebrationTitle', language),
+        subtitle: getUpgradeLabel('asmaQuizCelebrationSubtitle', language),
       });
       setShowCelebration(true);
     }
@@ -160,7 +160,7 @@ export default function AsmaAllahScreen() {
                       onPress={() => setSelectedDayId(item.id)}
                     >
                       <Text style={[styles.dayChipNumber, isSelected && styles.dayChipNumberActive]}>
-                        {isAr ? `يوم ${item.day}` : `Day ${item.day}`}
+                        {`${getUpgradeLabel('dayLabel', language)} ${item.day}`}
                       </Text>
                       <Text style={[styles.dayChipName, isSelected && styles.dayChipNameActive]}>
                         {item.name}
@@ -181,7 +181,7 @@ export default function AsmaAllahScreen() {
                     </View>
                     <View style={styles.cardTitleWrap}>
                       <Text style={[styles.cardDayLabel, isRtl && { textAlign: 'right' }]}>
-                        {isAr ? `اليوم ${currentItem.day}` : `Day ${currentItem.day}`}
+                        {`${getUpgradeLabel('dayLabel', language)} ${currentItem.day}`}
                       </Text>
                       <Text style={[styles.cardNameText, isRtl && { textAlign: 'right' }]}>
                         {localizedCurrent.name}
@@ -189,7 +189,11 @@ export default function AsmaAllahScreen() {
                     </View>
                     <View style={styles.categoryPill}>
                       <Text style={styles.categoryPillText}>
-                        {currentItem.category === 'primary' ? (isAr ? 'قرآن' : 'Quran') : currentItem.category === 'sunnah' ? (isAr ? 'سنة' : 'Sunnah') : (isAr ? 'وصف' : 'Attribute')}
+                        {currentItem.category === 'primary'
+                          ? getUpgradeLabel('categoryQuran', language)
+                          : currentItem.category === 'sunnah'
+                          ? getUpgradeLabel('categorySunnah', language)
+                          : getUpgradeLabel('categoryAttribute', language)}
                       </Text>
                     </View>
                   </View>
@@ -197,7 +201,7 @@ export default function AsmaAllahScreen() {
                   {/* Meaning Box */}
                   <View style={styles.meaningBox}>
                     <Text style={[styles.meaningLabel, isRtl && { textAlign: 'right' }]}>
-                      {isAr ? 'المعنى ببساطة:' : 'Simple Meaning:'}
+                      {getUpgradeLabel('asmaSimpleMeaning', language)}
                     </Text>
                     <Text style={[styles.meaningText, isRtl && { textAlign: 'right' }]}>
                       {localizedCurrent.meaning}
@@ -218,7 +222,7 @@ export default function AsmaAllahScreen() {
                   {currentItem.story ? (
                     <View style={styles.storyBox}>
                       <Text style={[styles.storyLabel, isRtl && { textAlign: 'right' }]}>
-                        {isAr ? '📖 الحكاية أو الموقف:' : '📖 The Story:'}
+                        {getUpgradeLabel('storyLabel', language)}
                       </Text>
                       <Text style={[styles.storyText, isRtl && { textAlign: 'right' }]}>
                         {currentItem.story}
@@ -249,7 +253,7 @@ export default function AsmaAllahScreen() {
                       <Text style={[styles.applyToggleText, appliedDays[currentItem.id] && styles.applyToggleTextDone]}>
                         {appliedDays[currentItem.id]
                           ? getUpgradeLabel('markDone', language)
-                          : (isAr ? 'سأطبّق هذا اليوم (+3 نجوم)' : 'I will do this today (+3 Stars)')}
+                          : getUpgradeLabel('asmaApplyBtn', language)}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -314,7 +318,7 @@ export default function AsmaAllahScreen() {
                   >
                     <View style={[styles.albumCard, isEarned ? styles.albumCardEarned : styles.albumCardLocked]}>
                       <Text style={styles.albumCardEmoji}>{item.cardEmoji}</Text>
-                      <Text style={styles.albumCardDay}>{isAr ? `يوم ${item.day}` : `Day ${item.day}`}</Text>
+                      <Text style={styles.albumCardDay}>{`${getUpgradeLabel('dayLabel', language)} ${item.day}`}</Text>
                       <Text style={styles.albumCardName} numberOfLines={1}>{item.name}</Text>
                       <Text style={styles.albumCardTitle} numberOfLines={1}>{item.cardTitle}</Text>
                     </View>
