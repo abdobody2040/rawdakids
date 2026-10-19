@@ -303,6 +303,1022 @@ const ADAM_SCENES_LOCALIZED: Partial<Record<Language, { title: string; narration
   ],
 };
 
+
+const PROPHET_DATA_EXTRA: Record<string, Partial<Record<Language, LocalizedProphetMeta>>> = {
+  "adam": {
+    "bn": {
+      "name": "আদম",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "মানবজাতির পিতা ও প্রথম নবী",
+      "era": "সৃষ্টির সূচনা",
+      "location": "জান্নাত, অতঃপর পৃথিবী"
+    },
+    "ur": {
+      "name": "آدم",
+      "honorific": "علیہ السلام",
+      "titleBadge": "ابوالبشر اور پہلے نبی",
+      "era": "تخلیق کی ابتدا",
+      "location": "جنت، پھر مبارک زمین"
+    },
+    "tr": {
+      "name": "Âdem",
+      "honorific": "aleyhisselam",
+      "titleBadge": "İnsanlığın Babası ve İlk Peygamber",
+      "era": "Yaratılışın Başlangıcı",
+      "location": "Cennet, sonra Dünya"
+    },
+    "ru": {
+      "name": "Адам",
+      "honorific": "мир ему",
+      "titleBadge": "Отец человечества и первый пророк",
+      "era": "Начало сотворения",
+      "location": "Рай, затем благословенная Земля"
+    },
+    "id": {
+      "name": "Adam",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Bapak Umat Manusia & Nabi Pertama",
+      "era": "Awal Penciptaan",
+      "location": "Surga, kemudian Bumi yang berkah"
+    }
+  },
+  "idris": {
+    "bn": {
+      "name": "ইদরীস",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "প্রজ্ঞা ও লেখনীর নবী",
+      "era": "আদমের কয়েক শতাব্দী পর",
+      "location": "ব্যাবিলন, অতঃপর মিসর"
+    },
+    "ur": {
+      "name": "ادریس",
+      "honorific": "علیہ السلام",
+      "titleBadge": "حکمت اور قلم کے نبی",
+      "era": "آدم کے بعد کے ادوار",
+      "location": "بابل، پھر مصر"
+    },
+    "tr": {
+      "name": "İdris",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Hikmet ve Kalem Peygamberi",
+      "era": "Âdem’den asırlar sonra",
+      "location": "Babil, sonra Mısır"
+    },
+    "ru": {
+      "name": "Идрис",
+      "honorific": "мир ему",
+      "titleBadge": "Пророк мудрости и письменности",
+      "era": "Века после Адама",
+      "location": "Вавилон, затем Египет"
+    },
+    "id": {
+      "name": "Idris",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi Kebijaksanaan dan Pena",
+      "era": "Berabad-abad setelah Adam",
+      "location": "Babilonia, kemudian Mesir"
+    }
+  },
+  "nuh": {
+    "bn": {
+      "name": "নূহ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "প্রথম উলুল আযম রাসূল ও মহা জাহাজের কাণ্ডারি",
+      "era": "প্রথম যুগের রাসূলগণ",
+      "location": "মেসোপটেমিয়া"
+    },
+    "ur": {
+      "name": "نوح",
+      "honorific": "علیہ السلام",
+      "titleBadge": "پہلے اولوالعزم رسول اور عظیم کشتی والے",
+      "era": "ابتدائی رسولوں کا دور",
+      "location": "میسوپوٹیمیا (عراق)"
+    },
+    "tr": {
+      "name": "Nuh",
+      "honorific": "aleyhisselam",
+      "titleBadge": "İlk Ulü’l-Azm Peygamber ve Büyük Gemi Sahibi",
+      "era": "İlk Elçiler Çağı",
+      "location": "Mezopotamya"
+    },
+    "ru": {
+      "name": "Нух (Ной)",
+      "honorific": "мир ему",
+      "titleBadge": "Первый из стойких посланников и строитель великого Ковчега",
+      "era": "Первые посланники",
+      "location": "Месопотамия"
+    },
+    "id": {
+      "name": "Nuh",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Rasul Ulul Azmi Pertama & Pemilik Bahtera Agung",
+      "era": "Masa Para Rasul Awal",
+      "location": "Mesopotamia"
+    }
+  },
+  "hud": {
+    "bn": {
+      "name": "হূদ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "আদ জাতির প্রতি প্রেরিত ধৈর্যশীল নবী",
+      "era": "মহাপ্লাবনের পরবর্তী যুগ",
+      "location": "আল-আহকাফ (ইয়েমেন)"
+    },
+    "ur": {
+      "name": "ہود",
+      "honorific": "علیہ السلام",
+      "titleBadge": "قوم عاد کے صابر نبی",
+      "era": "طوفانِ نوح کے بعد",
+      "location": "احقاف (یمن)"
+    },
+    "tr": {
+      "name": "Hûd",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Âd Kavmine Gönderilen Sabır Peygamberi",
+      "era": "Tufan Sonrası",
+      "location": "Ahkâf (Yemen)"
+    },
+    "ru": {
+      "name": "Худ",
+      "honorific": "мир ему",
+      "titleBadge": "Пророк терпения к народу Ад",
+      "era": "После потопа",
+      "location": "Аль-Ахкаф (Йемен)"
+    },
+    "id": {
+      "name": "Hud",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi Penuh Kesabaran untuk Kaum ‘Ad",
+      "era": "Pasca-Banjir Besar",
+      "location": "Al-Ahqaf (Yaman)"
+    }
+  },
+  "salih": {
+    "bn": {
+      "name": "সালেহ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "সামূদ জাতি ও অলৌকিক উটনীর নবী",
+      "era": "সামূদ যুগ",
+      "location": "আল-হিজর (মাদায়েন সালেহ)"
+    },
+    "ur": {
+      "name": "صالح",
+      "honorific": "علیہ السلام",
+      "titleBadge": "قوم ثمود اور معجزاتی اونٹنی والے نبی",
+      "era": "قوم ثمود کا دور",
+      "location": "حجر (مدائن صالح)"
+    },
+    "tr": {
+      "name": "Salih",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Semûd Kavmi ve Mucizevi Deve Peygamberi",
+      "era": "Semûd Dönemi",
+      "location": "Hicr (Medâin-i Salih)"
+    },
+    "ru": {
+      "name": "Салих",
+      "honorific": "мир ему",
+      "titleBadge": "Пророк народа Самуд и знамения Верблюдицы",
+      "era": "Эпоха Самуд",
+      "location": "Аль-Хиджр (Мадаин-Салих)"
+    },
+    "id": {
+      "name": "Shalih",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi Kaum Tsamud & Unta Mukjizat",
+      "era": "Masa Kaum Tsamud",
+      "location": "Al-Hijr (Madain Shalih)"
+    }
+  },
+  "ibrahim": {
+    "bn": {
+      "name": "ইব্রাহিম",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "খলিলুল্লাহ, নবীকূলের পিতা ও কাবার নির্মাতা",
+      "era": "উলুল আযম রাসূলগণ",
+      "location": "উর, শাম ও মক্কা"
+    },
+    "ur": {
+      "name": "ابراہیم",
+      "honorific": "علیہ السلام",
+      "titleBadge": "خلیل اللہ، انبیاء کے والد اور کعبہ کے معمار",
+      "era": "اولوالعزم رسول",
+      "location": "عراق، شام اور مکہ مکرمہ"
+    },
+    "tr": {
+      "name": "İbrahim",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Halilullah, Peygamberlerin Atası ve Kâbe’nin Mimarı",
+      "era": "Ulü’l-Azm Elçiler",
+      "location": "Ur, Şam ve Mekke"
+    },
+    "ru": {
+      "name": "Ибрахим (Авраам)",
+      "honorific": "мир ему",
+      "titleBadge": "Друг Аллаха, отец пророков и строитель Каабы",
+      "era": "Стойкие посланники",
+      "location": "Ур, Шам и Мекка"
+    },
+    "id": {
+      "name": "Ibrahim",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Khalilullah, Ayah Para Nabi & Pembangun Ka’bah",
+      "era": "Rasul Ulul Azmi",
+      "location": "Ur, Syam dan Makkah"
+    }
+  },
+  "lut": {
+    "bn": {
+      "name": "লূত",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "পবিত্রতা ও নৈতিকতার প্রতি আহ্বানকারী নবী",
+      "era": "ইব্রাহিমের সমসাময়িক",
+      "location": "সাদুম (মৃত সাগর এলাকা)"
+    },
+    "ur": {
+      "name": "لوط",
+      "honorific": "علیہ السلام",
+      "titleBadge": "پاکیزگی اور حق کی طرف بلانے والے نبی",
+      "era": "ابراہیم کا زمانہ",
+      "location": "سدوم (بحر مردار)"
+    },
+    "tr": {
+      "name": "Lût",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Temizlik ve Doğruluğa Çağıran Peygamber",
+      "era": "İbrahim çağı",
+      "location": "Sedum (Ölü Deniz)"
+    },
+    "ru": {
+      "name": "Лут (Лот)",
+      "honorific": "мир ему",
+      "titleBadge": "Пророк чистоты и непоколебимой веры",
+      "era": "Эпоха Ибрахима",
+      "location": "Содом (Мертвое море)"
+    },
+    "id": {
+      "name": "Luth",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi Kesucian Jiwa dan Kebenaran",
+      "era": "Sezaman dengan Ibrahim",
+      "location": "Sodom (Laut Mati)"
+    }
+  },
+  "ismail": {
+    "bn": {
+      "name": "ইসমাঈল",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "ধৈর্যশীল আত্মোৎসর্গকারী ও কাবার সহ-নির্মাতা",
+      "era": "ইব্রাহিমের সাথে",
+      "location": "মক্কা মুকাররমা"
+    },
+    "ur": {
+      "name": "اسماعیل",
+      "honorific": "علیہ السلام",
+      "titleBadge": "صابر ذبیح اور کعبہ کی تعمیر میں شریک",
+      "era": "والد ابراہیم کے ساتھ",
+      "location": "مکہ مکرمہ"
+    },
+    "tr": {
+      "name": "İsmail",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Sabırlı Oğul ve Kâbe’nin Yapım Ortağı",
+      "era": "İbrahim ile beraber",
+      "location": "Mekke-i Mükerreme"
+    },
+    "ru": {
+      "name": "Исмаил",
+      "honorific": "мир ему",
+      "titleBadge": "Терпеливый сын и строитель священной Каабы",
+      "era": "Вместе с Ибрахимом",
+      "location": "Мекка"
+    },
+    "id": {
+      "name": "Ismail",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Putra yang Sabar & Pembantu Pembangunan Ka’bah",
+      "era": "Bersama Ibrahim",
+      "location": "Makkah Al-Mukarramah"
+    }
+  },
+  "ishaq": {
+    "bn": {
+      "name": "ইসহাক",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "সুসংবাদের বরকতময় নবী",
+      "era": "ইব্রাহিমী বংশধারা",
+      "location": "ফিলিস্তিন"
+    },
+    "ur": {
+      "name": "اسحاق",
+      "honorific": "علیہ السلام",
+      "titleBadge": "مبارک بشارت اور برکت والے نبی",
+      "era": "اولادِ ابراہیم",
+      "location": "سرزمینِ فلسطین"
+    },
+    "tr": {
+      "name": "İshak",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Müjdelenen Bereket Peygamberi",
+      "era": "İbrahim evlatları",
+      "location": "Filistin"
+    },
+    "ru": {
+      "name": "Исхак (Исаак)",
+      "honorific": "мир ему",
+      "titleBadge": "Обещанный сын и пророк великого благословения",
+      "era": "Потомки Ибрахима",
+      "location": "Палестина"
+    },
+    "id": {
+      "name": "Ishaq",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Putra yang Dijanjikan & Nabi Penuh Berkah",
+      "era": "Keturunan Ibrahim",
+      "location": "Palestina"
+    }
+  },
+  "yaqub": {
+    "bn": {
+      "name": "ইয়াকুব",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "ইসরাঈল — অনুপম সৌন্দর্যের ধৈর্যের প্রতীক",
+      "era": "গোত্রপতিদের যুগ",
+      "location": "কনআন, অতঃপর মিসর"
+    },
+    "ur": {
+      "name": "یعقوب",
+      "honorific": "علیہ السلام",
+      "titleBadge": "اسرائیل اور صبرِ جمیل کے پیکر",
+      "era": "اسباط کا دور",
+      "location": "کنعان، پھر مصر"
+    },
+    "tr": {
+      "name": "Yakub",
+      "honorific": "aleyhisselam",
+      "titleBadge": "İsrail — Güzel Sabrın Timsali",
+      "era": "Kabileler Dönemi",
+      "location": "Kenan, sonra Mısır"
+    },
+    "ru": {
+      "name": "Йакуб (Иаков)",
+      "honorific": "мир ему",
+      "titleBadge": "Исраиль, образец прекрасного терпения",
+      "era": "Эпоха патриархов",
+      "location": "Ханаан, затем Египет"
+    },
+    "id": {
+      "name": "Ya’qub",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Israil, Teladan Kesabaran yang Indah",
+      "era": "Masa Para Leluhur",
+      "location": "Kanaan, kemudian Mesir"
+    }
+  },
+  "yusuf": {
+    "bn": {
+      "name": "ইউসুফ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "সত্যবাদী — শ্রেষ্ঠ কাহিনীর নায়ক ও মিসরের প্রিয় মন্ত্রী",
+      "era": "বনী ইসরাঈল যুগ",
+      "location": "কনআন, অতঃপর মিসর"
+    },
+    "ur": {
+      "name": "یوسف",
+      "honorific": "علیہ السلام",
+      "titleBadge": "صدیق، بہترین قصے والے اور عزیزِ مصر",
+      "era": "بنی اسرائیل کا دور",
+      "location": "کنعان، پھر سرزمینِ مصر"
+    },
+    "tr": {
+      "name": "Yusuf",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Es-Sıddîk — En Güzel Kıssanın Kahramanı ve Mısır Azizi",
+      "era": "İsrailoğulları",
+      "location": "Kenan, sonra Mısır"
+    },
+    "ru": {
+      "name": "Йусуф (Иосиф)",
+      "honorific": "мир ему",
+      "titleBadge": "Правдивейший, герой лучшего повествования и вельможа Египта",
+      "era": "Потомки Исраиля",
+      "location": "Ханаан, затем Египет"
+    },
+    "id": {
+      "name": "Yusuf",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Ash-Shiddiq, Tokoh Kisah Terbaik & Wazir Mesir",
+      "era": "Bani Israil",
+      "location": "Kanaan, kemudian Mesir"
+    }
+  },
+  "ayyub": {
+    "bn": {
+      "name": "আইয়ুব",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "বিশাল ধৈর্য ও কৃতজ্ঞতার চিরন্তন প্রতীক",
+      "era": "ইয়াকুব ও মূসার মধ্যবর্তী যুগ",
+      "location": "হাওরান (শাম)"
+    },
+    "ur": {
+      "name": "ایوب",
+      "honorific": "علیہ السلام",
+      "titleBadge": "بے مثال صبر اور شکر کے روشن مینار",
+      "era": "یعقوب و موسیٰ کا درمیانی دور",
+      "location": "حوران (شام)"
+    },
+    "tr": {
+      "name": "Eyyûb",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Büyük Sabır ve Şükrün Eşsiz Örneği",
+      "era": "Yakub ve Musa arası",
+      "location": "Havran (Şam)"
+    },
+    "ru": {
+      "name": "Аййуб (Иов)",
+      "honorific": "мир ему",
+      "titleBadge": "Символ безграничного терпения и благодарности в испытании",
+      "era": "Между Йакубом и Мусой",
+      "location": "Хауран (Шам)"
+    },
+    "id": {
+      "name": "Ayyub",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Lambang Kesabaran Agung dan Rasa Syukur",
+      "era": "Antara Ya’qub dan Musa",
+      "location": "Hauran (Syam)"
+    }
+  },
+  "shuayb": {
+    "bn": {
+      "name": "শুয়াইব",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "নবীদের সুবক্তা — সততা ও সুবিচারের পথপ্রদর্শক",
+      "era": "মাদইয়ান জাতি",
+      "location": "মাদইয়ান (হেজাযের উত্তর)"
+    },
+    "ur": {
+      "name": "شعیب",
+      "honorific": "علیہ السلام",
+      "titleBadge": "خطیب الانبیاء، دیانت اور عدل کے علمبردار",
+      "era": "اہلِ مدین کا دور",
+      "location": "مدین (شمالی حجاز)"
+    },
+    "tr": {
+      "name": "Şuayb",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Hatibü’l-Enbiyâ — Doğruluk ve Adalet Rehberi",
+      "era": "Medyen Halkı",
+      "location": "Medyen"
+    },
+    "ru": {
+      "name": "Шуайб",
+      "honorific": "мир ему",
+      "titleBadge": "Проповедник пророков, призывавший к честности и справедливости",
+      "era": "Народ Мадьяна",
+      "location": "Мадьян"
+    },
+    "id": {
+      "name": "Syu’aib",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Khatibul Anbiya — Teladan Kejujuran & Keadilan",
+      "era": "Kaum Madyan",
+      "location": "Madyan"
+    }
+  },
+  "musa": {
+    "bn": {
+      "name": "মূসা",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "কালীমূল্লাহ — আল্লাহর সাথে কথোপকথনকারী ও মহা নেতা",
+      "era": "প্রধান উলুল আযম রাসূলগণ",
+      "location": "মিসর, মাদইয়ান ও সিনাই"
+    },
+    "ur": {
+      "name": "موسیٰ",
+      "honorific": "علیہ السلام",
+      "titleBadge": "کلیم اللہ اور بنی اسرائیل کے عظیم رہبر",
+      "era": "اولوالعزم رسول",
+      "location": "مصر، مدین اور سینا"
+    },
+    "tr": {
+      "name": "Mûsâ",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Kelîmullah — Allah ile Konuşan Büyük Önder",
+      "era": "Büyük Ulü’l-Azm Elçiler",
+      "location": "Mısır, Medyen ve Sina"
+    },
+    "ru": {
+      "name": "Муса (Моисей)",
+      "honorific": "мир ему",
+      "titleBadge": "Калимуллах — говоривший с Аллахом и великий вождь",
+      "era": "Великие стойкие посланники",
+      "location": "Египет, Мадьян и Синай"
+    },
+    "id": {
+      "name": "Musa",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Kalimullah — Yang Berbicara Langsung dengan Allah",
+      "era": "Rasul Agung Ulul Azmi",
+      "location": "Mesir, Madyan dan Sinai"
+    }
+  },
+  "harun": {
+    "bn": {
+      "name": "হারুন",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "মূসার বাগ্মী ভ্রাতা ও বিশ্বস্ত সমর্থক",
+      "era": "মূসার সাথে",
+      "location": "মিসর ও সিনাই"
+    },
+    "ur": {
+      "name": "ہارون",
+      "honorific": "علیہ السلام",
+      "titleBadge": "موسیٰ کے فصیح بھائی اور معاون",
+      "era": "موسیٰ کے ہمراہ",
+      "location": "مصر اور کوہِ سینا"
+    },
+    "tr": {
+      "name": "Hârûn",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Musa’nın Fasih Dilli Kardeşi ve Yardımcısı",
+      "era": "Musa ile beraber",
+      "location": "Mısır ve Sina"
+    },
+    "ru": {
+      "name": "Харун (Аарон)",
+      "honorific": "мир ему",
+      "titleBadge": "Красноречивый брат и верный соратник Мусы",
+      "era": "Вместе с Мусой",
+      "location": "Египет и Синай"
+    },
+    "id": {
+      "name": "Harun",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Saudara Musa yang Fasih & Penolong Setia",
+      "era": "Bersama Musa",
+      "location": "Mesir dan Sinai"
+    }
+  },
+  "dhul-kifl": {
+    "bn": {
+      "name": "যুল-কিফল",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "অঙ্গীকার পূরণকারী ও ধৈর্যশীল সাধক",
+      "era": "বনী ইসরাঈল যুগ",
+      "location": "দামেস্ক ও ফিলিস্তিন"
+    },
+    "ur": {
+      "name": "ذوالکفل",
+      "honorific": "علیہ السلام",
+      "titleBadge": "وعدہ وفا کرنے والے اور صابر نبی",
+      "era": "بنی اسرائیل کا دور",
+      "location": "دمشق اور شام"
+    },
+    "tr": {
+      "name": "Zülkifl",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Sözünü Tutan Sabırlı Peygamber",
+      "era": "İsrailoğulları",
+      "location": "Şam ve Filistin"
+    },
+    "ru": {
+      "name": "Зуль-Кифль",
+      "honorific": "мир ему",
+      "titleBadge": "Верный данному слову и праведный служитель",
+      "era": "Эпоха Израиля",
+      "location": "Дамаск и Палестина"
+    },
+    "id": {
+      "name": "Dzulkifli",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi yang Memenuhi Janji & Penuh Kesabaran",
+      "era": "Bani Israil",
+      "location": "Damaskus dan Palestina"
+    }
+  },
+  "dawood": {
+    "bn": {
+      "name": "দাউদ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "ন্যায়পরায়ণ বাদশাহ, যাবূরের ধারক ও নরম লোহার অলৌকিকতা",
+      "era": "বনী ইসরাঈলের রাজাগণ",
+      "location": "বায়তুল মুকাদ্দাস (জেরুজালেম)"
+    },
+    "ur": {
+      "name": "داؤد",
+      "honorific": "علیہ السلام",
+      "titleBadge": "عادل بادشاہ، زبور والے اور نرم لوہے کا معجزہ رکھنے والے",
+      "era": "بنی اسرائیل کے ملوک",
+      "location": "یروشلم (قدس شریف)"
+    },
+    "tr": {
+      "name": "Dâvûd",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Adil Hükümdar, Zebur Sahibi ve Demiri Yumuşatan Peygamber",
+      "era": "İsrail Kralları",
+      "location": "Kudüs-i Şerif"
+    },
+    "ru": {
+      "name": "Давуд (Давид)",
+      "honorific": "мир ему",
+      "titleBadge": "Справедливый царь, знаток Псалмов и чудо смягченного железа",
+      "era": "Цари Израиля",
+      "location": "Иерусалим"
+    },
+    "id": {
+      "name": "Daud",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Raja yang Adil, Penerima Kitab Zabur & Pelunak Besi",
+      "era": "Raja-Raja Bani Israil",
+      "location": "Baitul Maqdis (Yerusalem)"
+    }
+  },
+  "dawud": {
+    "bn": {
+      "name": "দাউদ",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "ন্যায়পরায়ণ বাদশাহ, যাবূরের ধারক ও নরম লোহার অলৌকিকতা",
+      "era": "বনী ইসরাঈলের রাজাগণ",
+      "location": "বায়তুল মুকাদ্দাস (জেরুজালেম)"
+    },
+    "ur": {
+      "name": "داؤد",
+      "honorific": "علیہ السلام",
+      "titleBadge": "عادل بادشاہ، زبور والے اور نرم لوہے کا معجزہ رکھنے والے",
+      "era": "بنی اسرائیل کے ملوک",
+      "location": "یروشلم (قدس شریف)"
+    },
+    "tr": {
+      "name": "Dâvûd",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Adil Hükümdar, Zebur Sahibi ve Demiri Yumuşatan Peygamber",
+      "era": "İsrail Kralları",
+      "location": "Kudüs-i Şerif"
+    },
+    "ru": {
+      "name": "Давуд (Давид)",
+      "honorific": "мир ему",
+      "titleBadge": "Справедливый царь, знаток Псалмов и чудо смягченного железа",
+      "era": "Цари Израиля",
+      "location": "Иерусалим"
+    },
+    "id": {
+      "name": "Daud",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Raja yang Adil, Penerima Kitab Zabur & Pelunak Besi",
+      "era": "Raja-Raja Bani Israil",
+      "location": "Baitul Maqdis (Yerusalem)"
+    }
+  },
+  "sulaiman": {
+    "bn": {
+      "name": "সুলাইমান",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "কৃতজ্ঞ বাদশাহ — পশুপাখির ভাষা ও বাতাসের নিয়ন্ত্রণপ্রাপ্ত",
+      "era": "স্বর্ণযুগীয় রাজত্ব",
+      "location": "বায়তুল মুকাদ্দাস ও শাম"
+    },
+    "ur": {
+      "name": "سلیمان",
+      "honorific": "علیہ السلام",
+      "titleBadge": "شاکر بادشاہ، پرندوں کی بولی اور ہواؤں پر تصرف رکھنے والے",
+      "era": "حکمرانی کا سنہری دور",
+      "location": "قدس اور فلسطین"
+    },
+    "tr": {
+      "name": "Süleyman",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Şükreden Hükümdar — Kuş Dilini ve Rüzgarı Bilen Peygamber",
+      "era": "Altın Krallık Devri",
+      "location": "Kudüs ve Şam"
+    },
+    "ru": {
+      "name": "Сулейман (Соломон)",
+      "honorific": "мир ему",
+      "titleBadge": "Благодарный царь, понимавший язык птиц и повелевавший ветром",
+      "era": "Золотой век царства",
+      "location": "Иерусалим и Шам"
+    },
+    "id": {
+      "name": "Sulaiman",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Raja yang Bersyukur, Ahli Bahasa Burung & Penakluk Angin",
+      "era": "Masa Keemasan Kerajaan",
+      "location": "Baitul Maqdis & Syam"
+    }
+  },
+  "ilyas": {
+    "bn": {
+      "name": "ইলিয়াস",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "একত্ববাদের অটল আহ্বানকারী ও মূর্তিবিরোধী নবী",
+      "era": "বাল রাজত্বকাল",
+      "location": "বালবাক (লেবানন)"
+    },
+    "ur": {
+      "name": "الیاس",
+      "honorific": "علیہ السلام",
+      "titleBadge": "توحید کے شجاع داعی اور باطل کے مٹانے والے",
+      "era": "بعلبک کا دور",
+      "location": "بعلبک (لبنان)"
+    },
+    "tr": {
+      "name": "İlyas",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Tevhidin Yiğit Savunucusu",
+      "era": "Baalbek Dönemi",
+      "location": "Baalbek (Lübnan)"
+    },
+    "ru": {
+      "name": "Ильяс (Илия)",
+      "honorific": "мир ему",
+      "titleBadge": "Бесстрашный проповедник Единобожия",
+      "era": "Эпоха Баальбека",
+      "location": "Баальбек (Ливан)"
+    },
+    "id": {
+      "name": "Ilyas",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Pejuang Tauhid yang Teguh Mengikis Kemusyrikan",
+      "era": "Masa Ba’albek",
+      "location": "Baalbek (Lebanon)"
+    }
+  },
+  "al-yasa": {
+    "bn": {
+      "name": "আল-ইয়াসা",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "আল্লাহর নির্বাচিত সৎকর্মশীল ও বিশ্বস্ত নবী",
+      "era": "ইলিয়াসের পরবর্তী যুগ",
+      "location": "দামেস্ক ও শাম"
+    },
+    "ur": {
+      "name": "الیسع",
+      "honorific": "علیہ السلام",
+      "titleBadge": "برگزیدہ اور نیکوکار نبی",
+      "era": "الیاس کے بعد",
+      "location": "دمشق اور اردن"
+    },
+    "tr": {
+      "name": "Elyesa",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Hayırlılardan Kılınan Seçkin Peygamber",
+      "era": "İlyas sonrası",
+      "location": "Şam ve Filistin"
+    },
+    "ru": {
+      "name": "Аль-Йаса (Елисей)",
+      "honorific": "мир ему",
+      "titleBadge": "Один из лучших и преданных рабов Аллаха",
+      "era": "После Ильяса",
+      "location": "Дамаск и Палестина"
+    },
+    "id": {
+      "name": "Ilyasa’",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Nabi Pilihan yang Saleh dan Penuh Kebaikan",
+      "era": "Setelah Nabi Ilyas",
+      "location": "Damaskus dan Syam"
+    }
+  },
+  "yunus": {
+    "bn": {
+      "name": "ইউনুস",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "যুন-নূন — মাছের পেটে অন্ধকারে কবুল হওয়া দোয়ার নবী",
+      "era": "নিনেভার সম্প্রদায়",
+      "location": "নিনেভা (ইরাক) ও সমুদ্র"
+    },
+    "ur": {
+      "name": "یونس",
+      "honorific": "علیہ السلام",
+      "titleBadge": "ذوالنون اور مچھلی کے پیٹ میں مستجاب دعا والے",
+      "era": "اہل نینویٰ",
+      "location": "نینویٰ (عراق) اور سمندر"
+    },
+    "tr": {
+      "name": "Yunus",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Zü’n-Nûn — Balığın Karnındaki İhlaslı Duası Kabul Olan Peygamber",
+      "era": "Ninova Halkı",
+      "location": "Ninova (Irak) ve Deniz"
+    },
+    "ru": {
+      "name": "Йунус (Иона)",
+      "honorific": "мир ему",
+      "titleBadge": "Обладатель рыбы и автор искренней мольбы во тьме",
+      "era": "Народ Ниневии",
+      "location": "Ниневия (Ирак) и море"
+    },
+    "id": {
+      "name": "Yunus",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Dzan-Nun, Pemilik Doa Ikhlas di Kegelapan Perut Ikan",
+      "era": "Kaum Ninawa",
+      "location": "Ninawa (Irak) dan Samudra"
+    }
+  },
+  "zakariya": {
+    "bn": {
+      "name": "যাকারিয়া",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "মরিয়মের অভিভাবক ও বিনম্র প্রার্থনাকারী নবী",
+      "era": "মন্দিরের সেবাযুগ",
+      "location": "বায়তুল মুকাদ্দাস"
+    },
+    "ur": {
+      "name": "زکریا",
+      "honorific": "علیہ السلام",
+      "titleBadge": "کفیلِ مریم اور عاجزانہ دعا کے پیکر",
+      "era": "ہیکل کا دور",
+      "location": "بیت المقدس"
+    },
+    "tr": {
+      "name": "Zekeriyyâ",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Meryem’in Hamisi ve Samimi Duaların Sahibi",
+      "era": "Mabet Hizmeti",
+      "location": "Kudüs-i Şerif"
+    },
+    "ru": {
+      "name": "Закариййа (Захария)",
+      "honorific": "мир ему",
+      "titleBadge": "Попечитель Марьям и пророк искренней тайной молитвы",
+      "era": "Храмовая эпоха",
+      "location": "Иерусалим"
+    },
+    "id": {
+      "name": "Zakariya",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Pengasuh Maryam dan Pemilik Doa Lembut yang Terkabul",
+      "era": "Masa Khidmat Baitul Maqdis",
+      "location": "Baitul Maqdis"
+    }
+  },
+  "yahya": {
+    "bn": {
+      "name": "ইয়াহিয়া",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "শৈশব থেকেই প্রজ্ঞাপ্রাপ্ত, পবিত্র ও সহানুভূতিশীল নবী",
+      "era": "ঈসার সমসাময়িক",
+      "location": "ফিলিস্তিন ও জর্ডান"
+    },
+    "ur": {
+      "name": "یحییٰ",
+      "honorific": "علیہ السلام",
+      "titleBadge": "بچپن ہی سے دانا، پاکیزہ اور نرم دل نبی",
+      "era": "عیسیٰ کا زمانہ",
+      "location": "فلسطین اور اردن"
+    },
+    "tr": {
+      "name": "Yahyâ",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Küçüklüğünden İtibaren Hikmet Verilen Şefkat Peygamberi",
+      "era": "İsa dönemi",
+      "location": "Filistin ve Ürdün"
+    },
+    "ru": {
+      "name": "Йахья (Иоанн)",
+      "honorific": "мир ему",
+      "titleBadge": "Наделенный мудростью с детских лет, чистый и сострадательный",
+      "era": "Эпоха Исы",
+      "location": "Палестина и Иордания"
+    },
+    "id": {
+      "name": "Yahya",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Penerima Hikmah Sejak Belia, Lembut dan Bertakwa",
+      "era": "Sezaman dengan Nabi Isa",
+      "location": "Palestina dan Yordania"
+    }
+  },
+  "isa": {
+    "bn": {
+      "name": "ঈসা",
+      "honorific": "আলাইহিস সালাম",
+      "titleBadge": "আল-মসীহ, আল্লাহর কালেমা ও মরিয়ম তনয়",
+      "era": "প্রধান উলুল আযম রাসূলগণ",
+      "location": "বেথলেহেম, জেরুজালেম ও নাসেরা"
+    },
+    "ur": {
+      "name": "عیسیٰ",
+      "honorific": "علیہ السلام",
+      "titleBadge": "مسیح، کلمۃ اللہ اور مریم کے پاک بیٹے",
+      "era": "اولوالعزم رسول",
+      "location": "بیت لحم، قدس اور ناصرہ"
+    },
+    "tr": {
+      "name": "Îsâ",
+      "honorific": "aleyhisselam",
+      "titleBadge": "Mesih, Allah’ın Kelimesi ve Meryem Oğlu",
+      "era": "Büyük Ulü’l-Azm Elçiler",
+      "location": "Beytüllahim, Kudüs ve Nasıra"
+    },
+    "ru": {
+      "name": "Иса (Иисус)",
+      "honorific": "мир ему",
+      "titleBadge": "Мессия, Слово Аллаха и сын пречистой Марьям",
+      "era": "Великие стойкие посланники",
+      "location": "Вифлеем и Иерусалим"
+    },
+    "id": {
+      "name": "Isa",
+      "honorific": "‘alaihissalam",
+      "titleBadge": "Al-Masih, Kalimatullah dan Putra Maryam yang Suci",
+      "era": "Rasul Agung Ulul Azmi",
+      "location": "Betlehem dan Yerusalem"
+    }
+  },
+  "muhammad": {
+    "bn": {
+      "name": "মুহাম্মদ",
+      "honorific": "সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম",
+      "titleBadge": "সর্বশ্রেষ্ঠ ও সর্বশেষ নবী এবং বিশ্বজগতের রহমত",
+      "era": "চুড়ান্ত ঐশী বার্তা",
+      "location": "মক্কা মুকাররমা ও মদিনা মুনাওয়ারা"
+    },
+    "ur": {
+      "name": "محمد",
+      "honorific": "صلی اللہ علیہ وسلم",
+      "titleBadge": "خاتم الانبیاء والمرسلین اور رحمۃ للعالمین",
+      "era": "آخری اور ابدی پیغام",
+      "location": "مکہ مکرمہ اور مدینہ منورہ"
+    },
+    "tr": {
+      "name": "Muhammed",
+      "honorific": "sallallahu aleyhi ve sellem",
+      "titleBadge": "Hâtemü’l-Enbiyâ ve Âlemlere Rahmet Olan Peygamber",
+      "era": "Son Vahiy Çağı",
+      "location": "Mekke-i Mükerreme ve Medine-i Münevvere"
+    },
+    "ru": {
+      "name": "Мухаммад",
+      "honorific": "мир ему и благословение Аллаха",
+      "titleBadge": "Печать Пророков и посланников, милость для миров",
+      "era": "Заключительное откровение",
+      "location": "Благословенная Мекка и Лучезарная Медина"
+    },
+    "id": {
+      "name": "Muhammad",
+      "honorific": "shallallahu ‘alaihi wa sallam",
+      "titleBadge": "Penutup Para Nabi & Rahmat bagi Semesta Alam",
+      "era": "Wahyu Terakhir yang Abadi",
+      "location": "Makkah Al-Mukarramah & Madinah Al-Munawwarah"
+    }
+  }
+};
+
+export const ANIMAL_MIRACLES_BANNER = {
+  badge: {
+    ar: 'معجزات الحيوان في القرآن',
+    en: 'Animal Miracles in the Quran',
+    bn: 'কুরআনে প্রাণীদের অলৌকিক নিদর্শন',
+    ur: 'قرآن میں جانوروں کے معجزات',
+    tr: "Kur'an'da Hayvan Mucizeleri",
+    ru: 'Чудеса животных в Коране',
+    id: 'Mukjizat Hewan dalam Al-Qur’an',
+    fr: 'Miracles des Animaux dans le Coran',
+    de: 'Tiermoral und Wunder im Koran',
+    es: 'Milagros de los Animales en el Corán',
+  },
+  title: {
+    ar: 'طير عيسى، عصا موسى، وفداء إسماعيل 🕊️🐍',
+    en: 'Isa’s Bird, Musa’s Staff & Ismail’s Ram 🕊️🐍',
+    bn: 'ঈসার পাখি, মূসার লাঠি ও ইসমাইলের কোরবানি 🕊️🐍',
+    ur: 'عیسیٰ کا پرندہ، موسیٰ کا عصا اور اسماعیل کا فدیہ 🕊️🐍',
+    tr: "İsa'nın Kuşu, Musa'nın Asası ve İsmail'in Koçu 🕊️🐍",
+    ru: 'Птица Исы, посох Мусы и овен Исмаила 🕊️🐍',
+    id: 'Burung Isa, Tongkat Musa & Tebusan Ismail 🕊️🐍',
+    fr: "L'Oiseau d'Issa, le Bâton de Moussa et le Bélier d'Ismaïl 🕊️🐍",
+    de: 'Isas Vogel, Musas Stab & Ismails Widder 🕊️🐍',
+    es: 'El Pájaro de Isa, el Bastón de Musa y el Carnero de Ismael 🕊️🐍',
+  },
+  subtitle: {
+    ar: 'قصص تفاعلية، تحديات وأنشطة لكل الأعمار',
+    en: 'Interactive stories, challenges & quizzes for all ages',
+    bn: 'ইন্টারেক্টিভ গল্প, চ্যালেঞ্জ এবং সব বয়সের কুইজ',
+    ur: 'انٹرایکٹو کہانیاں، چیلنجز اور کوئز ہر عمر کے لیے',
+    tr: 'Her yaş için etkileşimli hikayeler, meydan okumalar ve testler',
+    ru: 'Интерактивные истории, испытания и викторины для всех возрастов',
+    id: 'Kisah interaktif, tantangan, dan kuis untuk segala usia',
+    fr: 'Histoires interactives, défis et quiz pour tous les âges',
+    de: 'Interaktive Geschichten, Herausforderungen & Quiz für jedes Alter',
+    es: 'Historias interactivas, desafíos y cuestionarios para todas las edades',
+  },
+};
+
+export function getAnimalMiraclesBadge(lang: Language): string {
+  return ANIMAL_MIRACLES_BANNER.badge[lang] || ANIMAL_MIRACLES_BANNER.badge.en;
+}
+export function getAnimalMiraclesTitle(lang: Language): string {
+  return ANIMAL_MIRACLES_BANNER.title[lang] || ANIMAL_MIRACLES_BANNER.title.en;
+}
+export function getAnimalMiraclesSubtitle(lang: Language): string {
+  return ANIMAL_MIRACLES_BANNER.subtitle[lang] || ANIMAL_MIRACLES_BANNER.subtitle.en;
+}
+
+
 export function getLocalizedProphetMeta(prophet: ProphetStory, lang: Language): LocalizedProphetMeta {
   const custom = PROPHET_NAMES_LOCALIZED[prophet.id]?.[lang];
   if (custom) return custom;

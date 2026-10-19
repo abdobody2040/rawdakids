@@ -14,6 +14,7 @@ import {
   TAFAKKUR_LOCALIZED,
   NATIONS_LOCALIZED,
   SEERAH_LOCALIZED,
+  WEEKLY_CHALLENGES_LOCALIZED,
 } from './multilingualUpgradeData';
 
 export { UPGRADE_HUB_LABELS };
@@ -105,9 +106,30 @@ export function getLocalizedSeerahStation(item: SeerahStationItem, lang: Languag
       story: loc.story || item.story,
       lesson: loc.lesson || item.lesson,
       emulate: loc.emulate || item.emulate,
+      quizText: loc.quizText || item.quizText,
       caution: loc.caution || item.caution,
       cardTitle: loc.cardTitle || item.cardTitle,
     };
   }
   return item;
+}
+
+export { WEEKLY_CHALLENGES_LOCALIZED };
+
+export function getLocalizedWeeklyChallenge(
+  challenge: { id: string; titleAr?: string; titleEn?: string; descAr?: string; descEn?: string },
+  lang: Language
+): { title: string; desc: string } {
+  if (lang === 'ar') {
+    return {
+      title: challenge.titleAr || '',
+      desc: challenge.descAr || '',
+    };
+  }
+  const custom = WEEKLY_CHALLENGES_LOCALIZED[challenge.id]?.[lang];
+  if (custom) return custom;
+  return {
+    title: challenge.titleEn || challenge.titleAr || '',
+    desc: challenge.descEn || challenge.descAr || '',
+  };
 }

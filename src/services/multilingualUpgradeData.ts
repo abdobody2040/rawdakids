@@ -10,6 +10,92 @@ import { AsmaAllahItem } from '../data/asmaAllahData';
 
 // Extended Universal UI Labels for all 5 Modules
 export const UPGRADE_HUB_LABELS: Record<string, Record<Language, string>> = {
+  // Manners & Weekly Challenges Labels
+  weeklyMannersHeading: {
+    ar: 'تحديات الأخلاق لهذا الأسبوع',
+    en: 'Weekly Manners Challenges',
+    bn: 'সাপ্তাহিক সদাচরণের চ্যালেঞ্জ',
+    ur: 'اس ہفتے کے اخلاقی چیلنجز',
+    tr: 'Haftalık Ahlak Meydan Okumaları',
+    ru: 'Еженедельные задания по благонравию',
+    id: 'Tantangan Akhlak Mingguan',
+    fr: 'Défis de Bonnes Manières de la Semaine',
+    de: 'Wöchentliche Benimm-Herausforderungen',
+    es: 'Desafíos Semanales de Buenos Modales',
+  },
+  approvedLabel: {
+    ar: 'معتمد',
+    en: 'Approved',
+    bn: 'অনুমোদিত',
+    ur: 'تصدیق شدہ',
+    tr: 'Onaylandı',
+    ru: 'Одобрено',
+    id: 'Disetujui',
+    fr: 'Approuvé',
+    de: 'Genehmigt',
+    es: 'Aprobado',
+  },
+  approvedByParents: {
+    ar: 'معتمد من الوالدين 🎉',
+    en: 'Approved by Parents 🎉',
+    bn: 'অভিভাবক কর্তৃক অনুমোদিত 🎉',
+    ur: 'والدین کی طرف سے تصدیق شدہ 🎉',
+    tr: 'Ebeveyn Tarafından Onaylandı 🎉',
+    ru: 'Одобрено родителями 🎉',
+    id: 'Disetujui Orang Tua 🎉',
+    fr: 'Approuvé par les parents 🎉',
+    de: 'Von Eltern genehmigt 🎉',
+    es: 'Aprobado por los padres 🎉',
+  },
+  waitingParentApproval: {
+    ar: 'بانتظار مصادقة الوالدين',
+    en: 'Waiting for parent approval',
+    bn: 'পিতা-মাতার অনুমোদনের অপেক্ষায়',
+    ur: 'والدین کی تصدیق کا انتظار',
+    tr: 'Ebeveyn onayı bekleniyor',
+    ru: 'Ожидает одобрения родителей',
+    id: 'Menunggu persetujuan orang tua',
+    fr: 'En attente de validation parentale',
+    de: 'Wartet auf elterliche Bestätigung',
+    es: 'Esperando la aprobación de los padres',
+  },
+  completedMannerTodayBtn: {
+    ar: 'أنجزت هذا الخلق اليوم! 🌟',
+    en: 'I did this today! 🌟',
+    bn: 'আমি আজ এটি পালন করেছি! 🌟',
+    ur: 'میں نے آج یہ نیکی کی! 🌟',
+    tr: 'Bugün bunu uyguladım! 🌟',
+    ru: 'Я выполнил это сегодня! 🌟',
+    id: 'Saya sudah mengamalkannya hari ini! 🌟',
+    fr: "J'ai pratiqué cela aujourd'hui ! 🌟",
+    de: 'Ich habe dies heute getan! 🌟',
+    es: '¡Lo practiqué hoy! 🌟',
+  },
+  realLifeMannersTitle: {
+    ar: 'مصادقة تحديات الأخلاق الحقيقية',
+    en: 'Real-Life Manners Approval',
+    bn: 'বাস্তব জীবনের সদাচরণ অনুমোদন',
+    ur: 'حقیقی زندگی کے اخلاق کی تصدیق',
+    tr: 'Gerçek Hayat Ahlak Onayı',
+    ru: 'Подтверждение благонравия в жизни',
+    id: 'Persetujuan Akhlak Kehidupan Nyata',
+    fr: 'Validation des Bonnes Manières Réelles',
+    de: 'Bestätigung echter Benimm-Regeln',
+    es: 'Aprobación de Modales en la Vida Real',
+  },
+  realLifeMannersDesc: {
+    ar: 'عندما يُطبّق طفلك خُلقاً وسلوكاً حسناً في الحياة الواقعية (مثل بر الوالدين أو إفشاء السلام)، صدّق على إنجازه هنا لمنحه جواهر ومكافآت التميز!',
+    en: 'When your child puts good manners into real-life practice, verify their achievement here to award them bonus gems and celebrate!',
+    bn: 'আপনার সন্তান যখন বাস্তব জীবনে ভালো আচরণ করে (যেমন পিতা-মাতার সেবা বা সালাম দেওয়া), তখন অতিরিক্ত রত্ন দিতে এখানে তা নিশ্চিত করুন!',
+    ur: 'جب آپ کا بچہ حقیقی زندگی میں اچھے اخلاق کا مظاہرہ کرے، تو اس کی کامیابی کی تصدیق کریں تاکہ اضافی جواہرات مل سکیں!',
+    tr: 'Çocuğunuz gerçek hayatta güzel ahlak uyguladığında, bonus elmaslar kazanması için buradan başarısını onaylayın!',
+    ru: 'Когда ваш ребенок проявляет благонравие в реальной жизни, подтвердите его достижение здесь, чтобы наградить самоцветами!',
+    id: 'Saat anak Anda mempraktikkan akhlak terpuji di kehidupan nyata, verifikasi di sini untuk memberinya permata bonus!',
+    fr: 'Lorsque votre enfant met en pratique les bonnes manières dans la vraie vie, confirmez son accomplissement pour lui offrir des gemmes !',
+    de: 'Wenn Ihr Kind gute Manieren im echten Leben anwendet, bestätigen Sie dies hier, um ihm zusätzliche Edelsteine zu schenken!',
+    es: 'Cuando su hijo aplique los buenos modales en la vida real, verifique su logro aquí para premiarlo con gemas adicionales!',
+  },
+
   // Asma Allah Hub
   asmaHubTitle: {
     ar: 'روضة أسماء الله الحسنى',
@@ -1998,6 +2084,7 @@ export interface LocalizedNationContent {
   lesson: string;
   discussion?: string;
   activity?: string;
+  quizText?: string;
   caution?: string;
   cardTitle: string;
 }
@@ -2086,6 +2173,558 @@ export const NATIONS_LOCALIZED: Record<string, Partial<Record<Language, Localize
       cardTitle: '‘Ad — La fuerza sin gratitud no tiene valor',
     },
   },
+  'nation-2': {
+  "en": {
+    "title": "People of Thamud — \"The She-Camel of Allah\"",
+    "story": "Allah sent Prophet Salih (peace be upon him) to Thamud. They carved beautiful homes into mountains and enjoyed vast blessings. Salih called them to worship Allah alone, and Allah granted them a miraculous she-camel as a clear sign, saying: \"She has her time to drink, and you have your time on an appointed day\" (26:155). He warned them never to harm her. But arrogance led them to disobey, and they hamstrung her. A terrible quake struck them, while Allah delivered Salih and the faithful believers.",
+    "lesson": "Compassion for animals, fair sharing of natural resources, obedience to the prophets, and avoiding stubborn rebellion.",
+    "discussion": "How do we practice fairness when sharing water, food, and toys with others?",
+    "activity": "Play \"Fair Sharing\": divide resources equally and cheerfully among friends.",
+    "quizText": "(1) What was Salih’s sign? (✅ The She-Camel) (2) What did he ask them? (✅ Not to harm her) (3) What is the main lesson? (✅ Mercy and obedience to Allah)",
+    "caution": "Do not invent unverified stories about the rock splitting or names of the perpetrators.",
+    "cardTitle": "Thamud — Do not harm what Allah has blessed as a sign"
+  },
+  "bn": {
+    "title": "সামূদ জাতি — \"আল্লাহর অলৌকিক উটনী\"",
+    "story": "আল্লাহ তাআলা সামূদ জাতির কাছে নবী সালেহ (আ.)-কে প্রেরণ করেছিলেন। তারা পাহাড় কেটে মনোরম গৃহ নির্মাণ করত এবং সুখ-স্বাচ্ছন্দ্যে বাস করত। সালেহ (আ.) তাদের এক আল্লাহর ইবাদত করার আহ্বান জানালেন। প্রমাণস্বরূপ আল্লাহ তাদের একটি অলৌকিক উটনী উপহার দিয়ে বললেন: \"এর জন্য একদিন পানি পানের পালা, আর তোমাদের জন্য একদিন\" (সূরা আশ-শুআরা ২৬:১৫৫)। তিনি সাবধান করলেন কেউ যেন উটনীটিকে কষ্ট না দেয়। কিন্তু তারা অবাধ্য হয়ে উটনীটির পা কেটে হত্যা করল। ফলে আল্লাহর গযব তাদের ধ্বংস করল এবং সালেহ (আ.) ও মুমিনগণ রক্ষা পেলেন।",
+    "lesson": "পশুপাখির প্রতি দয়া, প্রাকৃতিক সম্পদের সুষম বণ্টন, নবীদের আনুগত্য এবং অবাধ্যতার ভয়াবহ পরিণতি।",
+    "discussion": "পানি, খাবার ও খেলনা ভাগাভাগি করার সময় আমরা কীভাবে ইনসাফ ও সমতা বজায় রাখতে পারি?",
+    "activity": "\"ন্যায্য বণ্টন\" খেলা: বন্ধুদের মাঝে সমানভাবে ও আনন্দের সাথে সামগ্রী ভাগ করে নেওয়া।",
+    "quizText": "(১) সালেহ (আ.)-এর মুজিযা কী ছিল? (✅ অলৌকিক উটনী) (২) তিনি তাদের কী করতে নিষেধ করেছিলেন? (✅ উটনীটিকে কষ্ট দিতে) (৩) গল্পের মূল শিক্ষা কী? (✅ দয়া ও আল্লাহর আনুগত্য)",
+    "caution": "কুরআনে অনুল্লিখিত পাথরের ফেটে ওঠার অলীক গল্প বলা থেকে বিরত থাকুন।",
+    "cardTitle": "সামূদ — আল্লাহর নিদর্শনকে কখনো কষ্ট দিতে নেই"
+  },
+  "ur": {
+    "title": "قوم ثمود — \"اللہ کی اونٹنی\"",
+    "story": "اللہ نے قوم ثمود کی طرف حضرت صالح علیہ السلام کو بھیجا۔ وہ پہاڑوں کو تراش کر عالی شان مکانات بناتے تھے۔ صالح نے انہیں اللہ کی توحید کی دعوت دی اور اللہ نے بطور نشانی ایک اونٹنی بھیجی۔ صالح نے فرمایا: اس کے پینے کے لیے ایک دن ہے اور تمہارے لیے ایک دن۔ لیکن انہوں نے نافرمانی کرتے ہوئے اونٹنی کو قتل کر دیا۔ پس عذابِ الٰہی نے انہیں پکڑ لیا اور صالح اور مومنین کو نجات ملی۔",
+    "lesson": "جانوروں پر رحم، وسائل کی منصفانہ تقسیم، انبیاء کی اطاعت اور سرکشی کا برا انجام۔",
+    "discussion": "پانی اور خوراک آپس میں بانٹتے وقت عدل و انصاف کا خیال کیسے رکھیں؟",
+    "activity": "\"منصفانہ تقسیم\": دوستوں کے درمیان اشیاء برابر بانٹنے کی مشق کریں۔",
+    "quizText": "(1) صالح علیہ السلام کا معجزہ کیا تھا؟ (✅ اونٹنی) (2) انہوں نے کیا تاکید کی تھی؟ (✅ اونٹنی کو تکلیف نہ دیں) (3) کیا سبق ملتا ہے؟ (✅ شفقت اور اطاعت)",
+    "caution": "قرآن سے ہٹ کر چٹان سے اونٹنی کے برآمد ہونے کی غیر مصدقہ تفصیلات بیان نہ کریں۔",
+    "cardTitle": "ثمود — اللہ کی نشانی کو نقصان مت پہنچاؤ"
+  },
+  "tr": {
+    "title": "Semûd Kavmi — \"Allah’ın Mucizevi Devesi\"",
+    "story": "Allah, Semûd kavmine Salih (a.s.) peygamberi gönderdi. Onlar dağları oyup saraylar yaparlardı. Salih onları Allah’a kulluğa çağırdı ve Allah onlara mucize bir deve bahşetti. Bir gün devenin, bir gün halkın su içme nöbeti vardı. Fakat onlar isyan edip deveyi katlettiler. Şiddetli bir sarsıntı onları helak etti; Salih ve müminler kurtuldu.",
+    "lesson": "Hayvanlara merhamet etmek, kaynakları adil paylaşmak ve peygamberlerin sözünü dinlemek.",
+    "discussion": "Su ve nimetleri paylaşırken adaleti nasıl gözetiriz?",
+    "activity": "\"Adil Paylaşım\": Arkadaşlar arasında eşit ve sevgiyle paylaşma oyunu.",
+    "quizText": "(1) Salih’in mucizesi neydi? (✅ Deve) (2) Onlardan ne istedi? (✅ Ona zarar vermemelerini) (3) Ana ders nedir? (✅ Merhamet ve itaat)",
+    "caution": "Kuran’da geçmeyen kayadan çıkış efsanelerini aktarmayınız.",
+    "cardTitle": "Semûd — Allah’ın ayetine zarar verme"
+  },
+  "ru": {
+    "title": "Народ Самуд — «Верблюдица Аллаха»",
+    "story": "Аллах направил к самудянам пророка Салиха (мир ему). Они искусно высекали жилища в скалах. Салих призвал их к единобожию, и в качестве знамения Аллах даровал им верблюдицу, установив строгую очередность водопоя (26:155). Пророк предостерег их от причинения ей вреда, но грешники ослушались и убили ее. Наказание настигло их, а Салих и верующие спаслись.",
+    "lesson": "Милосердие к животным, справедливое распределение воды и благ, повиновение пророкам.",
+    "discussion": "Как мы должны справедливо делиться ресурсами с другими?",
+    "activity": "Упражнение \"Честный раздел\": учимся щедро и поровну делиться игрушками.",
+    "quizText": "(1) Какое знамение было у Салиха? (✅ Верблюдица) (2) О чем он предупреждал? (✅ Не трогать ее) (3) Главный урок? (✅ Доброта и послушание)",
+    "caution": "Не используйте недостоверные рассказы о выходе верблюдицы из скалы.",
+    "cardTitle": "Самуд — Не причиняй вреда знамениям Аллаха"
+  },
+  "id": {
+    "title": "Kaum Tsamud — \"Unta Betina Mukjizat Allah\"",
+    "story": "Allah mengutus Nabi Shalih (a.s.) kepada kaum Tsamud yang pandai memahat gunung menjadi istana. Shalih mengajak mereka bertauhid, dan Allah mengaruniakan seekor unta mukjizat sebagai bukti nyata. Ada giliran hari minum bagi unta dan hari minum bagi kaum itu (26:155). Shalih memperingatkan agar tidak menyakitinya, tetapi mereka ingkar dan membunuhnya. Gempa dahsyat membinasakan mereka, dan Allah menyelamatkan Shalih beserta orang-orang beriman.",
+    "lesson": "Kasih sayang kepada hewan, keadilan berbagi sumber daya alam, dan ketaatan kepada nabi.",
+    "discussion": "Bagaimana cara kita berbagi air, makanan, dan mainan dengan adil?",
+    "activity": "Permainan \"Berbagi Adil\": membagi barang secara seimbang dan ceria.",
+    "quizText": "(1) Apa mukjizat Nabi Shalih? (✅ Unta betina) (2) Apa larangannya? (✅ Jangan menyakitinya) (3) Apa pelajarannya? (✅ Kasih sayang & ketaatan)",
+    "caution": "Hindari riwayat tidak shahih mengenai unta keluar dari batu.",
+    "cardTitle": "Tsamud — Jangan menyakiti tanda kebesaran Allah"
+  },
+  "fr": {
+    "title": "Le Peuple de Thamoud — \"La Chamelle d’Allah\"",
+    "story": "Allah envoya le Prophète Salih (paix sur lui) aux Thamoud, qui sculptaient des demeures dans les montagnes. Salih les appela à adorer Allah seul, et Allah leur accorda une chamelle miraculeuse comme signe éclatant avec un jour d’eau pour elle et un jour pour eux (26:155). Il les avertit de ne lui faire aucun mal, mais ils s’entêtèrent et la tuèrent. Un châtiment terrible les foudroya, tandis que Salih et les croyants furent sauvés.",
+    "lesson": "Bonté envers les animaux, partage équitable des ressources et écoute des prophètes.",
+    "discussion": "Comment partager l’eau et les biens avec justice au quotidien ?",
+    "activity": "Jeu du \"Partage Juste\" : diviser équitablement des ressources entre amis.",
+    "quizText": "(1) Quel était le signe de Salih ? (✅ La chamelle) (2) Que leur a-t-il interdit ? (✅ De lui nuire) (3) La leçon clé ? (✅ Compassion et obéissance)",
+    "caution": "Ne pas mentionner de récits apocryphes non coraniques.",
+    "cardTitle": "Thamoud — Ne maltraitez jamais les signes d’Allah"
+  },
+  "de": {
+    "title": "Das Volk von Thamud — \"Die Kamelin Allahs\"",
+    "story": "Allah sandte den Propheten Salih (Friede sei mit ihm) zu den Thamud, die Paläste in die Felsen bauten. Salih rief sie zum Gehorsam auf, und Allah schenkte ihnen eine wunderbare Kamelin. Sie hatte einen bestimmten Tag zum Trinken und das Volk ebenfalls (26:155). Trotz der Warnung töteten die Frevler sie. Ein Erdbeben vernichtete sie, während Salih und die Gläubigen gerettet wurden.",
+    "lesson": "Tierliebe, gerechte Verteilung von Wasser und Nahrung, und Treue zum Propheten.",
+    "discussion": "Wie teilen wir Dinge im Alltag gerecht miteinander?",
+    "activity": "Spiel \"Gerechtes Teilen\": Gleichmäßige Aufteilung von Ressourcen.",
+    "quizText": "(1) Was war Salihs Zeichen? (✅ Die Kamelin) (2) Was forderte er? (✅ Ihr nicht zu schaden) (3) Die Moral? (✅ Güte und Gehorsam)",
+    "caution": "Verzichte auf nicht authentische Überlieferungen.",
+    "cardTitle": "Thamud — Schade keinem Geschöpf Allahs"
+  },
+  "es": {
+    "title": "El Pueblo de Zamud — \"La Camella de Al-lah\"",
+    "story": "Allah envió al Profeta Salih al pueblo de Zamud, que labraba casas en las montañas. Salih los exhortó a adorar solo a Allah, quien les envió una camella milagrosa con turnos fijados para beber agua (26:155). Les advirtió que no le hicieran daño, pero la soberbia los llevó a sacrificarla. Un gran terremoto los destruyó, y solo Salih y los creyentes fueron librados.",
+    "lesson": "Misericordia hacia los animales, reparto equitativo de recursos y obediencia a los profetas.",
+    "discussion": "¿Cómo podemos compartir el agua y los alimentos con justicia?",
+    "activity": "Dinámica \"Reparto Justo\": aprender a compartir con equilibrio y alegría.",
+    "quizText": "(1) ¿Cuál fue el milagro de Salih? (✅ La camella) (2) ¿Qué les advirtió? (✅ No dañarla) (3) ¿Qué aprendemos? (✅ Piedad y obediencia)",
+    "caution": "Evitar historias infundadas no mencionadas en el Corán.",
+    "cardTitle": "Zamud — No dañes los signos que Allah bendice"
+  }
+},
+  'nation-3': {
+  "en": {
+    "title": "People of Saba — Two Gardens and True Gratitude",
+    "story": "The people of Saba in Yemen enjoyed two lavish gardens on the right and left, with fruitful groves and cool waters. They were told: \"Eat from the provision of your Lord and be grateful to Him\" (34:15). But they turned away from gratitude and grew indifferent to divine gifts. Allah sent upon them the devastating flood of the dam (Sayl Al-‘Arim), replacing their sweet gardens with bitter shrubs. They became a tale for generations.",
+    "lesson": "Blessings endure through gratitude, and neglecting thanksgiving causes them to vanish. Safety and sustenance are sacred gifts.",
+    "discussion": "What daily blessings do we often take for granted without saying Alhamdulillah?",
+    "activity": "Draw \"My Little Garden\" and write 3 thank-you notes to Allah below it.",
+    "quizText": "(1) What was requested from Saba? (✅ To eat and give thanks) (2) What happened when they turned away? (✅ The great flood) (3) How do we protect blessings? (✅ Through gratitude)",
+    "caution": "Do not confuse this historical moral with the separate story of Queen Bilqis in Surah An-Naml.",
+    "cardTitle": "Saba — Blessings are preserved through sincere gratitude"
+  },
+  "bn": {
+    "title": "সাবা জাতি — দুটি সুরম্য বাগান ও কৃতজ্ঞতার গুরুত্ব",
+    "story": "ইয়েমেনের সাবা জাতির জন্য ডানে ও বাঁয়ে ফলদ বাগান ছিল, যাতে মিষ্টি ফল ও শীতল পানির ফোয়ারা বইত। তাদের বলা হয়েছিল: \"তোমরা তোমাদের রবের দেওয়া রিযিক খাও এবং তাঁর প্রতি কৃতজ্ঞতা প্রকাশ করো\" (সূরা সাবা ৩৪:১৫)। কিন্তু তারা অহংকার করে কৃতজ্ঞতা প্রকাশ থেকে মুখ ফিরিয়ে নিল। ফলে আল্লাহ তাদের ওপর বাঁধভাঙা মহাপ্লাবন (সায়লুল আরিম) পাঠালেন, যা তাদের সুন্দর বাগান ধ্বংস করে তিক্ত কাঁটাগাছে পরিণত করল। তারা পরবর্তী যুগের মানুষের জন্য শিক্ষণীয় উপাখ্যানে পরিণত হলো।",
+    "lesson": "শুকরিয়া আদায়ের মাধ্যমে নেয়ামত বৃদ্ধি পায় এবং অকৃতজ্ঞতায় তা ধ্বংস হয়। শান্তি ও অন্ন আল্লাহর মহান দান।",
+    "discussion": "এমন কোন দৈনন্দিন নেয়ামতগুলো আছে যা আমরা প্রায়ই খেয়াল না করে আলহামদুলিল্লাহ বলতে ভুলে যাই?",
+    "activity": "\"আমার ছোট্ট বাগান\" আঁকো এবং নিচে ৩টি নেয়ামতের শুকরিয়া লিখে রাখো।",
+    "quizText": "(১) সাবা জাতির কাছে কী চাওয়া হয়েছিল? (✅ খাওয়া ও কৃতজ্ঞতা জানানো) (২) অকৃতজ্ঞ হলে কী ঘটেছিল? (✅ বাঁধভাঙা প্লাবন) (৩) নেয়ামত রক্ষা করার উপায় কী? (✅ শুকরিয়া আদায়)",
+    "caution": "সূরা নামলের রানি বিলকিসের কাহিনীর সাথে এই অবাধ্য জাতির ইতিহাস গুলিয়ে ফেলবেন না।",
+    "cardTitle": "সাবা — কৃতজ্ঞতার মাধ্যমেই নেয়ামত টিকে থাকে"
+  },
+  "ur": {
+    "title": "قوم سبا — دو باغات اور شکر گزاری",
+    "story": "یمن میں قوم سبا کو دائیں اور بائیں دو سرسبز باغات کی نعمت دی گئی تھی۔ ان سے کہا گیا: \"اپنے رب کا رزق کھاؤ اور اس کا شکر ادا کرو\" (34:15)۔ لیکن انہوں نے شکر سے منہ موڑ لیا۔ چنانچہ اللہ نے ان پر بند توڑنے والا سیلاب (سیل العرم) بھیج دیا جس نے ان کے باغات کو اجاڑ کر کڑوے اور کانٹے دار درختوں میں بدل دیا۔",
+    "lesson": "شکر سے نعمتیں محفوظ رہتی ہیں اور ناشکری سے زوال آتا ہے۔ امن اور رزق عظیم نعمتیں ہیں۔",
+    "discussion": "ہم روزمرہ کی کون سی نعمتوں پر شکر ادا کرنا بھول جاتے ہیں؟",
+    "activity": "\"میرا چھوٹا باغ\" بنائیں اور نیچے تین شکر کے جملے لکھیں۔",
+    "quizText": "(1) قوم سبا سے کیا کہا گیا تھا؟ (✅ کھاؤ اور شکر کرو) (2) ناشکری پر کیا ہوا؟ (✅ زبردست سیلاب آیا) (3) نعمت کیسے باقی رہتی ہے؟ (✅ شکر گزاری سے)",
+    "caution": "اسے سورۃ النمل کے ملکہ بلقیس کے واقعے سے خلط ملط نہ کریں۔",
+    "cardTitle": "قوم سبا — شکر گزاری ہی نعمتوں کی حفاظت ہے"
+  },
+  "tr": {
+    "title": "Sebe Kavmi — İki Güzel Bahçe ve Şükür",
+    "story": "Yemen’deki Sebe halkına sağda ve solda bol meyveli iki bahçe verilmişti: \"Rabbinizin rızkından yiyin ve O’na şükredin\" (34:15) denildi. Ancak onlar şükretmekten yüz çevirdiler. Allah üzerlerine barajı yıkan Arim selini gönderdi ve tatlı bahçelerini acı meyveli çalılıklara çevirdi.",
+    "lesson": "Nimetler şükürle bereketlenir; nankörlük nimetin elden gitmesine sebep olur.",
+    "discussion": "Her gün fark etmeden yararlandığımız hangi nimetler var?",
+    "activity": "\"Küçük Bahçem\" resmi çizip altına Allah’a 3 şükür cümlesi yaz.",
+    "quizText": "(1) Sebe halkından ne istendi? (✅ Yiyip şükretmeleri) (2) Yüz çevirince ne oldu? (✅ Arim seli geldi) (3) Nimet nasıl korunur? (✅ Şükrederek)",
+    "caution": "Bu olayı Neml Suresi’ndeki Belkıs kıssasıyla karıştırmayınız.",
+    "cardTitle": "Sebe — Nimet şükürle korunur"
+  },
+  "ru": {
+    "title": "Народ Саба — Два прекрасных сада и сила благодарности",
+    "story": "Жителям Сабы в Йемене были дарованы цветущие сады справа и слева. Им было сказано: \"Вкушайте из удела вашего Господа и благодарите Его\" (34:15). Однако они возгордились и пренебрегли благодарением. Тогда Аллах наслал на них сокрушительный поток плотины (Сайль аль-Арим), превративший их роскошные сады в горькие кустарники.",
+    "lesson": "Благодарность сохраняет и приумножает дары, а неблагодарность лишает человека удела и покоя.",
+    "discussion": "Какие повседневные блага мы часто забываем благодарить словом Альхамдулиллях?",
+    "activity": "Нарисуй \"Мой сад\" и напиши 3 вещи, за которые ты благодарен Аллаху.",
+    "quizText": "(1) Что требовалось от народа Саба? (✅ Вкушать и благодарить) (2) Что произошло из-за неблагодарности? (✅ Прорыв плотины и потоп) (3) Как сберечь блага? (✅ Искренней благодарностью)",
+    "caution": "Не путайте это событие с историей царицы Билькис в суре \"Муравьи\".",
+    "cardTitle": "Саба — Благодарность сохраняет милости Аллаха"
+  },
+  "id": {
+    "title": "Kaum Saba’ — Dua Kebun yang Subur & Pelajaran Syukur",
+    "story": "Kaum Saba’ di Yaman memiliki dua kebun yang sangat subur di sebelah kanan dan kiri. Diperintahkan kepada mereka: \"Makanlah dari rezeki Tuhanmu dan bersyukurlah kepada-Nya\" (34:15). Namun mereka berpaling dan melupakan syukur. Allah menimpakan banjir besar yang membobol bendungan (Sailal ‘Arim), mengganti kebun indah mereka dengan pohon berduri yang pahit buahnya.",
+    "lesson": "Nikmat akan kekal dan bertambah dengan rasa syukur; mengingkarinya mendatangkan kerugian.",
+    "discussion": "Nikmat apa saja yang kita nikmati setiap hari yang sering lupa kita syukuri?",
+    "activity": "Gambar \"Kebun Kecilku\" dan tulis 3 kalimat syukur kepada Allah di bawahnya.",
+    "quizText": "(1) Apa perintah untuk kaum Saba’? (✅ Menikmati rezeki & bersyukur) (2) Apa akibat ingkar nikmat? (✅ Terkena banjir besar Arim) (3) Bagaimana menjaga nikmat? (✅ Dengan banyak bersyukur)",
+    "caution": "Jangan samakan kisah ini dengan keimanan Ratu Bilqis di Surah An-Naml.",
+    "cardTitle": "Saba’ — Syukur adalah penjaga setiap nikmat"
+  },
+  "fr": {
+    "title": "Le Peuple de Saba — Deux Jardins et le Devoir de Reconnaissance",
+    "story": "Le peuple de Saba au Yémen jouissait de deux splendides jardins luxuriants à droite et à gauche. Il leur fut dit : \"Mangez de la subsistance de votre Seigneur et soyez-Lui reconnaissants\" (34:15). Mais ils se détournèrent et firent preuve d’ingratitude. Allah déchaîna contre eux la rupture du grand barrage (Sayl al-‘Arim), transformant leurs arbres fruitiers en buissons amers.",
+    "lesson": "La gratitude préserve les bienfaits divins ; l’ingratitude mène à leur perte.",
+    "discussion": "Quels sont les bienfaits quotidiens que nous oublions parfois de remercier ?",
+    "activity": "Dessine \"Mon Petit Jardin\" et note 3 remerciements à Allah.",
+    "quizText": "(1) Que demandait Allah à Saba ? (✅ De manger et remercier) (2) Que s’est-il passé ? (✅ L’inondation du barrage) (3) Comment protéger les dons ? (✅ Par la gratitude)",
+    "caution": "Ne pas confondre avec l’histoire distincte de la reine Bilqis.",
+    "cardTitle": "Saba — La gratitude protège les bienfaits"
+  },
+  "de": {
+    "title": "Das Volk von Saba — Zwei Gärten und die Pflicht der Dankbarkeit",
+    "story": "Das Volk Saba in Jemen besaß rechts und links fruchtbare Gärten: \"Esst von der Versorgung eures Herrn und dankt Ihm\" (34:15). Doch sie wandten sich undankbar ab. Allah sandte die gewaltige Flut des Dammes (Sail al-Arim), die ihre edlen Haine in dorniges Gestrüpp verwandelte.",
+    "lesson": "Dankbarkeit erhält die Gaben Allahs; Undankbarkeit zerstört Wohlstand und Sicherheit.",
+    "discussion": "Für welche alltäglichen Gaben vergessen wir oft Alhamdulillah zu sagen?",
+    "activity": "Zeichne \"Meinen kleinen Garten\" und schreibe 3 Dankesworte an Allah.",
+    "quizText": "(1) Was sollten sie tun? (✅ Genießen und danken) (2) Was geschah bei Undank? (✅ Die Dammflut zerstörte alles) (3) Wie bewahrt man Gaben? (✅ Durch Dankbarkeit)",
+    "caution": "Nicht mit der separaten Geschichte von Königin Bilqis verwechseln.",
+    "cardTitle": "Saba — Dankbarkeit bewahrt den Segen"
+  },
+  "es": {
+    "title": "El Pueblo de Saba — Dos Jardines y el Valor de la Gratitud",
+    "story": "El pueblo de Saba en Yemen disfrutaba de dos frondosos jardines a derecha e izquierda: \"Comed del sustento de vuestro Señor y sed agradecidos\" (34:15). Pero le dieron la espalda a la gratitud. Allah envió la gran inundación de la presa (Sail al-Arim), cambiando sus frutos dulces por espinos amargos.",
+    "lesson": "La gratitud custodia las bendiciones; la arrogancia e ingratitud las desvanecen.",
+    "discussion": "¿Qué bendiciones diarias solemos pasar por alto sin agradecer a Dios?",
+    "activity": "Dibuja \"Mi Jardín\" y escribe 3 agradecimientos a Allah debajo.",
+    "quizText": "(1) ¿Qué se les ordenó? (✅ Comer con gratitud) (2) ¿Qué ocurrió al rebelarse? (✅ La gran riada destruyó los jardines) (3) ¿Cómo proteger los dones? (✅ Agradeciendo siempre)",
+    "caution": "Distinguir este relato del suceso de la reina Bilqis en la sura An-Naml.",
+    "cardTitle": "Saba — Las bendiciones se cuidan con gratitud"
+  }
+},
+  'nation-4': {
+  "en": {
+    "title": "Companions of the Garden — Protecting the Poor Man’s Share",
+    "story": "Brothers inherited a beautiful orchard. They plotted to harvest at dawn in secret so as not to share anything with the poor, neglecting to say \"Insha’Allah\". While they slept, a sudden calamity struck the garden, leaving it scorched like ashes. When they saw the ruined grove, they realized their sin and cried: \"Glory be to our Lord, truly we were wrongdoers!\" (68:29). They repented and hoped for Allah’s forgiveness.",
+    "lesson": "Never withhold the rights of the poor and needy. Always say \"Insha’Allah\" when planning, and repent swiftly when making mistakes.",
+    "discussion": "Why was their selfish intention alone enough to bring about loss before they even picked a fruit?",
+    "activity": "Play \"The Charity Share\": practice allocating a portion of allowance to charity first.",
+    "quizText": "(1) What did the brothers intend to withhold? (✅ The share of the poor) (2) What phrase did they forget? (✅ Insha’Allah) (3) What did the wisest brother remind them? (✅ To glorify Allah)",
+    "caution": "Do not speculate on the names or exact location of the owners.",
+    "cardTitle": "Companions of the Garden — The poor person’s share is a sacred trust"
+  },
+  "bn": {
+    "title": "বাগানের মালিকগণ — দরিদ্রের হক ও আল্লাহর ভরসা",
+    "story": "কয়েকজন ভাই একটি সুফলবান বাগানের উত্তরাধিকার পেল। তারা ভোরবেলায় গোপনে সমস্ত ফল কেটে নেওয়ার শপথ করল যাতে কোনো দরিদ্র মানুষ কিছু চাইতে না পারে, আর তারা \"ইনশাআল্লাহ\" বলতেও ভুলে গেল। রাতে তারা যখন ঘুমাচ্ছিল, তখন এক অলৌকিক অগ্নিকাণ্ডে তাদের বাগান পুড়ে ছাই হয়ে গেল। সকালে পোড়া বাগান দেখে তারা নিজেদের ভুল বুঝতে পেরে বলল: \"আমাদের রব পবিত্র, নিশ্চয়ই আমরা সীমালঙ্ঘনকারী ছিলাম\" (সূরা আল-কলম ৬৮:২৯)। তারা খাঁটি দিলে তওবা করল।",
+    "lesson": "দরিদ্র মানুষের অধিকার কখনো খর্ব করতে নেই। যেকোনো পরিকল্পনার সময় \"ইনশাআল্লাহ\" বলা এবং ভুল হলে দ্রুত তওবা করা উচিত।",
+    "discussion": "ফল কাটার আগেই শুধুমাত্র অসৎ নিয়তের কারণেই তারা কেন এত বড় ক্ষতির মুখে পড়ল?",
+    "activity": "\"দানশীলের অংশ\": হাতখরচের একটি অংশ আনন্দচিত্তে গরিবদের জন্য আলাদা করে রাখার অভ্যাস করো।",
+    "quizText": "(১) ভাইয়েরা কী বন্ধ করতে চেয়েছিল? (✅ দরিদ্রদের অংশ) (২) তারা কোন কথাটি বলতে ভুলে গিয়েছিল? (✅ ইনশাআল্লাহ) (৩) সবচেয়ে ভালো ভাই তাদের কী স্মরণ করিয়ে দিল? (✅ আল্লাহর তাসবীহ পাঠ)",
+    "caution": "বাগানের সঠিক স্থান বা মালিকদের কাল্পনিক নাম নিয়ে বিতর্ক করবেন না।",
+    "cardTitle": "বাগানের মালিকগণ — গরিবের হক নষ্ট করা যাবে না"
+  },
+  "ur": {
+    "title": "باغ والے — مسکینوں کا حق اور اللہ پر بھروسہ",
+    "story": "کچھ بھائیوں نے ایک پھلدار باغ کی فصل صبح سویرے چھپ کر کاٹنے کی قسم کھائی تاکہ کوئی غریب نہ آ سکے اور \"ان شاء اللہ\" بھی نہ کہا۔ رات کو ان کے سوتے میں ایک آفت نے پورے باغ کو راکھ کا ڈھیر بنا دیا۔ جب صبح انہوں نے برباد باغ دیکھا تو بولے: \"پاک ہے ہمارا رب، بے شک ہم ہی ظالم تھے\"۔ انہوں نے سچی توبہ کی۔",
+    "lesson": "مسکین کا حق کبھی نہ مارو، ہر ارادے پر \"ان شاء اللہ\" کہو اور گناہ کے بعد فوراً توبہ کرو۔",
+    "discussion": "صرف بری نیت کی وجہ سے سارا باغ کیوں برباد ہوا؟",
+    "activity": "\"صدقہ کا حصہ\": اپنی جیب خرچ سے کچھ رقم صدقہ کے لیے الگ کرنے کی مشق کریں۔",
+    "quizText": "(1) بھائی کس کا حق روکنا چاہتے تھے؟ (✅ مسکینوں کا) (2) وہ کون سا لفظ بھول گئے تھے؟ (✅ ان شاء اللہ) (3) دانشمند بھائی نے کیا یاد دلایا؟ (✅ تسبیح پڑھنا)",
+    "caution": "باغ کے مقام یا مالکان کے ناموں کے بارے میں قیاس آرائی نہ کریں۔",
+    "cardTitle": "باغ والے — غریبوں کا حق اللہ کی امانت ہے"
+  },
+  "tr": {
+    "title": "Bahçe Sahipleri — Yoksulun Hakkı ve İnşallah Demek",
+    "story": "Meyve dolu bir bahçeyi devralan kardeşler, yoksullara pay vermemek için sabah erkenden gizlice hasat yapmaya yemin ettiler ve \"İnşallah\" demediler. Onlar uyurken gelen bir afet bahçeyi kapkara küle çevirdi. Yıkımı görünce pişman oldular ve: \"Rabbimizi tesbih ederiz, doğrusu biz zalimlermişiz\" (68:29) diyerek tevbe ettiler.",
+    "lesson": "Yoksulun hakkını gözetmek, her planda \"İnşallah\" demek ve hatadan hemen dönmek.",
+    "discussion": "Daha meyveleri toplamadan sadece niyet yüzünden neden her şey yok oldu?",
+    "activity": "\"Sadaka Payı\": Harçlığının bir kısmını ihtiyaç sahipleri için ayırmayı öğren.",
+    "quizText": "(1) Neyi engellemek istediler? (✅ Yoksulun payını) (2) Hangi sözü unuttular? (✅ İnşallah) (3) En adil kardeş neyi hatırlattı? (✅ Allah’ı tesbih etmeyi)",
+    "caution": "Bahçenin yeri hakkında Kuran dışı rivayetlere girmeyiniz.",
+    "cardTitle": "Bahçe Sahipleri — Yoksulun hakkı kutsal bir emanettir"
+  },
+  "ru": {
+    "title": "Владельцы сада — Доля бедняков и слово «ИншаАллах»",
+    "story": "Братья унаследовали прекрасный сад и поклялись собрать весь урожай на рассвете тайком, чтобы ничего не досталось беднякам, и забыли сказать \"ИншаАллах\". Ночью сад поразила кара Аллаха, превратив его в черный пепел. Увидев пепелище, они воскликнули: \"Пречист наш Господь! Воистину, мы поступили несправедливо!\" (68:29) и раскаялись перед Создателем.",
+    "lesson": "Никогда не ущемляй права бедных. Всегда говори \"ИншаАллах\" при любых планах и спеши покаяться.",
+    "discussion": "Почему одно лишь дурное намерение привело к полной утрате сада?",
+    "activity": "\"Доля милостыни\": выдели часть карманных денег для помощи нуждающимся.",
+    "quizText": "(1) Чего они хотели лишить людей? (✅ Доли бедняков) (2) Какое слово забыли сказать? (✅ ИншаАллах) (3) К чему призвал лучший из братьев? (✅ Прославить Аллаха)",
+    "caution": "Не стройте догадок об именах владельцев и месте сада.",
+    "cardTitle": "Владельцы сада — Доля бедняка — священный аманат"
+  },
+  "id": {
+    "title": "Pemilik Kebun — Hak Orang Miskin & Ucapan Insya Allah",
+    "story": "Beberapa saudara mewarisi kebun buah yang lebat. Mereka bersumpah memanen buah di waktu subuh secara diam-diam agar orang miskin tidak datang meminta, dan mereka lupa berucap \"Insya Allah\". Pada malam hari, api kiriman Allah membakar kebun hingga ludes seperti abu hitam. Ketika melihat kehancuran itu, mereka sadar dan memuji Allah seraya bertaubat dengan sungguh-sungguh.",
+    "lesson": "Jangan menahan hak fakir miskin, selalu biasakan berucap \"Insya Allah\", dan lekas bertaubat saat khilaf.",
+    "discussion": "Mengapa niat kikir saja sudah menyebabkan musnahnya seluruh kebun?",
+    "activity": "\"Porsi Sedekah\": sisihkan sebagian uang saku secara ikhlas untuk sedekah.",
+    "quizText": "(1) Apa yang ingin mereka tahan? (✅ Hak orang miskin) (2) Ucapan apa yang mereka lupakan? (✅ Insya Allah) (3) Apa nasihat saudara yang paling bijak? (✅ Bertasbih memuji Allah)",
+    "caution": "Hindari mereka-reka nama pemilik dan letak kebun tanpa dalil.",
+    "cardTitle": "Pemilik Kebun — Hak fakir miskin adalah amanah Allah"
+  },
+  "fr": {
+    "title": "Les Compagnons du Verger — La Part du Pauvre et \"Incha’Allah\"",
+    "story": "Des frères héritèrent d’un verger florissant. Ils jurèrent de récolter à l’aube en cachette pour ne rien donner aux indigents, sans dire \"Incha’Allah\". Pendant leur sommeil, un fléau ravagea le verger qui devint semblable à un champ calciné. En découvrant la ruine, ils comprirent leur faute : \"Gloire à notre Seigneur, nous étions vraiment injustes !\" (68:29) et ils se repentirent.",
+    "lesson": "Ne jamais priver les pauvres de leur droit, dire \"Incha’Allah\" pour tout projet et se repentir vite.",
+    "discussion": "Pourquoi leur mauvaise intention a-t-elle suffi pour tout perdre ?",
+    "activity": "\"La Part d’Aumône\" : prélever une pièce de son argent de poche pour aider autrui.",
+    "quizText": "(1) Que voulaient-ils refuser ? (✅ La part des pauvres) (2) Quelle parole ont-ils omise ? (✅ Incha’Allah) (3) Le rappel du frère juste ? (✅ Glorifier Allah)",
+    "caution": "Ne pas inventer d’anecdotes sur les noms et lieux non cités.",
+    "cardTitle": "Les Gens du Jardin — La part du pauvre est sacrée"
+  },
+  "de": {
+    "title": "Die Besitzer des Gartens — Das Recht der Armen & \"Inschallah\"",
+    "story": "Brüder erbten einen prächtigen Garten und schworen, die Ernte heimlich in der Morgendämmerung einzufahren, damit kein Armer darum bat – und sie sagten nicht \"Inschallah\". Da verbrannte eine Strafe den Garten zu schwarzer Asche. Als sie das sahen, sprachen sie reumütig: \"Gepriesen sei unser Herr! Gewiss, wir waren Ungerechte!\" (68:29) und kehrten um.",
+    "lesson": "Enthalte Bedürftigen niemals ihr Recht vor, sage stets \"Inschallah\" und bereue Fehler sofort.",
+    "discussion": "Warum führte schon die geizige Absicht zum Verlust der ganzen Ernte?",
+    "activity": "\"Die Spendenbox\": Teile regelmäßig etwas von deinem Taschengeld für das Gute.",
+    "quizText": "(1) Was wollten sie verweigern? (✅ Das Recht der Armen) (2) Welches Wort vergaßen sie? (✅ Inschallah) (3) Woran erinnerte der Beste? (✅ Daran, Allah zu lobpreisen)",
+    "caution": "Keine Spekulationen über Namen oder Ortschaften.",
+    "cardTitle": "Die Gartenbesitzer — Das Recht der Armen ist eine Pflicht"
+  },
+  "es": {
+    "title": "Los Dueños del Huerto — El Derecho del Pobre e \"Insha’Allah\"",
+    "story": "Unos hermanos heredaron un huerto fértil y planearon cosechar al alba en secreto para no compartir nada con los pobres, olvidando decir \"Insha’Allah\". Durante la noche, un fuego del cielo calcinó el huerto, dejándolo como ceniza. Al ver el desastre, exclamaron con arrepentimiento: \"¡Glorificado sea nuestro Señor, ciertamente fuimos injustos!\" (68:29).",
+    "lesson": "Nunca retengas el derecho del necesitado, di siempre \"Insha’Allah\" y arrepiéntete de inmediato.",
+    "discussion": "¿Por qué la mala intención bastó para perder toda la cosecha?",
+    "activity": "\"La Parte Solidaria\": separar una moneda del dinero para dar una caridad.",
+    "quizText": "(1) ¿Qué querían impedir? (✅ La porción del necesitado) (2) ¿Qué olvidaron decir? (✅ Insha’Allah) (3) ¿Qué les recordó el hermano prudente? (✅ Glorificar a Dios)",
+    "caution": "No inventar detalles geográficos o nombres no coránicos.",
+    "cardTitle": "Los Dueños del Huerto — La caridad es un mandato sagrado"
+  }
+},
+  'nation-5': {
+  "en": {
+    "title": "The Owner of Two Gardens — \"Masha’Allah, La Quwwata illa Billah\"",
+    "story": "Allah struck a parable of two men: one had two lush vineyards bordered by date-palms, boasting arrogantly to his poorer faithful friend: \"I have more wealth than you and a mightier clan!\" (18:34). He entered his grove declaring it would never perish. His humble believer friend advised: \"Why did you not say when you entered your garden: Masha’Allah, la quwwata illa billah (What Allah wills comes to pass; there is no power except with Allah)?\" Soon, a storm ruined all his fruits, leaving him wringing his hands in regret.",
+    "lesson": "Never boast over worldly possessions. Whenever you see a blessing, recite \"Masha’Allah, la quwwata illa billah\". Wealth is temporary.",
+    "discussion": "How should we speak with friends who have more or less toys and things than us?",
+    "activity": "Say \"Masha’Allah\" immediately whenever you see something beautiful or impressive.",
+    "quizText": "(1) What phrase was the arrogant man advised to say? (✅ Masha’Allah, la quwwata illa billah) (2) What is the reality of worldly wealth? (✅ It is fleeting) (3) What did he boast about? (✅ Wealth and followers)",
+    "caution": "The Quran does not name the two men; avoid fabricated names.",
+    "cardTitle": "Two Gardens — Never boast of what you have been lent"
+  },
+  "bn": {
+    "title": "দুটি বাগানের মালিক — \"মাশাআল্লাহ, লা কুওয়াতা ইল্লা বিল্লাহ\"",
+    "story": "আল্লাহ দুই ব্যক্তির উদাহরণ দিলেন: একজনকে দুটি খেজুর ঘেরা আঙ্গুর বাগান দেওয়া হয়েছিল। সে তার দরিদ্র মুমিন বন্ধুকে অহংকার করে বলল: \"আমি তোমার চেয়ে ধনে বেশি এবং লোকবলে শক্তিশালী!\" (সূরা আল-কাহাফ ১৮:৩৪)। সে অহংকারভরে বাগানে ঢুকে বলল এটি কখনো ধ্বংস হবে না। তার মুমিন বন্ধুটি বুঝিয়ে বলল: \"বাগানে ঢোকার সময় কেন বললে না: মাশাআল্লাহ, লা কুওয়াতা ইল্লা বিল্লাহ (আল্লাহ যা চান তাই হয়, আল্লাহর সাহায্য ছাড়া কোনো শক্তি নেই)?\" অবশেষে এক প্রচণ্ড ঝড়ে তার সব বাগান ধ্বংস হয়ে গেল এবং সে আক্ষেপে হাত কচলাতে লাগল।",
+    "lesson": "সম্পদ নিয়ে কখনো অহংকার করতে নেই। যেকোনো সুন্দর জিনিস দেখলে বলবে: \"মাশাআল্লাহ, লা কুওয়াতা ইল্লা বিল্লাহ\"। পার্থিব ধনসম্পদ চিরস্থায়ী নয়।",
+    "discussion": "যাদের আমাদের চেয়ে বেশি বা কম খেলনা আছে তাদের সাথে আমাদের আচরণ কেমন হওয়া উচিত?",
+    "activity": "যেকোনো সুন্দর জিনিস দেখার সাথে সাথে তাৎক্ষণিকভাবে \"মাশাআল্লাহ\" বলার অভ্যাস করো।",
+    "quizText": "(১) অহংকারী ব্যক্তিকে কোন বাক্যটি বলতে বলা হয়েছিল? (✅ মাশাআল্লাহ, লা কুওয়াতা ইল্লা বিল্লাহ) (২) পার্থিব সম্পদের স্বরূপ কী? (✅ তা ক্ষণস্থায়ী) (৩) সে কী নিয়ে অহংকার করেছিল? (✅ ধনসম্পদ ও লোকজন)",
+    "caution": "কুরআনে এই দুই ব্যক্তির নাম উল্লেখ করা হয়নি; কাল্পনিক নাম বলা যাবে না।",
+    "cardTitle": "দুটি বাগান — আল্লাহর দেওয়া নিয়ামত নিয়ে অহংকার করো না"
+  },
+  "ur": {
+    "title": "دو باغات کا مالک — \"ما شاء اللہ لا قوۃ الا باللہ\"",
+    "story": "اللہ نے دو آدمیوں کی مثال بیان فرمائی: ایک کو انگوروں اور کھجوروں کے دو سرسبز باغات دیے گئے۔ اس نے اپنے غریب مومن ساتھی سے تکبر سے کہا: \"میں تجھ سے مال اور نفری میں زیادہ ہوں\"۔ مومن ساتھی نے نصیحت کی: تم نے باغ میں داخل ہوتے وقت \"ما شاء اللہ لا قوۃ الا باللہ\" کیوں نہ کہا؟ پھر ایک آفت نے اس کا سارا باغ برباد کر دیا اور وہ پچھتاتا رہ گیا۔",
+    "lesson": "دولت پر غرور نہ کرو، کسی بھی نعمت کو دیکھ کر \"ما شاء اللہ لا قوۃ الا باللہ\" کہو۔",
+    "discussion": "ہمیں اپنے سے کم یا زیادہ وسائل رکھنے والے دوستوں کے ساتھ کیسا برتاؤ کرنا چاہیے؟",
+    "activity": "جب بھی کوئی اچھی چیز دیکھیں تو فوراً \"ما شاء اللہ\" کہنے کی عادت بنائیں۔",
+    "quizText": "(1) مغرور شخص کو کیا کہنے کی نصیحت کی گئی؟ (✅ ما شاء اللہ لا قوۃ الا باللہ) (2) دنیاوی مال کی حقیقت کیا ہے؟ (✅ فانی ہے) (3) اس نے کس چیز پر فخر کیا تھا؟ (✅ مال اور ساتھیوں پر)",
+    "caution": "قرآن میں دونوں کے نام مذکور نہیں، خود سے نام نہ گھڑیں۔",
+    "cardTitle": "دو باغات — جو نعمت ملی ہے اس پر اترانا نہیں چاہیے"
+  },
+  "tr": {
+    "title": "İki Bahçe Sahibi — \"Mâşâallah Lâ Kuvvete İllâ Billâh\"",
+    "story": "Allah iki adamın kıssasını anlattı: Birine hurmalarla çevrili iki üzüm bağı verilmişti. Fakir mümin arkadaşına: \"Ben malca senden zengin, taraftarlarca daha güçlüyüm\" (18:34) diyerek böbürlendi. Mümin arkadaşı: \"Bahçene girdiğinde: Mâşâallah, lâ kuvvete illâ billâh (Allah’ın dilediği olur, kuvvet ancak O’nundur) deseydin ya!\" dedi. Kısa süre sonra fırtına tüm meyvelerini yok etti, eli böğründe kaldı.",
+    "lesson": "Mülk ile övünmemek; güzel bir şey görünce \"Mâşâallah lâ kuvvete illâ billâh\" demek.",
+    "discussion": "Bizden çok veya az oyuncağı olan arkadaşlarımıza karşı nasıl davranmalıyız?",
+    "activity": "Beğendiğin bir şey gördüğünde hemen \"Mâşâallah\" de.",
+    "quizText": "(1) Arkadaşı ona ne söylemesini tavsiye etti? (✅ Mâşâallah lâ kuvvete illâ billâh) (2) Malın hakikati nedir? (✅ Geçicidir) (3) Neyiyle övünmüştü? (✅ Malı ve adamlarıyla)",
+    "caution": "Bu iki kişinin ismi Kuran’da geçmez; isim uydurmayınız.",
+    "cardTitle": "İki Bahçe — Sana emanet edilenle böbürlenme"
+  },
+  "ru": {
+    "title": "Владелец двух садов — «МашаАллах, ля куввата илля биллях»",
+    "story": "Аллах привел притчу о двух людях: одному были дарованы два виноградных сада, окруженных пальмами. Он надменно хвастался перед верующим другом: \"У меня больше богатства и знатнее род!\" (18:34). Верующий наставил его: \"Почему, входя в сад, ты не сказал: МашаАллах, ля куввата илля биллях (Так пожелал Аллах, нет мощи, кроме как от Него)?\" Вскоре буря уничтожила весь урожай, оставив хвастуна в горьком сожалении.",
+    "lesson": "Никогда не кичись имуществом. Видя прекрасное, говори: \"МашаАллах, ля куввата илля биллях\". Богатство преходяще.",
+    "discussion": "Как следует вести себя с теми, у кого больше или меньше вещей, чем у нас?",
+    "activity": "Возьми за правило сразу говорить \"МашаАллах\", когда видишь что-то красивое.",
+    "quizText": "(1) Какую фразу советовали сказать владельцу? (✅ МашаАллах, ля куввата илля биллях) (2) Какова природа богатства? (✅ Оно временно) (3) Чем он гордился? (✅ Имуществом и окружением)",
+    "caution": "Коран не называет их имен; избегайте вымышленных имен.",
+    "cardTitle": "Два сада — Не гордись тем, что дано тебе во временное пользование"
+  },
+  "id": {
+    "title": "Pemilik Dua Kebun — \"Masya Allah, La Quwwata illa Billah\"",
+    "story": "Allah membuat perumpamaan dua orang: yang satu memiliki dua kebun anggur dikelilingi pohon kurma. Ia menyombongkan diri kepada sahabatnya yang beriman: \"Hartaku lebih banyak dan pengikutku lebih kuat!\" (18:34). Sahabatnya menasihati: \"Mengapa engkau tidak berucap saat memasuki kebunmu: Masya Allah, la quwwata illa billah (Sungguh atas kehendak Allah ini terwujud, tiada kekuatan kecuali dengan pertolongan-Nya)?\" Tak lama kemudian, bencana meratakan kebunnya hingga ia menyesal.",
+    "lesson": "Jangan menyombongkan harta. Setiap kali melihat keindahan, ucapkan \"Masya Allah, la quwwata illa billah\".",
+    "discussion": "Bagaimana seharusnya sikap kita kepada teman yang punya barang lebih sedikit atau lebih banyak?",
+    "activity": "Biasakan langsung mengucap \"Masya Allah\" setiap kali melihat hal yang mengagumkan.",
+    "quizText": "(1) Ucapan apa yang dinasihatkan sahabatnya? (✅ Masya Allah, la quwwata illa billah) (2) Apa hakikat harta dunia? (✅ Fana dan sementara) (3) Apa yang ia sombongkan? (✅ Harta dan pengikutnya)",
+    "caution": "Nama kedua orang tersebut tidak disebutkan dalam Al-Quran.",
+    "cardTitle": "Dua Kebun — Jangan berbangga atas pinjaman dunia"
+  },
+  "fr": {
+    "title": "Le Propriétaire des Deux Jardins — \"Macha’Allah, La Qouwwata Illa Billah\"",
+    "story": "Allah cita l’exemple de deux hommes : l’un possédait deux vignobles luxuriants bordés de palmiers et dit avec vanité à son ami croyant : \"Je suis plus riche que toi et plus puissant !\" (18:34). Son ami croyant lui conseilla : \"Que n’as-tu dit en entrant dans ton verger : Macha’Allah, la qouwwata illa billah (Telle est la volonté d’Allah ! Il n’y a de puissance qu’en Allah) ?\" Peu après, un désastre détruisit tous ses fruits et il ne lui resta que des regrets.",
+    "lesson": "Ne jamais se vanter de ses possessions. Face à un bienfait, dis : \"Macha’Allah, la qouwwata illa billah\".",
+    "discussion": "Comment se comporter avec respect envers ceux qui ont plus ou moins de jouets ?",
+    "activity": "Prends l’habitude de prononcer \"Macha’Allah\" devant toute belle chose.",
+    "quizText": "(1) Quelle parole devait-il prononcer ? (✅ Macha’Allah, la qouwwata illa billah) (2) Que vaut le bien matériel ? (✅ Il est éphémère) (3) De quoi se vantait-il ? (✅ De son argent et ses hommes)",
+    "caution": "Le Coran ne donne aucun nom pour ces deux hommes.",
+    "cardTitle": "Deux Jardins — Ne te vante jamais de ce qui t’a été prêté"
+  },
+  "de": {
+    "title": "Der Besitzer der zwei Gärten — \"Mascha’Allah, La Quwwata illa Billah\"",
+    "story": "Allah schilderte zwei Männer: Einer besaß zwei prachtvolle Weingärten und prahlte vor seinem gläubigen Gefährten: \"Ich bin reicher als du und mächtiger an Gefolgschaft!\" (18:34). Der gläubige Freund mahnte: \"Warum sagtest du beim Betreten nicht: Mascha’Allah, la quwwata illa billah (Was Allah will, geschieht; es gibt keine Macht außer durch Allah)?\" Bald zerstörte ein Unwetter alles, und er bereute zutiefst.",
+    "lesson": "Sei niemals hochmütig mit Besitz. Sage bei schönen Dingen stets \"Mascha’Allah, la quwwata illa billah\".",
+    "discussion": "Wie begegnen wir Freunden, die mehr oder weniger Spielsachen besitzen?",
+    "activity": "Gewöhne dir an, sofort \"Mascha’Allah\" zu sagen, wenn du etwas Schönes siehst.",
+    "quizText": "(1) Was sollte er beim Eintritt sagen? (✅ Mascha’Allah, la quwwata illa billah) (2) Wie ist das irdische Vermögen? (✅ Vergänglich) (3) Worauf war er stolz? (✅ Reichtum und Ansehen)",
+    "caution": "Die Namen der Männer sind im Koran nicht erwähnt.",
+    "cardTitle": "Zwei Gärten — Sei nicht stolz auf geliehene Gaben"
+  },
+  "es": {
+    "title": "El Dueño de los Dos Huertos — \"Masha’Allah, La Quwwata illa Billah\"",
+    "story": "Allah expuso la parábola de dos hombres: a uno le dio dos viñedos cercados de palmeras, y presumió ante su humilde amigo creyente: \"¡Tengo más riqueza y más hombres que tú!\" (18:34). El creyente le aconsejó: \"¿Por qué al entrar en tu huerto no dijiste: Masha’Allah, la quwwata illa billah (Lo que Allah quiere ocurre; no hay poder sino con Allah)?\" Poco después, una tormenta arrasó todo y se quedó con las manos vacías.",
+    "lesson": "No presumir de posesiones. Ante toda bendición, decir \"Masha’Allah, la quwwata illa billah\". El dinero es pasajero.",
+    "discussion": "¿Cómo tratamos con cariño a quienes tienen más o menos cosas materiales?",
+    "activity": "Acostúmbrate a exclamar \"Masha’Allah\" cada vez que veas algo hermoso.",
+    "quizText": "(1) ¿Qué frase debió pronunciar? (✅ Masha’Allah, la quwwata illa billah) (2) ¿Qué cualidad tiene la riqueza mundana? (✅ Es pasajera) (3) ¿De qué presumía? (✅ De riquezas y partidarios)",
+    "caution": "No asignar nombres ficticios a los protagonistas.",
+    "cardTitle": "Dos Huertos — Nunca presumas de lo que te ha sido prestado"
+  }
+},
+  'nation-6': {
+  "en": {
+    "title": "Qarun — Wealth and True Humility",
+    "story": "Qarun belonged to the people of Musa, but grew tyrannical. Allah granted him so many treasures that their heavy keys burdened a group of strong men. His wise people advised him: \"Do not exult proudly; Allah does not love the arrogant. Seek the Hereafter through what Allah gave you, and do good as Allah has done good to you\" (28:76-77). But he boasted: \"I was only given this due to knowledge I possess!\" Thereupon, Allah caused the earth to swallow him and his grand mansion.",
+    "lesson": "Wealth is a test from Allah. We must give charity, share with kindness, and never attribute our successes solely to ourselves.",
+    "discussion": "How can we use our time, skills, and pocket money to do good for others?",
+    "activity": "The \"Wise Allowance\" game: divide allowance between saving, charity, gift-giving, and spending.",
+    "quizText": "(1) What arrogant claim did Qarun make? (✅ \"I was given this due to my own knowledge\") (2) What did his people advise? (✅ To be humble and do good) (3) What is the lesson? (✅ Wealth requires gratitude, not arrogance)",
+    "caution": "Do not invent specific numbers or weights of treasures not mentioned in the Quran.",
+    "cardTitle": "Qarun — Wealth is a trust to be spent in goodness"
+  },
+  "bn": {
+    "title": "কারুন — অগাধ ধনসম্পদ ও বিনম্রতার শিক্ষা",
+    "story": "কারুন ছিল মূসা (আ.)-এর সম্প্রদায়ের অন্তর্ভুক্ত, কিন্তু সে সীমালঙ্ঘন করল। আল্লাহ তাকে এত ধনভাণ্ডার দিয়েছিলেন যার চাবিগুলো বহন করতেই একদল বলবান মানুষের কষ্ট হতো। তার হিতাকাঙ্ক্ষী জাতি তাকে বলল: \"অহংকার করো না, নিশ্চয়ই আল্লাহ অহংকারীদের ভালোবাসেন না। আল্লাহ যা দিয়েছেন তা দিয়ে পরকালের মুক্তি খোঁজ এবং মানুষের সাথে ভালো ব্যবহার করো\" (সূরা আল-কাসাস ২৮:৭৬-৭৭)। কিন্তু সে দাম্ভিক কণ্ঠে বলল: \"এসব তো আমি আমার জ্ঞানের জোরে পেয়েছি!\" পরিণামে আল্লাহ তাকে ও তার রাজপ্রাসাদকে মাটির নিচে ধসিয়ে দিলেন।",
+    "lesson": "ধনসম্পদ একটি পরীক্ষা। সর্বদা আল্লাহর শুকরিয়া আদায় করতে হয়, দান করতে হয় এবং নিজের প্রতিভাকে অহংকারের মাধ্যম বানানো যাবে না।",
+    "discussion": "আমাদের মেধা, সময় ও হাতখরচ কীভাবে অন্যের কল্যাণে ব্যয় করতে পারি?",
+    "activity": "\"অর্থের সদ্ব্যবহার\" খেলা: হাতখরচকে সঞ্চয়, দান ও খরচের মধ্যে সুন্দরভাবে ভাগ করা।",
+    "quizText": "(১) কারুন কী অহংকার করেছিল? (✅ \"আমি আমার জ্ঞানেই এটা পেয়েছি\") (২) জাতি তাকে কী উপদেশ দিল? (✅ পরকালের চিন্তা ও দান করতে) (৩) গল্পের মূল শিক্ষা কী? (✅ সম্পদ অহংকারের নয়, শুকরিয়ার বিষয়)",
+    "caution": "কুরআনে অনুল্লিখিত ধনভাণ্ডারের ওজনের কাল্পনিক সংখ্যা উল্লেখ করবেন না।",
+    "cardTitle": "কারুন — সম্পদ আল্লাহর পবিত্র আমানত"
+  },
+  "ur": {
+    "title": "قارون — دولت اور عاجزی کا سبق",
+    "story": "قارون قومِ موسیٰ میں سے تھا مگر سرکش ہو گیا۔ اللہ نے اسے اس قدر خزانے دیے جن کی چابیاں اٹھانا طاقتور جماعت پر بھاری تھا۔ قوم نے سمجھایا: \"اتراؤ مت، اللہ اترانے والوں کو پسند نہیں کرتا۔ اللہ کے دیے ہوئے مال سے آخرت کی بھلائی چاہو اور احسان کرو\"۔ مگر وہ بولا: \"یہ سب مجھے میرے علم کے بل پر ملا ہے\"۔ پس اللہ نے اسے اور اس کے محل کو زمین میں دھنسا دیا۔",
+    "lesson": "دولت آزمائش ہے۔ شکر ادا کریں، صدقہ دیں اور کبھی کامیابی کو صرف اپنی ذات کی طرف منسوب نہ کریں۔",
+    "discussion": "ہم اپنے جیب خرچ اور صلاحیتوں کو نیکی میں کیسے لگا سکتے ہیں؟",
+    "activity": "\"خرچ کی منصفانہ تقسیم\": بچت، صدقہ اور خریداری کے درمیان توازن قائم کرنا۔",
+    "quizText": "(1) قارون نے کیا غرور کیا؟ (✅ یہ مجھے اپنے علم کی بدولت ملا ہے) (2) قوم نے کیا نصیحت کی؟ (✅ عاجزی اور احسان کی) (3) کیا سبق ہے؟ (✅ مال پر غرور نہیں، شکر کرنا چاہیے)",
+    "caution": "خزانوں کے من گھڑت اوزان اور اعداد و شمار بیان نہ کریں۔",
+    "cardTitle": "قارون — مال و دولت ایک امتحان اور امانت ہے"
+  },
+  "tr": {
+    "title": "Karun — Zenginlik ve Tevazu İmtihanı",
+    "story": "Karun, Musa’nın kavmindendi fakat haddi aştı. Allah ona öyle hazineler vermişti ki anahtarlarını güçlü bir topluluk zor taşırdı. Kavmi ona: \"Böbürlenme, Allah şımaranları sevmez. Allah’ın sana verdiğinde ahireti ara ve iyilik yap\" (28:76-77) dedi. O ise: \"Bu servet bana bendeki bilgi sayesinde verildi\" dedi. Sonunda Allah onu da sarayını da yerin dibine geçirdi.",
+    "lesson": "Zenginlik bir imtihandır. Şükretmeli, infak etmeli ve başarıyı yalnızca kendimizden bilmemeliyiz.",
+    "discussion": "Harçlığımızı ve imkanlarımızı başkalarına faydalı olmak için nasıl kullanabiliriz?",
+    "activity": "\"Akıllı Harçlık\" oyunu: Tasarruf, sadaka ve paylaşımı dengeli uygulama.",
+    "quizText": "(1) Karun nasıl böbürlendi? (✅ \"Bu bana ilmim sayesinde verildi\" dedi) (2) Kavmi ne tavsiye etti? (✅ İyilik yapmasını ve mütevazı olmasını) (3) Kıssanın dersi nedir? (✅ Mal gurur vesilesi değil, emanettir)",
+    "caution": "Hazinelerin ağırlığına dair asılsız rakamlardan kaçının.",
+    "cardTitle": "Karun — Zenginlik hayırda harcanacak bir emanettir"
+  },
+  "ru": {
+    "title": "Карун — Богатство и истинное смирение",
+    "story": "Карун был из народа Мусы, но возгордился. Аллах даровал ему столько сокровищ, что ключи от них отягощали толпу силачей. Праведники увещевали его: \"Не ликуй горделиво, Аллах не любит хвастливых! Стремись к вечной обители и твори добро, как Аллах сотворил добро тебе\" (28:76-77). Но он надменно ответил: \"Все это дано мне лишь благодаря моему знанию!\" И разверзлась земля, поглотив его и его роскошный дворец.",
+    "lesson": "Богатство — испытание. Будь щедрым, помогай другим и никогда не приписывай успех лишь своим заслугам.",
+    "discussion": "Как мы можем использовать карманные деньги и таланты во благо окружающим?",
+    "activity": "Игра \"Мудрый бюджет\": распредели средства на копилку, милостыню и добрые подарки.",
+    "quizText": "(1) Что горделиво заявил Карун? (✅ \"Это дано мне благодаря моему знанию\") (2) Какой совет давали праведники? (✅ Творить благо и не гордиться) (3) Главный урок? (✅ Богатство требует скромности и благодарности)",
+    "caution": "Не используйте вымышленные цифры и вес сокровищ.",
+    "cardTitle": "Карун — Богатство — это священный аманат от Аллаха"
+  },
+  "id": {
+    "title": "Qarun — Harta Melimpah dan Ujian Kerendahan Hati",
+    "story": "Qarun termasuk kaum Nabi Musa, tetapi ia bertindak sewenang-wenang. Allah memberinya perbendaharaan harta yang kunci-kuncinya terasa berat dipikul oleh sejumlah orang kuat. Kaumnya menasihati: \"Janganlah berbangga diri berlebihan, Allah tidak menyukai orang yang sombong. Carilah pahala akhirat dan berbuat baiklah sebagaimana Allah telah berbuat baik kepadamu\" (28:76-77). Tetapi ia membantah: \"Ini kudapat semata-mata karena ilmuku!\" Maka Allah membenamkan Qarun beserta rumah mewahnya ke dalam bumi.",
+    "lesson": "Harta adalah ujian. Kita harus gemar bersedekah, berbuat ihsan, dan tidak sombong membanggakan diri.",
+    "discussion": "Bagaimana cara memanfaatkan uang jajan dan kelebihan kita untuk menolong sesama?",
+    "activity": "Permainan \"Pengelolaan Bijak\": membagi uang antara menabung, sedekah, dan kebutuhan.",
+    "quizText": "(1) Apa kesombongan Qarun? (✅ Merasa kaya karena kepintarannya sendiri) (2) Apa nasihat kaumnya? (✅ Berbuat baik dan mencari akhirat) (3) Apa intinya? (✅ Harta adalah amanah untuk disyukuri)",
+    "caution": "Hindari rekaan berat atau jumlah timbunan harta yang tak berdasar.",
+    "cardTitle": "Qarun — Harta adalah titipan yang harus digunakan di jalan kebaikan"
+  },
+  "fr": {
+    "title": "Qaroun — La Richesse et la Véritable Humilité",
+    "story": "Qaroun appartenait au peuple de Moïse mais devint arrogant. Allah lui accorda de si vastes trésors que leurs clés pesaient lourdement à une troupe d’hommes vigoureux. Son peuple lui conseilla : \"Ne te réjouis point avec vanité, Allah n’aime pas les présomptueux ! Recherche la demeure de l’au-delà et sois bienfaisant comme Allah l’a été envers toi\" (28:76-77). Mais il répliqua : \"Je ne le dois qu’à ma propre science !\" Alors, Allah fit engloutir par la terre Qaroun et son somptueux palais.",
+    "lesson": "La fortune est une épreuve. Il faut remercier Allah, être généreux et ne jamais s’attribuer tout le mérite.",
+    "discussion": "Comment employer nos talents et notre argent de poche pour faire du bien ?",
+    "activity": "Jeu du \"Budget Sage\" : répartir équitablement entre épargne, aumône et cadeaux.",
+    "quizText": "(1) Quelle fut la prétention de Qaroun ? (✅ \"Je ne le dois qu’à ma science\") (2) Que lui conseillait-on ? (✅ D’être humble et bienfaisant) (3) La morale ? (✅ La richesse exige humilité et partage)",
+    "caution": "Ne pas inventer de chiffres invérifiés sur le poids des richesses.",
+    "cardTitle": "Qaroun — Les richesses sont un dépôt sacré au service du bien"
+  },
+  "de": {
+    "title": "Qarun — Reichtum und Wahre Demut",
+    "story": "Qarun gehörte zum Volk von Musa, handelte jedoch ungerecht. Allah gab ihm so gewaltige Schätze, dass deren Schlüssel eine Schar starker Männer beschwerten. Sein Volk riet ihm: \"Frohlocke nicht übermütig, Allah liebt die Prahler nicht. Trachte nach dem Jenseits und tue Gutes, wie Allah dir Gutes getan hat\" (28:76-77). Doch er rühmte sich: \"Dies wurde mir nur durch mein eigenes Wissen zuteil!\" Da ließ Allah die Erde ihn und seinen prächtigen Palast verschlingen.",
+    "lesson": "Reichtum ist eine Prüfung. Spende gerne, sei gütig und schreibe Erfolge niemals allein dir selbst zu.",
+    "discussion": "Wie können wir unser Taschengeld und unsere Talente nutzen, um anderen zu helfen?",
+    "activity": "Spiel \"Kluge Kasse\": Teile dein Geld auf Sparen, Spenden und Schenken auf.",
+    "quizText": "(1) Was behauptete Qarun hochmütig? (✅ \"Es gebührt mir wegen meines Wissens\") (2) Was riet sein Volk? (✅ Demütig zu sein und Gutes zu tun) (3) Die Lehre? (✅ Vermögen verlangt Dank und Bescheidenheit)",
+    "caution": "Verzichte auf erfundene Zahlenangaben über Schätze.",
+    "cardTitle": "Qarun — Wohlstand ist ein anvertrautes Gut für das Gute"
+  },
+  "es": {
+    "title": "Qarún — La Riqueza y la Verdadera Humildad",
+    "story": "Qarún era del pueblo de Moisés, pero se llenó de soberbia. Allah le concedió tantos tesoros que sus llaves abrumaban a un grupo de hombres fuertes. Su gente le aconsejó: \"No te jactes con arrogancia, Allah no ama a los vanidosos. Busca la morada eterna y haz el bien como Allah lo hizo contigo\" (28:76-77). Pero él replicó: \"¡Esto me fue dado solo gracias a mi propia ciencia!\" Entonces la tierra se lo tragó a él y a su suntuoso palacio.",
+    "lesson": "La riqueza es una prueba. Hay que ser caritativo, obrar con bondad y jamás atribuirse el éxito en exclusiva.",
+    "discussion": "¿Cómo podemos usar nuestras capacidades y ahorros para ayudar a los demás?",
+    "activity": "Juego del \"Ahorro Solidario\": separar con gusto una porción para ayudar a los demás.",
+    "quizText": "(1) ¿Qué afirmó Qarún con orgullo? (✅ \"Esto lo obtuve por mi propia sabiduría\") (2) ¿Qué consejo le dieron? (✅ Ser humilde y hacer el bien) (3) ¿Qué aprendemos? (✅ La fortuna requiere gratitud y generosidad)",
+    "caution": "No inventar cifras ni pesos de tesoros sin base textual.",
+    "cardTitle": "Qarún — Los bienes son un depósito para obrar rectamente"
+  }
+},
+  'nation-7': {
+  "en": {
+    "title": "People of Yunus — The Power of Sincere Repentance",
+    "story": "After the previous stern lessons, the Quran highlights an uplifting exception: a community that believed in time and was spared through their genuine repentance: the people of Prophet Yunus (peace be upon him). When they saw early signs of divine warning, they gathered sincerely, cried out to Allah in repentance, and corrected their ways. Allah lifted the impending punishment and granted them peace and prosperity for a time (10:98).",
+    "lesson": "The door of repentance is wide open for communities and individuals alike. Sincere faith and returning to Allah can transform one’s destiny.",
+    "discussion": "When an argument or mistake happens at home, how can apologizing and turning to Allah immediately bring back peace?",
+    "activity": "\"Fresh New Page\": write down one bad habit to leave behind and one good deed to start today.",
+    "quizText": "(1) Which community benefited from their sincere repentance? (✅ The people of Yunus) (2) What did Allah lift from them? (✅ The impending punishment) (3) What is the lesson? (✅ Repentance changes destiny for the better)",
+    "caution": "Avoid unverified historical descriptions of clothing or dates not mentioned in the Quran.",
+    "cardTitle": "People of Yunus — Sincere repentance opens the door of hope"
+  },
+  "bn": {
+    "title": "ইউনুসের সম্প্রদায় — খাঁটি তওবা ও চিরন্তন আশার আলো",
+    "story": "পূর্ববর্তী সতর্কবাণীর পর কুরআন একটি উজ্জ্বল আশার উদাহরণ তুলে ধরে: একটি জাতি যারা সঠিক সময়ে বিশ্বাস স্থাপন করেছিল এবং তাদের খাঁটি তওবার কারণে রক্ষা পেয়েছিল — তারা ছিল নবী ইউনুস (আ.)-এর সম্প্রদায়। যখন তারা সতর্কবার্তার আলামত দেখতে পেল, তখন তারা সকলে একযোগে আল্লাহর দরবারে কায়মনোবাক্যে তওবা করল ও অনুতপ্ত হলো। আল্লাহ তাদের ওপর থেকে নির্ধারিত আযাব তুলে নিলেন এবং তাদের শান্তিময় জীবন দান করলেন (সূরা ইউনুস ১০:৯৮)।",
+    "lesson": "ব্যক্তি ও জাতির জন্য তওবার দরজা সর্বদা উন্মুক্ত। আল্লাহর প্রতি ঈমান ও প্রত্যাবর্তন যেকোনো দুর্ভাগ্যের মোড় ঘুরিয়ে দিতে পারে।",
+    "discussion": "পরিবারে কোনো ভুল বোঝাবুঝি হলে আন্তরিক ক্ষমা প্রার্থনা ও আল্লাহর স্মরণ কীভাবে তাৎক্ষণিকভাবে শান্তি ফিরিয়ে আনে?",
+    "activity": "\"নতুন পরিচ্ছন্ন পাতা\": একটি খারাপ অভ্যাস যা ছাড়তে চাও তা লেখো এবং আজ থেকেই একটি ভালো কাজ শুরু করো।",
+    "quizText": "(১) কোন জাতির খাঁটি তওবা তাদের রক্ষা করেছিল? (✅ ইউনুসের সম্প্রদায়) (২) আল্লাহ তাদের ওপর থেকে কী দূর করলেন? (✅ নির্ধারিত আযাব) (৩) গল্পের সবচেয়ে বড় শিক্ষা কী? (✅ তওবা মানুষের ভাগ্য বদলে দেয়)",
+    "caution": "কুরআনে অনুল্লিখিত অলীক দিনপঞ্জি বা পোশাকের বিবরণ এড়িয়ে চলুন।",
+    "cardTitle": "ইউনুসের কওম — তওবার মাধ্যমে ক্ষমার দরজা খুলে যায়"
+  },
+  "ur": {
+    "title": "قوم یونس — سچی توبہ اور امید کی کرن",
+    "story": "گزشتہ قوموں کے برعکس قرآن ہمیں ایک ایسی قوم کا ذکر فرماتا ہے جنہوں نے بروقت ایمان لا کر نجات پائی: وہ حضرت یونس علیہ السلام کی قوم تھی۔ جب انہوں نے تنبیہ کی نشانیاں دیکھیں تو خلوص دل سے اللہ کی بارگاہ میں توبہ کی اور گناہوں کو چھوڑ دیا۔ اللہ نے ان سے عذاب ٹال دیا اور ایک مدت تک امن و چین کی زندگی عطا فرمائی (10:98)۔",
+    "lesson": "توبہ کا دروازہ ہر قوم اور فرد کے لیے کھلا ہے۔ اللہ کی طرف رجوع تقدیر کے رخ بدل دیتا ہے۔",
+    "discussion": "گھر میں کسی غلطی پر معافی مانگنا اور اللہ کی طرف رجوع کرنا کس طرح سکون لاتا ہے؟",
+    "activity": "\"نیا سفید صفحہ\": ایک بری عادت چھوڑنے اور ایک نئی نیکی شروع کرنے کا عہد کریں۔",
+    "quizText": "(1) کس قوم کو سچی توبہ سے فائدہ ہوا؟ (✅ قوم یونس) (2) اللہ نے ان سے کیا ٹال دیا؟ (✅ عذاب) (3) کیا سبق ملتا ہے؟ (✅ سچی توبہ زندگی بدل دیتی ہے)",
+    "caution": "غیر مصدقہ تواریخ اور کپڑوں کی تفصیلات سے پرہیز کریں۔",
+    "cardTitle": "قوم یونس — سچی توبہ سے رحمت کے دروازے کھلتے ہیں"
+  },
+  "tr": {
+    "title": "Yunus Kavmi — Samimi Tevbe ve Ümit Kıssası",
+    "story": "Kuran, önceki ibret verici kıssaların ardından umut dolu bir istisnayı anlatır: Vaktinde iman edip samimi tevbeleri sayesinde kurtulan Yunus (a.s.)’ın kavmi. Azap işaretlerini gördüklerinde hep birlikte Allah’a yalvarıp tevbe ettiler. Allah da üzerlerindeki azabı kaldırdı ve onlara bir süreye kadar huzur verdi (10:98).",
+    "lesson": "Tevbe kapısı hem toplumlar hem de bireyler için daima açıktır. Allah’a dönüş kaderi güzelleştirir.",
+    "discussion": "Bir hata yaptığımızda özür dileyip Allah’a yönelmek ailemize nasıl huzur getirir?",
+    "activity": "\"Yeni Beyaz Sayfa\": Bırakmak istediğin kötü bir huyu ve başlamak istediğin güzel bir ameli yaz.",
+    "quizText": "(1) Hangi kavim tevbesiyle kurtuldu? (✅ Yunus kavmi) (2) Allah onlardan neyi kaldırdı? (✅ Azabı) (3) Kıssanın özü nedir? (✅ Tevbe kapısı daima açıktır)",
+    "caution": "Kuran’da bulunmayan kıyafet veya tarih detaylarına girmeyiniz.",
+    "cardTitle": "Yunus Kavmi — Samimi tevbe rahmet kapılarını açar"
+  },
+  "ru": {
+    "title": "Народ Йунуса — Сила искреннего покаяния и свет надежды",
+    "story": "Вслед за суровыми уроками Коран повествует об утешительном исключении: о народе, который уверовал вовремя и был спасен благодаря чистосердечному раскаянию — народе пророка Йунуса (мир ему). Завидев признаки предостережения, они искренне взмолились к Аллаху, оставив грехи. И Аллах избавил их от позорной кары и даровал мирное благоденствие (10:98).",
+    "lesson": "Врата покаяния распахнуты для каждого. Искренняя вера и возвращение к Аллаху способны изменить судьбу к лучшему.",
+    "discussion": "Как своевременное извинение и мольба к Аллаху возвращают мир в семью после ошибки?",
+    "activity": "\"Новый чистый лист\": запиши одну привычку, от которой хочешь отказаться, и одно доброе дело, которое начнешь сегодня.",
+    "quizText": "(1) Какому народу принесло пользу их покаяние? (✅ Народу Йунуса) (2) Что снял с них Аллах? (✅ Неминуемую кару) (3) Главный урок? (✅ Покаяние меняет жизнь к лучшему)",
+    "caution": "Не используйте непроверенные описания внешности и дней недели.",
+    "cardTitle": "Народ Йунуса — Искреннее покаяние открывает двери милости"
+  },
+  "id": {
+    "title": "Kaum Yunus — Kekuatan Taubat Tulus & Pelajaran Harapan",
+    "story": "Setelah kisah-kisah peringatan, Al-Quran mengisahkan teladan penuh harapan: kaum Nabi Yunus (a.s.) yang beriman pada waktu yang tepat. Ketika melihat tanda-tanda ancaman, mereka berkumpul memohon ampun dengan penuh ketulusan kepada Allah. Maka Allah melenyapkan azab yang hampir menimpa mereka dan memberikan kehidupan yang tenteram hingga waktu tertentu (10:98).",
+    "lesson": "Pintu taubat selalu terbuka bagi umat dan pribadi. Iman dan kembali kepada Allah mampu mengubah keadaan menjadi berkah.",
+    "discussion": "Mengapa segera meminta maaf dan berdoa setelah berbuat salah bisa menghadirkan kedamaian di rumah?",
+    "activity": "\"Lembaran Baru\": tulis satu kebiasaan buruk yang ingin ditinggalkan dan satu amalan baik untuk dimulai hari ini.",
+    "quizText": "(1) Kaum manakah yang selamat berkat taubat mereka? (✅ Kaum Nabi Yunus) (2) Apa yang diangkat Allah dari mereka? (✅ Siksaan yang mengancam) (3) Apa intinya? (✅ Taubat mengubah jalan hidup menjadi baik)",
+    "caution": "Hindari perincian pakaian dan waktu yang tidak termaktub dalam Al-Quran.",
+    "cardTitle": "Kaum Yunus — Taubat yang tulus membuka pintu kasih sayang Allah"
+  },
+  "fr": {
+    "title": "Le Peuple de Jonas — La Force du Repentir et la Lumière de l’Espoir",
+    "story": "Après les avertissements passés, le Coran présente une magnifique exception : une communauté qui a cru à temps et fut préservée grâce à son repentir sincère, le peuple de Jonas (Younous, paix sur lui). En voyant les signes du châtiment, ils se tournèrent vers Allah avec humilité et dévotion. Allah écarta d’eux le supplice et leur accorda la sérénité pour un temps (10:98).",
+    "lesson": "La porte du repentir est toujours grande ouverte. Revenir sincèrement vers Allah peut changer une destinée.",
+    "discussion": "Comment demander pardon et prier apaise-t-il immédiatement une tension en famille ?",
+    "activity": "\"Page Nouvelle\" : écris une mauvaise habitude à abandonner et une bonne action à commencer aujourd’hui.",
+    "quizText": "(1) Quelle communauté fut sauvée par sa foi sincère ? (✅ Le peuple de Jonas) (2) Qu’a écarté Allah d’eux ? (✅ Le châtiment) (3) La grande leçon ? (✅ Le repentir sincère change le destin)",
+    "caution": "Éviter les anecdotes historiques non mentionnées dans les textes sacrés.",
+    "cardTitle": "Le Peuple de Jonas — Le repentir sincère ouvre les portes de l’espoir"
+  },
+  "de": {
+    "title": "Das Volk von Yunus — Die Kraft der Reue und das Licht der Hoffnung",
+    "story": "Nach den ernsten Mahnungen berichtet der Koran von einer hoffnungsvollen Ausnahme: dem Volk des Propheten Yunus (Friede sei mit ihm), das rechtzeitig glaubte. Als sie die Zeichen der Strafe sahen, wandten sie sich in tiefer Reue an Allah. Da wandte Allah die drohende Pein von ihnen ab und gewährte ihnen Wohlergehen (10:98).",
+    "lesson": "Das Tor der Reue steht immer offen. Aufrichtiger Glaube und Umkehr zu Allah können jedes Schicksal zum Guten wenden.",
+    "discussion": "Wie bringt eine ehrliche Entschuldigung und ein Bittgebet sofortigen Frieden nach einem Streit?",
+    "activity": "\"Ein neues weißes Blatt\": Notiere eine schlechte Angewohnheit zum Ablegen und eine gute Tat zum Starten.",
+    "quizText": "(1) Welchem Volk nützte sein Glaube? (✅ Dem Volk von Yunus) (2) Was wandte Allah von ihnen ab? (✅ Die Pein) (3) Die Kernbotschaft? (✅ Reue verwandelt Kummer in Segen)",
+    "caution": "Keine Spekulationen über nicht belegte Tage und Kleidung.",
+    "cardTitle": "Das Volk von Yunus — Aufrichtige Reue öffnet das Tor zur Barmherzigkeit"
+  },
+  "es": {
+    "title": "El Pueblo de Jonás — El Poder del Arrepentimiento y la Luz de la Esperanza",
+    "story": "Tras las advertencias anteriores, el Corán relata una hermosa excepción: el pueblo del Profeta Jonás (Yunus, la paz sea con él), que creyó a tiempo y fue salvado por su arrepentimiento sincero. Al ver los indicios del castigo, clamaron juntos a Allah con humildad. Allah apartó de ellos el tormento y les concedió paz y sustento por un tiempo (10:98).",
+    "lesson": "La puerta del arrepentimiento siempre está abierta. La fe y el regreso a Allah pueden transformar cualquier destino.",
+    "discussion": "¿Cómo pedir perdón sinceramente devuelve la paz y el cariño en el hogar tras un error?",
+    "activity": "\"Página Nueva\": escribe un mal hábito que quieras dejar y una buena acción para empezar hoy mismo.",
+    "quizText": "(1) ¿Qué pueblo se benefició de su arrepentimiento? (✅ El pueblo de Jonás) (2) ¿Qué apartó Allah de ellos? (✅ El castigo anunciado) (3) ¿Qué aprendemos? (✅ El arrepentimiento sincero transforma la vida)",
+    "caution": "Evitar descripciones de vestimentas o fechas no coránicas.",
+    "cardTitle": "El Pueblo de Jonás — El arrepentimiento sincero abre las puertas del perdón"
+  }
+}
 };
 
 export interface LocalizedSeerahContent {
@@ -2093,93 +2732,1618 @@ export interface LocalizedSeerahContent {
   source: string;
   story: string;
   lesson: string;
-  emulate: string;
+  emulate?: string;
+  discussion?: string;
+  activity?: string;
+  quizText?: string;
   caution?: string;
   cardTitle: string;
 }
 
 export const SEERAH_LOCALIZED: Record<string, Partial<Record<Language, LocalizedSeerahContent>>> = {
   'seerah-1': {
+  "en": {
+    "title": "Year of the Elephant & Birth of the Prophet ﷺ",
+    "source": "Al-Fil 105:1-5 | Sahih Al-Bukhari & Muslim",
+    "story": "In the Year of the Elephant, Abraha marched with huge war elephants towards Makkah to demolish the Ka’bah. The Quraysh had no army to stop him, but Abdul-Muttalib declared: \"I am the lord of the camels, and the House has a Lord Who will protect it.\" Allah sent flocks of birds (Ababil) dropping stones, routing the army. In that very blessed year, Prophet Muhammad ﷺ was born in Makkah as a shining mercy to all worlds.",
+    "lesson": "Allah protects His sacred House, and truth always prevails over arrogance.",
+    "emulate": "Whenever you hear the Prophet’s name, send blessings upon him: \"Salla Allahu alayhi wa sallam.\"",
+    "quizText": "(1) In which city was he born? (✅ Makkah) (2) On which day of the week? (✅ Monday)",
+    "caution": "Exact calendar date is debated among scholars; we affirm he was born in Rabi’ al-Awwal.",
+    "cardTitle": "Birth of the Prophet ﷺ — Dawn of Light"
+  },
+  "bn": {
+    "title": "হস্তী বর্ষ ও নবীজি ﷺ-এর শুভাগমন",
+    "source": "সূরা আল-ফীল ১০৫:১-৫ | সহীহ বুখারী ও মুসলিম",
+    "story": "হস্তী বর্ষে আবরাহা বিশাল হাতি বাহিনী নিয়ে পবিত্র কাবা ধ্বংস করার জন্য মক্কার দিকে অগ্রসর হলো। কুরাইশদের প্রতিহত করার ক্ষমতা ছিল না, কিন্তু আব্দুল মুত্তালিব অটল কণ্ঠে বললেন: \"আমি উটের মালিক, আর এই ঘরের একজন রব আছেন যিনি নিজেই একে রক্ষা করবেন।\" আল্লাহ ঝাঁকে ঝাঁকে আবাবিল পাখি পাঠিয়ে আবরাহার বাহিনীকে ধ্বংস করে দিলেন। ঠিক সেই বরকতময় বছরেই বিশ্বজগতের জন্য রহমতস্বরূপ নবী মুহাম্মাদ ﷺ মক্কায় জন্মগ্রহণ করেন।",
+    "lesson": "আল্লাহ তাআলা তাঁর পবিত্র ঘর রক্ষা করেন, এবং সত্য সর্বদা অহংকারের ওপর বিজয়ী হয়।",
+    "emulate": "যখনই নবীজি ﷺ-এর নাম শুনবে, পরম ভক্তিতে দরুদ পড়বে: \"সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম।\"",
+    "quizText": "(১) নবীজি ﷺ কোন শহরে জন্মগ্রহণ করেন? (✅ মক্কায়) (২) সপ্তাহের কোন দিনে? (✅ সোমবার)",
+    "caution": "সঠিক তারিখ নিয়ে ঐতিহাসিক মতভেদ রয়েছে; নিশ্চিত যে তিনি রবিউল আউয়াল মাসে জন্ম নেন।",
+    "cardTitle": "নবীজি ﷺ-এর জন্ম — জগতজুড়ে আলোর ভোর"
+  },
+  "ru": {
+    "title": "Год Слона и рождение Пророка ﷺ",
+    "source": "Аль-Филь 105:1-5 | Аль-Бухари и Муслим",
+    "story": "В Год Слона правитель Абраха двинулся с боевыми слонами на Мекку, чтобы разрушить Каабу. Курайшиты не имели войска для защиты, но Абдуль-Мутталиб твердо сказал: \"У Дома есть Господь, Который защитит его\". Аллах наслал стаи птиц Абабиль, поразивших войско захватчиков. В этот благословенный год в Мекке родился Пророк Мухаммад ﷺ как милость для миров.",
+    "lesson": "Аллах оберегает Свои святыни, и истина непременно побеждает гордыню.",
+    "emulate": "Каждый раз, слыша имя Пророка, произноси благословение: \"Салляллаху алейхи ва саллям\".",
+    "quizText": "(1) В каком городе он родился? (✅ В Мекке) (2) В какой день недели? (✅ В понедельник)",
+    "caution": "Точная дата дня рождения является предметом дискуссий; достоверно известно, что это месяц Раби аль-Авваль.",
+    "cardTitle": "Рождение Пророка ﷺ — рассвет вечного света"
+  },
+  "ur": {
+    "title": "عام الفیل اور ولادتِ باسعادت ﷺ",
+    "source": "سورۃ الفیل 105:1-5 | صحیح بخاری و مسلم",
+    "story": "عام الفیل میں ابرہہ نے ہاتھیوں کے لشکر کے ساتھ کعبہ کو گرانے کے لیے مکہ پر حملہ کیا۔ قریش کے پاس اتنی طاقت نہ تھی، مگر عبدالمطلب نے پختہ یقین سے کہا: \"میں اونٹوں کا مالک ہوں اور اس گھر کا ایک رب ہے جو اس کی حفاظت خود کرے گا۔\" اللہ نے ابابیل پرندوں کا لشکر بھیجا جنہوں نے کنکریوں سے ابرہہ کی فوج کو تباہ کر دیا۔ اسی مبارک سال میں پیارے نبی محمد ﷺ کی ولادت ہوئی جو تمام جہانوں کے لیے رحمت ہیں۔",
+    "lesson": "اللہ اپنے مقدس گھر کی حفاظت فرماتا ہے اور سچ ہمیشہ تکبر پر غالب آتا ہے۔",
+    "emulate": "جب بھی نبی کریم ﷺ کا مبارک نام سنو، باادب درود پڑھو: \"صلی اللہ علیہ وسلم\"۔",
+    "quizText": "(۱) آپ ﷺ کس شہر میں پیدا ہوئے؟ (✅ مکہ مکرمہ) (۲) ہفتے کے کس دن؟ (✅ پیر / دوشنبہ)",
+    "caution": "صحیح تاریخِ پیدائش میں اختلاف ہے، البتہ ربیع الاول کے مہینے پر اتفاق ہے۔",
+    "cardTitle": "ولادتِ نبوی ﷺ — عالم میں نور کی سحر"
+  },
+  "id": {
+    "title": "Tahun Gajah & Kelahiran Nabi ﷺ",
+    "source": "Al-Fil 105:1-5 | Shahih Bukhari & Muslim",
+    "story": "Pada Tahun Gajah, Abrahah memimpin pasukan gajah besar menuju Makkah untuk meruntuhkan Ka’bah. Kaum Quraisy tidak berdaya, namun Abdul Muthalib berkata dengan yakin: \"Aku adalah pemilik unta-unta ini, dan Ka’bah memiliki Tuhan yang akan melindunginya.\" Allah mengirim burung Ababil berbondong-bondong melempari mereka dengan batu, menghancurkan pasukan itu. Pada tahun yang penuh berkah itulah, Nabi Muhammad ﷺ lahir ke dunia sebagai rahmat bagi semesta alam.",
+    "lesson": "Allah senantiasa menjaga rumah suci-Nya, dan kebenaran pasti mengalahkan kesombongan.",
+    "emulate": "Setiap kali mendengar nama Rasulullah ﷺ, bershalawatlah: \"Shallallahu ‘alaihi wa sallam.\"",
+    "quizText": "(1) Di kota manakah beliau lahir? (✅ Makkah) (2) Pada hari apa dalam sepekan? (✅ Hari Senin)",
+    "caution": "Tanggal pasti kelahiran diperselisihkan; yang pasti beliau lahir pada bulan Rabiul Awwal.",
+    "cardTitle": "Kelahiran Nabi ﷺ — Fajar Cahaya Abadi"
+  },
+  "tr": {
+    "title": "Fil Yılı ve Peygamber Efendimiz’in ﷺ Dünyaya Teşrifi",
+    "source": "Fil Suresi 105:1-5 | Buhari ve Müslim",
+    "story": "Fil Yılı’nda Ebrehe, Kâbe’yi yıkmak amacıyla fillerle Mekke’ye yürüdü. Abdülmuttalib: \"Ben develerin sahibiyim, bu Ev’in de bir Sahibi var, O onu korur\" dedi. Allah Teâlâ Ebabil kuşlarını göndererek saldırgan orduyu hezimete uğrattı. İşte o bereketli yılda, âlemlere rahmet olarak Peygamberimiz Hz. Muhammed ﷺ dünyaya teşrif etti.",
+    "lesson": "Allah mukaddes Evini korur ve hak batıla daima galip gelir.",
+    "emulate": "Peygamber Efendimizin adını duyduğunda hürmetle salavat getir: \"Sallallahu aleyhi ve sellem.\"",
+    "quizText": "(1) Hangi şehirde doğdu? (✅ Mekke) (2) Haftanın hangi günü? (✅ Pazartesi)",
+    "caution": "Kesin doğum tarihi hakkında ihtilaf vardır; Rebiülevvel ayında doğduğu kesindir.",
+    "cardTitle": "Kutlu Doğum — Âlemlere Doğan Güneş"
+  },
+  "fr": {
+    "title": "L’Année de l’Éléphant et la Naissance du Prophète ﷺ",
+    "source": "Al-Fil 105:1-5 | Al-Boukhari & Mouslim",
+    "story": "Durant l’Année de l’Éléphant, Abraha marcha sur La Mecque avec des éléphants de guerre pour démolir la Kaaba. Abdul-Mouttalib déclara : \"Cette Demeure a un Seigneur qui la protègera.\" Allah envoya des nuées d’oiseaux Ababil qui anéantirent l’armée. En cette année bénie naquit le Prophète Muhammad ﷺ, miséricorde pour l’univers.",
+    "lesson": "Allah protège Ses sanctuaires et la vérité triomphe toujours de l’arrogance.",
+    "emulate": "Chaque fois que tu entends son noble nom, prie sur lui : \"Salla Allahou alayhi wa sallam.\"",
+    "quizText": "(1) Dans quelle ville est-il né ? (✅ La Mecque) (2) Quel jour de la semaine ? (✅ Le lundi)",
+    "caution": "La date exacte fait l’objet de divergences; il est certain qu’il naquit au mois de Rabi’ al-Awwal.",
+    "cardTitle": "La Naissance du Prophète ﷺ — L’Aurore de Lumière"
+  },
+  "de": {
+    "title": "Das Jahr des Elefanten & Die Geburt des Propheten ﷺ",
+    "source": "Al-Fil 105:1-5 | Al-Bukhari & Muslim",
+    "story": "Im Jahr des Elefanten zog Abraha mit Kriegselefanten heran, um die Kaaba zu zerstören. Abdul-Muttalib vertraute auf Allah: \"Dieses Haus hat einen Herrn, Der es beschützt.\" Allah sandte Vogelschwärme, die das Heer bezwangen. In jenem gesegneten Jahr wurde Prophet Muhammad ﷺ als Barmherzigkeit für alle Welten geboren.",
+    "lesson": "Allah schützt Seine Heiligtümer, und Hochmut geht stets zugrunde.",
+    "emulate": "Sprich Segenswünsche, wenn du seinen Namen hörst: \"Sallallahu alayhi wa sallam.\"",
+    "quizText": "(1) In welcher Stadt wurde er geboren? (✅ Mekka) (2) An welchem Wochentag? (✅ Montag)",
+    "caution": "Das genaue Datum ist umstritten; sicher ist der Monat Rabi’ al-Awwal.",
+    "cardTitle": "Die Geburt des Propheten ﷺ — Beginn des Lichts"
+  },
+  "es": {
+    "title": "El Año del Elefante y el Nacimiento del Profeta ﷺ",
+    "source": "Al-Fil 105:1-5 | Al-Bujari y Muslim",
+    "story": "En el Año del Elefante, Abraha marchó con elefantes de guerra para destruir la Kaaba. Abdul-Muttalib proclamó: \"Esta Casa tiene un Señor que la protegerá\". Allah envió bandadas de aves que derrotaron al ejército invasor. En ese bendito año nació el Profeta Muhammad ﷺ como misericordia para la humanidad.",
+    "lesson": "Allah custodia Su Sagrada Casa y la verdad siempre vence a la soberbia.",
+    "emulate": "Cada vez que escuches su nombre bendito, di: \"Salla Allahu alayhi wa sallam\".",
+    "quizText": "(1) ¿En qué ciudad nació? (✅ En La Meca) (2) ¿Qué día de la semana? (✅ Lunes)",
+    "caution": "La fecha exacta es debatida; se sabe con certeza que nació en el mes de Rabi’ al-Awwal.",
+    "cardTitle": "Nacimiento del Profeta ﷺ — Amanecer de la Luz"
+  }
+},
+  'seerah-2': {
+  "en": {
+    "title": "The Orphan Sheltered by Allah",
+    "source": "Ad-Duha 93:6-8 | Sahih Muslim: Visiting his mother’s grave",
+    "story": "Allah says in the Quran: \"Did He not find you an orphan and give you shelter? And He found you lost and guided you, and found you in need and made you self-sufficient?\" (93:6-8). The Prophet’s mother, Aminah, passed away when he was young. His grandfather Abdul-Muttalib cared for him, then his uncle Abu Talib. He loved and honored them, and in Sahih Muslim it is recorded that he visited his mother’s grave with deep compassion and tears.",
+    "lesson": "Allah protects and shelters the orphan. We must always be gentle, loving, and kind to orphans and those who lose parents.",
+    "emulate": "Comfort a friend or orphan, say a kind word to them, and make sincere dua for their ease.",
+    "quizText": "(1) Who sheltered Muhammad ﷺ? (✅ Allah, then his grandfather & uncle) (2) How do we treat orphans? (✅ With mercy and tenderness)",
+    "caution": "The exact age at his mother’s passing is from historical narrations; do not present it as a Quranic absolute.",
+    "cardTitle": "Sheltered by Allah — Kindness to the Orphan"
+  },
+  "bn": {
+    "title": "ইয়াতীমকে আশ্রয় দিলেন মহান আল্লাহ",
+    "source": "সূরা আদ-দুহা ৯৩:৬-৮ | সহীহ মুসলিম: মায়ের কবর জিয়ারত",
+    "story": "আল্লাহ তাআলা পবিত্র কুরআনে ইরশাদ করেন: \"তিনি কি আপনাকে ইয়াতীম অবস্থায় পাননি, অতঃপর আশ্রয় দেননি? এবং তিনি আপনাকে পথনির্দেশ করেছেন এবং অভাবী অবস্থায় পেয়ে স্বাবলম্বী করেছেন\" (সূরা আদ-দুহা ৯৩:৬-৮)। শৈশবেই নবীজি ﷺ-এর মাতা আমিনা ইন্তেকাল করেন। এরপর তাঁর দাদা আব্দুল মুত্তালিব ও পরে চাচা আবু তালিব স্নেহের সাথে তাঁকে লালন-পালন করেন। হাদিসে এসেছে, তিনি মায়ের কবর জিয়ারত করে পরম মমতায় অশ্রু বিসর্জন করেছিলেন।",
+    "lesson": "আল্লাহ তাআলা ইয়াতীমদের অভিভাবক ও আশ্রয়দাতা। ইয়াতীম ও পিতৃহীন শিশুদের প্রতি সদয়, সহানুভূতিশীল ও স্নেহশীল হতে হবে।",
+    "discussion": "আমাদের আশপাশের যেসকল শিশু মা-বাবা হারিয়ে একা হয়ে গেছে, তাদের আমরা কীভাবে আনন্দিত করতে পারি?",
+    "activity": "কোনো বন্ধু বা শিশুকে সান্ত্বনা দাও, মিষ্টি কথা বলো এবং তাদের জন্য দুআ করো।",
+    "quizText": "(১) মুহাম্মদ ﷺ-কে কে পরম মমতায় আশ্রয় দিয়েছিলেন? (✅ আল্লাহ, অতঃপর তাঁর দাদা ও চাচা) (২) ইয়াতীমদের সাথে আমাদের কেমন আচরণ করা উচিত? (✅ দয়া ও ভালোবাসাপূর্ণ আচরণ)",
+    "caution": "মায়ের মৃত্যুর সময় নির্দিষ্ট বয়সের সংখ্যাটি সীরাতের বর্ণনা, কুরআনের নয়।",
+    "cardTitle": "আল্লাহর আশ্রয় — ইয়াতীমের প্রতি অপরিসীম মমতা"
+  },
+  "ur": {
+    "title": "یتیم جسے اللہ نے پناہ دی",
+    "source": "سورۃ الضحیٰ 93:6-8 | صحیح مسلم",
+    "story": "اللہ تعالیٰ نے فرمایا: \"کیا اس نے آپ کو یتیم نہیں پایا، پھر پناہ دی؟\" (93:6-8)۔ بچپن میں والدہ ماجدہ کا سایہ سر سے اٹھ گیا تو دادا عبدالمطلب اور پھر چچا ابو طالب نے کفالت فرمائی۔ آپ ﷺ نے والدہ کی قبر مبارک پر جا کر شفقت اور رقت سے آنسو بہائے۔",
+    "lesson": "اللہ یتیموں کی حفاظت فرماتا ہے۔ ہمیں یتیموں پر شفقت اور محبت نچھاور کرنی چاہیے۔",
+    "emulate": "کسی یتیم دوست کے کام آئیں، اس کی حوصلہ افزائی کریں اور اس کے لیے دعا کریں۔",
+    "quizText": "(1) محمد ﷺ کو کس نے پناہ دی؟ (✅ اللہ نے، پھر دادا اور چچا نے) (2) یتیم کے ساتھ کیسا سلوک کریں؟ (✅ شفقت اور محبت کا)",
+    "caution": "والدہ کے انتقال کے وقت عمر کی قطعی تعداد سیرہ کی روایت ہے۔",
+    "cardTitle": "اللہ کی پناہ — یتیموں سے محبت"
+  },
+  "tr": {
+    "title": "Allah’ın Himaye Ettiği Yetim",
+    "source": "Duha Suresi 93:6-8 | Sahih-i Müslim",
+    "story": "Yüce Allah şöyle buyurur: \"O seni bir yetim olarak bulup barındırmadı mı?\" (93:6-8). Peygamberimiz ﷺ küçük yaşta annesi Âmine’yi kaybetti. Dedesi Abdülmuttalib ve amcası Ebu Talib ona sevgiyle kol kanat gerdi. Sahih hadiste geçtiği üzere annesinin kabrini ziyaret edip gözyaşı döktü.",
+    "lesson": "Allah yetimleri korur ve gözetir. Biz de yetimlere ve kimsesizlere şefkatle yaklaşmalıyız.",
+    "emulate": "Bir yetimi sevindir, ona güzel bir söz söyle ve dua et.",
+    "quizText": "(1) Hz. Muhammed ﷺ’i kim barındırdı? (✅ Allah, sonra dedesi ve amcası) (2) Yetimlere nasıl davranmalıyız? (✅ Şefkat ve merhametle)",
+    "caution": "Annesinin vefatındaki yaş detayı siret rivayetidir.",
+    "cardTitle": "İlahi Himaye — Yetimlere Şefkat"
+  },
+  "ru": {
+    "title": "Сирота, которого приютил Аллах",
+    "source": "Ад-Духа 93:6-8 | Сахих Муслим",
+    "story": "Всевышний Аллах сказал: \"Разве Он не нашел тебя сиротой и не приютил?\" (93:6-8). В детстве Пророк ﷺ потерял мать, и о нем заботились дедушка Абдуль-Мутталиб, а затем дядя Абу Талиб. Он посещал могилу своей матери с глубоким состраданием и слезами.",
+    "lesson": "Аллах заботится о сиротах. Нам следует проявлять к сиротам ласку, тепло и заботу.",
+    "emulate": "Поддержи добрым словом того, кто лишился родителей, и помолись за него.",
+    "quizText": "(1) Кто приютил Мухаммада ﷺ? (✅ Аллах, затем дедушка и дядя) (2) Как относиться к сироте? (✅ С милосердием и лаской)",
+    "caution": "Точный возраст при кончине матери известен из исторических сводок.",
+    "cardTitle": "Под кровом Аллаха — Забота о сиротах"
+  },
+  "id": {
+    "title": "Yatim yang Dilindungi Allah",
+    "source": "Adh-Dhuha 93:6-8 | Shahih Muslim",
+    "story": "Allah berfirman: \"Bukankah Dia mendapatimu sebagai seorang yatim, lalu Dia melindungimu?\" (93:6-8). Ibunda beliau, Aminah, wafat saat beliau masih belia. Beliau diasuh oleh kakeknya Abdul Muthalib lalu pamannya Abu Thalib. Dalam hadits shahih diceritakan bahwa beliau menziarahi makam ibundanya dengan penuh air mata kasih sayang.",
+    "lesson": "Allah memelihara anak yatim. Kita wajib berkasih sayang dan santun kepada anak-anak yatim.",
+    "emulate": "Hibur sahabat yang telah kehilangan orang tua, berbicaralah dengan lembut kepadanya.",
+    "quizText": "(1) Siapakah yang melindungi Muhammad ﷺ? (✅ Allah, lalu kakek & pamannya) (2) Bagaimana adab pada anak yatim? (✅ Dengan penuh kasih sayang)",
+    "caution": "Rincian usia wafat ibundanya bersumber dari riwayat tarikh sirah.",
+    "cardTitle": "Naungan Kasih Ilahi — Santun kepada Anak Yatim"
+  },
+  "fr": {
+    "title": "L’Orphelin Protégé par Allah",
+    "source": "Ad-Douha 93:6-8 | Sahih Mouslim",
+    "story": "Allah dit : \"Ne t’a-t-Il pas trouvé orphelin, puis Il t’a accueilli ?\" (93:6-8). Sa mère Aminah mourut alors qu’il était enfant. Son grand-père puis son oncle prirent soin de lui. Dans le hadith, il visita la tombe de sa mère avec recueillement et émotion.",
+    "lesson": "Allah veille sur l’orphelin. Nous devons être tendres et généreux envers ceux qui ont perdu leurs parents.",
+    "emulate": "Réconforte un ami orphelin, souris-lui et invoque Allah pour lui.",
+    "quizText": "(1) Qui a protégé Muhammad ﷺ ? (✅ Allah, puis son grand-père et son oncle) (2) Comment traiter l’orphelin ? (✅ Avec tendresse et respect)",
+    "caution": "L’âge exact au décès de sa mère est issu des récits biographiques.",
+    "cardTitle": "Sous la Protection Divine — Tendresse pour l’Orphelin"
+  },
+  "de": {
+    "title": "Die Waise, die Allah Geborgenheit gab",
+    "source": "Ad-Duha 93:6-8 | Sahih Muslim",
+    "story": "Allah sagt: \"Fand Er dich nicht als Waise und gab dir Schutz?\" (93:6-8). Als Kind verlor Prophet Muhammad ﷺ seine Mutter Aminah. Sein Großvater und später sein Onkel Abu Talib sorgten liebevoll für ihn. Er besuchte das Grab seiner Mutter mit tiefem Mitgefühl.",
+    "lesson": "Allah hütet Waisenkinder. Wir sollen Waisen und Bedürftigen mit Liebe und Barmherzigkeit begegnen.",
+    "emulate": "Tröste ein Kind, das ein Elternteil verloren hat, und bete für es.",
+    "quizText": "(1) Wer gab Muhammad ﷺ Zuflucht? (✅ Allah, dann Großvater & Onkel) (2) Wie begegnen wir Waisen? (✅ Mit Milde und Barmherzigkeit)",
+    "caution": "Altersangaben beim Tod der Mutter stammen aus historischen Chroniken.",
+    "cardTitle": "Göttliche Geborgenheit — Fürsorge für Waisen"
+  },
+  "es": {
+    "title": "El Huérfano Acogido por Allah",
+    "source": "Ad-Duha 93:6-8 | Sahih Muslim",
+    "story": "Allah dice: \"¿Acaso no te encontró huérfano y te dio amparo?\" (93:6-8). Su madre Aminah falleció cuando era pequeño, y fue acogido con amor por su abuelo y luego por su tío Abu Talib. En el hadiz consta que visitó la tumba de su madre con lágrimas de ternura.",
+    "lesson": "Allah cuida de los huérfanos. Debemos tratar a los huérfanos con inmenso cariño y nobleza.",
+    "emulate": "Consuela a un compañero huérfano con una palabra amable y haz súplica por él.",
+    "quizText": "(1) ¿Quién amparó a Muhammad ﷺ? (✅ Allah, luego su abuelo y su tío) (2) ¿Cómo tratar al huérfano? (✅ Con bondad y ternura)",
+    "caution": "La edad exacta al morir su madre es dato biográfico tradicional.",
+    "cardTitle": "Amparo Divino — Nobleza con el Huérfano"
+  }
+},
+  'seerah-3': {
+  "en": {
+    "title": "The Honest Shepherd",
+    "source": "Sahih Al-Bukhari: \"Allah sent no prophet but that he grazed sheep\"",
+    "story": "The Prophet Muhammad ﷺ said: \"Allah never sent any prophet except that he grazed sheep.\" The companions asked: \"And you?\" He replied: \"Yes, I used to tend them for the people of Makkah for modest wages.\" Shepherding taught him patience, gentleness, and protective care.",
+    "lesson": "Honest work is an honor. Work with your hands, earn halaal, and cultivate patience and kindness to the weak.",
+    "emulate": "Help out at home with a chore cheerfully, or take care of a family plant or pet.",
+    "quizText": "(1) What was his early work? (✅ Tending sheep) (2) What did it teach? (✅ Patience and mercy)",
+    "caution": "Do not minimize humble labor; it was the training of noble prophets.",
+    "cardTitle": "The Trustworthy Shepherd — Dignity in Honest Labor"
+  },
+  "bn": {
+    "title": "বিশ্বস্ত মেষপালক ও শ্রমের মর্যাদা",
+    "source": "সহীহ বুখারী: \"আল্লাহ এমন কোনো নবী পাঠাননি যিনি ছাগল বা মেষ চরাননি\"",
+    "story": "নবী করীম ﷺ ইরশাদ করেছেন: \"আল্লাহ এমন কোনো নবী পাঠাননি যিনি মেষ চরাননি।\" সাহাবীগণ জিজ্ঞেস করলেন: \"হে আল্লাহর রাসূল, আপনিও কি?\" তিনি বললেন: \"হ্যাঁ, আমি অল্প মজুরির বিনিময়ে মক্কাবাসীদের ছাগল চরিয়েছি।\" এই দায়িত্বশীল কাজ তাঁকে অপরিমেয় ধৈর্য, মমতাদৃষ্টি ও দুর্বলের প্রতি যত্নবান হতে শিখিয়েছিল।",
+    "lesson": "হালাল শ্রম পরম সম্মানের বিষয়। নিজের হাতে কাজ করা সম্মানজনক এবং তা থেকে ধৈর্য ও কোমলতা অর্জিত হয়।",
+    "discussion": "নিজের হাতে কষ্ট করে কাজ করার মধ্যে কী ধরণের আত্মমর্যাদা ও কল্যাণ থাকে?",
+    "activity": "ঘরের যেকোনো একটি ছোট কাজে সহযোগিতা করো (যেমন নিজের থালা পরিষ্কার করা বা গাছপালায় পানি দেওয়া)।",
+    "quizText": "(১) শৈশবে তাঁর কাজ কী ছিল? (✅ মেষ চরানো) (২) এই কাজ থেকে তিনি কী অর্জন করেছিলেন? (✅ ধৈর্য ও সহানুভূতি)",
+    "caution": "হালাল পরিশ্রমকে কখনো ছোট মনে করা যাবে না।",
+    "cardTitle": "বিশ্বস্ত রাখাল — সৎ উপার্জনের অনুপম মর্যাদা"
+  },
+  "ur": {
+    "title": "دیانت دار چرواہا",
+    "source": "صحیح بخاری: \"اللہ نے کوئی نبی نہیں بھیجا مگر اس نے بکریاں چرائیں\"",
+    "story": "رسول اللہ ﷺ نے فرمایا: \"اللہ نے ایسا کوئی نبی نہیں بھیجا جس نے بکریاں نہ چرائیں ہوں۔\" صحابہ نے پوچھا: اور آپ؟ فرمایا: ہاں، میں اہل مکہ کی بکریاں چند قیراط کے عوض چرایا کرتا تھا۔ اس کام نے آپ کو صبر اور نرمی سکھائی۔",
+    "lesson": "محنت میں عظمت ہے۔ حلال روزی کمانا انبیاء کا شیوہ ہے جس سے انسان میں شفقت پیدا ہوتی ہے۔",
+    "emulate": "گھر کے کاموں میں والدین کا ہاتھ بٹائیں یا کسی پودے کی دیکھ بھال کریں۔",
+    "quizText": "(1) لڑکپن میں آپ ﷺ نے کیا کام کیا؟ (✅ بکریاں چرائیں) (2) اس سے کیا صفت پیدا ہوئی؟ (✅ صبر اور رحمت)",
+    "caution": "حلال مشقت کو کبھی حقیر نہ سمجھیں۔",
+    "cardTitle": "امین چرواہا — محنت کی عظمت"
+  },
+  "tr": {
+    "title": "Güvenilir Çoban ve Emeğin Şerefi",
+    "source": "Sahih-i Buhari: \"Hiçbir peygamber yoktur ki koyun gütmüş olmasın\"",
+    "story": "Peygamberimiz ﷺ: \"Allah’ın gönderdiği her peygamber mutlaka koyun gütmüştür\" buyurdu. Sahabeler: \"Ya siz?\" dediler. O da: \"Evet, ben de Mekkelilerin koyunlarını ücret karşılığı güderdim\" buyurdu. Bu meslek ona sabrı ve zayıflara şefkati öğretti.",
+    "lesson": "Alın teriyle çalışmak şereftir. Helal kazanç ve sabır, peygamberlerin ortak sünnetidir.",
+    "emulate": "Evde küçük bir işle ailene yardım et veya bir bitkiyi sula.",
+    "quizText": "(1) Gençliğinde hangi işi yaptı? (✅ Çobanlık) (2) Ondan ne öğrendi? (✅ Sabır ve merhamet)",
+    "caution": "Helal emeği asla küçük görmeyin.",
+    "cardTitle": "Emin Çoban — Alın Terinin Kutsallığı"
+  },
+  "ru": {
+    "title": "Честный пастух и благородство труда",
+    "source": "Сахих аль-Бухари: \"Каждый пророк пас овец\"",
+    "story": "Пророк Мухаммад ﷺ сказал: \"Каждый пророк пас овец\". Сподвижники спросили: \"И ты?\" Он ответил: \"Да, я пас их за скромную плату для жителей Мекки\". Это ремесло воспитало в нем терпение, зоркость и милосердие к слабым.",
+    "lesson": "Честный труд благороден. Зарабатывать своими руками — сунна пророков, развивающая кротость.",
+    "emulate": "Помоги дома с легкими делами или поухаживай за растением.",
+    "quizText": "(1) Чем он занимался в юности? (✅ Пас овец) (2) Чему научился? (✅ Терпению и доброте)",
+    "caution": "Не пренебрегайте скромным трудом.",
+    "cardTitle": "Верный пастух — Честь честного труда"
+  },
+  "id": {
+    "title": "Penggembala yang Jujur & Mulianya Bekerja",
+    "source": "Shahih Al-Bukhari: \"Tidak ada seorang nabi pun melainkan pernah menggembalakan kambing\"",
+    "story": "Rasulullah ﷺ bersabda: \"Tidak ada seorang nabi pun melainkan pernah menggembala kambing.\" Para sahabat bertanya: \"Dan engkau juga?\" Beliau menjawab: \"Ya, aku dahulu menggembalakannya untuk penduduk Makkah dengan upah.\" Menggembala mendidik beliau menjadi penyabar dan lembut.",
+    "lesson": "Bekerja halal adalah kehormatan. Mengais rezeki dengan tangan sendiri adalah teladan para nabi.",
+    "emulate": "Bantulah pekerjaan rumah dengan riang gembira atau siramlah tanaman keluarga.",
+    "quizText": "(1) Apa pekerjaan beliau saat belia? (✅ Menggembala kambing) (2) Pelajaran apa yang dipetik? (✅ Kesabaran dan kelembutan)",
+    "caution": "Jangan pernah memandang remeh pekerjaan halal yang sederhana.",
+    "cardTitle": "Penggembala Amanah — Kemuliaan Kerja Keras"
+  },
+  "fr": {
+    "title": "Le Berger Digne et Honnête",
+    "source": "Sahih Al-Boukhari : \"Tout prophète a fait paître des moutons\"",
+    "story": "Le Prophète ﷺ déclara : \"Il n’est de prophète qui n’ait gardé les moutons.\" On lui demanda : \"Et toi ?\" Il répondit : \"Oui, je les gardais pour les Mecquois contre un salaire.\" Cette tâche lui enseigna la patience et la sollicitude envers les faibles.",
+    "lesson": "Le travail honnête est un honneur. Gagner sa vie dignement est la voie des nobles prophètes.",
+    "emulate": "Accomplis une tâche ménagère avec plaisir ou prends soin d’une plante.",
+    "quizText": "(1) Quel travail exerçait-il ? (✅ Garder les moutons) (2) Qu’a-t-il appris ? (✅ La patience et la bonté)",
+    "caution": "Ne jamais dédaigner le labeur honnête.",
+    "cardTitle": "Le Berger Intègre — La Noblesse du Travail"
+  },
+  "de": {
+    "title": "Der treue Hirte und die Würde der Arbeit",
+    "source": "Sahih Al-Bukhari: \"Kein Prophet, der nicht Schafe gehütet hätte\"",
+    "story": "Prophet Muhammad ﷺ sagte: \"Es gab keinen Propheten, der nicht Schafe hütete.\" Die Gefährten fragten: \"Und du?\" Er sagte: \"Ja, ich hütete sie für die Leute von Mekka gegen Lohn.\" Das Hüten lehrte ihn Geduld und Schutz für die Schwachen.",
+    "lesson": "Ehrliche Arbeit ist ehrenhaft. Der eigene Broterwerb ist die Sunnah der Gesandten.",
+    "emulate": "Hilf zu Hause bei einer Hausarbeit oder pflege eine Pflanze.",
+    "quizText": "(1) Was tat er in jungen Jahren? (✅ Er hütete Schafe) (2) Was lernte er dabei? (✅ Geduld und Milde)",
+    "caution": "Ehrliche Arbeit ist niemals geringzuschätzen.",
+    "cardTitle": "Der verlässliche Hirte — Würde ehrlicher Hände"
+  },
+  "es": {
+    "title": "El Pastor Confiable y la Dignidad del Trabajo",
+    "source": "Sahih Al-Bujari: \"No hubo profeta que no pastoreara ovejas\"",
+    "story": "El Profeta ﷺ dijo: \"No hubo profeta que no pastoreara ovejas\". Preguntaron: \"¿Y tú?\" Dijo: \"Sí, las pastoreaba para los mequíes por una remuneración\". Pastorear le inculcó serenidad y compasión hacia los más vulnerables.",
+    "lesson": "El trabajo honrado es digno. Ganarse el sustento con esfuerzo propio es la senda de los profetas.",
+    "emulate": "Ayuda con alegría en alguna tarea del hogar o riega las plantas.",
+    "quizText": "(1) ¿Qué labor desempeñó de joven? (✅ Pastorear ovejas) (2) ¿Qué aprendió de ello? (✅ Paciencia y ternura)",
+    "caution": "Nunca menospreciar el trabajo humilde y honesto.",
+    "cardTitle": "El Pastor Fiel — La Dignidad del Trabajo Limpio"
+  }
+},
+  'seerah-4': {
+  "en": {
+    "title": "The Truthful and Trustworthy (As-Sadiq Al-Amin)",
+    "source": "Historical title \"Al-Amin\" | Bukhari & Muslim: The Mount of Safa address",
+    "story": "Before revelation, Makkah revered him for unwavering truthfulness, calling him \"Al-Amin\" (The Trustworthy). When he stood on Mount Safa to declare the call to Tawheed, he asked Quraysh: \"If I told you horsemen were coming behind this hill to attack you, would you believe me?\" They replied in unison: \"Yes, for we have never experienced anything from you except truth!\"",
+    "lesson": "Honesty and integrity build lasting trust. A Muslim never lies, even in jest.",
+    "emulate": "Do not tell any falsehood today, even as a joke, and guard a friend’s trust safely.",
+    "quizText": "(1) What noble title was he known by? (✅ Al-Amin / The Trustworthy) (2) Did they ever catch him lying? (✅ Never)",
+    "caution": "Detailed stories about the Black Stone placement are checked for historical authenticity.",
+    "cardTitle": "As-Sadiq Al-Amin — Radiance of Truthfulness"
+  },
+  "bn": {
+    "title": "আস-সাদিক আল-আমিন — সত্যবাদী ও বিশ্বাসভাজন",
+    "source": "ঐতিহাসিক উপাধি \"আল-আমিন\" | সহীহ বুখারী ও মুসলিম: সাফা পাহাড়ের ভাষণ",
+    "story": "নবুওয়াত প্রাপ্তির পূর্বেই মক্কার সকল মানুষ তাঁর অসাধারণ সত্যবাদিতা ও বিশ্বস্ততা দেখে মুগ্ধ হয়ে তাঁকে \"আল-আমিন\" (বিশ্বস্ত) উপাধিতে ভূষিত করেছিল। সাফা পাহাড়ে দাঁড়িয়ে তিনি যখন কুরাইশদের ডাক দিয়ে বললেন: \"আমি যদি বলি এই পাহাড়ের পেছনে একদল শত্রু তোমাদের আক্রমণের অপেক্ষায় আছে, তোমরা কি বিশ্বাস করবে?\" তারা একবাক্যে বলে উঠল: \"নিশ্চয়ই, আমরা আপনার মুখ থেকে সত্য ছাড়া অন্য কোনো কথাই কোনোদিন শুনিনি!\"",
+    "lesson": "সত্যবাদিতা ও আমানতদারী মানুষের মনে অটুট আস্থা তৈরি করে। মুমিন কখনো ঠাট্টাচ্ছলেও মিথ্যা বলে না।",
+    "discussion": "সব পরিস্থিতিতে সবসময় সত্য কথা বললে মানুষ কেন আমাদের ভালোবাসে ও সম্মান করে?",
+    "activity": "আজ সারা দিনে কোনো মিথ্যা বলবে না (এমনকি কৌতুক করেও নয়) এবং বন্ধুর আমানত যত্ন সহকারে রক্ষা করবে।",
+    "quizText": "(১) মক্কাবাসী তাঁকে কোন উপাধিতে ডাকত? (✅ আল-আমিন / মহা বিশ্বস্ত) (২) তারা কি কখনো তাঁর মুখ থেকে মিথ্যা শুনেছিল? (✅ কখনো না)",
+    "caution": "হাজরে আসওয়াদ স্থাপনের বিস্তারিত সীরাত বিবরণ সঠিক সূত্রে যাচাইকৃত।",
+    "cardTitle": "আস-সাদিক আল-আমিন — সত্যের আলোকবর্তিকা"
+  },
+  "ur": {
+    "title": "صادق اور امین",
+    "source": "لقب \"الامین\" | صحیح بخاری و مسلم: کوہِ صفا کا خطاب",
+    "story": "نبوت سے پہلے اہل مکہ آپ کو آپ کی سچائی اور امانت کی وجہ سے \"الامین\" کہتے تھے۔ کوہِ صفا پر جب آپ نے فرمایا: اگر میں کہوں کہ اس پہاڑ کے پیچھے سے ایک لشکر حملہ کرنے والا ہے تو کیا تم میری بات مانو گے؟ سب نے یک زبان ہو کر کہا: ہاں، ہم نے آپ کو ہمیشہ سچا ہی پایا ہے۔",
+    "lesson": "سچائی اور دیانت انسان کو معتبر بناتی ہے۔ مومن کبھی جھوٹ نہیں بولتا۔",
+    "emulate": "آج مذاق میں بھی جھوٹ نہ بولیں اور کسی کی دی ہوئی امانت کی حفاظت کریں۔",
+    "quizText": "(1) اہل مکہ آپ کو کیا کہتے تھے؟ (✅ الصادق الامین) (2) کیا انہوں نے کبھی آپ سے جھوٹ سنا؟ (✅ کبھی نہیں)",
+    "caution": "حجر اسود کی تنصیب کی تفصیلات مستند کتب سے دیکھیں۔",
+    "cardTitle": "صادق اور امین — سچائی کا نور"
+  },
+  "tr": {
+    "title": "Muhammedü’l-Emîn — Doğru ve Güvenilir İnsan",
+    "source": "Tarihi \"El-Emîn\" lakabı | Buhari ve Müslim: Safa Tepesi hitabı",
+    "story": "Peygamberlikten önce Mekkeliler onu dürüstlüğü nedeniyle \"El-Emîn\" (Güvenilir) diye anardı. Safa Tepesi’nde kavmine: \"Şu dağın ardından bir ordunun geldiğini söylesem inanır mısınız?\" dediğinde, hepsi bir ağızdan: \"Evet, çünkü senden doğruluktan başka bir şey görmedik!\" dediler.",
+    "lesson": "Doğruluk ve dürüstlük güven kazandırır. Müslüman şaka ile de olsa asla yalan söylemez.",
+    "emulate": "Bugün şaka bile olsa tek bir yalan söyleme ve emaneti koru.",
+    "quizText": "(1) O hangi lakapla anılırdı? (✅ El-Emîn / Güvenilir) (2) Hiç yalanına şahit oldular mı? (✅ Asla)",
+    "caution": "Hacerü’l-Esved hakemliği detayları kaynaklardan doğrulanır.",
+    "cardTitle": "El-Emîn — Güvenin ve Doğruluğun Zirvesi"
+  },
+  "ru": {
+    "title": "Ас-Садик аль-Амин — Правдивый и Надежный",
+    "source": "Исторический титул \"Аль-Амин\" | Бухари и Муслим: обращение на холме Сафа",
+    "story": "Еще до начала пророчества жители Мекки дали ему благородное прозвище \"Аль-Амин\" (Верный, Надежный). Взойдя на холм Сафа, он спросил: \"Если я скажу вам, что за этим холмом конница готова напасть на вас, поверите ли вы мне?\" Они ответили: \"Да, ведь мы знали от тебя лишь правду!\"",
+    "lesson": "Правдивость и надежность заслуживают высшее доверие. Верующий не лжет даже в шутку.",
+    "emulate": "Не произноси ни единой лжи сегодня, даже ради смеха, и сбереги доверенный секрет.",
+    "quizText": "(1) Какое прозвище дал ему народ? (✅ Аль-Амин) (2) Ловили ли его когда-нибудь на лжи? (✅ Никогда)",
+    "caution": "Сведения об установке Черного камня проверяются по достоверным источникам.",
+    "cardTitle": "Аль-Амин — Сияние искренности и правды"
+  },
+  "id": {
+    "title": "As-Sadiq Al-Amin — Yang Benar dan Terpercaya",
+    "source": "Gelar \"Al-Amin\" | Bukhari & Muslim: Seruan di Bukit Shafa",
+    "story": "Sebelum masa kenabian, seluruh kaum Quraisy menjulukinya \"Al-Amin\" (orang yang terpercaya). Ketika beliau berdiri di atas Bukit Shafa dan bertanya: \"Jika kukabarkan bahwa ada pasukan berkuda di balik bukit ini hendak menyerang kalian, apakah kalian mempercayaiku?\" Mereka serentak menjawab: \"Ya, kami tidak pernah mendapati darimu selain kejujuran!\"",
+    "lesson": "Kejujuran dan sifat amanah melahirkan kepercayaan sejati. Muslim pantang berdusta walau bercanda.",
+    "emulate": "Jangan berbohong hari ini walau untuk bergurau, dan jagalah titipan teman dengan baik.",
+    "quizText": "(1) Apa gelar mulia beliau sebelum kenabian? (✅ Al-Amin) (2) Pernahkah beliau berdusta? (✅ Tidak pernah sama sekali)",
+    "caution": "Kisah peletakan Hajar Aswad diverifikasi dari kitab-kitab muktabar.",
+    "cardTitle": "Al-Amin — Teladan Kejujuran Abadi"
+  },
+  "fr": {
+    "title": "As-Sadiq Al-Amine — Le Véridique et Digne de Confiance",
+    "source": "Le titre d’Al-Amine | Al-Boukhari & Mouslim : l’appel du mont As-Safa",
+    "story": "Avant même la révélation, les gens de La Mecque le surnommaient \"Al-Amine\" (Le Digne de Confiance). Au mont As-Safa, il leur demanda : \"Si je vous disais qu’une armée s’apprête à vous attaquer, me croiriez-vous ?\" Ils répondirent d’une seule voix : \"Oui, nous n’avons jamais éprouvé en toi que la vérité !\"",
+    "lesson": "L’honnêteté et la loyauté inspirent le respect. Un croyant ne ment jamais, même en plaisantant.",
+    "emulate": "Ne profère aucun mensonge aujourd’hui et garde fidèlement les secrets qu’on te confie.",
+    "quizText": "(1) Quel noble surnom portait-il ? (✅ Al-Amine) (2) A-t-il déjà menti ? (✅ Jamais)",
+    "caution": "Les détails de la pose de la Pierre Noire sont appuyés par des sources authentiques.",
+    "cardTitle": "Al-Amine — Le Modèle Parfait de Loyauté"
+  },
+  "de": {
+    "title": "As-Sadiq Al-Amin — Der Wahrhaftige und Vertrauenswürdige",
+    "source": "Der Beiname \"Al-Amin\" | Al-Bukhari & Muslim: Die Ansprache auf dem Berg Safa",
+    "story": "Schon vor der Offenbarung nannten ihn die Quraisch voller Respekt \"Al-Amin\" (den Vertrauenswürdigen). Auf dem Berg Safa fragte er: \"Wenn ich euch sage, dass hinter diesem Hügel Reiter euch angreifen wollen, würdet ihr mir glauben?\" Sie riefen einstimmig: \"Ja, denn wir haben an dir nur die Wahrheit erlebt!\"",
+    "lesson": "Wahrhaftigkeit und Zuverlässigkeit schaffen unerschütterliches Vertrauen. Ein Muslim lügt niemals.",
+    "emulate": "Lüge heute nicht ein einziges Mal, auch nicht im Scherz, und bewahre Anvertrautes.",
+    "quizText": "(1) Wie nannten ihn die Leute von Mekka? (✅ Al-Amin) (2) Hatte er je gelogen? (✅ Niemals)",
+    "caution": "Geschichten über den Schwarzen Stein werden quellenkritisch geprüft.",
+    "cardTitle": "Al-Amin — Der Inbegriff von Ehrlichkeit"
+  },
+  "es": {
+    "title": "As-Sadiq Al-Amin — El Veraz y Confiable",
+    "source": "Título \"Al-Amin\" | Bujari y Muslim: El llamado en el monte Safa",
+    "story": "Antes de la profecía, la gente de La Meca lo llamaba con veneración \"Al-Amin\" (El Fiel y Digno de Confianza). En el monte Safa les preguntó: \"¿Si os dijera que un ejército va a atacaros tras esta colina, me creeríais?\" Todos respondieron al unísono: \"¡Sí, jamás hemos conocido de ti sino la verdad!\"",
+    "lesson": "La honestidad y la integridad generan confianza. El creyente jamás miente, ni siquiera en broma.",
+    "emulate": "No digas ninguna mentira hoy, ni en chiste, y custodia con esmero lo que te confíen.",
+    "quizText": "(1) ¿Qué apelativo tenía? (✅ Al-Amin) (2) ¿Alguna vez mintió? (✅ Jamás)",
+    "caution": "Los pormenores de la Piedra Negra se fundamentan en fuentes fidedignas.",
+    "cardTitle": "Al-Amin — Modelo Eterno de Integridad"
+  }
+},
+  'seerah-5': {
+  "en": {
+    "title": "Cave of Hira & The First Revelation \"Iqra\"",
+    "source": "Al-Bukhari & Muslim (Aisha) | Al-Alaq 96:1-5",
+    "story": "The Prophet ﷺ used to spend time in deep reflection inside the Cave of Hira on Jabal an-Nur. Suddenly, Angel Jibril appeared and said: \"Read!\" The Prophet ﷺ replied: \"I cannot read.\" Jibril embraced him gently and recited the very first verses: \"Read in the name of your Lord who created...\" Trembling with awe, he returned home to his wife Khadijah, who comforted him with faith: \"Never! By Allah, He will never forsake you. You keep good ties with relatives, help the poor, honor guests, and support the truth.\"",
+    "lesson": "The very first word revealed was \"Read\" — seeking knowledge and truth is the foundation of faith.",
+    "emulate": "Read for 10 minutes today from a beneficial book or the Holy Quran.",
+    "quizText": "(1) What was the first word revealed? (✅ Read / Iqra) (2) How old was he? (✅ Forty years old)",
+    "caution": "We avoid unverified legendary tales about physical details of the cave.",
+    "cardTitle": "Cave of Hira — \"Read!\""
+  },
+  "bn": {
+    "title": "হেরা গুহা ও প্রথম ওহী: \"ইকরা\"",
+    "source": "সহীহ বুখারী ও মুসলিম (আয়েশা) | সূরা আল-আলাক ৯৬:১-৫",
+    "story": "নবীজি ﷺ জাবালে নূরের হেরা গুহায় গভীর ধ্যানে নিমগ্ন থাকতেন। হঠাৎ ফেরেশতা জিবরাঈল এসে বললেন: \"পড়ুন!\" নবীজি ﷺ বললেন: \"আমি তো পড়তে জানি না।\" জিবরাঈল তাঁকে জড়িয়ে ধরে পবিত্র প্রথম বাণী শোনালেন: \"পড়ুন আপনার রবের নামে যিনি সৃষ্টি করেছেন...\" তিনি ভয়ে কাঁপতে কাঁপতে খাদিজার কাছে ফিরে গেলেন। খাদিজা (রা.) সান্ত্বনা দিয়ে বললেন: \"কখনোই নয়! আল্লাহর কসম, আল্লাহ আপনাকে কখনো অপমানিত করবেন না। আপনি আত্মীয়তার বন্ধন রক্ষা করেন, গরিব-অসহায়ের বোঝা বহন করেন এবং ন্যায়ের পথে সাহায্য করেন।\"",
+    "lesson": "ওহীর প্রথম শব্দ \"পড়ুন\" — ইলম ও জ্ঞান অর্জনই ঈমানের প্রথম ধাপ। খাদিজার সাক্ষ্য নবীজির উচ্চ নৈতিকতার প্রমাণ।",
+    "emulate": "আজ কোনো উপকারী বই বা পবিত্র কুরআন থেকে অন্তত ১০ মিনিট মনোযোগ দিয়ে পড়ব।",
+    "quizText": "(১) প্রথম নাজিলকৃত শব্দ কী ছিল? (✅ ইকরা / পড়ুন) (২) তখন তাঁর বয়স কত ছিল? (✅ চল্লিশ বছর)",
+    "caution": "সহীহ হাদিস বহির্ভূত ভিত্তিহীন গল্প পরিহার করতে হবে।",
+    "cardTitle": "হেরা গুহা — \"পড়ুন\""
+  },
+  "ur": {
+    "title": "غار حرا اور پہلی وحی: \"اقرأ\"",
+    "source": "بخاری و مسلم (عائشہؓ) | سورۃ العلق 96:1-5",
+    "story": "نبی کریم ﷺ غارِ حرا میں تنہائی میں عبادت اور غور و فکر فرماتے تھے۔ اچانک حضرت جبرائیل علیہ السلام تشریف لائے اور کہا: \"پڑھیے!\" آپ ﷺ نے فرمایا: \"میں پڑھنا نہیں جانتا۔\" حضرت جبرائیل نے آپ کو گلے سے لگایا اور سورۂ علق کی پہلی آیات تلاوت کیں: \"پڑھیے اپنے رب کے نام سے جس نے پیدا کیا...\" آپ ﷺ کپکپاتے ہوئے حضرت خدیجہ کے پاس تشریف لائے تو انہوں نے تسلی دی: \"ہرگز نہیں! اللہ کی قسم، اللہ آپ کو کبھی رسوا نہیں کرے گا، آپ تو رشتہ داروں سے حسنِ سلوک کرتے ہیں اور سچ بولتے ہیں۔\"",
+    "lesson": "وحی کا پہلا لفظ \"اقرأ\" (پڑھیے) ہے — علم کا حصول ایمان اور نیکی کا پہلا زینہ ہے۔",
+    "emulate": "آج کسی مفید کتاب یا قرآن مجید سے ۱۰ منٹ ضرور مطالعہ کروں گا۔",
+    "quizText": "(۱) پہلی نازل ہونے والی بات کیا تھی؟ (✅ اقرأ / پڑھیے) (۲) اس وقت عمر مبارک کتنی تھی؟ (✅ چالیس سال)",
+    "caution": "غار کے متعلق من گھڑت روایات بیان کرنے سے گریز کریں۔",
+    "cardTitle": "غارِ حرا — \"اقرأ\""
+  },
+  "tr": {
+    "title": "Hira Mağarası ve İlk Vahiy \"İkra\"",
+    "source": "Buhârî ve Müslim (Âişe) | Alak 96:1-5",
+    "story": "Peygamber Efendimiz ﷺ Hira Mağarası'nda tefekküre çekilirdi. Bir gün Cebrail aleyhisselam gelerek \"Oku!\" dedi. Efendimiz \"Ben okuma bilmem\" buyurdu. Cebrail onu kucaklayıp sıktı ve ilk ayetleri okudu: \"Yaratan Rabbinin adıyla oku!\" Efendimiz titreyerek evine, Hz. Hatice'nin yanına döndü. Hz. Hatice ona: \"Asla korkma! Vallahi Allah seni asla utandırmaz. Çünkü sen akrabayı gözetir, doğruyu söyler, muhtaçlara yardım edersin\" diyerek teselli etti.",
+    "lesson": "Vahyin ilk kelimesi \"Oku\"dur — ilim ve öğrenmek imanın ve başarının ilk basamağıdır.",
+    "emulate": "Bugün faydalı bir kitaptan veya Kur'an'dan 10 dakika okuyacağım.",
+    "quizText": "(1) İnen ilk kelime nedir? (✅ Oku / İkra) (2) Peygamberimiz kaç yaşındaydı? (✅ Kırk yaşında)",
+    "caution": "Sahih kaynaklara dayanmayan abartılı anlatımlardan kaçınılmalıdır.",
+    "cardTitle": "Hira Mağarası — \"Oku\""
+  },
+  "ru": {
+    "title": "Пещера Хира и первое откровение \"Читай\"",
+    "source": "Аль-Бухари и Муслим (Аиша) | Аль-Алак 96:1-5",
+    "story": "Пророк ﷺ уединялся в пещере Хира для размышлений и поклонения. Внезапно явился ангел Джибриль и произнес: \"Читай!\" Пророк ﷺ ответил: \"Я не умею читать\". Джибриль крепко обнял его и прочел первые аяты: \"Читай во имя твоего Господа, Который сотворил...\" Охваченный трепетом, он вернулся домой к Хадидже, которая утешила его: \"Клянусь Аллахом, Он никогда не оставит тебя! Ведь ты поддерживаешь родственные узы, говоришь правду и помогаешь нуждающимся\".",
+    "lesson": "Первое слово откровения — \"Читай\", ведь стремление к знаниям — основа веры.",
+    "emulate": "Я почитаю сегодня 10 минут полезную книгу или Коран.",
+    "quizText": "(1) Каково первое слово откровения? (✅ Читай / Икра) (2) Сколько лет было Пророку? (✅ Сорок лет)",
+    "caution": "Избегайте вымышленных историй о пещере, не подтвержденных Сунной.",
+    "cardTitle": "Пещера Хира — \"Читай\""
+  },
+  "id": {
+    "title": "Gua Hira & Wahyu Pertama \"Iqra\"",
+    "source": "Al-Bukhari & Muslim (Aisyah) | Al-‘Alaq 96:1-5",
+    "story": "Nabi Muhammad ﷺ sering bertahannuts di Gua Hira di Jabal Nur. Tiba-tiba Malaikat Jibril datang dan berkata: \"Bacalah!\" Nabi ﷺ menjawab: \"Aku tidak bisa membaca.\" Jibril memeluknya erat lalu membacakan ayat pertama: \"Bacalah dengan nama Tuhanmu yang menciptakan...\" Beliau pulang dengan hati bergetar menemui Khadijah. Khadijah menenangkan beliau: \"Demi Allah, Dia tidak akan pernah menyia-nyiakanmu. Engkau senantiasa menyambung silaturahmi, menolong yang lemah, dan membela kebenaran.\"",
+    "lesson": "Kata pertama wahyu adalah \"Iqra\" (Bacalah) — menuntut ilmu adalah pondasi kemuliaan.",
+    "emulate": "Hari ini saya akan membaca buku yang bermanfaat atau Al-Qur’an selama 10 menit.",
+    "quizText": "(1) Kata pertama yang diwahyukan? (✅ Iqra / Bacalah) (2) Berapa usia beliau saat itu? (✅ Empat puluh tahun)",
+    "caution": "Hindari riwayat lemah tanpa sanad sahih.",
+    "cardTitle": "Gua Hira — \"Bacalah\""
+  },
+  "fr": {
+    "title": "La Grotte de Hira et la première révélation « Iqra »",
+    "source": "Al-Bukhari & Muslim (Aïcha) | Al-Alaq 96:1-5",
+    "story": "Le Prophète ﷺ s’isolait dans la grotte de Hira pour méditer. L’ange Gabriel apparut soudain et lui dit : « Lis ! » Le Prophète ﷺ répondit : « Je ne sais pas lire. » Gabriel l’étreignit avec douceur et récita : « Lis, au nom de ton Seigneur qui a créé... » Le Prophète ﷺ rentra chez son épouse Khadija en tremblant. Elle le réconforta avec foi : « Par Allah, jamais Dieu ne te délaissera ! Tu maintiens les liens familiaux, aides les nécessiteux et soutiens la vérité. »",
+    "lesson": "Le tout premier mot révélé fut « Lis » — la recherche du savoir est le socle de la foi.",
+    "emulate": "Lis aujourd’hui pendant 10 minutes un livre enrichissant ou le Coran.",
+    "quizText": "(1) Quel fut le premier mot révélé ? (✅ Lis / Iqra) (2) Quel âge avait-il ? (✅ Quarante ans)",
+    "caution": "Éviter les récits légendaires sans assise dans la Sunna authentique.",
+    "cardTitle": "Grotte de Hira — « Lis »"
+  },
+  "de": {
+    "title": "Die Höhle Hira und die erste Offenbarung „Iqra“",
+    "source": "Al-Bukhari & Muslim (Aischa) | Al-Alaq 96:1-5",
+    "story": "Der Prophet ﷺ zog sich oft in die Höhle Hira zurück, um nachzudenken und anzubeten. Plötzlich erschien der Engel Jibril und sprach: „Lies!“ Der Prophet antwortete: „Ich kann nicht lesen.“ Jibril umarmte ihn fest und rezitierte: „Lies im Namen deines Herrn, Der erschuf...“ Zitternd eilte er zu Chadidscha, die ihn stärkte: „Bei Allah, Er wird dich niemals im Stich lassen! Du pflegst die Verwandtschaft, hilfst den Armen und stehst für das Recht ein.“",
+    "lesson": "Das allererste Wort war „Lies“ — das Streben nach Wissen ist der Beginn des Glaubens.",
+    "emulate": "Lies heute 10 Minuten in einem lehrreichen Buch oder im Koran.",
+    "quizText": "(1) Was war das erste offenbarte Wort? (✅ Lies / Iqra) (2) Wie alt war er damals? (✅ Vierzig Jahre)",
+    "caution": "Keine ungesicherten Mythen über Details der Höhle verbreiten.",
+    "cardTitle": "Höhle Hira — „Lies“"
+  },
+  "es": {
+    "title": "La Cueva de Hira y la primera revelación \"Iqra\"",
+    "source": "Al-Bujari y Muslim (Aisha) | Al-Alaq 96:1-5",
+    "story": "El Profeta ﷺ se retiraba a meditar en la Cueva de Hira. De repente, el ángel Yibril se presentó y le dijo: \"¡Lee!\" El Profeta ﷺ respondió: \"No sé leer\". Yibril lo abrazó con ternura y recitó: \"¡Lee en el nombre de tu Señor que ha creado...!\" Con el corazón tembloroso regresó con Jadiya, quien lo consoló: \"¡Por Dios que jamás te abandonará! Tú unes los lazos familiares, socorres a los débiles y defiendes la verdad\".",
+    "lesson": "La primera palabra revelada fue \"Lee\" — el conocimiento es el faro que ilumina la fe.",
+    "emulate": "Leeré hoy 10 minutos de un libro educativo o del Sagrado Corán.",
+    "quizText": "(1) ¿Cuál fue la primera palabra revelada? (✅ Lee / Iqra) (2) ¿Qué edad tenía? (✅ Cuarenta años)",
+    "caution": "Evitar detalles fabulosos no respaldados por fuentes auténticas.",
+    "cardTitle": "Cueva de Hira — \"¡Lee!\""
+  }
+},
+  'seerah-6': {
+  "en": {
+    "title": "The First Believers — The Pioneers of Faith",
+    "source": "Authentic Seerah & Sahih Hadiths",
+    "story": "Khadijah (ra) was the very first person to believe in the message of Islam. Soon after, Abu Bakr as-Siddiq, Ali ibn Abi Talib (who was then a young boy), and Zayd ibn Harithah embraced the faith without hesitation. Many early believers were youth and humble souls who recognized truth through sincerity.",
+    "lesson": "Family support and true friendship nourish good deeds. Even young children can be champions of truth.",
+    "emulate": "Encourage a brother, sister, or friend to do a good deed today.",
+    "quizText": "(1) Who was the first person to accept Islam? (✅ Khadijah ra) (2) Can youth lead in doing good? (✅ Yes)",
+    "caution": "Exact ages of early children vary among historians; focus on their faith.",
+    "cardTitle": "The Pioneers of Faith"
+  },
+  "bn": {
+    "title": "প্রথম মুসলিমগণ — ঈমানের অগ্রদূত",
+    "source": "সহীহ সীরাত ও নির্ভরযোগ্য হাদিসগ্রন্থ",
+    "story": "সবার আগে ইসলামের সত্য বাণী গ্রহণ করেন উম্মুল মুমিনীন খাদিজা (রা.)। এরপর পরম বন্ধু আবু বকর, বালক বয়সে আলী এবং যায়দ ইবনে হারেসা (রা.) কোনো দ্বিধা ছাড়াই ইসলাম গ্রহণ করেন। ইসলামের প্রাথমিক যুগের বহু বিশ্বাসী ছিলেন যুবক ও বালক, যারা সত্যকে হৃদয় দিয়ে ধারণ করেছিলেন।",
+    "lesson": "পরিবার ও বন্ধুদের সমর্থন কল্যাণের পথে অটল রাখে। শিশু-কিশোররাও সত্যের অগ্রপথিক হতে পারে।",
+    "emulate": "আজ কোনো বন্ধু বা সহপাঠীকে একটি ভালো কাজে উৎসাহিত করব।",
+    "quizText": "(১) সর্বপ্রথম কে ইসলাম গ্রহণ করেন? (✅ খাদিজা রা.) (২) ছোটরাও কি কল্যাণে এগিয়ে থাকতে পারে? (✅ হ্যাঁ)",
+    "caution": "শুরুর দিকের অপ্রাপ্তবয়স্কদের নিখুঁত বয়সের বিবরণে ঐতিহাসিক মতভেদ রয়েছে।",
+    "cardTitle": "অগ্রবর্তী বিশ্বাসীগণ"
+  },
+  "ur": {
+    "title": "اوائل المؤمنین — اولین ایمان لانے والے",
+    "source": "مستند کتبِ سیرت و احادیثِ صحیحہ",
+    "story": "سب سے پہلے حضرت خدیجہ رضی اللہ عنہا نے اسلام قبول کیا۔ ان کے بعد حضرت ابوبکر صدیق، حضرت علی (جو اس وقت نوعمر تھے) اور حضرت زید بن حارثہ رضی اللہ عنہم نے فوراً حق کو تسلیم کیا۔ ابتدائی ایمان لانے والوں میں نوجوان اور بچے بھی پیش پیش تھے۔",
+    "lesson": "خاندان اور اچھے دوستوں کا ساتھ نیکی میں طاقت بنتا ہے، اور بچے بھی حق کے علمبردار بن سکتے ہیں۔",
+    "emulate": "آج کسی دوست کو کسی اچھے اور نیک کام کی ترغیب دوں گا۔",
+    "quizText": "(۱) سب سے پہلے کون ایمان لائے؟ (✅ حضرت خدیجہؓ) (۲) کیا کم عمر بھی نیکی میں سبقت لے سکتے ہیں؟ (✅ ہاں)",
+    "caution": "ابتدائی بچوں کی عمر کے سلسلے میں روایات کے اختلاف کا خیال رکھا جائے۔",
+    "cardTitle": "سبقت لے جانے والے"
+  },
+  "tr": {
+    "title": "İlk İnananlar — İmanın Öncüleri",
+    "source": "Sahih Siyer Kaynakları ve Hadisler",
+    "story": "İslam'ı ilk kabul eden Hz. Hatice (r.a.) oldu. Ardından Hz. Ebû Bekir, henüz bir çocuk olan Hz. Ali ve Hz. Zeyd b. Hârise hiç tereddüt etmeden iman ettiler. İlk Müslümanlar arasında samimiyetle hakka koşan pek çok genç ve çocuk vardı.",
+    "lesson": "Aile ve dostların desteği iyilik yolunda güç verir. Çocuklar ve gençler de hakkın öncüsü olabilir.",
+    "emulate": "Bugün bir arkadaşımı güzel bir davranışta bulunmaya teşvik edeceğim.",
+    "quizText": "(1) İlk iman eden kimdir? (✅ Hz. Hatice r.a.) (2) Çocuklar da iyilikte öne geçebilir mi? (✅ Evet)",
+    "caution": "İlk çocukların kesin yaşları hakkında rivayet farkları vardır.",
+    "cardTitle": "İlk Öncüler"
+  },
+  "ru": {
+    "title": "Первые мусульмане — пионеры веры",
+    "source": "Достоверная Сира и сборники хадисов",
+    "story": "Первой из всех людей уверовала благородная Хадиджа (да будет доволен ею Аллах). Вскоре за ней последовали Абу Бакр ас-Сыддик, юный Али ибн Аби Талиб и Зейд ибн Хариса. Среди первых верующих было много молодежи и детей, чьи чистые сердца сразу приняли истину.",
+    "lesson": "Поддержка семьи и искренних друзей укрепляет на пути добра. Даже дети способны быть впереди во благе.",
+    "emulate": "Сегодня я поддержу и вдохновлю друга на доброе дело.",
+    "quizText": "(1) Кто первой приняла ислам? (✅ Хадиджа) (2) Может ли юный совершать великое благо? (✅ Да)",
+    "caution": "Точный возраст юных сподвижников в источниках разнится; важна их искренность.",
+    "cardTitle": "Первые верующие"
+  },
+  "id": {
+    "title": "Orang-Orang Pertama yang Beriman (As-Sabiqunal Awwalun)",
+    "source": "Sirah Nabawiyah & Hadits Sahih",
+    "story": "Khadijah radhiyallahu ‘anha adalah orang pertama yang beriman kepada risalah Nabi. Setelah itu, Abu Bakar ash-Shiddiq, Ali bin Abi Thalib (yang saat itu masih belia), dan Zaid bin Haritsah langsung memeluk Islam. Banyak di antara pemeluk Islam mula-mula adalah pemuda berjiwa bersih.",
+    "lesson": "Dukungan keluarga memudahkan kebaikan, dan anak-anak pun bisa menjadi pelopor kebajikan.",
+    "emulate": "Hari ini saya akan mengajak seorang sahabat untuk berbuat kebaikan bersama.",
+    "quizText": "(1) Siapakah manusia pertama yang beriman? (✅ Khadijah r.a.) (2) Bisakah anak muda memelopori kebaikan? (✅ Tentu bisa)",
+    "caution": "Fokuslah pada keteladanan iman mereka.",
+    "cardTitle": "Para Pelopor Iman"
+  },
+  "fr": {
+    "title": "Les premiers croyants — Les pionniers de la foi",
+    "source": "Sira authentique et recueils de Hadiths",
+    "story": "Khadija (ra) fut la toute première personne à embrasser l’Islam. Peu après, Abou Bakr, Ali ibn Abi Talib (encore jeune garçon) et Zayd ibn Haritha répondirent à l’appel sans la moindre hésitation. De nombreux jeunes figuraient parmi les pionniers guidés par la droiture.",
+    "lesson": "Le soutien familial et l’amitié sincère fortifient dans le bien. Même les jeunes peuvent être des modèles.",
+    "emulate": "Encourage aujourd’hui un ami ou un proche à accomplir une bonne action.",
+    "quizText": "(1) Qui fut la première personne à embrasser l’Islam ? (✅ Khadija ra) (2) Les jeunes peuvent-ils devancer dans le bien ? (✅ Oui)",
+    "caution": "L’âge exact des plus jeunes compagnons fait l’objet de variantes selon les récits.",
+    "cardTitle": "Les Pionniers"
+  },
+  "de": {
+    "title": "Die ersten Gläubigen — Die Pioniere des Glaubens",
+    "source": "Authentische Sira und Hadith-Sammlungen",
+    "story": "Chadidscha (ra) war die allererste Person, die den Islam annahm. Bald darauf traten Abu Bakr, der junge Ali und Zaid ibn Haritha ohne Zögern dem Glauben bei. Unter den ersten Muslimen waren viele Jugendliche, die das Gute mit reinem Herzen erkannten.",
+    "lesson": "Rückhalt in der Familie und treue Freunde helfen auf dem Weg des Guten. Auch Kinder können Vorbilder sein.",
+    "emulate": "Muntere heute ein Geschwisterkind oder einen Freund zu einer guten Tat auf.",
+    "quizText": "(1) Wer nahm den Islam als Erstes an? (✅ Chadidscha ra) (2) Können auch Jugendliche Vorreiter sein? (✅ Ja)",
+    "caution": "Über das genaue Alter der jüngsten Gefährten gibt es unterschiedliche historische Berichte.",
+    "cardTitle": "Die ersten Pioniere"
+  },
+  "es": {
+    "title": "Los primeros creyentes — Pioneros de la fe",
+    "source": "Sira fidedigna y fuentes de Hadiz",
+    "story": "Jadiya (ra) fue la primera persona en aceptar el Islam. Poco después, Abu Bakr as-Siddiq, Ali ibn Abi Talib (siendo aún un jovencito) y Zaid ibn Haritha abrazaron la fe sin vacilar. Muchos de los primeros creyentes fueron jóvenes sinceros.",
+    "lesson": "El amor familiar y las buenas compañías impulsan al bien. Los niños también pueden liderar en rectitud.",
+    "emulate": "Animaré hoy a un amigo o hermano a realizar una buena acción.",
+    "quizText": "(1) ¿Quién fue la primera creyente? (✅ Jadiya ra) (2) ¿Pueden los jóvenes ser pioneros en el bien? (✅ Sí)",
+    "caution": "Las edades precisas de los jóvenes varían según los historiadores.",
+    "cardTitle": "Los Primeros Creyentes"
+  }
+},
+  'seerah-7': {
+  "en": {
+    "title": "Patience on Mount Safa & Public Calling",
+    "source": "Al-Bukhari & Muslim: The Calling on Mount Safa",
+    "story": "When commanded to proclaim the message openly, the Prophet ﷺ stood atop Mount Safa and called each clan by name. He asked: \"If I told you that horsemen were about to attack you from behind this mountain, would you believe me?\" They answered: \"Yes, we have known nothing from you except truth.\" Yet when he called them to worship Allah alone, some turned away and opposed him. The Prophet ﷺ responded with immense patience, dignity, and unwavering resolve.",
+    "lesson": "Standing for truth requires steadfast patience. We do not abandon goodness when others mock or disagree.",
+    "emulate": "If someone teases you for doing what is right, stay calm, smile, and remain steadfast.",
+    "quizText": "(1) Where did he stand to call his people? (✅ Mount Safa) (2) How did he respond to hardship? (✅ With patience)",
+    "caution": "Avoid graphic torture accounts when teaching children; emphasize patience and trust.",
+    "cardTitle": "Steadfast on Mount Safa"
+  },
+  "bn": {
+    "title": "সাফা পাহাড়ে দাওয়াত ও ধৈর্যের শিক্ষা",
+    "source": "সহীহ বুখারী ও মুসলিম: সাফা পাহাড়ের আহ্বান",
+    "story": "প্রকাশ্যে দাওয়াত দেওয়ার নির্দেশ আসার পর নবীজি ﷺ সাফা পাহাড়ে আরোহণ করে কুরাইশদের ডাক দিলেন। তিনি জিজ্ঞেস করলেন: \"আমি যদি বলি এই পাহাড়ের পেছন থেকে একদল শত্রু আক্রমণ করতে আসছে, তোমরা কি বিশ্বাস করবে?\" সবাই বলল: \"অবশ্যই, আমরা আপনাকে আজীবন সত্যবাদী হিসেবেই পেয়েছি।\" কিন্তু যখন তিনি এক আল্লাহর ইবাদতের দিকে ডাকলেন, তখন অনেকেই শত্রুতা শুরু করল। নবীজি ﷺ অসীম ধৈর্য ও দৃঢ়তার সাথে সত্যের পথে অবিচল রইলেন।",
+    "lesson": "সত্যের পথে চলা মানুষের জন্য ধৈর্য অপরিহার্য। কেউ বিরোধিতা করলে বা উপহাস করলেও সৎকাজ ত্যাগ করা যাবে না।",
+    "emulate": "সৎকাজে কেউ উপহাস বা কটূক্তি করলেও আমি ধৈর্য ধরব এবং কল্যাণের পথে অবিচল থাকব।",
+    "quizText": "(১) নবীজি ﷺ কোথায় দাঁড়িয়ে সবাইকে ডেকেছিলেন? (✅ সাফা পাহাড়ে) (২) কষ্টের মুখে তিনি কী করেছিলেন? (✅ ধৈর্য ধারণ)",
+    "caution": "শিশুদের সামনে সাহাবিদের নির্যাতনের লোমহর্ষক বিবরণ এড়িয়ে ধৈর্যের আদর্শ তুলে ধরা উচিত।",
+    "cardTitle": "সাফা পাহাড়ে অবিচলতা"
+  },
+  "ur": {
+    "title": "کوہِ صفا پر دعوت اور صبر کی عظمت",
+    "source": "بخاری و مسلم: صفا پر اعلانیہ دعوت",
+    "story": "جب اعلانیہ دعوت کا حکم ملا تو نبی کریم ﷺ کوہِ صفا پر تشریف لے گئے اور تمام قبیلوں کو پکارا۔ آپ نے پوچھا: \"اگر میں تمہیں بتاؤں کہ اس پہاڑ کے پیچھے سے ایک لشکر تم پر حملہ کرنے والا ہے تو کیا تم مانو گے؟\" سب نے کہا: \"ہاں! ہم نے آپ کو ہمیشہ سچا ہی پایا ہے۔\" مگر جب آپ نے توحید کی دعوت دی تو چند لوگوں نے مخالفت شروع کر دی۔ آپ ﷺ نے انتہائی صبر، وقار اور استقامت کا مظاہرہ فرمایا۔",
+    "lesson": "حق کی راہ میں صبر و استقلال ضروری ہے۔ مخالفت کے باوجود کبھی نیکی اور سچائی کو نہیں چھوڑنا چاہیے۔",
+    "emulate": "اگر نیکی کرنے پر کوئی مذاق اڑائے تو میں غصہ کرنے کے بجائے صبر اور ہمت سے کام لوں گا۔",
+    "quizText": "(۱) آپ ﷺ نے قوم کو کہاں کھڑے ہو کر بلایا؟ (✅ کوہِ صفا) (۲) مخالفت پر آپ کا ردعمل کیا تھا؟ (✅ صبر و استقامت)",
+    "caution": "بچوں کے سامنے اذیتوں کی دلدوز تفصیلات کے بجائے صبر کے پہلو کو اجاگر کریں۔",
+    "cardTitle": "کوہِ صفا پر استقامت"
+  },
+  "tr": {
+    "title": "Safa Tepesi ve Sabır İmtihanı",
+    "source": "Buhârî ve Müslim: Safa Tepesi Çağrısı",
+    "story": "Açık tebliğ emri gelince Peygamberimiz ﷺ Safa Tepesi'ne çıkarak Kureyş kabilelerini çağırdı. \"Şu dağın arkasından bir düşman ordusunun geldiğini söylesem inanır mısınız?\" diye sordu. Hepsi \"Evet, senin hep doğru söylediğini gördük\" dediler. Fakat onları tek olan Allah'a kulluğa çağırdığında bir kısmı itiraz etti. Efendimiz ﷺ her türlü zorluğa karşı eşsiz bir sabır ve vakarla hak yolda sebat etti.",
+    "lesson": "Hak yolda sabır en büyük azıktır. İnsanlar itiraz etse de doğrudan ve iyilikten asla vazgeçmeyiz.",
+    "emulate": "Biri iyi bir davranışım yüzünden benimle alay ederse sabredecek ve doğruyu yapmaya devam edeceğim.",
+    "quizText": "(1) Kavmini nerede topladı? (✅ Safa Tepesi) (2) Eziyetlere nasıl karşılık verdi? (✅ Sabırla)",
+    "caution": "Çocuklara eziyet detayları yerine Peygamberimizin sabrı ve metaneti anlatılmalıdır.",
+    "cardTitle": "Safa'da Sarsılmaz İrade"
+  },
+  "ru": {
+    "title": "Терпение на холме ас-Сафа и открытый призыв",
+    "source": "Аль-Бухари и Муслим: Призыв на холме Сафа",
+    "story": "Получив повеление призвать людей открыто, Пророк ﷺ поднялся на холм ас-Сафа и обратился к жителям Мекки: \"Если я скажу вам, что за этой горой стоит конница, готовая напасть, поверите ли вы мне?\" Все ответили: \"Да, ведь мы знаем тебя только как правдивого!\" Но когда он призвал поклоняться Единому Аллаху, некоторые воспротивились. Пророк ﷺ проявил величайшее терпение и стойкость.",
+    "lesson": "Следование истине требует терпения. Мы не оставляем добро, если кто-то нас не понимает.",
+    "emulate": "Если кто-то смеется надо мной за добрый поступок, я проявлю терпение и продолжу делать благо.",
+    "quizText": "(1) Где Пророк обратился к курайшитам? (✅ На холме ас-Сафа) (2) Чем он ответил на трудности? (✅ Терпением)",
+    "caution": "Детям следует делать акцент на выдержке и благородстве, избегая тяжелых описаний.",
+    "cardTitle": "Стойкость на холме Сафа"
+  },
+  "id": {
+    "title": "Kesabaran di Bukit Shafa & Dakwah Terbuka",
+    "source": "Al-Bukhari & Muslim: Seruan di Bukit Shafa",
+    "story": "Saat diperintahkan berdakwah terang-terangan, Nabi ﷺ naik ke Bukit Shafa dan memanggil kabilah-kabilah Quraisy. Beliau bertanya: \"Jika kukabarkan bahwa ada pasukan berkuda di balik bukit ini hendak menyerang kalian, apakah kalian percaya?\" Mereka serentak menjawab: \"Ya, kami tidak pernah mendapati darimu selain kejujuran!\" Namun ketika diseru menyembah Allah semata, sebagian menentang. Nabi ﷺ menghadapinya dengan kesabaran luar biasa.",
+    "lesson": "Kebenaran butuh kesabaran. Kita tidak boleh meninggalkan kebaikan hanya karena ada yang mencela.",
+    "emulate": "Jika ada yang mengejekku saat berbuat baik, aku akan tetap sabar dan melanjutkan kebaikan.",
+    "quizText": "(1) Di manakah beliau menyeru kaumnya? (✅ Bukit Shafa) (2) Bagaimana respon beliau terhadap rintangan? (✅ Bersabar)",
+    "caution": "Fokuskan cerita pada keteguhan hati dan akhlak mulia.",
+    "cardTitle": "Keteguhan di Shafa"
+  },
+  "fr": {
+    "title": "La patience au mont Safa et l’appel public",
+    "source": "Al-Bukhari & Muslim : L’appel sur le mont Safa",
+    "story": "Quand l’ordre de proclamer le message parvint au Prophète ﷺ, il gravit le mont Safa et interpella les clans de La Mecque. Il leur demanda : « Si je vous disais que des cavaliers s’apprêtent à vous attaquer derrière cette colline, me croiriez-vous ? » Tous répondirent : « Oui, tu n’as jamais dit que la vérité ! » Mais lorsqu’il les appela au culte du Dieu Unique, certains s’opposèrent. Le Prophète ﷺ fit preuve d’une patience admirable et inébranlable.",
+    "lesson": "La vérité demande de la persévérance. On ne renonce jamais au bien face aux critiques ou aux moqueries.",
+    "emulate": "Si l’on se moque de moi parce que je fais le bien, je garde mon calme et poursuis mon effort.",
+    "quizText": "(1) Où a-t-il rassemblé les siens ? (✅ Mont Safa) (2) Comment réagit-il à l’adversité ? (✅ Avec patience)",
+    "caution": "Éviter les détails de torture pour les enfants et mettre en valeur sa force d’âme.",
+    "cardTitle": "Constance sur le mont Safa"
+  },
+  "de": {
+    "title": "Geduld auf dem Berg Safa und der öffentliche Ruf",
+    "source": "Al-Bukhari & Muslim: Die Ansprache auf Safa",
+    "story": "Als der Befehl zur offenen Botschaft kam, stieg der Prophet ﷺ auf den Hügel Safa und rief die Sippen Mekkas herbei. Er fragte: „Würdet ihr mir glauben, wenn ich euch sage, dass Reiter hinter diesem Berg lauern?“ Alle riefen: „Ja, wir haben von dir nur Wahrheit erlebt!“ Als er sie zum Glauben an den Einen Gott rief, wandten sich manche ab. Der Prophet ﷺ begegnete ihnen mit unendlicher Geduld und Würde.",
+    "lesson": "Wahrheit braucht Geduld und Standhaftigkeit. Wir lassen das Gute nicht, nur weil andere widersprechen.",
+    "emulate": "Wenn sich jemand über mein gutes Handeln lustig macht, bleibe ich ruhig und mache geduldig weiter.",
+    "quizText": "(1) Wo rief er die Menschen zusammen? (✅ Berg Safa) (2) Wie reagierte er auf Anfeindungen? (✅ Mit Geduld)",
+    "caution": "Keine grausamen Schilderungen für Kinder; Geduld und Zuversicht betonen.",
+    "cardTitle": "Standhaftigkeit auf Safa"
+  },
+  "es": {
+    "title": "Paciencia en el monte Safa y el llamado público",
+    "source": "Al-Bujari y Muslim: El llamado en el monte Safa",
+    "story": "Al recibir la orden de predicar abiertamente, el Profeta ﷺ subió a la colina de Safa y llamó a las familias de La Meca. Les preguntó: \"Si os advirtiera que unos jinetes van a atacaros tras esta colina, ¿me creeríais?\" Respondieron: \"¡Sí, jamás hemos conocido de ti mentira alguna!\" Pero al invitarlos a adorar a Dios, algunos se opusieron. El Profeta ﷺ respondió con suma paciencia y noble entereza.",
+    "lesson": "El camino de la rectitud requiere paciencia. No abandonamos el bien aunque otros nos rechacen.",
+    "emulate": "Si alguien se burla de mí por hacer lo correcto, mantendré la calma y perseveraré en el bien.",
+    "quizText": "(1) ¿Dónde reunió a su gente? (✅ En el monte Safa) (2) ¿Cómo reaccionó ante la dificultad? (✅ Con paciencia)",
+    "caution": "Evitar relatos de tortura con los niños; destacar su temple y serenidad.",
+    "cardTitle": "Firmeza en el monte Safa"
+  }
+},
+  'seerah-8': {
+  "en": {
+    "title": "Ta’if: Mercy Even Towards the Hostile",
+    "source": "Al-Bukhari & Muslim (Aisha)",
+    "story": "Aisha (ra) once asked the Prophet ﷺ: \"Have you ever encountered a day harder than the day of Uhud?\" He replied that his hardest day was at Ta’if when he was rejected harshly. The Angel of the Mountains descended and offered: \"If you wish, I can crush them between the two mountains.\" But the Prophet of Mercy ﷺ replied: \"No, rather I hope that Allah will bring forth from their descendants people who worship Allah alone, associating no partner with Him.\"",
+    "lesson": "True strength lies in mercy and forgiveness. Even when hurt, choosing hope over revenge changes the world.",
+    "emulate": "If someone wrongs you today, forgive them and pray for their guidance instead of getting angry.",
+    "quizText": "(1) What did the angel offer him? (✅ To crush them between mountains) (2) What did he choose? (✅ Mercy and hope)",
+    "caution": "Do not focus on physical injury details; focus on his immense compassion.",
+    "cardTitle": "Mercy and Hope in Ta’if"
+  },
+  "bn": {
+    "title": "তায়েফের ময়দান: চরম কষ্টের মুখেও রহমতের পরাকাষ্ঠা",
+    "source": "সহীহ বুখারী ও মুসলিম (আয়েশা)",
+    "story": "মা আয়েশা (রা.) নবীজিকে ﷺ জিজ্ঞেস করেছিলেন: \"উহুদের দিনের চেয়েও কঠিন কোনো দিন কি আপনার জীবনে এসেছিল?\" নবীজি ﷺ জানালেন, সবচেয়ে কঠিন দিন ছিল তায়েফের দিন, যখন তারা তাঁর দাওয়াত প্রত্যাখ্যান করেছিল। তখন পাহাড়ের দায়িত্বপ্রাপ্ত ফেরেশতা এসে বললেন: \"আপনি অনুমতি দিলে দুই পাহাড় একত্র করে এই জাতিকে ধ্বংস করে দিই।\" রহমতের নবী ﷺ জবাব দিলেন: \"না, বরং আমি আশা করি আল্লাহ তাদের বংশধরদের মধ্য থেকে এমন মানুষ সৃষ্টি করবেন যারা একমাত্র আল্লাহর ইবাদত করবে।\"",
+    "lesson": "প্রতিশোধ নেওয়ার ক্ষমতা থাকা সত্ত্বেও ক্ষমা প্রদর্শন করাই প্রকৃত বীরত্ব। নবীজির করুণা সমগ্র বিশ্বকে আলোকিত করেছে।",
+    "emulate": "আজ কেউ আমার সাথে খারাপ ব্যবহার করলে আমি প্রতিশোধ না নিয়ে তাকে ক্ষমা করে দেব এবং তার হেদায়েতের জন্য দোয়া করব।",
+    "quizText": "(১) পাহাড়ের ফেরেশতা কী প্রস্তাব দিয়েছিলেন? (✅ দুই পাহাড়ে পিষে ফেলা) (২) নবীজি ﷺ কী উত্তর দিলেন? (✅ রহমত ও হেদায়েতের আশা)",
+    "caution": "শারীরিক ক্ষতের বর্ণনার চেয়ে নবীজির ক্ষমাশীলতা ও দয়াকে তুলে ধরা প্রয়োজন।",
+    "cardTitle": "তায়েফ — রহমত ও আশার প্রতীক"
+  },
+  "ur": {
+    "title": "طائف کا سفر: ستانے والوں کے لیے بھی رحمت",
+    "source": "بخاری و مسلم (عائشہؓ)",
+    "story": "حضرت عائشہ نے نبی کریم ﷺ سے پوچھا: \"کیا آپ پر غزوۂ احد سے بھی زیادہ سخت دن گزرا ہے؟\" آپ ﷺ نے فرمایا کہ طائف کا دن سب سے کٹھن تھا جب انہوں نے بدسلوکی کی۔ تب پہاڑوں کے فرشتے نے حاضر ہو کر عرض کی: \"اگر آپ چاہیں تو میں ان دونوں پہاڑوں کو آپس میں ملا کر انہیں کچل دوں۔\" رحمة للعالمین ﷺ نے فرمایا: \"نہیں! بلکہ مجھے امید ہے کہ اللہ ان کی نسلوں سے ایسے لوگ پیدا کرے گا جو صرف ایک اللہ کی عبادت کریں گے۔\"",
+    "lesson": "حقیقی طاقت بدلہ لینے میں نہیں بلکہ معاف کرنے میں ہے۔ مایوسی کے بجائے اچھائی کی امید رکھنا نبوی اخلاق ہے۔",
+    "emulate": "اگر کوئی میرے ساتھ زیادتی کرے تو میں بدلہ لینے کے بجائے دل بڑا کر کے اسے معاف کروں گا۔",
+    "quizText": "(۱) فرشتے نے کیا پیشکش کی تھی؟ (✅ پہاڑوں سے ہلاک کرنے کی) (۲) آپ ﷺ نے کیا فرمایا؟ (✅ رحمت اور خیر کی امید کا اظہار)",
+    "caution": "تکالیف کی تفاصیل کے بجائے عفو و درگزر پر توجہ مرکوز رکھیں۔",
+    "cardTitle": "طائف — رحمت و عفو کی مثال"
+  },
+  "tr": {
+    "title": "Tâif Yolculuğu: İncitenlere Bile Merhamet",
+    "source": "Buhârî ve Müslim (Âişe)",
+    "story": "Hz. Âişe Efendimiz'e ﷺ: \"Uhud gününden daha zor bir gün yaşadın mı?\" diye sordu. Efendimiz en zor gününün Tâif günü olduğunu anlattı. Dağlar Meleği gelerek: \"İstersen şu iki dağı üzerlerine kapatayım\" dedi. Fakat Âlemlere Rahmet Efendimiz ﷺ: \"Hayır! Bilakis Rabbimin onların neslinden yalnızca Allah'a ibadet eden kimseler çıkarmasını ümit ederim\" buyurdu.",
+    "lesson": "Gerçek güç intikamda değil, affetmekte ve merhamettedir. Efendimiz kırgınlık anında bile ümidi seçti.",
+    "emulate": "Bana haksızlık yapan biri olursa intikam almayacak, onu bağışlayıp hayır dua edeceğim.",
+    "quizText": "(1) Dağlar Meleği ne teklif etti? (✅ Dağları üzerlerine kapatmayı) (2) Efendimiz ne cevap verdi? (✅ Merhamet ve hidayet ümidi)",
+    "caution": "Yaralanma detayları yerine şefkat ve bağışlayıcılık ön plana çıkarılmalıdır.",
+    "cardTitle": "Tâif — Merhamet ve Ümit"
+  },
+  "ru": {
+    "title": "Таиф: милость даже к обидчикам",
+    "source": "Аль-Бухари и Муслим (Аиша)",
+    "story": "Аиша спросила Пророка ﷺ: \"Был ли в твоей жизни день тяжелее, чем день при Ухуде?\" Он ответил, что самым тяжелым был день в Таифе, когда его отвергли. Ангел гор явился и сказал: \"Если хочешь, я сомкну над ними эти две горы!\" Но Пророк милосердия ﷺ ответил: \"Нет, я надеюсь, что Аллах выведет из их потомства тех, кто станет поклоняться Единому Аллаху и не приобщать Ему сотоварищей\".",
+    "lesson": "Истинное величие заключается в прощении и милосердии. Даже в страданиях Пророк выбирал надежду.",
+    "emulate": "Если меня кто-то обидит, я прощу его и искренне пожелаю ему добра.",
+    "quizText": "(1) Что предложил ангел гор? (✅ Сомкнуть горы) (2) Что выбрал Пророк? (✅ Милость и надежду на их веру)",
+    "caution": "Не следует акцентировать внимание на физических травмах; важна сила его милосердия.",
+    "cardTitle": "Таиф — милосердие и надежда"
+  },
+  "id": {
+    "title": "Thaif: Rahmat dan Pengampunan Tanpa Batas",
+    "source": "Al-Bukhari & Muslim (Aisyah)",
+    "story": "Aisyah bertanya kepada Nabi ﷺ: \"Apakah engkau pernah mengalami hari yang lebih berat dari Perang Uhud?\" Nabi ﷺ menjawab bahwa hari paling berat adalah di Thaif. Malaikat penjaga gunung datang menawarkan: \"Jika engkau mau, aku bisa menghimpit mereka dengan dua gunung.\" Namun Nabi yang penuh kasih ﷺ menjawab: \"Jangan, justru aku berharap Allah mengeluarkan dari keturunan mereka orang-orang yang menyembah Allah semata.\"",
+    "lesson": "Kekuatan sejati ada pada memaafkan, bukan membalas dendam. Harapan baik mampu mengubah masa depan.",
+    "emulate": "Jika ada kawan yang berbuat salah kepadaku, aku akan memaafkannya dan mendoakan kebaikan untuknya.",
+    "quizText": "(1) Apa tawaran malaikat gunung? (✅ Menghimpit dengan dua gunung) (2) Apa jawaban Nabi ﷺ? (✅ Mengharap kebaikan keturunan mereka)",
+    "caution": "Fokuskan pada akhlak pemaaf dan kebesaran jiwa beliau.",
+    "cardTitle": "Thaif — Kasih Sayang & Harapan"
+  },
+  "fr": {
+    "title": "Ta’if : La miséricorde suprême envers l’adversité",
+    "source": "Al-Bukhari & Muslim (Aïcha)",
+    "story": "Aïcha (ra) demanda au Prophète ﷺ : « As-tu connu un jour plus rude que celui d’Ouhoud ? » Il répondit que le jour de Ta’if fut le plus éprouvant. L’ange des montagnes descendit et lui proposa : « Si tu le souhaites, je referme sur eux les deux montagnes. » Mais le Prophète de Miséricorde ﷺ s’exclama : « Non, j’espère plutôt qu’Allah fera naître de leur descendance des êtres qui L’adoreront sans rien Lui associer. »",
+    "lesson": "La véritable force réside dans le pardon et la mansuétude. Choisir l’espoir plutôt que la vengeance élève les âmes.",
+    "emulate": "Si quelqu’un est désagréable avec moi, je choisis le pardon et j’invoque le bien pour lui.",
+    "quizText": "(1) Que proposa l’ange des montagnes ? (✅ D’écraser la ville sous les monts) (2) Que choisit le Prophète ﷺ ? (✅ La miséricorde et l’espoir)",
+    "caution": "Insister sur sa bonté d’âme plutôt que sur les récits d’agression physique.",
+    "cardTitle": "Ta’if — Miséricorde et Espoir"
+  },
+  "de": {
+    "title": "Ta’if: Barmherzigkeit selbst gegenüber Widersachern",
+    "source": "Al-Bukhari & Muslim (Aischa)",
+    "story": "Aischa (ra) fragte den Propheten ﷺ: „Hast du je einen schwereren Tag erlebt als den von Uhud?“ Er antwortete, dass der Tag von Ta’if der schwerste war. Der Engel der Berge kam und bot an: „Wenn du willst, lasse ich die beiden Berge über ihnen zusammenstürzen.“ Doch der Prophet ﷺ sprach voller Gnade: „Nein! Ich hoffe vielmehr, dass Allah aus ihren Nachkommen Menschen hervorbringt, die allein Ihn anbeten.“",
+    "lesson": "Wahre Größe beweist sich im Vergeben. Hoffnung und Barmherzigkeit überwinden jede Härte.",
+    "emulate": "Wenn mich heute jemand kränkt, vergebe ich ihm und wünsche ihm Gutes.",
+    "quizText": "(1) Was bot der Engel der Berge an? (✅ Die Berge über ihnen zu schließen) (2) Was antwortete der Prophet? (✅ Barmherzigkeit und Hoffnung)",
+    "caution": "Den Schwerpunkt auf Sanftmut legen, nicht auf Schmerzschilderungen.",
+    "cardTitle": "Ta’if — Hoffnung und Gnade"
+  },
+  "es": {
+    "title": "Ta’if: Misericordia ante la adversidad",
+    "source": "Al-Bujari y Muslim (Aisha)",
+    "story": "Aisha preguntó al Profeta ﷺ: \"¿Has vivido algún día más difícil que el de Uhud?\" Él respondió que el día de Ta’if fue el más arduo. El ángel de las montañas se presentó y le ofreció: \"Si quieres, uniré sobre ellos las dos montañas\". Pero el Profeta de la Misericordia ﷺ contestó: \"No, prefiero esperar que Dios haga surgir de sus descendientes a quienes adoren solo a Dios sin asociarle nada\".",
+    "lesson": "El auténtico poder radica en perdonar en lugar de vengarse. La misericordia siembra esperanza en los corazones.",
+    "emulate": "Si alguien se porta mal conmigo hoy, lo perdonaré y pediré a Dios que lo guíe con bien.",
+    "quizText": "(1) ¿Qué le ofreció el ángel? (✅ Destruir la ciudad entre dos montes) (2) ¿Qué eligió el Profeta ﷺ? (✅ Misericordia y esperanza)",
+    "caution": "Centrarse en su perdón inmenso en lugar de los detalles dolorosos.",
+    "cardTitle": "Ta’if — Faro de Misericordia"
+  }
+},
+  'seerah-9': {
+  "en": {
+    "title": "Al-Isra’ wal-Mi’raj & The Gift of Prayer",
+    "source": "Al-Isra’ 17:1 | Al-Bukhari & Muslim (Anas)",
+    "story": "In a single miraculous night, Allah took His beloved Servant from Al-Masjid Al-Haram in Makkah to Al-Masjid Al-Aqsa in Jerusalem, and from there ascended beyond the heavens. There, Allah gifted our Ummah the five daily prayers. Originally prescribed in greater number, Allah out of His boundless mercy made them five in practice, yet rewarded as fifty in His sight.",
+    "lesson": "Salah is Allah’s personal gift to every believer — a direct, peaceful connection five times a day.",
+    "emulate": "Perform every prayer punctually today with calmness and mindful focus.",
+    "quizText": "(1) How many prayers did Allah prescribe? (✅ Five daily prayers) (2) What precious gift did we receive? (✅ The Salah)",
+    "caution": "Focus on the spiritual gift of Salah rather than controversial speculative descriptions.",
+    "cardTitle": "The Gift of Salah"
+  },
+  "bn": {
+    "title": "ইসরা ও মিরাজ: নামাজের স্বর্গীয় উপহার",
+    "source": "সূরা বনী ইসরাঈল ১৭:১ | সহীহ বুখারী ও মুসলিম (আনাস)",
+    "story": "এক অলৌকিক বরকতময় রাতে আল্লাহ তাআলা তাঁর প্রিয় হাবীবকে ﷺ মসজিদে হারাম থেকে মসজিদে আকসায় এবং সেখান থেকে ঊর্ধ্বাকাশে মিরাজে নিয়ে যান। সেখানেই আল্লাহ মানবজাতির জন্য পাঁচ ওয়াক্ত নামাজের অমূল্য উপহার দান করেন। সংখ্যায় পাঁচ হলেও মহান আল্লাহ দয়াপরবশ হয়ে এতে পঞ্চাশ ওয়াক্তের সমপরিমাণ সওয়াব নির্ধারণ করেছেন।",
+    "lesson": "নামাজ হলো আল্লাহর পক্ষ থেকে মুমিনের জন্য শ্রেষ্ঠ উপহার — যা বান্দাকে সরাসরি রবের সান্নিধ্যে পৌঁছে দেয়।",
+    "emulate": "আজকের সব নামাজ সঠিক সময়ে একাগ্রচিত্তে আদায় করব।",
+    "quizText": "(১) দৈনিক কত ওয়াক্ত নামাজ ফরজ করা হয়েছে? (✅ পাঁচ ওয়াক্ত) (২) মিরাজের রাতে শ্রেষ্ঠ উপহার কী ছিল? (✅ নামাজ)",
+    "caution": "অপ্রমাণিত কাল্পনিক বর্ণনা এড়িয়ে নামাজের গুরুত্ব ও তাৎপর্য তুলে ধরতে হবে।",
+    "cardTitle": "নামাজের স্বর্গীয় উপহার"
+  },
+  "ur": {
+    "title": "اسراء و معراج اور نماز کا عظیم تحفہ",
+    "source": "سورۃ الاسراء 17:1 | بخاری و مسلم (انسؓ)",
+    "story": "ایک ہی مبارک رات میں اللہ تعالیٰ نے اپنے پیارے نبی ﷺ کو مسجدِ حرام سے مسجدِ اقصیٰ اور وہاں سے آسمانوں کی بلندیوں کی سیر کرائی۔ وہیں امت کو پانچ وقت کی نماز کا تحفہ عطا ہوا۔ عمل میں یہ پانچ نمازیں ہیں لیکن اللہ کے فضل و کرم سے اجر پچاس نمازوں کے برابر لکھا جاتا ہے۔",
+    "lesson": "نماز اللہ کا وہ پیارا تحفہ ہے جو بندے کو دن میں پانچ مرتبہ براہِ راست اپنے رب سے جوڑتا ہے۔",
+    "emulate": "آج کی تمام نمازیں وقت پر اور دل لگا کر ادا کروں گا۔",
+    "quizText": "(۱) کتنی نمازیں فرض کی گئیں؟ (✅ پانچ) (۲) معراج میں امت کو کیا تحفہ ملا؟ (✅ نماز)",
+    "caution": "غیر مستند تفصیلات کے بجائے نماز کی اہمیت اور برکات پر توجہ دیں۔",
+    "cardTitle": "نماز کا انمول تحفہ"
+  },
+  "tr": {
+    "title": "İsrâ ve Mi’rac: Namaz Hediyesi",
+    "source": "İsrâ 17:1 | Buhârî ve Müslim (Enes)",
+    "story": "Mübarek bir gecede Yüce Allah, sevgili Peygamberini ﷺ Mescid-i Haram'dan Mescid-i Aksa'ya, oradan da göklerin ötesine yükseltti. Orada ümmete beş vakit namaz hediye edildi. Kılınışta beş vakit olmasına rağmen Allah sonsuz lütfuyla elli vakit sevabı vermektedir.",
+    "lesson": "Namaz, kul ile Rabbi arasındaki doğrudan ve huzur dolu bir bağdır; müminin miracıdır.",
+    "emulate": "Bugün tüm namazlarımı vaktinde ve huşu içinde kılacağım.",
+    "quizText": "(1) Günde kaç vakit namaz farz kılındı? (✅ Beş vakit) (2) Mi'rac'ta verilen en büyük hediye nedir? (✅ Namaz)",
+    "caution": "Sahih olmayan süslemeler yerine namazın faziletine odaklanılmalıdır.",
+    "cardTitle": "Namaz Hediyesi"
+  },
+  "ru": {
+    "title": "Исра и Ми’радж: благословенный дар молитвы",
+    "source": "Аль-Исра 17:1 | Аль-Бухари и Муслим (Анас)",
+    "story": "В одну чудесную ночь Аллах перенес Своего Посланника ﷺ из мечети аль-Харам в мечеть аль-Акса в Иерусалиме, а затем вознес его на небеса. Там Аллах даровал нашей умме пять ежедневных молитв. По числу их пять, но по милости Всевышнего награда за них равна пятидесяти.",
+    "lesson": "Намаз — это драгоценный подарок от Аллаха, живая связь с Создателем пять раз в день.",
+    "emulate": "Я совершу сегодня все намазы вовремя, со смирением и искренностью.",
+    "quizText": "(1) Сколько обязательных молитв было предписано? (✅ Пять) (2) Какой великий дар мы получили? (✅ Намаз)",
+    "caution": "Уделяйте главное внимание ценности молитвы, избегая недостоверных описаний.",
+    "cardTitle": "Дар молитвы"
+  },
+  "id": {
+    "title": "Isra’ Mi’raj & Hadiah Shalat Lima Waktu",
+    "source": "Al-Isra’ 17:1 | Al-Bukhari & Muslim (Anas)",
+    "story": "Dalam satu malam penuh berkah, Allah memperjalankan hamba-Nya dari Masjidil Haram ke Masjidil Aqsha, lalu mengangkatnya ke langit tertinggi. Di sanalah disyariatkan hadiah terindah: shalat lima waktu. Meski berjumlah lima, dengan kemurahan Allah ganjarannya sebanding dengan lima puluh shalat.",
+    "lesson": "Shalat adalah hadiah istimewa dari Allah, sarana berkomunikasi langsung dengan-Nya setiap hari.",
+    "emulate": "Saya akan menjaga shalat tepat waktu hari ini dengan khusyuk.",
+    "quizText": "(1) Berapa waktu shalat yang diwajibkan? (✅ Lima waktu) (2) Hadiah apakah yang diterima umat dalam Mi'raj? (✅ Shalat)",
+    "caution": "Fokuskan pada keagungan ibadah shalat daripada perdebatan rincian gaib.",
+    "cardTitle": "Hadiah Shalat"
+  },
+  "fr": {
+    "title": "Al-Isra’ wal-Mi’raj et le don précieux de la prière",
+    "source": "Al-Isra’ 17:1 | Al-Bukhari & Muslim (Anas)",
+    "story": "Au cours d’une nuit bénie, Allah transporta Son serviteur de la Mosquée Sacrée à la Mosquée Al-Aqsa, puis l’éleva au-delà des cieux. C’est là que fut offert le cadeau de la prière quotidienne. Au nombre de cinq par jour, la grâce divine leur accorde la récompense de cinquante prières.",
+    "lesson": "La prière (Salat) est un lien intime et apaisant cinq fois par jour entre le croyant et son Créateur.",
+    "emulate": "Accomplis tes prières aujourd’hui à l’heure prescrite avec sérénité et concentration.",
+    "quizText": "(1) Combien de prières quotidiennes ont été prescrites ? (✅ Cinq prières) (2) Quel don magnifique a été accordé ? (✅ La prière / Salat)",
+    "caution": "Se concentrer sur le sens spirituel de la prière sans s’attarder sur des récits sans fondement.",
+    "cardTitle": "Le Don de la Prière"
+  },
+  "de": {
+    "title": "Al-Isra’ wal-Mi’raj und das Geschenk des Gebets",
+    "source": "Al-Isra’ 17:1 | Al-Bukhari & Muslim (Anas)",
+    "story": "In einer gesegneten Nacht führte Allah Seinen Gesandten ﷺ von der Heiligen Moschee in Mekka zur Al-Aqsa-Moschee und von dort in die himmlischen Höhen. Dort schenkte Allah den Gläubigen die fünf täglichen Pflichtgebete. Obwohl es fünf an der Zahl sind, belohnt Allah sie aus Barmherzigkeit wie fünfzig.",
+    "lesson": "Das Gebet ist das schönste Geschenk Allahs — eine direkte Verbindung zur Barmherzigkeit des Schöpfers.",
+    "emulate": "Ich verrichte heute alle Gebete pünktlich und mit aufrichtiger Ruhe.",
+    "quizText": "(1) Wie viele Gebete wurden auferlegt? (✅ Fünf) (2) Welches große Geschenk erhielten wir? (✅ Das Gebet)",
+    "caution": "Den Wert des Gebets betonen und ungesicherte Details meiden.",
+    "cardTitle": "Das Geschenk des Gebets"
+  },
+  "es": {
+    "title": "Al-Isra’ wal-Mi’raj y el regalo de la oración",
+    "source": "Al-Isra’ 17:1 | Al-Bujari y Muslim (Anas)",
+    "story": "En una noche milagrosa, Dios transportó a Su Profeta ﷺ desde la Mezquita Sagrada hasta la Mezquita de Al-Aqsa y de allí a los cielos elevados. En ese viaje bendito se nos concedió la oración diaria. Aunque son cinco oraciones en la práctica, por la gracia divina tienen la recompensa de cincuenta.",
+    "lesson": "La oración es un encuentro íntimo y directo con Dios cinco veces al día que llena el alma de paz.",
+    "emulate": "Cumpliré hoy con mis oraciones a tiempo, con devoción y calma.",
+    "quizText": "(1) ¿Cuántas oraciones diarias se prescribieron? (✅ Cinco) (2) ¿Qué hermoso regalo recibimos? (✅ La oración / Salat)",
+    "caution": "Priorizar el valor espiritual de la oración frente a relatos especulativos.",
+    "cardTitle": "El Regalo de la Oración"
+  }
+},
+  'seerah-10': {
+  "en": {
+    "title": "The Hijrah: \"Do Not Grieve, Indeed Allah is With Us\"",
+    "source": "At-Tawbah 9:40 | Al-Bukhari (Aisha & Suraqah)",
+    "story": "When commanded to migrate to Madinah, the Prophet ﷺ set out with his loyal companion Abu Bakr. They took refuge in the Cave of Thawr for three days. Young Asma bint Abi Bakr bravely brought them food, while her brother Abdullah gathered news. When pursuers stood outside the cave, Abu Bakr feared for the Prophet’s safety, but the Prophet ﷺ calmed him: \"Do not grieve, indeed Allah is with us\" (9:40). Along the way, Suraqah tried to capture them, but his horse sank into the sand until he repented.",
+    "lesson": "Complete trust in Allah brings tranquility in moments of danger. Youth play an essential role in serving the truth.",
+    "emulate": "Whenever you feel worried or afraid, remember with confidence: \"Allah is with me.\"",
+    "quizText": "(1) Who accompanied the Prophet on Hijrah? (✅ Abu Bakr) (2) What did he say to his companion? (✅ Do not grieve, Allah is with us)",
+    "caution": "Stories of spiderwebs and doves at the cave entrance lack authentic transmission.",
+    "cardTitle": "The Hijrah — Allah is With Us"
+  },
+  "bn": {
+    "title": "ঐতিহাসিক হিজরত: \"ভয় পেয়ো না, নিশ্চয় আল্লাহ আমাদের সাথে আছেন\"",
+    "source": "সূরা আত-তাওবাহ ৯:৪০ | সহীহ বুখারী (আয়েশা ও সুরাকা)",
+    "story": "আল্লাহর নির্দেশে নবীজি ﷺ প্রিয় বন্ধু আবু বকরকে সাথে নিয়ে মদিনার উদ্দেশ্যে হিজরত করেন। তাঁরা তিন দিন সাওর গুহায় অবস্থান করেন। সাহসী তরুণী আসমা (রা.) তাঁদের খাবার পৌঁছে দিতেন এবং তাঁর ভাই আব্দুল্লাহ কুরাইশদের খবর সংগ্রহ করতেন। শত্রুরা গুহার মুখে এসে পৌঁছালে আবু বকর চিন্তিত হলেন, তখন নবীজি ﷺ সান্ত্বনা দিয়ে বললেন: \"ভয় পেয়ো না, নিশ্চয় আল্লাহ আমাদের সাথে আছেন।\" পথে সুরাকা তাঁদের ধরতে চাইলে তার ঘোড়ার পা বালিতে দেবে যায় এবং সে নিজের ভুল বুঝতে পেরে ফিরে যায়।",
+    "lesson": "আল্লাহর ওপর অটল তাওয়াক্কুল মানুষের হৃদয়কে নির্ভীক করে। দ্বীনের সেবায় তরুণ-তরুণীদের ভূমিকা অপরিসীম।",
+    "emulate": "ভয় বা উদ্বেগের মুহূর্তে মনে মনে পূর্ণ বিশ্বাসে বলব: \"আল্লাহ আমার সাথে আছেন।\"",
+    "quizText": "(১) হিজরতে নবীজির সঙ্গী কে ছিলেন? (✅ আবু বকর রা.) (২) গুহায় তিনি সঙ্গীকে কী বলেছিলেন? (✅ ভয় পেয়ো না, আল্লাহ আমাদের সাথে আছেন)",
+    "caution": "গুহার মুখে মাকড়সার জাল ও পায়রার ডিমের গল্প সনদের দিক থেকে নির্ভরযোগ্য নয়।",
+    "cardTitle": "হিজরত — আল্লাহ আমাদের সাথে"
+  },
+  "ur": {
+    "title": "ہجرتِ مدینہ: \"غم نہ کرو، یقیناً اللہ ہمارے ساتھ ہے\"",
+    "source": "سورۃ التوبہ 9:40 | بخاری (عائشہؓ و سراقہ)",
+    "story": "حکمِ الٰہی پر نبی کریم ﷺ نے حضرت ابوبکر صدیق کے ہمراہ مدینہ منورہ کی طرف ہجرت فرمائی۔ دونوں نے غارِ ثور میں تین راتیں قیام فرمایا۔ حضرت اسماء کھانا پہنچاتی تھیں اور ان کے بھائی عبداللہ خبریں لاتے تھے۔ جب دشمن غار کے دہانے پر پہنچے تو حضرت ابوبکر پریشان ہوئے، آپ ﷺ نے تسلی دی: \"غم نہ کرو، بے شک اللہ ہمارے ساتھ ہے۔\" راستے میں سراقہ نے پیچھا کیا لیکن اس کے گھوڑے کے پاؤں زمین میں دھنس گئے۔",
+    "lesson": "اللہ پر مکمل بھروسہ انسان کو ہر خوف سے آزاد کر دیتا ہے۔ باوفا ساتھی اور نوجوان حق کی راہ میں بہت بڑا سہارا ہیں۔",
+    "emulate": "جب بھی کبھی ڈر یا پریشانی ہو تو پورے یقین کے ساتھ کہوں گا: \"اللہ میرے ساتھ ہے۔\"",
+    "quizText": "(۱) ہجرت میں آپ کے ساتھی کون تھے؟ (✅ حضرت ابوبکرؓ) (۲) غار میں آپ نے کیا فرمایا؟ (✅ غم نہ کرو، اللہ ہمارے ساتھ ہے)",
+    "caution": "غار کے دروازے پر مکڑی کے جالے کا قصہ سند کے لحاظ سے ثابت نہیں۔",
+    "cardTitle": "ہجرت — اللہ ہمارے ساتھ ہے"
+  },
+  "tr": {
+    "title": "Hicret: \"Korkma, Şüphesiz Allah Bizimle Beraberdir\"",
+    "source": "Tevbe 9:40 | Buhârî (Âişe ve Sürâka)",
+    "story": "Peygamberimiz ﷺ Allah'ın emriyle sadık dostu Hz. Ebû Bekir ile Medine'ye hicret etti. Sevr Mağarası'nda üç gece kaldılar. Genç Hz. Esmâ onlara yiyecek taşıdı. Müşrikler mağaranın ağzına kadar geldiklerinde Hz. Ebû Bekir endişelendi, Efendimiz ﷺ: \"Üzülme, şüphesiz Allah bizimle beraberdir\" buyurdu (Tevbe 9:40). Yolda peşlerine düşen Sürâka'nın atının ayakları kuma battı ve tövbe ederek geri döndü.",
+    "lesson": "Allah'a tam tevekkül, en zor anlarda bile insana huzur ve emniyet bahşeder.",
+    "emulate": "Korku veya endişe hissettiğimde kalbime: \"Allah benimle beraberdir\" diyeceğim.",
+    "quizText": "(1) Hicrette Efendimizin yol arkadaşı kimdi? (✅ Hz. Ebû Bekir) (2) Mağarada dostuna ne söyledi? (✅ Korkma, Allah bizimledir)",
+    "caution": "Mağara kapısındaki örümcek ve güvercin hikayesi sahih hadis kriterlerini karşılamaz.",
+    "cardTitle": "Hicret — Allah Bizimle"
+  },
+  "ru": {
+    "title": "Хиджра: \"Не печалься, ведь Аллах с нами\"",
+    "source": "Ат-Тауба 9:40 | Аль-Бухари (Аиша и Сурака)",
+    "story": "По повелению Аллаха Пророк ﷺ отправился в Медину вместе со своим верным другом Абу Бакром. Три ночи они провели в пещере Савр. Юная Асма приносила им еду, а ее брат Абдуллах узнавал вести. Когда преследователи подошли ко входу, Абу Бакр забеспокоился, но Пророк ﷺ успокоил его: \"Не печалься, ведь Аллах с нами\" (9:40). Догнавший их Сурака не смог причинить вреда: ноги его коня увязли в песке.",
+    "lesson": "Истинное упование на Аллаха дарует покой в испытаниях. Молодежь играет важную роль в благих делах.",
+    "emulate": "В минуты тревоги я с уверенностью скажу себе: \"Аллах со мной\".",
+    "quizText": "(1) Кто был спутником Пророка при Хиджре? (✅ Абу Бакр) (2) Что сказал Пророк своему другу? (✅ Не печалься, Аллах с нами)",
+    "caution": "История о паутине и голубях у входа не имеет достоверных подтверждений.",
+    "cardTitle": "Хиджра — Аллах с нами"
+  },
+  "id": {
+    "title": "Hijrah: \"Jangan Bersedih, Sesungguhnya Allah Bersama Kita\"",
+    "source": "At-Taubah 9:40 | Al-Bukhari (Aisyah & Suraqah)",
+    "story": "Atas perintah Allah, Nabi ﷺ berhijrah ke Madinah bersama sahabat setianya Abu Bakar. Mereka berlindung di Gua Tsur selama tiga malam. Asma binti Abu Bakar yang berani mengantarkan makanan. Saat kaum musyrik mendekati mulut gua, Abu Bakar cemas, namun Nabi ﷺ menenangkannya: \"Jangan bersedih, sesungguhnya Allah bersama kita\" (9:40). Pengejar bernama Suraqah terperosok kudanya ke pasir hingga ia bertobat.",
+    "lesson": "Tawakal penuh kepada Allah memberi ketenangan mutlak dalam menghadapi ujian.",
+    "emulate": "Saat merasa cemas atau takut, aku akan mengingat: \"Allah selalu bersamaku.\"",
+    "quizText": "(1) Siapa pendamping Nabi saat hijrah? (✅ Abu Bakar) (2) Apa ucapan Nabi kepada sahabatnya? (✅ Jangan bersedih, Allah bersama kita)",
+    "caution": "Kisah sarang laba-laba dan burung merpati di mulut gua tidak memiliki sanad sahih.",
+    "cardTitle": "Hijrah — Allah Bersama Kita"
+  },
+  "fr": {
+    "title": "L’Hégire : « Ne t’afflige pas, car Allah est avec nous »",
+    "source": "At-Tawbah 9:40 | Al-Bukhari (Aïcha & Souraqah)",
+    "story": "Guidé par l’ordre divin, le Prophète ﷺ prit la route de Médine avec son fidèle compagnon Abou Bakr. Ils trouvèrent refuge dans la grotte de Thawr durant trois nuits. La courageuse Asma leur apportait des vivres. Quand les poursuivants arrivèrent à l’entrée, Abou Bakr s’inquiéta, mais le Prophète ﷺ le rassura : « Ne t’afflige pas, car Allah est avec nous » (9:40). Plus loin, Souraqah tenta de les intercepter, mais les sabots de son cheval s’enfoncèrent dans le sable.",
+    "lesson": "La confiance totale en Dieu confère une paix inaltérable dans les épreuves. Les jeunes ont un rôle héroïque.",
+    "emulate": "Chaque fois que j’ai peur, je me rappelle avec sérénité : « Dieu est avec moi. »",
+    "quizText": "(1) Qui accompagnait le Prophète lors de l’Hégire ? (✅ Abou Bakr) (2) Que lui a-t-il dit dans la grotte ? (✅ Ne t’afflige pas, Allah est avec nous)",
+    "caution": "Le récit de la toile d’araignée et des colombes n’est pas étayé par une chaîne authentique.",
+    "cardTitle": "L’Hégire — Allah est avec nous"
+  },
+  "de": {
+    "title": "Die Hidschra: „Traure nicht, denn Allah ist mit uns“",
+    "source": "At-Taubah 9:40 | Al-Bukhari (Aischa & Suraqah)",
+    "story": "Auf Geheiß Allahs wanderte der Prophet ﷺ mit Abu Bakr nach Medina aus. Sie verbrachten drei Nächte in der Höhle Thawr. Die tapfere Asma versorgte sie mit Nahrung. Als die Verfolger den Eingang erreichten, beruhigte der Prophet ﷺ seinen Freund: „Sei unbesorgt, denn Allah ist mit uns“ (9:40). Unterwegs versuchte Suraqah sie einzuholen, doch die Hufe seines Pferdes sanken im Sand ein, bis er umkehrte.",
+    "lesson": "Gottvertrauen schenkt vollkommenen Frieden in schwierigen Stunden. Die Jugend leistet Großes für die Wahrheit.",
+    "emulate": "Wenn ich mich ängstige, sage ich mir mit Zuversicht: „Allah ist mit mir.“",
+    "quizText": "(1) Wer begleitete den Propheten bei der Hidschra? (✅ Abu Bakr) (2) Was sagte er zu seinem Gefährten? (✅ Traure nicht, Allah ist mit uns)",
+    "caution": "Die Erzählung von Spinnenweben und Tauben am Eingang ist quellenkritisch nicht belegt.",
+    "cardTitle": "Die Hidschra — Allah ist mit uns"
+  },
+  "es": {
+    "title": "La Hégira: \"No temas, pues Dios está con nosotros\"",
+    "source": "At-Tawbah 9:40 | Al-Bujari (Aisha y Suraqah)",
+    "story": "Por orden divina, el Profeta ﷺ emprendió la emigración a Medina junto a su leal amigo Abu Bakr. Se cobijaron en la Cueva de Zawr durante tres días. La valiente Asma les llevaba comida. Al llegar los perseguidores a la entrada, Abu Bakr sintió temor, pero el Profeta ﷺ lo tranquilizó: \"No te entristezcas, pues Dios está con nosotros\" (9:40). En el camino, Suraqah intentó alcanzarlos, pero las patas de su caballo se hundieron en la arena.",
+    "lesson": "La plena confianza en Dios colma el corazón de sosiego y paz. Los jóvenes son pilares en el bien.",
+    "emulate": "Cuando sienta miedo o preocupación, recordaré firmemente: \"Dios está conmigo\".",
+    "quizText": "(1) ¿Quién acompañó al Profeta en la Hégira? (✅ Abu Bakr) (2) ¿Qué le dijo en la cueva? (✅ No temas, Dios está con nosotros)",
+    "caution": "La leyenda de la telaraña y las palomas carece de respaldo en cadenas fidedignas.",
+    "cardTitle": "La Hégira — Dios está con nosotros"
+  }
+},
+  'seerah-11': {
+  "en": {
+    "title": "Welcome to Madinah — Joy in the City of Light",
+    "source": "Sahih Muslim (Anas)",
+    "story": "Anas (ra) reported: When the Prophet ﷺ arrived in Madinah, men and women stood on rooftops in joy, and young boys and servants ran through the streets cheerfully proclaiming: \"O Muhammad! O Messenger of Allah!\" The entire city was illuminated with gratitude and happiness.",
+    "lesson": "Joy in doing and welcoming good unites old and young alike. Children are an essential part of rejoicing in goodness.",
+    "emulate": "Welcome any guest or friend entering your home today with a genuine smile and warm greeting.",
+    "quizText": "(1) What did the boys chant in the streets? (✅ O Messenger of Allah) (2) Where did men and women gather? (✅ On rooftops)",
+    "caution": "Singing \"Tala'a al-Badru ‘Alayna\" at this specific moment is not established through sahih chains according to most scholars.",
+    "cardTitle": "Joy of Madinah"
+  },
+  "bn": {
+    "title": "মদিনার অভ্যর্থনা — আলোর শহরে আনন্দ উৎসব",
+    "source": "সহীহ মুসলিম (আনাস)",
+    "story": "হযরত আনাস (রা.) বর্ণনা করেন: যখন নবীজি ﷺ মদিনায় পৌঁছালেন, তখন পুরুষ ও নারীরা আনন্দের আতিশয্যে ছাদের ওপর উঠে অভ্যর্থনা জানালেন এবং শিশু-কিশোর ও সেবকেরা রাস্তায় রাস্তায় আনন্দধ্বনিতে মুখরিত করে ডাকছিল: \"হে মুহাম্মাদ! হে আল্লাহর রাসুল!\" পুরো মদিনা আনন্দে উদ্ভাসিত হয়ে উঠল।",
+    "lesson": "কল্যাণ ও আলোর আগমন আবালবৃদ্ধবনিতা সবাইকে আনন্দিত করে। শিশুরাও আনন্দের অন্যতম অংশীদার।",
+    "emulate": "আজ কোনো মেহমান বা বন্ধু ঘরে এলে মিষ্টি হাসি ও সালাম দিয়ে তাকে উষ্ণ অভ্যর্থনা জানাব।",
+    "quizText": "(১) শিশু-কিশোররা রাস্তায় কী বলে ডেকেছিল? (✅ ইয়া রাসূলাল্লাহ) (২) মানুষ কোথায় উঠে দেখেছিল? (✅ বাড়ির ছাদে)",
+    "caution": "মদিনায় প্রবেশের মুহূর্তে \"তালাআল বাদরু আলাইনা\" গাওয়ার ঘটনা বিশুদ্ধ সনদে প্রমাণিত নয়।",
+    "cardTitle": "মদিনার আনন্দধারা"
+  },
+  "ur": {
+    "title": "اہلِ مدینہ کا استقبال — نور کے شہر میں خوشی کی لہر",
+    "source": "صحیح مسلم (انسؓ)",
+    "story": "حضرت انس رضی اللہ عنہ فرماتے ہیں کہ جب نبی کریم ﷺ مدینہ منورہ پہنچے تو مرد اور عورتیں مکانوں کی چھتوں پر چڑھ گئے، اور بچے اور خادم گلیوں میں دوڑتے ہوئے پکار رہے تھے: \"یا محمد! یا رسول اللہ!\" پورا مدینہ خوشی اور نور سے چمک اٹھا۔",
+    "lesson": "خیر اور حق کی آمد پر خوشی منانا ایمان کی علامت ہے، اور بچے اس خوشی کا اہم حصہ ہیں۔",
+    "emulate": "آج جو بھی مہمان یا دوست گھر آئے اسے مسکراہٹ اور سلام کے ساتھ خوش آمدید کہوں گا۔",
+    "quizText": "(۱) بچوں نے گلیوں میں کیا پکارا؟ (✅ یا رسول اللہ) (۲) لوگ کہاں چڑھ گئے؟ (✅ چھتوں پر)",
+    "caution": "اس موقع پر \"طلع البدر علینا\" کے ترانے کی روایت محدثین کے نزدیک ثابت نہیں۔",
+    "cardTitle": "مدینہ کا پرجوش استقبال"
+  },
+  "tr": {
+    "title": "Medine’nin Coşkulu Karşılaması",
+    "source": "Sahih Müslim (Enes)",
+    "story": "Hz. Enes (r.a.) şöyle anlatır: Peygamberimiz ﷺ Medine'ye teşrif ettiğinde, kadınlar ve erkekler evlerin damlarına çıkmış, çocuklar ve gençler sokaklarda neşeyle: \"Ey Muhammed! Ey Allah'ın Resulü!\" diyerek koşuyorlardı. Bütün şehir tarifsiz bir sevinçle aydınlandı.",
+    "lesson": "İyiliğin gelişi genciyle yaşlısıyla herkesi birleştirir. Çocuklar sevinç ve neşenin kalbidir.",
+    "emulate": "Bugün evimize gelen bir misafiri veya arkadaşımı güler yüz ve sıcak bir selamla karşılayacağım.",
+    "quizText": "(1) Çocuklar sokaklarda ne diye sesleniyordu? (✅ Ya Resûlallah) (2) İnsanlar nereye çıkmıştı? (✅ Damlara)",
+    "caution": "\"Taleal Bedru Aleyna\" ilahisinin bu varış anında söylendiği sahih rivayetlerle sabit değildir.",
+    "cardTitle": "Medine Sevinci"
+  },
+  "ru": {
+    "title": "Встреча в Медине — радость в лучезарном городе",
+    "source": "Сахих Муслим (Анас)",
+    "story": "Анас (да будет доволен им Аллах) рассказывал: когда Пророк ﷺ прибыл в Медину, мужчины и женщины поднялись на крыши домов от ликования, а дети и юноши бежали по улицам, радостно восклицая: \"О Мухаммад! О Посланник Аллаха!\" Весь город озарился светом счастья.",
+    "lesson": "Радость от добра объединяет взрослых и детей. Дети — важные участники светлых событий.",
+    "emulate": "Я встречу любого гостя или друга искренней улыбкой и добрым приветствием.",
+    "quizText": "(1) Что восклицали дети на улицах? (✅ О Посланник Аллаха) (2) Куда поднялись жители? (✅ На крыши домов)",
+    "caution": "Песнопение \"Таля’а аль-бадру алейна\" при прибытии не имеет достоверного иснада.",
+    "cardTitle": "Радость Медины"
+  },
+  "id": {
+    "title": "Penyambutan Hangat di Madinah",
+    "source": "Shahih Muslim (Anas)",
+    "story": "Anas radhiyallahu ‘anhu menceritakan: Saat Nabi ﷺ tiba di Madinah, kaum lelaki dan wanita naik ke atap-atap rumah, sedangkan anak-anak dan pelayan berlari di jalanan berseru riang: \"Wahai Muhammad! Wahai Rasulullah!\" Kota Madinah dipenuhi cahaya kebahagiaan.",
+    "lesson": "Kegembiraan atas hadirnya kebaikan merangkul semua usia. Anak-anak adalah bagian penting dari sukacita.",
+    "emulate": "Sambutlah tamu atau kawan yang berkunjung hari ini dengan senyuman tulus dan salam hangat.",
+    "quizText": "(1) Apa yang diserukan anak-anak di jalan? (✅ Wahai Rasulullah) (2) Ke mana para warga naik? (✅ Ke atas atap rumah)",
+    "caution": "Kisah nasyid \"Thala'al Badru ‘Alayna\" pada momen ini tidak bersumber dari sanad sahih menurut muhadditsin.",
+    "cardTitle": "Kegembiraan Madinah"
+  },
+  "fr": {
+    "title": "L’accueil chaleureux de Médine — Joie dans la Cité illuminée",
+    "source": "Sahih Muslim (Anas)",
+    "story": "Anas (ra) rapporte : lorsque le Prophète ﷺ arriva à Médine, hommes et femmes montèrent sur les toits dans la joie, et les enfants parcouraient les rues en criant avec allégresse : « Ô Muhammad ! Ô Messager d’Allah ! » Toute la ville rayonnait d’un bonheur immense.",
+    "lesson": "La joie du bien réunit petits et grands. Les enfants sont au cœur de la fête et de la fraternité.",
+    "emulate": "Accueille tout invité ou camarade aujourd’hui avec un sourire lumineux et une salutation sincère.",
+    "quizText": "(1) Que clamaient les enfants dans les ruelles ? (✅ Ô Messager d’Allah) (2) Où montaient les habitants ? (✅ Sur les toits)",
+    "caution": "Le chant « Tala’a al-Badrou ‘Alayna » à cet instant précis n’est pas confirmé par un sanad authentique.",
+    "cardTitle": "La Joie de Médine"
+  },
+  "de": {
+    "title": "Der Empfang in Medina — Freude in der Stadt des Lichts",
+    "source": "Sahih Muslim (Anas)",
+    "story": "Anas (ra) berichtete: Als der Prophet ﷺ in Medina ankam, stiegen Männer und Frauen voller Freude auf die Hausdächer, während Kinder durch die Gassen liefen und riefen: „O Muhammad! O Gesandter Allahs!“ Die ganze Stadt strahlte vor Dankbarkeit.",
+    "lesson": "Die Freude am Guten verbindet Alt und Jung. Kinder gehören mitten in die Gemeinschaft.",
+    "emulate": "Begrüße jeden Gast oder Freund heute mit einem herzlichen Lächeln und dem Friedensgruß.",
+    "quizText": "(1) Was riefen die Kinder auf den Straßen? (✅ O Gesandter Allahs) (2) Wo versammelten sich die Menschen? (✅ Auf den Dächern)",
+    "caution": "Das Lied „Tala’a al-Badru ‘Alayna“ bei der Ankunft ist quellenkritisch nicht belegt.",
+    "cardTitle": "Freude in Medina"
+  },
+  "es": {
+    "title": "La bienvenida a Medina — Júbilo en la Ciudad de la Luz",
+    "source": "Sahih Muslim (Anas)",
+    "story": "Anas relató: cuando el Profeta ﷺ llegó a Medina, hombres y mujeres subieron a los techos con júbilo, y los niños corrían por las calles exclamando felices: \"¡Oh Muhammad! ¡Oh Mensajero de Dios!\" Toda la ciudad se colmó de gozo y bendición.",
+    "lesson": "La alegría del bien une a grandes y pequeños. Los niños son el alma del regocijo noble.",
+    "emulate": "Recibiré a cualquier invitado o amigo hoy con una sonrisa sincera y un saludo cordial.",
+    "quizText": "(1) ¿Qué exclamaban los niños por las calles? (✅ ¡Oh Mensajero de Dios!) (2) ¿Dónde subió la gente? (✅ A las azoteas)",
+    "caution": "El cántico \"Tala’a al-Badru ‘Alayna\" en este momento específico no cuenta con cadena auténtica.",
+    "cardTitle": "El Júbilo de Medina"
+  }
+},
+  'seerah-12': {
+  "en": {
+    "title": "The Prophet’s Mosque & The Bond of Brotherhood",
+    "source": "Al-Bukhari: Building the Mosque & The Brotherhood",
+    "story": "In Madinah, Muslims built the Prophet’s Mosque, and the Prophet ﷺ worked with his own hands carrying bricks alongside them. He established brotherhood between the Muhajirun (migrants) and the Ansar (helpers). Sa’d ibn ar-Rabi’ generously offered half his wealth to Abdur-Rahman ibn ‘Awf, but Abdur-Rahman honorably thanked him and said: \"May Allah bless your family and wealth; simply show me the marketplace.\"",
+    "lesson": "Cooperation, mutual generosity, and honorable self-reliance build strong communities.",
+    "emulate": "Cooperate with family members at home without asking for anything in return.",
+    "quizText": "(1) What was the first building established? (✅ The Mosque) (2) What did Abdur-Rahman request? (✅ Show me the market to work)",
+    "caution": "Emphasize work ethic and mutual respect in community building.",
+    "cardTitle": "Mosque and Brotherhood"
+  },
+  "bn": {
+    "title": "মসজিদে নববী নির্মাণ ও ভ্রাতৃত্বের অনুপম আদর্শ",
+    "source": "সহীহ বুখারী: মসজিদ নির্মাণ ও আনসার-মুহাজির ভ্রাতৃত্ব",
+    "story": "মদিনায় পৌঁছে নবীজি ﷺ সাহাবিদের সাথে কাঁধে কাঁধ মিলিয়ে নিজ হাতে পাথর বহন করে মসজিদে নববী নির্মাণে অংশ নেন। এরপর তিনি মুহাজির ও আনসারদের মধ্যে ভ্রাতৃত্বের বন্ধন স্থাপন করেন। আনসার সাদ ইবনে রাবী (রা.) মুহাজির আব্দুর রহমান ইবনে আউফকে তাঁর অর্ধেক সম্পদ দেওয়ার প্রস্তাব দেন। কিন্তু আব্দুর রহমান বিনয়ের সাথে বললেন: \"আল্লাহ আপনার ধন-সম্পদে বরকত দিন, আমাকে শুধু বাজারের পথ দেখিয়ে দিন, আমি কাজ করে খাব।\"",
+    "lesson": "পারস্পরিক ত্যাগ ও পরোপকারের সাথে নিজের পরিশ্রমে স্বাবলম্বী হওয়াই ইসলামের মহৎ শিক্ষা।",
+    "emulate": "আজ ঘরের কাজে পরিবারের সদস্যদের আন্তরিকভাবে সাহায্য করব এবং কোনো বিনিময় আশা করব না।",
+    "quizText": "(১) মদিনায় প্রথমে কী নির্মাণ করা হয়? (✅ মসজিদ) (২) আব্দুর রহমান ইবনে আউফ কী চেয়েছিলেন? (✅ বাজারের পথ)",
+    "caution": "পরশ্রম ও আত্মমর্যাদাবোধের ওপর বিশেষ গুরুত্ব দিন।",
+    "cardTitle": "মসজিদ ও ভ্রাতৃত্ব"
+  },
+  "ur": {
+    "title": "تعمیرِ مسجدِ نبوی اور مواخات کی مثال",
+    "source": "بخاری: مسجد کی تعمیر اور مواخات",
+    "story": "مسلمانوں نے مدینہ میں مسجدِ نبوی کی تعمیر شروع کی تو نبی کریم ﷺ نے خود اپنے مبارک ہاتھوں سے اینٹیں اٹھا کر کام میں حصہ لیا۔ آپ ﷺ نے مہاجرین اور انصار کے درمیان بھائی چارہ قائم فرمایا۔ حضرت سعد بن ربیع انصاری نے حضرت عبدالرحمن بن عوف کو اپنے آدھے مال کی پیشکش کی، تو انہوں نے شکریہ ادا کرتے ہوئے فرمایا: \"اللہ تمہارے اہل و عیال اور مال میں برکت دے، مجھے صرف بازار کا راستہ دکھا دو۔\"",
+    "lesson": "ایثار و ہمدردی اور محنت کر کے حلال کمانے میں ہی عزت اور کامیابی ہے۔",
+    "emulate": "آج گھر کے کاموں میں بہن بھائیوں کا ہاتھ بٹاؤں گا اور کوئی اجرت نہیں مانگوں گا۔",
+    "quizText": "(۱) مدینہ میں سب سے پہلے کیا تعمیر کیا گیا؟ (✅ مسجد) (۲) حضرت عبدالرحمن بن عوف نے کیا درخواست کی؟ (✅ مجھے بازار کا راستہ دکھا دیں)",
+    "caution": "محنت اور عزتِ نفس کے پہلو کو اجاگر کریں۔",
+    "cardTitle": "مسجد اور بھائی چارہ"
+  },
+  "tr": {
+    "title": "Mescid-i Nebevî ve Eşsiz Kardeşlik",
+    "source": "Buhârî: Mescid İnşası ve Muâhât",
+    "story": "Müslümanlar Mescid-i Nebevî'yi inşa ederken Peygamberimiz ﷺ de bizzat kerpiç taşıyarak onlarla çalıştı. Muhacir ile Ensar arasında eşsiz bir kardeşlik kurdu. Ensar'dan Sa'd b. Rebî', malının yarısını Abdurrahman b. Avf'a teklif etti. Abdurrahman ise: \"Allah aileni ve malını bereketlendirsin, bana pazarın yolunu göster yeter\" diyerek çalışmayı tercih etti.",
+    "lesson": "Yardımlaşma, cömertlik ve kendi emeğiyle helal rızık aramak İslam'ın temel ahlakıdır.",
+    "emulate": "Ev işlerinde aileme karşılık beklemeden yardımcı olacağım.",
+    "quizText": "(1) Medine'de ilk ne inşa edildi? (✅ Mescid) (2) Abdurrahman b. Avf ne rica etti? (✅ Pazarın yolunu)",
+    "caution": "Çalışma ahlakı ve yardımlaşma ruhuna vurgu yapılmalıdır.",
+    "cardTitle": "Mescid ve Kardeşlik"
+  },
+  "ru": {
+    "title": "Мечеть Пророка и узы братства",
+    "source": "Аль-Бухари: Строительство мечети и братание",
+    "story": "В Медине мусульмане начали строить мечеть, и Пророк ﷺ своими руками носил кирпичи вместе со всеми. Он установил узы братства между мухаджирами и ансарами. Са’д ибн ар-Раби’ предложил половину имущества Абдур-Рахману ибн Ауфу, но тот с достоинством ответил: \"Да благословит Аллах твою семью и богатство! Просто укажи мне дорогу на рынок, чтобы я мог трудиться\".",
+    "lesson": "Взаимопомощь, щедрость и стремление к честному труду укрепляют верующих.",
+    "emulate": "Я помогу сегодня родным по дому, ничего не прося взамен.",
+    "quizText": "(1) Что первым построили в Медине? (✅ Мечеть) (2) О чем попросил Абдур-Рахман? (✅ Указать дорогу на рынок)",
+    "caution": "Подчеркивайте ценность честного труда и благородства.",
+    "cardTitle": "Мечеть и братство"
+  },
+  "id": {
+    "title": "Pembangunan Masjid & Persaudaraan Kaum Muslimin",
+    "source": "Al-Bukhari: Pembangunan Masjid & Muakhat",
+    "story": "Kaum muslimin bersama-sama membangun Masjid Nabawi di Madinah, dan Nabi ﷺ ikut memikul batu bata dengan tangannya sendiri. Beliau mempersaudarakan kaum Muhajirin dan Anshar. Sa’ad bin Rabi’ menawarkan separuh hartanya kepada Abdurrahman bin Auf. Namun Abdurrahman menjawab penuh kemuliaan: \"Semoga Allah memberkahi hartamu, cukup tunjukkan padaku jalan ke pasar.\"",
+    "lesson": "Kerjasama, kedermawanan, serta kemandirian bekerja adalah pilar masyarakat teladan.",
+    "emulate": "Saya akan membantu pekerjaan rumah tangga hari ini tanpa mengharapkan upah.",
+    "quizText": "(1) Bangunan apakah yang pertama didirikan di Madinah? (✅ Masjid) (2) Apa permintaan Abdurrahman bin Auf? (✅ Tunjukkan jalan ke pasar)",
+    "caution": "Tekankan etos kerja dan persaudaraan sejati.",
+    "cardTitle": "Masjid & Persaudaraan"
+  },
+  "fr": {
+    "title": "La Mosquée du Prophète et le pacte de fraternité",
+    "source": "Al-Bukhari : Construction de la mosquée et fraternité",
+    "story": "À Médine, les musulmans bâtirent la Mosquée prophétique. Le Prophète ﷺ porta lui-même des briques à leurs côtés. Il unit par un pacte fraternel émigrés (Mouhajiroun) et soutiens (Ansar). Sa’d ibn ar-Rabi’ proposa la moitié de ses biens à Abdur-Rahman ibn ‘Awf. Ce dernier le remercia avec noblesse : « Qu’Allah bénisse ta famille et tes biens, montre-moi simplement le chemin du marché pour travailler. »",
+    "lesson": "La solidarité, la générosité et la dignité du travail honnête fondent une communauté exemplaire.",
+    "emulate": "Aide aujourd’hui tes proches à la maison avec entrain et sans rien demander en retour.",
+    "quizText": "(1) Quel édifice fut érigé en premier à Médine ? (✅ La Mosquée) (2) Que demanda Abdur-Rahman ? (✅ Le chemin du marché pour travailler)",
+    "caution": "Valoriser l’effort personnel et l’entraide sincère.",
+    "cardTitle": "Mosquée et Fraternité"
+  },
+  "de": {
+    "title": "Die Prophetenmoschee und der Bund der Brüderlichkeit",
+    "source": "Al-Bukhari: Bau der Moschee und Verbrüderung",
+    "story": "In Medina bauten die Muslime die Moschee des Propheten, und der Prophet ﷺ trug selbst Lehmziegel mit ihnen. Er schloss einen Bund der Brüderlichkeit zwischen Auswanderern und Helfern. Sa’d ibn ar-Rabi’ bot Abdur-Rahman ibn ‘Awf die Hälfte seines Vermögens an. Doch Abdur-Rahman dankte edelmütig: „Möge Allah dich segnen; zeige mir nur den Weg zum Markt.“",
+    "lesson": "Zusammenhalt, Großmut und die Würde ehrlicher Arbeit zeichnen die Gläubigen aus.",
+    "emulate": "Hilf heute zu Hause bei einer Aufgabe mit, ohne eine Gegenleistung zu erwarten.",
+    "quizText": "(1) Was wurde zuerst in Medina gebaut? (✅ Die Moschee) (2) Worum bat Abdur-Rahman? (✅ Um den Weg zum Markt zum Arbeiten)",
+    "caution": "Arbeitsfleiß und Respekt betonen.",
+    "cardTitle": "Moschee und Eintracht"
+  },
+  "es": {
+    "title": "La Mezquita del Profeta y el lazo de hermandad",
+    "source": "Al-Bujari: Construcción de la mezquita y fraternidad",
+    "story": "Los musulmanes edificaron la Mezquita Profética en Medina, y el Profeta ﷺ cargó ladrillos con sus propias manos junto a ellos. Hermandó a los Emigrados con los Auxiliares. Sa’d ibn ar-Rabi’ ofreció generosamente la mitad de sus bienes a Abdur-Rahman ibn ‘Awf, quien agradeció con dignidad: \"Que Dios bendiga a tu familia y tu riqueza; solo muéstrame el camino al mercado para trabajar\".",
+    "lesson": "La solidaridad, el desprendimiento y el honor del trabajo digno forjan una sociedad ejemplar.",
+    "emulate": "Ayudaré hoy en casa en las tareas cotidianas con alegría y sin pedir nada a cambio.",
+    "quizText": "(1) ¿Qué se construyó primero en Medina? (✅ La Mezquita) (2) ¿Qué pidió Abdur-Rahman? (✅ Que le mostraran el mercado para trabajar)",
+    "caution": "Subrayar el valor del trabajo honrado y la hermandad.",
+    "cardTitle": "Mezquita y Hermandad"
+  }
+},
+  'seerah-13': {
+  "en": {
+    "title": "His Sublime Character ﷺ — A Mercy to All Creations",
+    "source": "Al-Qalam 68:4 | Sahih Muslim & Al-Bukhari",
+    "story": "Allah praised him: \"And indeed, you are of a great moral character\" (68:4). Aisha described him: \"His character was the Quran in practice.\" At home, he was always serving his family, mending his sandals and sweeping the floor. When prayer time arrived, he immediately stood before Allah. He kissed his grandchildren Hasan and Husayn, teaching: \"Whoever does not show mercy will not be shown mercy.\"",
+    "lesson": "Sublime manners, gentleness with children, and helping at home are the true sunnah.",
+    "emulate": "Help at home with chores, embrace a younger sibling, and choose gentleness in every talk.",
+    "quizText": "(1) How did Aisha describe his character? (✅ The Quran in action) (2) What did he say about mercy? (✅ He who shows no mercy receives no mercy)",
+    "caution": "Always depict his character as a model of loving kindness and humility.",
+    "cardTitle": "A Great Moral Character"
+  },
+  "bn": {
+    "title": "নবীজি ﷺ-এর মহান চরিত্র — সৃষ্টিজগতের জন্য রহমত",
+    "source": "সূরা আল-কলম ৬৮:৪ | সহীহ বুখারী ও মুসলিম",
+    "story": "মহান আল্লাহ ঘোষণা করেছেন: \"নিশ্চয়ই আপনি মহান চরিত্রের ওপর অধিষ্ঠিত\" (৬৮:৪)। মা আয়েশা (রা.) বলেন: \"কুরআনই ছিল তাঁর জীবন্ত চরিত্র।\" ঘরে তিনি সর্বদা পরিবারের কাজে সাহায্য করতেন, নিজের জুতো মেরামত করতেন এবং ঘর ঝাড় দিতেন। নামাজের সময় হলে রবের সান্নিধ্যে দাঁড়িয়ে যেতেন। নাতি হাসান-হোসাইনকে চুমু খেয়ে বলতেন: \"যে দয়া করে না, সে দয়া পায় না।\"",
+    "lesson": "উত্তম চরিত্র, শিশুদের প্রতি স্নেহ এবং পরিবারের কাজে সাহায্য করাই নবীজির আসল সুন্নাত।",
+    "emulate": "আজ ঘরের কাজে সাহায্য করব, ছোট ভাইবোনকে আদর করব এবং সবার সাথে মিষ্টি ভাষায় কথা বলব।",
+    "quizText": "(১) মা আয়েশা তাঁর চরিত্র সম্পর্কে কী বলেছিলেন? (✅ কুরআনের বাস্তব রূপ) (২) দয়া সম্পর্কে নবীজি কী বললেন? (✅ যে দয়া করে না সে দয়া পায় না)",
+    "caution": "নবীজির বিনম্রতা ও ভালোবাসার দিকটিকে আদর্শ হিসেবে উপস্থাপন করুন।",
+    "cardTitle": "অনুপম চরিত্র মাধুরী"
+  },
+  "ur": {
+    "title": "اخلاقِ حسنہ ﷺ — رحمتِ دو عالم کا اسوہ",
+    "source": "سورۃ القلم 68:4 | صحیح مسلم و بخاری",
+    "story": "اللہ تعالیٰ نے فرمایا: \"اور بے شک آپ اخلاق کے عظیم مرتبے پر فائز ہیں\" (68:4)۔ حضرت عائشہ نے فرمایا: \"آپ کا اخلاق قرآن تھا۔\" آپ ﷺ گھر والوں کے کاموں میں ہاتھ بٹاتے تھے اور نماز کا وقت ہوتا تو فوراً اللہ کے حضور حاضر ہو جاتے۔ اپنے نواسے حسن کو چوما اور فرمایا: \"جو رحم نہیں کرتا اس پر رحم نہیں کیا جاتا۔\"",
+    "lesson": "خوش اخلاقی، چھوٹوں پر شفقت اور گھر والوں کی مدد کرنا ہی سچی نبوی سنت ہے۔",
+    "emulate": "آج گھر میں مدد کروں گا، چھوٹے بہن بھائی سے پیار کروں گا اور نرمی سے بات کروں گا۔",
+    "quizText": "(۱) حضرت عائشہ نے آپ کے اخلاق کے بارے میں کیا فرمایا؟ (✅ آپ کا اخلاق قرآن تھا) (۲) رحم کے بارے میں کیا فرمایا؟ (✅ جو رحم نہیں کرتا اس پر رحم نہیں ہوتا)",
+    "caution": "شفقت اور انکساری کے اسوہ کو بچوں کے دلوں میں اتاریں۔",
+    "cardTitle": "عظیم اخلاق کی روشن مثال"
+  },
+  "tr": {
+    "title": "Yüce Ahlakı ﷺ — Âlemlere Rahmet",
+    "source": "Kalem 68:4 | Buhârî ve Müslim",
+    "story": "Yüce Allah: \"Şüphesiz sen yüce bir ahlak üzeresin\" buyurdu (68:4). Hz. Âişe onun ahlakını soranlara: \"Onun ahlakı Kur'an'dı\" cevabını verdi. Evde ailesine yardım eder, kendi işini kendi görür, namaz vakti gelince hemen huzura dururdu. Torunları Hz. Hasan ve Hüseyin'i öper ve: \"Merhamet etmeyene merhamet olunmaz\" buyururdu.",
+    "lesson": "Güzel ahlak, çocuklara sevgi ve ev işlerinde yardım etmek en güzel sünnettir.",
+    "emulate": "Bugün evde aileme yardım edecek, kardeşime sevgi gösterecek ve tatlı dilli olacağım.",
+    "quizText": "(1) Hz. Âişe O'nun ahlakını nasıl tanımladı? (✅ Yaşayan Kur'an) (2) Merhamet hakkında ne buyurdu? (✅ Merhamet etmeyene merhamet edilmez)",
+    "caution": "Efendimizin şefkat ve tevazusunu merkeze alın.",
+    "cardTitle": "Yüce Ahlak Sahibi"
+  },
+  "ru": {
+    "title": "Его благородный нрав ﷺ — милость для миров",
+    "source": "Аль-Калям 68:4 | Сахих аль-Бухари и Муслим",
+    "story": "Аллах сказал: \"Воистину, твой нрав превосходен\" (68:4). Аиша говорила: \"Его нравом был Коран\". Дома он всегда помогал семье, чинил свою обувь, а при наступлении времени молитвы спешил к Господу. Целуя внуков Хасана и Хусейна, он учил: \"Кто не проявляет милосердия, к тому не будет проявлено милосердие\".",
+    "lesson": "Прекрасный нрав, мягкость к детям и помощь родным — сущность пророческой Сунны.",
+    "emulate": "Я помогу сегодня родителям, обниму младших и буду говорить только ласковые слова.",
+    "quizText": "(1) Как Аиша описала его нрав? (✅ Его нравом был Коран) (2) Что он сказал о милосердии? (✅ Не знающий милосердия не получит его)",
+    "caution": "Учите детей доброте и кротости Пророка.",
+    "cardTitle": "Великий нрав"
+  },
+  "id": {
+    "title": "Akhlak Mulia Rasulullah ﷺ — Rahmat bagi Semesta",
+    "source": "Al-Qalam 68:4 | Shahih Bukhari & Muslim",
+    "story": "Allah memujinya: \"Dan sesungguhnya engkau benar-benar berbudi pekerti yang luhur\" (68:4). Aisyah berkata: \"Akhlak beliau adalah Al-Qur’an.\" Di rumah beliau selalu membantu keluarga, menjahit sandalnya sendiri, dan jika azan berkumandang beliau bergegas shalat. Beliau mencium cucunya dan bersabda: \"Siapa yang tidak menyayangi, tidak akan disayangi.\"",
+    "lesson": "Akhlak mulia, menyayangi yang lebih muda, dan ringan tangan membantu di rumah adalah sunnah utama.",
+    "emulate": "Saya akan membantu orang tua di rumah, memeluk adik, dan bertutur kata santun hari ini.",
+    "quizText": "(1) Bagaimana Aisyah menggambarkan akhlak beliau? (✅ Akhlaknya adalah Al-Qur'an) (2) Sabda beliau tentang kasih sayang? (✅ Yang tidak menyayangi tidak disayangi)",
+    "caution": "Jadikan keteladanan cinta kasih sebagai inti cerita.",
+    "cardTitle": "Budi Pekerti Luhur"
+  },
+  "fr": {
+    "title": "Son caractère sublime ﷺ — Une miséricorde pour l’univers",
+    "source": "Al-Qalam 68:4 | Sahih Al-Bukhari & Muslim",
+    "story": "Allah a fait son éloge : « Et tu es certes d’une moralité éminente » (68:4). Aïcha déclara : « Son comportement était le Coran. » Chez lui, il aidait toujours sa famille, réparait ses sandales et prenait soin de la maison. À l’appel de la prière, il s’y hâtait aussitôt. Il embrassait ses petits-enfants et rappelait : « Celui qui ne fait pas miséricorde ne recevra pas de miséricorde. »",
+    "lesson": "La bienveillance, la tendresse envers les enfants et l’aide apportée au foyer incarnent la Sunna.",
+    "emulate": "Participe aux tâches ménagères, serre un cadet dans tes bras et choisis des paroles pleines de douceur.",
+    "quizText": "(1) Comment Aïcha a-t-elle décrit son éthique ? (✅ Le Coran incarné) (2) Que dit-il sur la miséricorde ? (✅ Pas de miséricorde pour qui n’en fait point)",
+    "caution": "Montrer la douceur et l’humilité du Prophète comme un trésor au quotidien.",
+    "cardTitle": "Une Moralité Éminente"
+  },
+  "de": {
+    "title": "Sein erhabener Charakter ﷺ — Eine Gnade für alle Welten",
+    "source": "Al-Qalam 68:4 | Sahih Al-Bukhari & Muslim",
+    "story": "Allah sprach im Koran: „Und du bist wahrlich von edler Natur“ (68:4). Aischa sagte: „Sein Charakter war der Koran.“ Zu Hause half er stets seiner Familie und flickte seine Sandalen selbst. Traf das Gebet ein, eilte er zu Allah. Er herzte seine Enkel und lehrte: „Wer nicht barmherzig ist, erfährt keine Barmherzigkeit.“",
+    "lesson": "Edle Manieren, Güte gegenüber Kindern und Mithilfe im Haushalt sind der Kern seiner Lebensweise.",
+    "emulate": "Hilf heute den Eltern im Haus, sei lieb zu jüngeren Geschwistern und sprich stets freundlich.",
+    "quizText": "(1) Wie beschrieb Aischa seinen Charakter? (✅ Der gelebte Koran) (2) Was lehrte er über Barmherzigkeit? (✅ Wer keine Gnade übt, empfängt keine)",
+    "caution": "Sanftmut und Demut als Vorbild darstellen.",
+    "cardTitle": "Edler Charakter"
+  },
+  "es": {
+    "title": "Su carácter sublime ﷺ — Misericordia para los mundos",
+    "source": "Al-Qalam 68:4 | Sahih Bujari y Muslim",
+    "story": "Dios lo alabó: \"Y ciertamente posees un carácter sublime\" (68:4). Aisha explicó: \"Su carácter era el Corán vivido\". En casa ayudaba siempre a su familia y remendaba sus sandalias. Al llegar la hora de la oración acudía con fervor. Besaba a sus nietos y enseñaba: \"A quien no tiene misericordia, no se le tendrá misericordia\".",
+    "lesson": "La cortesía, la ternura con los niños y la colaboración en el hogar son la auténtica sunnah.",
+    "emulate": "Ayudaré en las tareas del hogar, abrazaré a un hermano pequeño y hablaré con dulzura.",
+    "quizText": "(1) ¿Cómo describió Aisha su carácter? (✅ El Corán en acción) (2) ¿Qué dijo sobre la misericordia? (✅ Quien no tiene piedad no la recibirá)",
+    "caution": "Enfatizar su cercanía, humildad y compasión con la familia.",
+    "cardTitle": "Un Carácter Sublime"
+  }
+},
+  'seerah-14': {
+  "en": {
+    "title": "Conquest of Makkah — Forgiveness at the Moment of Power",
+    "source": "Sahih Muslim (Abu Hurairah)",
+    "story": "The Prophet ﷺ entered Makkah victorious, lowering his head in profound humility before Allah until his beard almost touched his camel’s saddle. He proclaimed universal peace: \"Whoever enters the house of Abu Sufyan is safe, whoever puts down their weapons is safe, and whoever closes their door is safe.\" He met those who had driven him out and harmed him with total forgiveness, declaring: \"Go, for you are free.\"",
+    "lesson": "Forgiveness when one has the upper hand is true nobility. Arrogance has no place in victory.",
+    "emulate": "If you have the power to retaliate against someone who upset you, choose the noble path of forgiveness.",
+    "quizText": "(1) How did he treat those who had opposed him? (✅ Granted universal forgiveness) (2) What is the greatest lesson of victory? (✅ Humility and mercy)",
+    "caution": "We summarize the historical scene accurately with authentic reports of universal peace.",
+    "cardTitle": "Pardon & Humility in Victory"
+  },
+  "bn": {
+    "title": "মক্কা বিজয় — বিজয়ের মুহূর্তে ক্ষমার অনন্য দৃষ্টান্ত",
+    "source": "সহীহ মুসলিম (আবু হুরায়রা)",
+    "story": "নবীজি ﷺ বিজয়ী বেশে মক্কায় প্রবেশ করেন। কিন্তু তাঁর মনে অহংকারের লেশমাত্র ছিল না; আল্লাহর প্রতি বিনয়ে তাঁর মাথা এতখানি নত ছিল যে তা উটের পিঠ ছুঁয়ে যাচ্ছিল। তিনি সাধারণ ক্ষমা ঘোষণা করে বললেন: \"যে আবু সুফিয়ানের ঘরে আশ্রয় নেবে সে নিরাপদ, যে অস্ত্র ফেলে দেবে সে নিরাপদ, যে নিজের ঘরের দরজা বন্ধ রাখবে সেও নিরাপদ।\" অতীতে যারা তাঁকে কষ্ট দিয়েছিল, সবাইকে তিনি নিঃশর্ত ক্ষমা করে দিলেন।",
+    "lesson": "প্রতিশোধ নেওয়ার পূর্ণ ক্ষমতা থাকা সত্ত্বেও ক্ষমা প্রদর্শন করাই হলো সর্বোচ্চ পৌরুষ ও আভিজাত্য।",
+    "emulate": "আজ কারো ওপর রাগ হলে বা প্রতিশোধ নেওয়ার সুযোগ পেলেও তাকে মন থেকে ক্ষমা করে দেব।",
+    "quizText": "(১) মক্কা বিজয়ে নবীজি শত্রুদের সাথে কেমন ব্যবহার করেছিলেন? (✅ সাধারণ ক্ষমা ঘোষণা) (২) বিজয়ের বড় শিক্ষা কী? (✅ বিনয় ও ক্ষমা)",
+    "caution": "সাধারণ ক্ষমার ঐতিহাসিক বাণী নির্ভরযোগ্য হাদিস দিয়ে উপস্থাপন করুন।",
+    "cardTitle": "মক্কা বিজয় — ক্ষমার অনুপম আদর্শ"
+  },
+  "ur": {
+    "title": "فتحِ مکہ: فتح کے وقت عفو و درگزر کی بلندی",
+    "source": "صحیح مسلم (ابو ہریرہؓ)",
+    "story": "نبی کریم ﷺ فاتحانہ انداز میں مکہ مکرمہ میں داخل ہوئے تو عاجزی و انکساری سے سر مبارک اتنا جھکا ہوا تھا کہ اونٹنی کے پالان کو چھو رہا تھا۔ آپ ﷺ نے عام معافی اور امن کا اعلان فرمایا: \"جو ابو سفیان کے گھر میں داخل ہو گیا وہ محفوظ ہے، جو ہتھیار ڈال دے وہ محفوظ ہے، اور جو اپنا دروازہ بند کر لے وہ محفوظ ہے۔\" آپ نے ستانے والوں سے کوئی بدلہ نہ لیا۔",
+    "lesson": "قابو پانے کے بعد معاف کر دینا ہی سب سے بڑی بہادری ہے۔ کامیابی میں عاجزی اختیار کرنا سنت ہے۔",
+    "emulate": "اگر مجھے کسی سے بدلہ لینے کی طاقت ہو تب بھی میں دل سے معاف کرنے کو ترجیح دوں گا۔",
+    "quizText": "(۱) آپ ﷺ نے بدسلوکی کرنے والوں کے ساتھ کیا کیا؟ (✅ عام معافی کا اعلان) (۲) فتح کا سب سے بڑا سبق کیا ہے؟ (✅ عاجزی اور عفو)",
+    "caution": "روایات کے معتبر الفاظ کے ساتھ امنِ عامہ کے پیغام کو نمایاں کریں۔",
+    "cardTitle": "فتحِ مکہ — عفو و سلامتی"
+  },
+  "tr": {
+    "title": "Mekke’nin Fethi — Zafer Anında Yüce Bağışlama",
+    "source": "Sahih Müslim (Ebû Hureyre)",
+    "story": "Peygamber Efendimiz ﷺ Mekke'ye muzaffer bir orduyla girdiğinde, Allah'a olan tevazuundan başı devesinin semerine değecek kadar eğikti. İntikam yerine genel af ilan etti: \"Ebû Süfyân'ın evine giren emniyettedir, silahını bırakan emniyettedir, evine kapanan emniyettedir.\" Kendisine yıllarca eziyet edenleri tamamen affetti.",
+    "lesson": "Güç elindeyken affetmek gerçek büyüklüktür. Zafer anında kibir değil, tevazu yakışır.",
+    "emulate": "Birine kızıp karşılık verme fırsatım olsa bile bağışlamayı ve affetmeyi seçeceğim.",
+    "quizText": "(1) Efendimiz düşmanlarına nasıl davrandı? (✅ Genel af ilan etti) (2) Fethin en büyük dersi nedir? (✅ Tevazu ve bağışlama)",
+    "caution": "Tarihi gerçekleri genel barış ve af bağlamında aktarın.",
+    "cardTitle": "Fetih ve Bağışlama"
+  },
+  "ru": {
+    "title": "Открытие Мекки — прощение в миг триумфа",
+    "source": "Сахих Муслим (Абу Хурайра)",
+    "story": "Пророк ﷺ вошел в Мекку победителем, склонив голову в глубоком смирении перед Аллахом так низко, что его борода почти касалась седла верблюдицы. Он объявил всеобщий мир и безопасность: \"Кто войдет в дом Абу Суфьяна — в безопасности, кто сложит оружие — в безопасности, кто запрется в доме — в безопасности\". Он простил тех, кто долгие годы причинял ему зло.",
+    "lesson": "Прощение при возможности отомстить — признак истинного величия. В победе нет места гордыне.",
+    "emulate": "Если у меня будет возможность ответить обидчику, я выберу благородное прощение.",
+    "quizText": "(1) Как поступил Пророк с прежними врагами? (✅ Простил и объявил мир) (2) Главный урок победы? (✅ Смирение и милосердие)",
+    "caution": "Подчеркивайте миролюбие и прощение Посланника Аллаха.",
+    "cardTitle": "Милосердие победы"
+  },
+  "id": {
+    "title": "Fathu Makkah — Pengampunan Agung Saat Kemenangan",
+    "source": "Shahih Muslim (Abu Hurairah)",
+    "story": "Nabi ﷺ memasuki Makkah sebagai pemenang dengan menundukkan kepala begitu rendah karena tawaduk kepada Allah. Tiada sedikit pun rasa sombong. Beliau mengumumkan keamanan umum: \"Siapa yang masuk ke rumah Abu Sufyan aman, siapa yang meletakkan senjata aman, dan siapa yang mengunci pintunya aman.\" Beliau memaafkan semua orang yang dulu memusuhi beliau.",
+    "lesson": "Memaafkan saat memiliki kekuatan untuk membalas adalah kemuliaan tertinggi.",
+    "emulate": "Jika ada yang membuatku kesal dan aku mampu membalasnya, aku akan memilih memaafkannya.",
+    "quizText": "(1) Apa yang dilakukan Nabi terhadap musuh masa lalu? (✅ Memaafkan dan memberi keamanan) (2) Pelajaran terbesar dari penaklukan ini? (✅ Kerendahan hati dan ampunan)",
+    "caution": "Fokuskan pada pengampunan universal yang bersejarah.",
+    "cardTitle": "Pengampunan & Tawaduk"
+  },
+  "fr": {
+    "title": "La conquête de La Mecque — Le pardon au zénith de la victoire",
+    "source": "Sahih Muslim (Abou Hourayrah)",
+    "story": "Le Prophète ﷺ entra dans La Mecque en vainqueur, courbant la tête avec une humilité si profonde devant Dieu que sa barbe frôlait le bât de sa chamelle. Il proclama la sécurité générale : « Quiconque entre dans la demeure d’Abou Soufyan est en sécurité, quiconque dépose les armes est en sécurité, quiconque ferme sa porte est en sécurité. » Il pardonna généreusement à tous ses anciens opposants.",
+    "lesson": "Pardonner en position de force est le sceau des grandes âmes. La victoire s’habille de modestie.",
+    "emulate": "Si j’ai le pouvoir de me venger d’un tort subi, je choisis avec noblesse la voie du pardon.",
+    "quizText": "(1) Comment traita-t-il ceux qui l’avaient persécuté ? (✅ Il proclama le pardon général) (2) Quelle est la plus grande leçon ? (✅ L’humilité et la clémence)",
+    "caution": "Mettre en relief la magnanimité et la paix civile garantie par le Prophète.",
+    "cardTitle": "Le Pardon Triomphant"
+  },
+  "de": {
+    "title": "Die Befreiung Mekkas — Vergebung im Moment des Sieges",
+    "source": "Sahih Muslim (Abu Huraira)",
+    "story": "Der Prophet ﷺ zog als Sieger in Mekka ein, wobei er sein Haupt in so tiefer Demut vor Allah neigte, dass sein Bart fast den Sattel berührte. Ohne jeden Hochmut verkündete er allgemeine Amnestie: „Wer das Haus von Abu Sufyan betritt, ist sicher; wer die Waffen niederlegt, ist sicher; wer seine Tür schließt, ist sicher.“ Er verzieh allen, die ihn einst vertrieben hatten.",
+    "lesson": "Im Moment der Macht zu verzeihen, beweist wahrhaften Adel. Sieg verlangt Demut statt Stolz.",
+    "emulate": "Selbst wenn ich mich rächen könnte, entscheide ich mich heute bewusst für Vergebung.",
+    "quizText": "(1) Wie behandelte er seine früheren Feinde? (✅ Er verkündete allgemeine Vergebung) (2) Die größte Lehre des Sieges? (✅ Demut und Güte)",
+    "caution": "Die allgemeine Amnestie und Sanftmut hervorheben.",
+    "cardTitle": "Demut im Sieg"
+  },
+  "es": {
+    "title": "La conquista de La Meca — El perdón en el momento del triunfo",
+    "source": "Sahih Muslim (Abu Huraira)",
+    "story": "El Profeta ﷺ entró a La Meca triunfante, inclinando su cabeza con tanta devoción y humildad ante Dios que casi rozaba la montura. Proclamó la paz para todos: \"Quien entre en casa de Abu Sufyan estará seguro, quien baje las armas estará seguro, quien cierre su puerta estará seguro\". Perdonó de corazón a quienes durante años lo habían agraviado.",
+    "lesson": "Perdonar teniendo el poder de castigar es la más excelsa virtud. En la victoria prima la humildad.",
+    "emulate": "Si tengo ocasión de vengarme de alguien que me ofendió, elegiré el perdón con el corazón en paz.",
+    "quizText": "(1) ¿Cómo actuó ante quienes lo persiguieron? (✅ Declaró el perdón general) (2) ¿Cuál es la mayor lección? (✅ Humildad y misericordia)",
+    "caution": "Resaltar el espíritu de concordia y clemencia universal.",
+    "cardTitle": "Perdón y Humildad"
+  }
+},
+  'seerah-15': {
+  "en": {
+    "title": "The Farewell Pilgrimage — The Universal Declaration",
+    "source": "Sahih Muslim (Jabir) | Al-Ma’idah 5:3",
+    "story": "In the tenth year, the Prophet ﷺ performed Hajj with over one hundred thousand companions. Standing at Arafat, he delivered his historic Farewell Sermon: \"O people, indeed your blood and your property are sacred and inviolable until you meet your Lord.\" He asked them: \"You will be questioned about me; what will you say?\" They answered: \"We bear witness that you have conveyed the message, fulfilled the trust, and advised sincerely.\" He raised his finger to the sky and said: \"O Allah, bear witness!\" (Muslim).",
+    "lesson": "All human beings are equal in dignity. Protecting others' rights and property is a sacred trust.",
+    "emulate": "Respect the feelings, rights, and belongings of siblings and classmates today.",
+    "quizText": "(1) Where did he deliver his historic sermon? (✅ Plain of Arafat) (2) What did he proclaim about people's rights? (✅ Sacred and inviolable)",
+    "caution": "Rely upon verified authentic hadith texts of the sermon from Sahih Muslim.",
+    "cardTitle": "The Farewell Pilgrimage"
+  },
+  "bn": {
+    "title": "বিদায় হজ — বিশ্বমানবতার চিরন্তন সনদ",
+    "source": "সহীহ মুসলিম (জাবির) | সূরা আল-মায়িদাহ ৫:৩",
+    "story": "দশম হিজরীতে নবীজি ﷺ লক্ষাধিক সাহাবিকে নিয়ে বিদায় হজ সম্পন্ন করেন। আরাফাতের ময়দানে তিনি ঐতিহাসিক ভাষণ দেন: \"নিশ্চয়ই তোমাদের রক্ত, তোমাদের ধন-সম্পদ আজকের এই দিন ও এই শহরের মতোই পবিত্র ও অলঙ্ঘনীয়।\" তিনি সাহাবিদের জিজ্ঞেস করলেন: \"আমার ব্যাপারে তোমাদের জিজ্ঞাসা করা হবে, তোমরা কী সাক্ষ্য দেবে?\" সবাই বললেন: \"আমরা সাক্ষ্য দিচ্ছি আপনি পৌঁছে দিয়েছেন, দায়িত্ব পালন করেছেন এবং উপদেশ দিয়েছেন।\" তিনি আকাশের দিকে আঙুল তুলে বললেন: \"হে আল্লাহ! আপনি সাক্ষী থাকুন!\"",
+    "lesson": "সকল মানুষের সম্মান ও অধিকার সমান। অন্যের সম্পদ ও সম্মান রক্ষা করা প্রত্যেক মুমিনের পবিত্র দায়িত্ব।",
+    "emulate": "আজ সহপাঠী ও ভাইবোনের অধিকার, জিনিসপত্র এবং অনুভূতির পূর্ণ সম্মান করব।",
+    "quizText": "(১) নবীজি ﷺ ঐতিহাসিক ভাষণ কোথায় দিয়েছিলেন? (✅ আরাফাতের ময়দানে) (২) মানুষের রক্ত ও সম্পদ সম্পর্কে কী বললেন? (✅ চিরদিনের জন্য পবিত্র)",
+    "caution": "সহীহ মুসলিমের বর্ণনানুযায়ী বিদায় হজের নির্ভরযোগ্য অংশ তুলে ধরা হয়েছে।",
+    "cardTitle": "বিদায় হজের অমর বাণী"
+  },
+  "ur": {
+    "title": "حجة الوداع — انسانی حقوق کا لازوال منشور",
+    "source": "صحیح مسلم (جابرؓ) | سورۃ المائدہ 5:3",
+    "story": "دسویں ہجری میں نبی کریم ﷺ نے ایک لاکھ سے زائد صحابہ کے ساتھ حج ادا فرمایا۔ میدانِ عرفات میں آپ نے خطبہ دیا: \"بے شک تمہارے خون اور تمہارے مال ایک دوسرے پر ایسے ہی حرام اور محترم ہیں جیسے آج کا دن اور یہ مہینہ محترم ہیں۔\" آپ نے دریافت فرمایا: \"تم سے میرے بارے میں پوچھا جائے گا تو کیا کہو گے؟\" سب نے کہا: \"ہم گواہی دیتے ہیں کہ آپ نے امانت پہنچا دی اور خیر خواہی فرمائی۔\" آپ نے انگلی آسمان کی طرف اٹھائی اور فرمایا: \"اے اللہ! گواہ رہنا!\"",
+    "lesson": "تمام انسان برابر ہیں، اور کسی کا دل دکھانا یا حق مارنا اللہ کے نزدیک سخت ناپسندیدہ ہے۔",
+    "emulate": "اپنے دوستوں اور بہن بھائیوں کی چیزوں اور احساسات کا پورا احترام کروں گا۔",
+    "quizText": "(۱) آپ ﷺ نے تاریخی خطبہ کہاں دیا؟ (✅ میدانِ عرفات) (۲) لوگوں کے حقوق کے بارے میں کیا فرمایا؟ (✅ خون اور مال قابلِ احترام ہیں)",
+    "caution": "خطبہ حجۃ الوداع کے صحیح مسلم میں مذکور مستند الفاظ پیش کریں۔",
+    "cardTitle": "حجۃ الوداع — عظیم منشور"
+  },
+  "tr": {
+    "title": "Veda Haccı — İnsanlık İçin Evrensel Bildiri",
+    "source": "Sahih Müslim (Câbir) | Mâide 5:3",
+    "story": "Peygamber Efendimiz ﷺ onuncu yılda yüz bini aşkın ashabıyla hac yaptı. Arafat'ta tarihi Veda Hutbesi'ni irad etti: \"Ey insanlar! Bu gününüz, bu ayınız ve bu beldeniz nasıl mukaddes ise canlarınız ve mallarınız da öyle mukaddestir.\" Ashaba: \"Beni sizden soracaklar, ne diyeceksiniz?\" buyurdu. Onlar: \"Tebliğ ettiğine, emaneti yerine getirdiğine şahitlik ederiz\" dediler. Efendimiz parmağını göğe kaldırarak: \"Şahit ol ya Rab!\" buyurdu.",
+    "lesson": "Bütün insanlar eşittir; başkalarının haklarına, canına ve malına saygı duymak mukaddes bir emanettir.",
+    "emulate": "Bugün arkadaşlarımın eşyalarına ve duygularına özenle saygı göstereceğim.",
+    "quizText": "(1) Tarihi hutbe nerede verildi? (✅ Arafat meydanında) (2) Can ve mal hakkında ne buyruldu? (✅ Mukaddes ve dokunulmazdır)",
+    "caution": "Müslim'de geçen sahih metinleri esas alınız.",
+    "cardTitle": "Veda Haccı"
+  },
+  "ru": {
+    "title": "Прощальное паломничество — манифест справедливости",
+    "source": "Сахих Муслим (Джабир) | Аль-Маида 5:3",
+    "story": "В десятом году хиджры Пророк ﷺ совершил Хадж с более чем ста тысячами сподвижников. На горе Арафат он произнес великую Прощальную проповедь: \"Воистину, ваши жизни и ваше имущество священны и неприкосновенны, как священен этот день и этот месяц\". Он спросил: \"Вас спросят обо мне, что вы скажете?\" Они ответили: \"Свидетельствуем, что ты донес послание и выполнил долг!\" Подняв палец к небу, Пророк трижды воззвал: \"О Аллах, будь свидетелем!\"",
+    "lesson": "Все люди равны перед Богом. Защита прав, чести и имущества других — священная обязанность.",
+    "emulate": "Я буду бережно и уважительно относиться к чужим вещам и чувствам.",
+    "quizText": "(1) Где была произнесена историческая проповедь? (✅ На равнине Арафат) (2) Что сказано о жизни и имуществе людей? (✅ Они священны и неприкосновенны)",
+    "caution": "Используйте достоверные формулировки хадисов из Сахиха Муслима.",
+    "cardTitle": "Прощальный Хадж"
+  },
+  "id": {
+    "title": "Haji Wada’ — Piagam Universal Kemanusiaan",
+    "source": "Shahih Muslim (Jabir) | Al-Ma’idah 5:3",
+    "story": "Pada tahun kesepuluh hijriah, Nabi ﷺ menunaikan ibadah haji bersama ratusan ribu sahabat. Di Padang Arafah beliau menyampaikan Khotbah Wada’: \"Wahai manusia, sesungguhnya darah dan harta kalian adalah suci dan haram dirusak, sebagaimana sucinya hari dan bulan ini.\" Beliau bertanya: \"Kalian akan ditanya tentang diriku, apa yang akan kalian jawab?\" Mereka serentak berkata: \"Kami bersaksi engkau telah menyampaikan dan menunaikan amanah.\" Nabi ﷺ mengangkat jarinya ke langit berseru: \"Ya Allah, saksikanlah!\"",
+    "lesson": "Semua manusia mulia di hadapan Allah. Menjaga hak dan kehormatan orang lain adalah amanah suci.",
+    "emulate": "Hargailah hak milik dan perasaan teman serta saudara hari ini.",
+    "quizText": "(1) Di manakah khotbah bersejarah disampaikan? (✅ Padang Arafah) (2) Apa hukum merusak darah dan harta sesama? (✅ Diharamkan dan suci terlindungi)",
+    "caution": "Merujuk pada redaksi hadits sahih dalam Shahih Muslim.",
+    "cardTitle": "Haji Perpisahan (Wada’)"
+  },
+  "fr": {
+    "title": "Le Pèlerinage d’Adieu — Déclaration universelle de justice",
+    "source": "Sahih Muslim (Jabir) | Al-Ma’idah 5:3",
+    "story": "La dixième année, le Prophète ﷺ accomplit le grand Pèlerinage entouré de plus de cent mille fidèles. À Arafat, il proclama son sermon d’adieu : « Ô gens, votre sang et vos biens sont sacrés et inviolables comme le sont ce jour et ce lieu. » Il leur demanda : « Vous serez interrogés à mon sujet, que répondrez-vous ? » Ils s’écrièrent : « Nous témoignons que tu as transmis le message et conseillé sincèrement. » Il leva son index vers le ciel : « Ô Seigneur, sois-en témoin ! »",
+    "lesson": "Tous les êtres humains sont frères. Respecter la dignité et les biens d’autrui est un devoir sacré.",
+    "emulate": "Traite avec bienveillance et respect absolu les affaires et les sentiments de tes camarades.",
+    "quizText": "(1) Où fut prononcé ce sermon capital ? (✅ Dans la plaine d’Arafat) (2) Que déclara-t-il sur les vies et les biens ? (✅ Sacrés et inviolables)",
+    "caution": "S’appuyer sur le texte authentique rapporté par l’imam Muslim.",
+    "cardTitle": "Le Pèlerinage d’Adieu"
+  },
+  "de": {
+    "title": "Die Abschiedspilgerfahrt — Universelle Erklärung der Würde",
+    "source": "Sahih Muslim (Dschabir) | Al-Ma’idah 5:3",
+    "story": "Im zehnten Jahr unternahm der Prophet ﷺ die Abschiedspilgerfahrt mit über hunderttausend Gefährten. Auf der Ebene von Arafat hielt er seine berühmte Abschiedspredigt: „O ihr Menschen, euer Blut und euer Vermögen sind unantastbar und heilig wie dieser Tag und dieser Monat.“ Er fragte: „Ihr werdet nach mir befragt werden, was werdet ihr sagen?“ Sie antworteten: „Wir bezeugen, dass du die Botschaft verkündet hast!“ Er hob den Zeigefinger gen Himmel: „O Allah, sei Zeuge!“",
+    "lesson": "Alle Menschen sind gleich an Würde. Das Leben und der Besitz anderer sind unantastbar.",
+    "emulate": "Ich achte heute aufrichtig auf die Gefühle und das Eigentum meiner Mitmenschen.",
+    "quizText": "(1) Wo wurde die berühmte Predigt gehalten? (✅ Auf der Ebene von Arafat) (2) Was sagte er über Leben und Besitz? (✅ Heilig und unantastbar)",
+    "caution": "Authentische Berichte aus Sahih Muslim nutzen.",
+    "cardTitle": "Die Abschiedspilgerfahrt"
+  },
+  "es": {
+    "title": "La Peregrinación del Adiós — Carta Universal de Fraternidad",
+    "source": "Sahih Muslim (Yabir) | Al-Ma’idah 5:3",
+    "story": "En el décimo año de la Hégira, el Profeta ﷺ realizó la peregrinación acompañado de más de cien mil fieles. En Arafat pronunció su Sermón de Despedida: \"¡Oh gentes, ciertamente vuestras vidas y vuestros bienes son sagrados e inviolables como es sagrado este día y esta tierra bendita!\" Preguntó: \"Seréis preguntados sobre mí, ¿qué responderéis?\" Dijeron: \"¡Atestiguamos que has transmitido el mensaje fielmente!\" Levantó su índice al cielo diciendo: \"¡Dios mío, sé testigo!\"",
+    "lesson": "Todos los seres humanos son iguales en dignidad. Cuidar los derechos y bienes ajenos es sagrado.",
+    "emulate": "Respetaré los bienes y sentimientos de mis compañeros y hermanos durante todo el día.",
+    "quizText": "(1) ¿Dónde pronunció su célebre sermón? (✅ En el llano de Arafat) (2) ¿Qué declaró sobre la vida y la propiedad? (✅ Que son sagradas e inviolables)",
+    "caution": "Apegarse al texto auténtico transmitido en Sahih Muslim.",
+    "cardTitle": "Peregrinación del Adiós"
+  }
+},
+  'seerah-16': {
+  "en": {
+    "title": "The Highest Companion — Eternal Legacy of Light",
+    "source": "Al-Bukhari & Muslim (Aisha) | Ali ‘Imran 3:144",
+    "story": "When the noble Messenger ﷺ fell ill at age sixty-three, his final whispered words were: \"O Allah, with the Highest Companionship\" (Al-Rafiq Al-A’la). The companions were shaken with sorrow. Abu Bakr as-Siddiq stood firm with faith and announced: \"Whoever worshipped Muhammad, know that Muhammad has passed away; but whoever worships Allah, know that Allah is Ever-Living and never dies,\" reciting: \"Muhammad is not but a messenger; other messengers have passed on before him\" (3:144).",
+    "lesson": "We love the Prophet ﷺ deeply and follow his sunnah every day. We worship Allah alone, the Ever-Living.",
+    "emulate": "Learn one small sunnah today (like smiling or saying Bismillah) and practice it consistently.",
+    "quizText": "(1) Who affirmed: \"Whoever worships Allah, Allah is Ever-Living\"? (✅ Abu Bakr) (2) How old was the Prophet ﷺ? (✅ Sixty-three years)",
+    "caution": "Focus on devotion to Allah and the living sunnah rather than excessive grief.",
+    "cardTitle": "The Highest Companion"
+  },
+  "bn": {
+    "title": "উচ্চতম রফিক ও অনন্ত আলোকের পথ",
+    "source": "সহীহ বুখারী ও মুসলিম (আয়েশা) | সূরা আলে ইমরান ৩:১৪৪",
+    "story": "তেষট্টি বছর বয়সে নবীজির ﷺ জীবনের অন্তিম মুহূর্ত উপস্থিত হলে তাঁর শেষ কথা ছিল: \"হে আল্লাহ! উচ্চতম বন্ধু ও সান্নিধ্য\" (আর-রফিক আল-আলা)। সাহাবিগণ গভীর শোকে আচ্ছন্ন হয়ে পড়লেন। তখন আবু বকর (রা.) অবিচল ঈমানের সাথে ঘোষণা করলেন: \"তোমাদের মধ্যে যে মুহাম্মাদ ﷺ-এর পূজা করত, সে জেনে রাখুক তিনি ওফাত পেয়েছেন; আর যে আল্লাহর ইবাদত করে, সে জেনে রাখুক আল্লাহ চিরঞ্জীব, তাঁর কখনো মৃত্যু নেই।\" এরপর তিনি সূরা আলে ইমরানের ১৪৪ নম্বর আয়াত তিলাওয়াত করলেন।",
+    "lesson": "আমরা নবীজিকে ﷺ হৃদয়ের চেয়েও বেশি ভালোবাসি এবং তাঁর সুন্নাত মেনে চলি। আর ইবাদত করি একমাত্র চিরঞ্জীব আল্লাহর।",
+    "emulate": "আজ একটি ছোট্ট সুন্নাত (যেমন মুচকি হাসা বা বিসমিল্লাহ বলা) শিখে তা নিয়মিত জীবনে চর্চা করব।",
+    "quizText": "(১) কে বলেছিলেন \"যে আল্লাহর ইবাদত করে আল্লাহ চিরঞ্জীব\"? (✅ আবু বকর রা.) (২) নবীজির ﷺ ওফাতের সময় বয়স কত ছিল? (✅ তেষট্টি বছর)",
+    "caution": "বিলাপের পরিবর্তে ঈমানী দৃঢ়তা ও সুন্নাহর অনুসরণের ওপর জোর দিন।",
+    "cardTitle": "উচ্চতম রফিক"
+  },
+  "ur": {
+    "title": "الرفیق الاعلیٰ — نورِ رسالت کا دائمی فیضان",
+    "source": "صحیح بخاری و مسلم (عائشہؓ) | سورۃ آل عمران 3:144",
+    "story": "تریسٹھ برس کی عمر مبارک میں جب وصال کا وقت قریب آیا تو زبانِ مبارک پر آخری کلمات تھے: \"اے اللہ! رفیقِ اعلیٰ کا ساتھ\"۔ صحابہ کرام پر غم کا پہاڑ ٹوٹ پڑا۔ حضرت ابوبکر صدیق نے ہمت اور پختہ ایمان کے ساتھ فرمایا: \"سنو! جو محمد ﷺ کی پوجا کرتا تھا وہ جان لے کہ محمد وفات پا چکے، اور جو اللہ کی عبادت کرتا ہے وہ جان لے کہ اللہ زندہ ہے اسے کبھی موت نہیں۔\" پھر آپ نے آل عمران کی آیت تلاوت فرمائی۔",
+    "lesson": "ہم نبی کریم ﷺ سے بے پناہ محبت کرتے ہیں اور آپ کی سنت پر چلتے ہیں۔ اور عبادت صرف اس اللہ کی کرتے ہیں جو حی و قیوم ہے۔",
+    "emulate": "آج کوئی چھوٹی سی سنت (جیسے مسکرانا یا بسم اللہ پڑھنا) سیکھوں گا اور اسے اپنی عادت بناؤں گا۔",
+    "quizText": "(۱) کس نے فرمایا کہ \"اللہ زندہ ہے اسے کبھی موت نہیں\"؟ (✅ حضرت ابوبکرؓ) (۲) وصال کے وقت عمر مبارک کتنی تھی؟ (✅ تریسٹھ سال)",
+    "caution": "غم میں جزع فزع کے بجائے سنت نبوی پر عمل کی ترغیب دیں۔",
+    "cardTitle": "رفیقِ اعلیٰ کا دیدار"
+  },
+  "tr": {
+    "title": "Refîk-i A’lâ — En Yüce Dosta Vuslat",
+    "source": "Buhârî ve Müslim (Âişe) | Âl-i İmrân 3:144",
+    "story": "Altmış üç yaşında mübarek ömrünün son anlarında Peygamberimizin ﷺ son sözleri: \"Allah'ım! Refîk-i A’lâ'yı (En Yüce Dost'u) dilerim\" oldu. Ashab derin bir hüzne boğulduğunda Hz. Ebû Bekir vakur bir imanla: \"Kim Muhammed'e kulluk ediyorsa bilsin ki o vefat etmiştir; kim Allah'a kulluk ediyorsa bilsin ki Allah diridir, asla ölmez\" diyerek Âl-i İmrân 144. ayeti okudu.",
+    "lesson": "Peygamberimizi ﷺ canımızdan çok sever, sünnetine sımsıkı sarılırız. Kulluğumuz ise daima diri olan Allah'adır.",
+    "emulate": "Bugün küçük bir sünneti (gülümsemek veya Besmele çekmek gibi) öğrenip hayatıma katacağım.",
+    "quizText": "(1) \"Allah diridir, asla ölmez\" diyen kimdir? (✅ Hz. Ebû Bekir) (2) Vefatında Peygamberimiz kaç yaşındaydı? (✅ Altmış üç yaşında)",
+    "caution": "Hüzne boğulmak yerine Sünnet-i Seniyye'ye sarılmaya teşvik edin.",
+    "cardTitle": "En Yüce Dosta Vuslat"
+  },
+  "ru": {
+    "title": "Высшее общество — вечное наследие света",
+    "source": "Аль-Бухари и Муслим (Аиша) | Аль-Имран 3:144",
+    "story": "В возрасте шестидесяти трех лет перед уходом в вечность последними словами Пророка ﷺ были: \"О Аллах, к Высшему Обществу (ар-Рафик аль-А’ля)\". Сподвижники погрузились в глубокую скорбь. Тогда Абу Бакр твердо произнес: \"Кто поклонялся Мухаммаду — поистине, Мухаммад умер. А кто поклоняется Аллаху — поистине, Аллах Живой и никогда не умирает!\", и прочел аят 3:144.",
+    "lesson": "Мы любим Пророка ﷺ всем сердцем и следуем его Сунне. Но поклоняемся мы лишь Единому Вечно Живому Аллаху.",
+    "emulate": "Я выучу сегодня одну простую сунну (например, улыбку или поминание Аллаха) и буду применять ее.",
+    "quizText": "(1) Кто сказал: \"Аллах Живой и никогда не умирает\"? (✅ Абу Бакр) (2) Сколько лет было Пророку? (✅ Шестьдесят три года)",
+    "caution": "Делайте упор на стойкость веры и следование Сунне.",
+    "cardTitle": "Высшее общество"
+  },
+  "id": {
+    "title": "Ar-Rafiq Al-A’la — Warisan Cahaya Abadi",
+    "source": "Shahih Bukhari & Muslim (Aisyah) | Ali ‘Imran 3:144",
+    "story": "Pada usia enam puluh tiga tahun, ucapan terakhir Nabi ﷺ adalah: \"Ya Allah, bersama Sahabat yang Tertinggi (Ar-Rafiq Al-A’la).\" Para sahabat dilanda kesedihan mendalam. Abu Bakar ash-Shiddiq berdiri tegak dengan keimanan membaja dan berkhutbah: \"Barangsiapa menyembah Muhammad, Muhammad telah wafat. Dan barangsiapa menyembah Allah, Allah Maha Hidup dan tidak pernah mati,\" lalu membacakan surat Ali ‘Imran ayat 144.",
+    "lesson": "Kita mencintai Nabi ﷺ dan mengamalkan sunnahnya setiap hari, serta menyembah Allah Yang Maha Hidup.",
+    "emulate": "Pelajarilah satu sunnah sederhana hari ini (seperti tersenyum atau membaca basmalah) dan amalkan secara konsisten.",
+    "quizText": "(1) Siapakah yang berkhutbah menegaskan Allah Maha Hidup? (✅ Abu Bakar) (2) Berapa usia Nabi saat wafat? (✅ Enam puluh tiga tahun)",
+    "caution": "Tanamkan kecintaan pada sunnah dan ketauhidan yang kokoh.",
+    "cardTitle": "Pertemuan Tertinggi"
+  },
+  "fr": {
+    "title": "Le Plus Haut Compagnon — L’héritage éternel de lumière",
+    "source": "Al-Bukhari & Muslim (Aïcha) | Al-Imran 3:144",
+    "story": "À l’âge de soixante-trois ans, les derniers mots murmurés par le Messager ﷺ furent : « Ô Seigneur, auprès du Plus Haut Compagnon (Ar-Rafiq Al-A’la). » Étreints par le chagrin, les compagnons trouvèrent réconfort dans la parole d’Abou Bakr : « Que celui qui adorait Muhammad sache que Muhammad est mort, mais que celui qui adore Allah sache qu’Allah est le Vivant qui ne meurt jamais ! » puis il récita le verset 3:144.",
+    "lesson": "Nous aimons le Prophète ﷺ de toute notre âme et suivons sa Sunna. Nous n’adorons qu’Allah, le Vivant éternel.",
+    "emulate": "Adopte aujourd’hui une sunna simple (le sourire, dire Bismillah) et fais-en une habitude quotidienne.",
+    "quizText": "(1) Qui a proclamé : « Allah est le Vivant qui ne meurt jamais » ? (✅ Abou Bakr) (2) Quel âge avait le Prophète ﷺ ? (✅ Soixante-trois ans)",
+    "caution": "Privilégier la vivacité de la Sunna et la foi en l’Éternel plutôt que l’affliction.",
+    "cardTitle": "Le Plus Haut Compagnon"
+  },
+  "de": {
+    "title": "Der Höchste Gefährte — Das ewige Erbe des Lichts",
+    "source": "Al-Bukhari & Muslim (Aischa) | Ali ‘Imran 3:144",
+    "story": "Im Alter von dreiundsechzig Jahren waren die letzten Worte des edlen Gesandten ﷺ: „O Allah, zur Höchsten Gemeinschaft (Ar-Rafiq Al-A’la).“ Die Gefährten waren von Schmerz überwältigt. Abu Bakr trat hervor und sprach voller Glauben: „Wer Muhammad anbetete, der wisse, dass Muhammad gestorben ist. Wer aber Allah anbetet, der wisse, dass Allah der Lebendige ist, Der niemals stirbt“, und rezitierte Vers 3:144.",
+    "lesson": "Wir lieben den Propheten ﷺ von Herzen und folgen seiner Sunnah. Unsere Anbetung gilt allein dem Lebendigen Gott.",
+    "emulate": "Lerne heute eine kleine Sunnah (wie das Lächeln oder Bismillah sagen) und übe sie täglich.",
+    "quizText": "(1) Wer sagte: „Allah ist der Lebendige, Der niemals stirbt“? (✅ Abu Bakr) (2) Wie alt war der Prophet ﷺ? (✅ Dreiundsechzig Jahre)",
+    "caution": "Den Glauben an Allah und die Bewahrung der Sunnah in den Vordergrund stellen.",
+    "cardTitle": "Die Höchste Gemeinschaft"
+  },
+  "es": {
+    "title": "El Compañero Supremo — Legado eterno de luz",
+    "source": "Al-Bujari y Muslim (Aisha) | Ali ‘Imran 3:144",
+    "story": "A los sesenta y tres años de edad, las últimas palabras del Profeta ﷺ fueron: \"¡Oh Dios, con el Compañero Supremo (Ar-Rafiq Al-A’la)!\" Los creyentes sintieron un inmenso dolor. Abu Bakr se puso en pie con firmeza y proclamó: \"Quien adorase a Muhammad, sepa que Muhammad ha fallecido; pero quien adore a Dios, sepa que Dios es el Viviente que jamás muere\", recitando el versículo 3:144.",
+    "lesson": "Amamos profundamente al Profeta ﷺ y revivimos su sunnah cada día. Adoramos únicamente al Dios Viviente.",
+    "emulate": "Aprenderé hoy una sunnah sencilla (como sonreír o decir Bismillah) y la practicaré siempre.",
+    "quizText": "(1) ¿Quién proclamó que Dios es el Viviente que jamás muere? (✅ Abu Bakr) (2) ¿Qué edad tenía el Profeta ﷺ? (✅ Sesenta y tres años)",
+    "caution": "Subrayar la devoción a Dios y el seguimiento alegre de la sunnah.",
+    "cardTitle": "El Compañero Supremo"
+  }
+}
+};
+
+
+export const WEEKLY_CHALLENGES_LOCALIZED: Record<string, Record<Language, { title: string; desc: string }>> = {
+  'challenge-salam': {
+    ar: {
+      title: 'إفشاء السلام والمحبة',
+      desc: 'قل «السلام عليكم ورحمة الله وبركاته» بابتسامة لـ ٣ أشخاص اليوم',
+    },
     en: {
-      title: 'Year of the Elephant & Birth of the Prophet ﷺ',
-      source: 'Al-Fil 105:1-5 | Sahih Al-Bukhari & Muslim',
-      story: 'In the Year of the Elephant, Abraha marched with huge war elephants towards Makkah to demolish the Ka’bah. The Quraysh had no army to stop him, but Abdul-Muttalib declared: "I am the lord of the camels, and the House has a Lord Who will protect it." Allah sent flocks of birds (Ababil) dropping stones, routing the army. In that very blessed year, Prophet Muhammad ﷺ was born in Makkah as a shining mercy to all worlds.',
-      lesson: 'Allah protects His sacred House, and truth always prevails over arrogance.',
-      emulate: 'Whenever you hear the Prophet’s name, send blessings upon him: "Salla Allahu alayhi wa sallam."',
-      caution: 'Avoid myths not verified in authentic Seerah sources.',
-      cardTitle: 'Birth of the Prophet ﷺ — Dawn of Light',
+      title: 'Spread the Salam & Love',
+      desc: 'Say "As-salamu alaykum" with a warm smile to 3 people today',
     },
     bn: {
-      title: 'হস্তী বর্ষ ও নবীজি ﷺ-এর শুভাগমন',
-      source: 'সূরা আল-ফীল ১০৫:১-৫ | সহীহ বুখারী ও মুসলিম',
-      story: 'হস্তী বর্ষে আবরাহা বিশাল হাতি বাহিনী নিয়ে পবিত্র কাবা ধ্বংস করার জন্য মক্কার দিকে অগ্রসর হলো। কুরাইশদের প্রতিহত করার ক্ষমতা ছিল না, কিন্তু আব্দুল মুত্তালিব অটল কণ্ঠে বললেন: "আমি উটের মালিক, আর এই ঘরের একজন রব আছেন যিনি নিজেই একে রক্ষা করবেন।" আল্লাহ ঝাঁকে ঝাঁকে আবাবিল পাখি পাঠিয়ে আবরাহার বাহিনীকে ধ্বংস করে দিলেন। ঠিক সেই বরকতময় বছরেই বিশ্বজগতের জন্য রহমতস্বরূপ নবী মুহাম্মাদ ﷺ মক্কায় জন্মগ্রহণ করেন।',
-      lesson: 'আল্লাহ তাআলা তাঁর পবিত্র ঘর রক্ষা করেন, এবং সত্য সর্বদা অহংকারের ওপর বিজয়ী হয়।',
-      emulate: 'যখনই নবীজি ﷺ-এর নাম শুনবে, পরম ভক্তিতে দরুদ পড়বে: "সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম।"',
-      caution: 'সহীহ সীরাত বহির্ভূত ভিত্তিহীন গল্প বর্ণনা করা যাবে না।',
-      cardTitle: 'নবীজি ﷺ-এর জন্ম — জগতজুড়ে আলোর ভোর',
-    },
-    ru: {
-      title: 'Год Слона и рождение Пророка ﷺ',
-      source: 'Аль-Филь 105:1-5 | Аль-Бухари и Муслим',
-      story: 'В Год Слона правитель Абраха двинулся с боевыми слонами на Мекку, чтобы разрушить Каабу. Курайшиты не имели войска для защиты, но Абдуль-Мутталиб твердо сказал: "У Дома есть Господь, Который защитит его". Аллах наслал стаи птиц Абабиль, поразивших войско захватчиков. В этот благословенный год в Мекке родился Пророк Мухаммад ﷺ как милость для миров.',
-      lesson: 'Аллах оберегает Свои святыни, и истина непременно побеждает гордыню.',
-      emulate: 'Каждый раз, слыша имя Пророка, произноси благословение: "Салляллаху алейхи ва саллям".',
-      caution: 'Избегайте вымышленных историй, не подтвержденных достоверной Сирой.',
-      cardTitle: 'Рождение Пророка ﷺ — рассвет вечного света',
+      title: 'সালাম ও ভালোবাসার প্রসার',
+      desc: 'আজ মিষ্টি হাসি দিয়ে অন্তত ৩ জন মানুষকে "আসসালামু আলাইকুম" বলুন',
     },
     ur: {
-      title: 'واقعہ فیل اور ولادتِ با سعادت ﷺ',
-      source: 'سورۃ الفیل 105:1-5 | صحیح بخاری و مسلم',
-      story: 'ہاتھی والے سال ابرہہ کعبہ کو گرانے کے لیے لشکر لے کر آیا۔ عبدالمطلب نے فرمایا: "اس گھر کا ایک رب ہے جو اس کی حفاظت فرمائے گا۔" اللہ نے ابابیلوں کا لشکر بھیجا جنہوں نے ہاتھی والوں کو تباہ کر دیا۔ اسی مبارک سال میں رحمتِ دوعالم حضرت محمد ﷺ کی ولادت ہوئی۔',
-      lesson: 'اللہ اپنے پاک گھر کی حفاظت فرماتا ہے اور باطل کبھی حق پر غالب نہیں آ سکتا۔',
-      emulate: 'جب بھی نبی ﷺ کا نام سنیں تو ادب سے درود شریف پڑھیں: "صلی اللہ علیہ وسلم"۔',
-      caution: 'مستند کتب کے بغیر من گھڑت روایات بیان نہ کریں۔',
-      cardTitle: 'ولادتِ نبوی ﷺ — عالمین کے لیے نور',
-    },
-    id: {
-      title: 'Tahun Gajah & Kelahiran Nabi Muhammad ﷺ',
-      source: 'Al-Fil 105:1-5 | Shahih Bukhari & Muslim',
-      story: 'Pada Tahun Gajah, Abrahah membawa pasukan gajah untuk merobohkan Ka’bah. Abdul Muthalib dengan tenang berkata: "Baitullah ini memiliki Tuhan Yang akan melindunginya." Allah mengirim burung Ababil yang melempari mereka dengan batu, menghancurkan pasukan itu. Pada tahun yang penuh berkah itu, lahirlah Nabi Muhammad ﷺ sebagai rahmat bagi seluruh alam.',
-      lesson: 'Allah senantiasa menjaga rumah suci-Nya, dan kebenaran selalu mengalahkan kesombongan.',
-      emulate: 'Setiap kali mendengar nama Rasulullah, ucapkan shalawat: "Shallallahu ’alaihi wa sallam."',
-      caution: 'Hindari kisah-kisah khayal yang tidak bersumber dari hadits shahih.',
-      cardTitle: 'Kelahiran Nabi ﷺ — Fajar Cahaya Rahmat',
+      title: 'سلام اور محبت کا فروغ',
+      desc: 'آج مسکراہٹ کے ساتھ کم از کم ۳ افراد کو "السلام علیکم" کہیں',
     },
     tr: {
-      title: 'Fil Yılı ve Peygamberimiz ﷺ’in Doğumu',
-      source: 'Fil Suresi 105:1-5 | Buhari ve Müslim',
-      story: 'Fil Yılı’nda Ebrehe Kâbe’yi yıkmak için fillerle Mekke’ye yürüdü. Abdülmuttalib: "Bu Ev’in bir Sahibi var, O onu korur" dedi. Allah Ebabil kuşlarını göndererek orduyu hezimete uğrattı. İşte o bereketli yılda, âlemlere rahmet olan Peygamberimiz Hz. Muhammed ﷺ dünyaya teşrif etti.',
-      lesson: 'Allah mukaddes Evini korur ve hak batıla daima galip gelir.',
-      emulate: 'Peygamber Efendimizin adını duyduğunda hürmetle salavat getir: "Sallallahu aleyhi ve sellem."',
-      caution: 'Sahih kaynaklarda yer almayan rivayetlerden sakının.',
-      cardTitle: 'Kutlu Doğum — Âlemlere Doğan Güneş',
+      title: 'Selamı ve Sevgiyi Yaymak',
+      desc: 'Bugün en az 3 kişiye güler yüzle "Selamün aleyküm" deyin',
+    },
+    ru: {
+      title: 'Распространение саляма и любви',
+      desc: 'Искренне с теплой улыбкой пожелайте мира («Ас-саляму алейкум») 3 людям сегодня',
+    },
+    id: {
+      title: 'Menebarkan Salam & Kasih Sayang',
+      desc: 'Ucapkan "Assalamu’alaikum" dengan senyum hangat kepada 3 orang hari ini',
     },
     fr: {
-      title: 'L’Année de l’Éléphant et la Naissance du Prophète ﷺ',
-      source: 'Al-Fil 105:1-5 | Al-Boukhari & Mouslim',
-      story: 'Durant l’Année de l’Éléphant, Abraha marcha sur La Mecque avec des éléphants de guerre pour démolir la Kaaba. Abdul-Mouttalib déclara : "Cette Demeure a un Seigneur qui la protègera." Allah envoya des nuées d’oiseaux Ababil qui anéantirent l’armée. En cette année bénie naquit le Prophète Muhammad ﷺ, miséricorde pour l’univers.',
-      lesson: 'Allah protège Ses sanctuaires et la vérité triomphe toujours de l’arrogance.',
-      emulate: 'Chaque fois que tu entends son noble nom, prie sur lui : "Salla Allahou alayhi wa sallam."',
-      caution: 'S’en tenir strictement aux récits vérifiés de la Sîrah.',
-      cardTitle: 'La Naissance du Prophète ﷺ — L’Aurore de Lumière',
+      title: 'Répandre le Salam et l’Amour',
+      desc: 'Dis « As-salamu alaykum » avec un sourire chaleureux à 3 personnes aujourd’hui',
     },
     de: {
-      title: 'Das Jahr des Elefanten & Die Geburt des Propheten ﷺ',
-      source: 'Al-Fil 105:1-5 | Al-Bukhari & Muslim',
-      story: 'Im Jahr des Elefanten zog Abraha mit Kriegselefanten heran, um die Kaaba zu zerstören. Abdul-Muttalib vertraute auf Allah: "Dieses Haus hat einen Herrn, Der es beschützt." Allah sandte Vogelschwärme, die das Heer bezwangen. In jenem gesegneten Jahr wurde Prophet Muhammad ﷺ als Barmherzigkeit für alle Welten geboren.',
-      lesson: 'Allah schützt Seine Heiligtümer, und Hochmut geht stets zugrunde.',
-      emulate: 'Sprich Segenswünsche, wenn du seinen Namen hörst: "Sallallahu alayhi wa sallam."',
-      caution: 'Halte dich an gesicherte historische Überlieferungen.',
-      cardTitle: 'Die Geburt des Propheten ﷺ — Beginn des Lichts',
+      title: 'Den Friedensgruß & Liebe verbreiten',
+      desc: 'Sage heute mit einem herzlichen Lächeln zu 3 Menschen „As-salamu alaykum“',
     },
     es: {
-      title: 'El Año del Elefante y el Nacimiento del Profeta ﷺ',
-      source: 'Al-Fil 105:1-5 | Al-Bujari y Muslim',
-      story: 'En el Año del Elefante, Abraha marchó con elefantes de guerra para destruir la Kaaba. Abdul-Muttalib proclamó: "Esta Casa tiene un Señor que la protegerá". Allah envió bandadas de aves que derrotaron al ejército invasor. En ese bendito año nació el Profeta Muhammad ﷺ como misericordia para la humanidad.',
-      lesson: 'Allah custodia Su Sagrada Casa y la verdad siempre vence a la soberbia.',
-      emulate: 'Cada vez que escuches su nombre bendito, di: "Salla Allahu alayhi wa sallam".',
-      caution: 'Evitar relatos ficticios no respaldados por la Sira auténtica.',
-      cardTitle: 'Nacimiento del Profeta ﷺ — Amanecer de la Luz',
+      title: 'Difundir el Salam y el Afecto',
+      desc: 'Di "As-salamu alaykum" con una cálida sonrisa a 3 personas hoy',
+    },
+  },
+  'challenge-help-parents': {
+    ar: {
+      title: 'مساعدة الوالدين في البيت',
+      desc: 'بادر بمساعدة والدتك أو والدك في ترتيب غرفتك أو حمل الأغراض بفرح',
+    },
+    en: {
+      title: 'Help Mother & Father',
+      desc: 'Proactively help your parents tidy up or carry groceries with joy',
+    },
+    bn: {
+      title: 'পিতা-মাতাকে গৃহকর্মে সাহায্য করা',
+      desc: 'আনন্দের সাথে ঘর গোছানো বা বাজার বহনে বাবা-মাকে উদ্যোগী হয়ে সাহায্য করুন',
+    },
+    ur: {
+      title: 'والدین کی گھر میں مدد',
+      desc: 'خوشی سے اپنے کمرے کو سمیٹنے یا سامان اٹھانے میں امی یا ابو کی مدد کریں',
+    },
+    tr: {
+      title: 'Anne ve Babaya Yardım',
+      desc: 'Bugün odanı toplamak veya eşya taşımak için sevinçle anne babana yardım et',
+    },
+    ru: {
+      title: 'Помощь маме и папе',
+      desc: 'С радостью помогите родителям убрать комнату или донести сумки',
+    },
+    id: {
+      title: 'Membantu Ayah & Ibu di Rumah',
+      desc: 'Bantulah orang tua merapikan kamar atau membawakan barang dengan ceria',
+    },
+    fr: {
+      title: 'Aider ses Parents avec Joie',
+      desc: 'Aide proactivement tes parents à ranger la chambre ou porter des courses avec enthousiasme',
+    },
+    de: {
+      title: 'Eltern im Haus helfen',
+      desc: 'Hilf deinen Eltern voller Freude beim Aufräumen oder Tragen der Einkäufe',
+    },
+    es: {
+      title: 'Ayudar a Mamá y Papá',
+      desc: 'Ayuda con entusiasmo a tus padres a ordenar la habitación o llevar las compras',
+    },
+  },
+  'challenge-generosity': {
+    ar: {
+      title: 'الكلمة الطيبة والصدقة',
+      desc: 'شارك لعبتك أو وجبتك الخفيفة مع أخيك أو صديقك وقل له كلمة تسعده',
+    },
+    en: {
+      title: 'Kind Words & Sharing',
+      desc: 'Share your toy or snack with a sibling or friend and cheer them up',
+    },
+    bn: {
+      title: 'উত্তম বাক্য ও সদকা',
+      desc: 'ভাইবোন বা বন্ধুর সাথে খেলনা অথবা খাবার ভাগ করে নিন এবং সুন্দর কথা বলুন',
+    },
+    ur: {
+      title: 'اچھی بات اور ایثار',
+      desc: 'بہن بھائی یا دوست کے ساتھ اپنا کھلونا یا کھانا شیئر کریں اور اچھی بات کہیں',
+    },
+    tr: {
+      title: 'Güzel Söz ve Paylaşmak',
+      desc: 'Oyuncağını veya yiyeceğini kardeşinle veya arkadaşınla paylaş, ona güzel bir söz söyle',
+    },
+    ru: {
+      title: 'Доброе слово и щедрость',
+      desc: 'Поделитесь игрушкой или угощением с братом, сестрой или другом и подбодрите добрым словом',
+    },
+    id: {
+      title: 'Tutur Kata Baik & Berbagi',
+      desc: 'Bagikan mainan atau camilanmu kepada saudara atau teman dan ucapkan kata menyenangkan',
+    },
+    fr: {
+      title: 'Paroles Bienveillantes et Partage',
+      desc: 'Partage ton jouet ou ton goûter avec un proche et réconforte-le d’un mot doux',
+    },
+    de: {
+      title: 'Gute Worte und Teilen',
+      desc: 'Teile dein Spielzeug oder einen Snack mit einem Geschwister oder Freund und erfreue ihn',
+    },
+    es: {
+      title: 'Palabras Bondadosas y Compartir',
+      desc: 'Comparte tu juguete o merienda con un hermano o amigo y alégralo con bellas palabras',
     },
   },
 };

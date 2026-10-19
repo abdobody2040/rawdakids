@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedProphetMeta } from '@/services/multilingualContentService';
+import { getLocalizedProphetMeta, getAnimalMiraclesBadge, getAnimalMiraclesTitle, getAnimalMiraclesSubtitle } from '@/services/multilingualContentService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
@@ -82,14 +82,14 @@ export default function ProphetsTimelineScreen() {
               <View style={styles.animalsShortcutBadge}>
                 <Ionicons name="sparkles" size={11} color="#FEF3C7" />
                 <Text style={styles.animalsShortcutBadgeText}>
-                  {language === 'ar' ? 'معجزات الحيوان في القرآن' : 'Animal Miracles'}
+                  {getAnimalMiraclesBadge(language)}
                 </Text>
               </View>
               <Text style={styles.animalsShortcutTitle}>
-                {language === 'ar' ? 'طير عيسى، عصا موسى، وفداء إسماعيل 🕊️🐍' : 'Isa’s Bird, Musa’s Staff & Ismail’s Ram 🕊️🐍'}
+                {getAnimalMiraclesTitle(language)}
               </Text>
               <Text style={styles.animalsShortcutSub}>
-                {language === 'ar' ? 'قصص تفاعلية، تحديات وأنشطة لكل الأعمار' : 'Interactive stories, challenges & quizzes'}
+                {getAnimalMiraclesSubtitle(language)}
               </Text>
             </View>
             <Ionicons

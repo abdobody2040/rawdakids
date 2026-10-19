@@ -176,23 +176,23 @@ export default function SeerahHubScreen() {
               </View>
 
               {/* Two Quiz Questions */}
-              {currentStation.quizText ? (
+              {(localizedStation.quizText || currentStation.quizText) ? (
                 <View style={styles.quizBox}>
                   <Text style={[styles.quizTitle, isRtl && { textAlign: 'right' }]}>
                     {getUpgradeLabel('takeQuickQuiz', language)}
                   </Text>
                   <Text style={[styles.quizText, isRtl && { textAlign: 'right' }]}>
-                    {currentStation.quizText}
+                    {localizedStation.quizText || currentStation.quizText}
                   </Text>
                 </View>
               ) : null}
 
               {/* Caution Notes */}
-              {currentStation.caution ? (
+              {(localizedStation.caution || currentStation.caution) ? (
                 <View style={styles.cautionBox}>
                   <Ionicons name="information-circle-outline" size={16} color="#64748b" />
                   <Text style={[styles.cautionText, isRtl && { textAlign: 'right' }]}>
-                    {`${getUpgradeLabel('cautionLabel', language)}: ${currentStation.caution}`}
+                    {`${getUpgradeLabel('cautionLabel', language)}: ${localizedStation.caution || currentStation.caution}`}
                   </Text>
                 </View>
               ) : null}

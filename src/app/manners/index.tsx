@@ -16,6 +16,7 @@ import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
 import { getLocalizedMannerBuilding, getMannersJournalBannerTitle, getMannersJournalBannerSub, getMannersBuildingsHeading, getMannersLandmarksCountBadge } from '@/services/multilingualContentService';
+import { getUpgradeLabel, getLocalizedWeeklyChallenge } from '@/services/multilingualUpgradeService';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 
@@ -160,67 +161,70 @@ export default function MannersTownScreen() {
             <View style={{ flexDirection: language === 'ar' ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
               <Ionicons name="trophy" size={20} color="#f59e0b" />
               <Text style={styles.challengesHeading}>
-                {language === 'ar' ? 'تحديات الأخلاق لهذا الأسبوع' : 'Weekly Manners Challenges'}
+                {getUpgradeLabel('weeklyMannersHeading', language)}
               </Text>
             </View>
             <View style={styles.challengeBadgePill}>
               <Text style={styles.challengeBadgeText}>
-                {weeklyChallenges.filter((c) => c.confirmedByParent).length} / {weeklyChallenges.length} {language === 'ar' ? 'معتمد' : 'Approved'}
+                {weeklyChallenges.filter((c) => c.confirmedByParent).length} / {weeklyChallenges.length} {getUpgradeLabel('approvedLabel', language)}
               </Text>
             </View>
           </View>
 
           <View style={styles.challengeCardsList}>
-            {weeklyChallenges.map((challenge) => (
-              <View key={challenge.id} style={styles.challengeCard}>
-                <View style={[styles.challengeTopRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-                  <View style={styles.challengeEmojiBox}>
-                    <Text style={{ fontSize: 24 }}>{challenge.emoji}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.challengeTitle, language === 'ar' && { textAlign: 'right' }]}>
-                      {language === 'ar' ? challenge.titleAr : challenge.titleEn}
-                    </Text>
-                    <Text style={[styles.challengeDesc, language === 'ar' && { textAlign: 'right' }]}>
-                      {language === 'ar' ? challenge.descAr : challenge.descEn}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={[styles.challengeBottomRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-                  <View style={styles.rewardChip}>
-                    <Text style={styles.rewardChipText}>💎 +{challenge.gemReward}</Text>
-                  </View>
-
-                  {challenge.confirmedByParent ? (
-                    <View style={styles.confirmedPill}>
-                      <Ionicons name="checkmark-done-circle" size={16} color="#059669" />
-                      <Text style={styles.confirmedPillText}>
-                        {language === 'ar' ? 'معتمد من الوالدين 🎉' : 'Approved by Parents 🎉'}
+            {weeklyChallenges.map((challenge) => {
+              const loc = getLocalizedWeeklyChallenge(challenge, language);
+              return (
+                <View key={challenge.id} style={styles.challengeCard}>
+                  <View style={[styles.challengeTopRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                    <View style={styles.challengeEmojiBox}>
+                      <Text style={{ fontSize: 24 }}>{challenge.emoji}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.challengeTitle, language === 'ar' && { textAlign: 'right' }]}>
+                        {loc.title}
+                      </Text>
+                      <Text style={[styles.challengeDesc, language === 'ar' && { textAlign: 'right' }]}>
+                        {loc.desc}
                       </Text>
                     </View>
-                  ) : challenge.completedByChild ? (
-                    <View style={styles.waitingPill}>
-                      <Ionicons name="hourglass-outline" size={14} color="#d97706" />
-                      <Text style={styles.waitingPillText}>
-                        {language === 'ar' ? 'بانتظار مصادقة الوالدين' : 'Waiting for parent approval'}
-                      </Text>
+                  </View>
+
+                  <View style={[styles.challengeBottomRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                    <View style={styles.rewardChip}>
+                      <Text style={styles.rewardChipText}>💎 +{challenge.gemReward}</Text>
                     </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.completeBtn}
-                      onPress={() => completeWeeklyChallenge(challenge.id)}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="sparkles" size={14} color="#ffffff" />
-                      <Text style={styles.completeBtnText}>
-                        {language === 'ar' ? 'أنجزت هذا الخلق اليوم! 🌟' : 'I did this today! 🌟'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+
+                    {challenge.confirmedByParent ? (
+                      <View style={styles.confirmedPill}>
+                        <Ionicons name="checkmark-done-circle" size={16} color="#059669" />
+                        <Text style={styles.confirmedPillText}>
+                          {getUpgradeLabel('approvedByParents', language)}
+                        </Text>
+                      </View>
+                    ) : challenge.completedByChild ? (
+                      <View style={styles.waitingPill}>
+                        <Ionicons name="hourglass-outline" size={14} color="#d97706" />
+                        <Text style={styles.waitingPillText}>
+                          {getUpgradeLabel('waitingParentApproval', language)}
+                        </Text>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.completeBtn}
+                        onPress={() => completeWeeklyChallenge(challenge.id)}
+                        activeOpacity={0.8}
+                      >
+                        <Ionicons name="sparkles" size={14} color="#ffffff" />
+                        <Text style={styles.completeBtnText}>
+                          {getUpgradeLabel('completedMannerTodayBtn', language)}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 

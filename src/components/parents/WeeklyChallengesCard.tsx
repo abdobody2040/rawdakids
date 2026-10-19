@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Language } from '@/constants/i18n';
 import { WeeklyChallenge } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { getUpgradeLabel, getLocalizedWeeklyChallenge } from '@/services/multilingualUpgradeService';
 
 interface WeeklyChallengesCardProps {
   language: Language;
@@ -22,22 +23,19 @@ export default function WeeklyChallengesCard({
       <View style={styles.sectionHeader}>
         <Ionicons name="shield-checkmark" size={20} color="#059669" />
         <Text style={styles.sectionTitle}>
-          {language === 'ar'
-            ? 'مصادقة تحديات الأخلاق الحقيقية (PA4)'
-            : 'Real-Life Manners Approval'}
+          {getUpgradeLabel('realLifeMannersTitle', language)}
         </Text>
       </View>
 
       <Text style={styles.settingDesc}>
-        {language === 'ar'
-          ? 'عندما يُطبّق طفلك خُلقاً وسلوكاً حسناً في الحياة الواقعية (مثل بر الوالدين أو إفشاء السلام)، صدّق على إنجازه هنا لمنحه جواهر ومكافآت التميز!'
-          : 'When your child puts good manners into real-life practice, verify their achievement here to award them bonus gems and celebrate!'}
+        {getUpgradeLabel('realLifeMannersDesc', language)}
       </Text>
 
       <View style={styles.challengesList}>
         {weeklyChallenges.map((c) => {
           const isConfirmed = c.confirmedByParent;
           const isChildDone = c.completedByChild;
+          const loc = getLocalizedWeeklyChallenge(c, language);
 
           return (
             <View
@@ -51,10 +49,10 @@ export default function WeeklyChallengesCard({
                 <Text style={styles.challengeEmoji}>{c.emoji}</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.challengeTitle}>
-                    {language === 'ar' ? c.titleAr : c.titleEn}
+                    {loc.title}
                   </Text>
                   <Text style={styles.challengeDesc}>
-                    {language === 'ar' ? c.descAr : c.descEn}
+                    {loc.desc}
                   </Text>
                 </View>
                 <View style={styles.challengeRewardBadge}>

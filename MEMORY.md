@@ -1482,6 +1482,34 @@
     - `GET /api/proxy-audio?url=https://everyayah.com/...` -> 200 `audio/mpeg`.
   - Git commit: `0b43821`.
 
+### Milestone 28: Complete Multilingual Coverage Across Seerah, Nations, Weekly Manners Challenges, and Prophet Timelines
+- **1. User Issue & Root Cause:**
+  - Issue: The user provided 5 screenshots showing untranslated sections in Bengali (`bn`) [affecting all non-Arabic/non-English languages: `bn`, `ur`, `tr`, `ru`, `id`, `fr`, `de`, `es`].
+  - Root Cause 1 (Seerah `/seerah`): Review questions (`quizText`) and caution notes (`caution`) were hardcoded in `src/app/seerah/index.tsx` to read directly from raw Arabic `currentStation` instead of `localizedStation`. In addition, `SEERAH_LOCALIZED` in `src/services/multilingualUpgradeData.ts` only had station 1; stations 2 through 16 were completely missing.
+  - Root Cause 2 (Nations `/nations`): `NATIONS_LOCALIZED` only contained `nation-1`. Nations 2 through 7 (Thamud, Saba', Ashab al-Jannah, Qarun, Jannatan, People of Yunus) had no translations, leaving cards and chips in raw Arabic.
+  - Root Cause 3 (Manners `/manners`): Weekly Manners Challenges header, approval counters, status pills, completion buttons, and challenge cards (Spread the Salam, Help Parents, Kind Words) used binary `language === 'ar' ? ... : English` ternaries without multilingual support.
+  - Root Cause 4 (Prophets `/prophets`): The Animal Miracles banner ("Animal Miracles", "Isa’s Bird, Musa’s Staff & Ismail’s Ram", subtitle) used binary ternaries. In addition, `PROPHET_NAMES_LOCALIZED` only covered `ar`, `en`, `fr`, `de`, `es`, lacking `bn`, `ur`, `tr`, `ru`, `id` and causing Prophet metadata (title badges, eras, locations) to fall back to English.
+- **2. Implementation Details:**
+  - **Comprehensive Seerah Dataset (Stations 1 to 16 in 10 Languages):**
+    - Expanded `SEERAH_LOCALIZED` in [`src/services/multilingualUpgradeData.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualUpgradeData.ts) to provide rich translations across all 10 languages (`ar`, `en`, `bn`, `ur`, `tr`, `ru`, `id`, `fr`, `de`, `es`) for all 16 stations from the Year of the Elephant to the Farewell Pilgrimage and Al-Rafiq Al-A'la.
+    - Updated `LocalizedSeerahContent` interface with `quizText?: string`, `caution?: string`, `discussion?: string`, `activity?: string`, and `emulate?: string`.
+    - Updated [`src/services/multilingualUpgradeService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualUpgradeService.ts) `getLocalizedSeerahStation` to map `quizText`.
+    - Updated [`src/app/seerah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/seerah/index.tsx) to render `localizedStation.quizText || currentStation.quizText` and `localizedStation.caution || currentStation.caution`.
+  - **Complete Nations Dataset (Nations 1 to 7 in 10 Languages):**
+    - Expanded `NATIONS_LOCALIZED` in `multilingualUpgradeData.ts` with complete localized content for Nations 2 to 7 across all 10 languages (`title`, `story`, `lesson`, `discussion`, `activity`, `quizText`, `caution`, `cardTitle`).
+    - Added `quizText?: string` to `LocalizedNationContent` interface.
+  - **Weekly Manners Challenges & Real-Life Approval:**
+    - Added universal UI keys to `UPGRADE_HUB_LABELS` (`weeklyMannersHeading`, `approvedLabel`, `approvedByParents`, `waitingParentApproval`, `completedMannerTodayBtn`, `realLifeMannersTitle`, `realLifeMannersDesc`) across all 10 languages.
+    - Implemented `WEEKLY_CHALLENGES_LOCALIZED` and `getLocalizedWeeklyChallenge` helper in `multilingualUpgradeService.ts` providing localized titles and descriptions for all 3 challenges in 10 languages.
+    - Updated [`src/app/manners/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/manners/index.tsx) and [`src/components/parents/WeeklyChallengesCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/WeeklyChallengesCard.tsx) to consume these localized helpers.
+  - **Prophets Caravan & Animal Miracles Banner:**
+    - Expanded `PROPHET_NAMES_LOCALIZED` via `PROPHET_DATA_EXTRA` in [`src/services/multilingualContentService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualContentService.ts) for all 25 Prophets across `bn`, `ur`, `tr`, `ru`, `id`.
+    - Added `ANIMAL_MIRACLES_BANNER` dictionary and helpers (`getAnimalMiraclesBadge`, `getAnimalMiraclesTitle`, `getAnimalMiraclesSubtitle`) in 10 languages.
+    - Updated [`src/app/prophets/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/index.tsx) to render localized badge, title, and subtitle.
+- **3. Verification:**
+  - `npx.cmd tsc --noEmit` -> 0 errors across entire workspace.
+  - `npm.cmd run build` -> 31 routes exported to `dist/` successfully with 0 errors.
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
