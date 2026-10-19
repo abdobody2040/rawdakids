@@ -1449,6 +1449,39 @@
   - `npm.cmd run build` -> Clean export of 26 static routes into `dist/`.
   - Tested on `http://localhost:3000/animals` and `http://localhost:3000/`.
 
+### Milestone 27: Comprehensive Fix for Production Build Audio Playback Across Prophet Stories and All 10 App Hubs
+- **1. User Issue & Root Cause:**
+  - Issue: "الصوت فى قصص الانبياء مش شغال واغلب البرنامج برضو فى البيلد مش هنا" (Audio was not working in Prophet stories and across most hubs in the production build on `http://localhost:3000`).
+  - Root Cause 1: In `server.js`, `/api/tts` used strict parameter validation `validateStrict(queryParams, ['text'], ['text'])`. The frontend client in `audioService.ts` passed `&tl=${targetLang}`. Because `tl` was not allowed in `allowedFields`, every single TTS request failed with `400 Bad Request: Mass assignment violation: Unknown field(s) 'tl' are forbidden and rejected`.
+  - Root Cause 2: In `server.js`, `fetchGoogleTTSChunk` hardcoded `&tl=ar`, ignoring the requested language, and lacked an in-memory cache, causing redundant external Google TTS queries.
+  - Root Cause 3: In `server.js`, `/api/tts` lacked HTTP Range request headers (`Accept-Ranges`, `206 Partial Content`), which prevented proper HTML5 audio seeking and streaming playback on modern browsers (Safari, iOS WebKit, Chrome).
+  - Root Cause 4: In `server.js`, `/api/tts` had an aggressive 500-character ceiling, which could reject longer narrations, and rate limit was capped at 40 requests/min.
+  - Root Cause 5: In `src/app/prophets/[prophetId].tsx`, linked Quranic Ayahs in story scenes had no recitation player button.
+- **2. Implementation Details:**
+  - [`server.js`](file:///g:/quran%20app%20for%20kids/server.js):
+    - Updated `/api/tts` validation to accept `['text', 'tl', 'lang', 'speed']`.
+    - Increased text limit to 3000 characters and rate limit to 180 requests/min.
+    - Added LRU in-memory audio buffer caching (`ttsAudioCache`, 1000 items) keyed by `${lang}:${text}` for sub-100ms response times.
+    - Implemented HTTP Range support (`206 Partial Content`, `Content-Range`, `Accept-Ranges: bytes`).
+    - Added `/api/proxy-audio` endpoint to securely proxy EveryAyah reciter streams if direct client CDN requests are blocked.
+  - [`src/services/audioService.ts`](file:///g:/quran%20app%20for%20kids/src/services/audioService.ts):
+    - Added automatic fallback to `/api/proxy-audio` in `playAyah` if direct EveryAyah CDN access fails in the browser.
+    - Enhanced `playDua` web player with clean audio teardown and graceful multi-tier fallback (local proxy -> direct TTS -> Web SpeechSynthesis).
+    - Upgraded `playSpeechSynthesisFallback` to map all 10 supported app languages (`ar-SA`, `en-US`, `fr-FR`, `de-DE`, `es-ES`, `id-ID`, `tr-TR`, `ru-RU`, `bn-BD`, `ur-PK`).
+  - [`src/app/prophets/[prophetId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/%5BprophetId%5D.tsx):
+    - Enhanced narration audio toggle with mutual exclusion (stops Ayah audio if playing).
+    - Added dedicated Quranic recitation player (`handlePlayLinkedAyah`, `quranService.getAudioUrl`) directly inside the `linkedAyahCard` so kids can listen to the authentic recitation of linked Quran verses by the selected teacher reciter.
+- **3. Verification:**
+  - `npx.cmd tsc --noEmit` -> 0 errors.
+  - `npm.cmd run build` -> Clean web export to `dist/` (31 static routes).
+  - Backend API tests on `http://localhost:3000`:
+    - `GET /api/tts?text=...&tl=ar` -> 200 `audio/mpeg` (89,280 bytes).
+    - `GET /api/tts?text=...&tl=ar` (cached) -> 200 `audio/mpeg` in 116ms.
+    - `GET /api/tts?text=...&tl=ar` with `Range: bytes=0-1023` -> 206 Partial Content.
+    - `GET /api/tts?text=...&tl=en` -> 200 `audio/mpeg` (40,704 bytes).
+    - `GET /api/proxy-audio?url=https://everyayah.com/...` -> 200 `audio/mpeg`.
+  - Git commit: `0b43821`.
+
 ---
 
 ## 3. Strict Rules & Constraints for Future AI Agents
