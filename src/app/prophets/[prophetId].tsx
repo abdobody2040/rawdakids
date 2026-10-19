@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { contentService } from '@/services/contentService';
 import { useAppStore } from '@/store/useAppStore';
 import { audioService } from '@/services/audioService';
+import { quranService } from '@/services/quranService';
 import { getProphetDecisionMoment, StoryDecisionOption } from '@/data/storiesData';
 import {
   getLocalizedProphetStoryTitle,
@@ -340,6 +341,7 @@ export default function ProphetStoryPlayerScreen() {
   const [activeSceneIdx, setActiveSceneIdx] = useState<number>(0);
   const [screenPhase, setScreenPhase] = useState<'scenes' | 'decision' | 'quiz'>('scenes');
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
+  const [isPlayingAyah, setIsPlayingAyah] = useState<boolean>(false);
 
   // Decision moment state (P5)
   const decisionMoment = getProphetDecisionMoment(prophet);
@@ -375,6 +377,10 @@ export default function ProphetStoryPlayerScreen() {
       await audioService.stop();
       setIsAudioPlaying(false);
     } else {
+      if (isPlayingAyah) {
+        audioService.stop();
+        setIsPlayingAyah(false);
+      }
       setIsAudioPlaying(true);
       const narrationToPlay = language === 'ar' ? currentScene.narrationAr : localizedScene.narration;
       await audioService.playDua(
@@ -389,9 +395,32 @@ export default function ProphetStoryPlayerScreen() {
     }
   };
 
+  const handlePlayLinkedAyah = async () => {
+    if (!currentScene.linkedAyah) return;
+    if (isPlayingAyah) {
+      await audioService.stop();
+      setIsPlayingAyah(false);
+    } else {
+      audioService.stopDua();
+      setIsAudioPlaying(false);
+      setIsPlayingAyah(true);
+      const audioUrl = quranService.getAudioUrl(
+        parentSettings?.reciterId || 'minshawi_teacher',
+        currentScene.linkedAyah.surahNumber,
+        currentScene.linkedAyah.ayahNumber
+      );
+      await audioService.playAyah(audioUrl, 1.0, (status) => {
+        if (status.didJustFinish || status.error) {
+          setIsPlayingAyah(false);
+        }
+      });
+    }
+  };
+
   const handleNextScene = () => {
     audioService.stop();
     setIsAudioPlaying(false);
+    setIsPlayingAyah(false);
     if (activeSceneIdx < prophet.scenes.length - 1) {
       setActiveSceneIdx(activeSceneIdx + 1);
     } else {
@@ -403,6 +432,7 @@ export default function ProphetStoryPlayerScreen() {
   const handlePrevScene = () => {
     audioService.stop();
     setIsAudioPlaying(false);
+    setIsPlayingAyah(false);
     if (activeSceneIdx > 0) {
       setActiveSceneIdx(activeSceneIdx - 1);
     }
@@ -536,11 +566,27 @@ export default function ProphetStoryPlayerScreen() {
               {currentScene.linkedAyah && (
                 <View style={styles.linkedAyahCard}>
                   <View style={styles.linkedAyahHeader}>
-                    <Ionicons name="book" size={16} color={COLORS.quranGarden.dark} />
-                    <Text style={styles.linkedAyahTitle}>
-                      سورة {currentScene.linkedAyah.surahNameAr} (آية{' '}
-                      {currentScene.linkedAyah.ayahNumber})
-                    </Text>
+                    <View style={styles.linkedAyahTitleRow}>
+                      <Ionicons name="book" size={16} color={COLORS.quranGarden.dark} />
+                      <Text style={styles.linkedAyahTitle}>
+                        سورة {currentScene.linkedAyah.surahNameAr} (آية{' '}
+                        {currentScene.linkedAyah.ayahNumber})
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.ayahAudioBtn, isPlayingAyah && styles.ayahAudioBtnActive]}
+                      onPress={handlePlayLinkedAyah}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons
+                        name={isPlayingAyah ? 'pause' : 'volume-high'}
+                        size={14}
+                        color={isPlayingAyah ? COLORS.textLight : COLORS.quranGarden.dark}
+                      />
+                      <Text style={[styles.ayahAudioBtnText, isPlayingAyah && styles.ayahAudioBtnTextActive]}>
+                        {isPlayingAyah ? (language === 'ar' ? 'إيقاف' : 'Stop') : (language === 'ar' ? 'استمع للآية' : 'Recite')}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                   <Text style={styles.linkedAyahUthmani}>
                     {currentScene.linkedAyah.textUthmani}
@@ -911,13 +957,42 @@ const styles = StyleSheet.create({
   linkedAyahHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  linkedAyahTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
-    marginBottom: 4,
+    flex: 1,
   },
   linkedAyahTitle: {
     fontSize: 12,
     fontWeight: '800',
     color: COLORS.quranGarden.dark,
+  },
+  ayahAudioBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: COLORS.quranGarden.accent + '66',
+  },
+  ayahAudioBtnActive: {
+    backgroundColor: COLORS.quranGarden.dark,
+    borderColor: COLORS.quranGarden.dark,
+  },
+  ayahAudioBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.quranGarden.dark,
+  },
+  ayahAudioBtnTextActive: {
+    color: COLORS.textLight,
   },
   linkedAyahUthmani: {
     fontSize: 18,

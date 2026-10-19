@@ -96,7 +96,26 @@ class AudioService {
             this.onPlaybackStatusUpdate?.({ isPlaying: false, didJustFinish: true });
           };
           audio.onerror = (e: any) => {
-            console.warn('Web audio playback error:', e);
+            console.warn('[AudioService] Web audio playback error on:', uri, e);
+            // Automatic retry via local server audio proxy if direct CDN request failed
+            if (!uri.startsWith('/api/proxy-audio') && uri.startsWith('https://everyayah.com/')) {
+              const proxyUri = `/api/proxy-audio?url=${encodeURIComponent(uri)}`;
+              const proxyAudio = new (window as any).Audio(proxyUri);
+              this.webAudio = proxyAudio;
+              proxyAudio.playbackRate = speed;
+              proxyAudio.onplay = audio.onplay;
+              proxyAudio.onpause = audio.onpause;
+              proxyAudio.onended = audio.onended;
+              proxyAudio.onerror = () => {
+                this.isPlaying = false;
+                this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
+              };
+              proxyAudio.play().catch(() => {
+                this.isPlaying = false;
+                this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
+              });
+              return;
+            }
             this.isPlaying = false;
             this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
           };
@@ -105,13 +124,31 @@ class AudioService {
             const playPromise = audio.play();
             if (playPromise !== undefined) {
               playPromise.catch((err: any) => {
-                console.warn('Web audio play rejected:', err);
+                console.warn('[AudioService] Web audio play rejected:', err);
+                if (!uri.startsWith('/api/proxy-audio') && uri.startsWith('https://everyayah.com/')) {
+                  const proxyUri = `/api/proxy-audio?url=${encodeURIComponent(uri)}`;
+                  const proxyAudio = new (window as any).Audio(proxyUri);
+                  this.webAudio = proxyAudio;
+                  proxyAudio.playbackRate = speed;
+                  proxyAudio.onplay = audio.onplay;
+                  proxyAudio.onpause = audio.onpause;
+                  proxyAudio.onended = audio.onended;
+                  proxyAudio.onerror = () => {
+                    this.isPlaying = false;
+                    this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
+                  };
+                  proxyAudio.play().catch(() => {
+                    this.isPlaying = false;
+                    this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
+                  });
+                  return;
+                }
                 this.isPlaying = false;
                 this.onPlaybackStatusUpdate?.({ isPlaying: false, error: true });
               });
             }
           } catch (err) {
-            console.warn('Web audio play sync error:', err);
+            console.warn('[AudioService] Web audio play sync error:', err);
           }
         }
         return;
@@ -261,6 +298,14 @@ class AudioService {
       // 1. Try Web Audio element with proxyUrl or googleFallbackUrl
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         const tryPlayHtmlAudio = (srcUrl: string, onFail: () => void) => {
+          if (this.duaAudio) {
+            try {
+              this.duaAudio.pause();
+              this.duaAudio.currentTime = 0;
+            } catch {
+              // Ignore pause error on uninitialized audio
+            }
+          }
           const audio = new (window as any).Audio(srcUrl);
           this.duaAudio = audio;
           audio.playbackRate = 0.95;
@@ -274,15 +319,22 @@ class AudioService {
             this.duaAudio = null;
             onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
           };
-          audio.onerror = () => {
+          audio.onerror = (e: any) => {
+            console.warn('[AudioService] HTML Audio load error for:', srcUrl, e);
             onFail();
           };
 
-          const playPromise = audio.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              onFail();
-            });
+          try {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise.catch((err: any) => {
+                console.warn('[AudioService] HTML Audio play promise rejected:', err);
+                onFail();
+              });
+            }
+          } catch (syncErr) {
+            console.warn('[AudioService] HTML Audio play sync error:', syncErr);
+            onFail();
           }
         };
 
@@ -354,27 +406,44 @@ class AudioService {
       try {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(arabicText);
-        const synthLang = langCode === 'ar' ? 'ar-SA' : langCode === 'fr' ? 'fr-FR' : langCode === 'de' ? 'de-DE' : langCode === 'es' ? 'es-ES' : 'en-US';
+        const synthLang =
+          langCode === 'ar' ? 'ar-SA' :
+          langCode === 'fr' ? 'fr-FR' :
+          langCode === 'de' ? 'de-DE' :
+          langCode === 'es' ? 'es-ES' :
+          langCode === 'id' ? 'id-ID' :
+          langCode === 'tr' ? 'tr-TR' :
+          langCode === 'ru' ? 'ru-RU' :
+          langCode === 'bn' ? 'bn-BD' :
+          langCode === 'ur' ? 'ur-PK' : 'en-US';
         utterance.lang = synthLang;
-        utterance.rate = 0.85;
+        utterance.rate = 0.88;
 
         const voices = window.speechSynthesis.getVoices();
-        const matchedVoice = voices.find((v) => v.lang.toLowerCase().startsWith(langCode));
+        const matchedVoice = voices.find((v) =>
+          v.lang.toLowerCase().replace('_', '-').startsWith(langCode.toLowerCase())
+        );
         if (matchedVoice) {
           utterance.voice = matchedVoice;
         }
 
+        utterance.onstart = () => {
+          this.isPlaying = true;
+          onStatusUpdate?.({ isPlaying: true, didJustFinish: false });
+        };
         utterance.onend = () => {
           this.isPlaying = false;
           onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
         };
-        utterance.onerror = () => {
+        utterance.onerror = (e) => {
+          console.warn('[AudioService] SpeechSynthesis error:', e);
           this.isPlaying = false;
           onStatusUpdate?.({ isPlaying: false, error: true });
         };
         window.speechSynthesis.speak(utterance);
         return;
-      } catch {
+      } catch (err) {
+        console.warn('[AudioService] SpeechSynthesis exception:', err);
         this.isPlaying = false;
         onStatusUpdate?.({ isPlaying: false, error: true });
       }

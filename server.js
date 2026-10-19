@@ -26,7 +26,8 @@ const RATE_LIMIT_RULES = {
   '/api/auth/login': { windowMs: 60000, maxRequests: 5 },
   '/api/auth/signup': { windowMs: 60000, maxRequests: 3 },
   '/api/auth/password-reset': { windowMs: 60000, maxRequests: 3 },
-  '/api/tts': { windowMs: 60000, maxRequests: 40 },
+  '/api/tts': { windowMs: 60000, maxRequests: 180 },
+  '/api/proxy-audio': { windowMs: 60000, maxRequests: 180 },
   '/api/quran/surah': { windowMs: 60000, maxRequests: 60 },
   '/api/user/records': { windowMs: 60000, maxRequests: 100 },
   '/api/payments/create-checkout-session': { windowMs: 60000, maxRequests: 10 },
@@ -269,15 +270,21 @@ function splitArabicText(text, maxLen = 120) {
   return chunks.length > 0 ? chunks : [clean.slice(0, maxLen)];
 }
 
-function fetchGoogleTTSChunk(chunk) {
+const ttsAudioCache = new Map();
+const MAX_TTS_CACHE_ITEMS = 1000;
+
+function fetchGoogleTTSChunk(chunk, lang = 'ar') {
   return new Promise((resolve) => {
     const https = require('https');
-    const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(chunk)}`;
+    const safeLang = encodeURIComponent(lang || 'ar');
+    const safeText = encodeURIComponent(chunk);
+    const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${safeLang}&client=tw-ob&q=${safeText}`;
     https.get(
       googleUrl,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Referer': 'https://translate.google.com/',
         },
       },
       (proxyRes) => {
@@ -635,31 +642,75 @@ const server = http.createServer(async (req, res) => {
     try {
       const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost:3000'}`);
       
-      // Strict parameter validation: strictly 'text' allowed
+      // Strict parameter validation: allow text, tl, lang, speed
       const queryParams = Object.fromEntries(parsedUrl.searchParams.entries());
-      const validation = validateStrict(queryParams, ['text'], ['text']);
+      const validation = validateStrict(queryParams, ['text', 'tl', 'lang', 'speed'], ['text']);
       if (!validation.valid) {
         return sendJson(400, { error: validation.error });
       }
 
-      const text = queryParams.text;
-      if (text.length > 500) {
-        return sendJson(400, { error: 'Text parameter exceeds maximum allowed limit of 500 characters' });
+      const text = (queryParams.text || '').trim();
+      if (!text) {
+        return sendJson(400, { error: 'Text parameter cannot be empty' });
+      }
+      if (text.length > 3000) {
+        return sendJson(400, { error: 'Text parameter exceeds maximum allowed limit of 3000 characters' });
       }
 
-      const chunks = splitArabicText(text, 120);
-      const audioBuffers = await Promise.all(chunks.map(fetchGoogleTTSChunk));
-      const combined = Buffer.concat(audioBuffers);
+      const lang = queryParams.tl || queryParams.lang || 'ar';
+      const cacheKey = `${lang}:${text}`;
 
-      if (combined.length === 0) {
-        res.writeHead(502, { 'Content-Type': 'text/plain' });
-        res.end('Failed to generate TTS audio');
+      let combined = ttsAudioCache.get(cacheKey);
+      if (!combined) {
+        const chunks = splitArabicText(text, 180);
+        const audioBuffers = [];
+        for (const chunk of chunks) {
+          const buf = await fetchGoogleTTSChunk(chunk, lang);
+          if (buf && buf.length > 0) {
+            audioBuffers.push(buf);
+          }
+        }
+        combined = Buffer.concat(audioBuffers);
+
+        if (combined.length === 0) {
+          res.writeHead(502, { 'Content-Type': 'text/plain' });
+          res.end('Failed to generate TTS audio');
+          return;
+        }
+
+        if (ttsAudioCache.size >= MAX_TTS_CACHE_ITEMS) {
+          const firstKey = ttsAudioCache.keys().next().value;
+          ttsAudioCache.delete(firstKey);
+        }
+        ttsAudioCache.set(cacheKey, combined);
+      }
+
+      // Handle Range request for audio seeking and mobile browser streaming
+      const range = req.headers.range;
+      if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10) || 0;
+        const end = parts[1] ? parseInt(parts[1], 10) : combined.length - 1;
+        const chunksize = end - start + 1;
+        const sliced = combined.slice(start, end + 1);
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${combined.length}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize,
+          'Content-Type': 'audio/mpeg',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Cache-Control': 'public, max-age=86400',
+        });
+        res.end(sliced);
         return;
       }
 
       res.writeHead(200, {
         'Content-Type': 'audio/mpeg',
         'Content-Length': combined.length,
+        'Accept-Ranges': 'bytes',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Cache-Control': 'public, max-age=86400',
@@ -668,6 +719,31 @@ const server = http.createServer(async (req, res) => {
       return;
     } catch (e) {
       return sendJson(500, { error: 'Error processing TTS request: ' + e.message });
+    }
+  }
+
+  if (urlPath.startsWith('/api/proxy-audio')) {
+    try {
+      const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost:3000'}`);
+      const audioUrl = parsedUrl.searchParams.get('url');
+      if (!audioUrl || !audioUrl.startsWith('https://everyayah.com/')) {
+        return sendJson(400, { error: 'Invalid or unauthorized audio proxy URL' });
+      }
+
+      const https = require('https');
+      https.get(audioUrl, (proxyRes) => {
+        res.writeHead(proxyRes.statusCode || 200, {
+          'Content-Type': proxyRes.headers['content-type'] || 'audio/mpeg',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=86400',
+        });
+        proxyRes.pipe(res);
+      }).on('error', (err) => {
+        sendJson(502, { error: 'Proxy fetch failed: ' + err.message });
+      });
+      return;
+    } catch (err) {
+      return sendJson(500, { error: 'Internal proxy error' });
     }
   }
 
