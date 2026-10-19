@@ -27,6 +27,21 @@ import {
 const COMPANIONS_WORLD_COVER = require('../../../assets/images/companions-world.jpg');
 const COMPANIONS_BADGE_IMG = require('../../../assets/images/companions-badge.jpg');
 
+const COMPANION_IMAGES: Record<string, any> = {
+  'comp-1': require('../../../assets/images/comp-anas-service.jpg'),
+  'comp-2': require('../../../assets/images/comp-nughayr-bird.jpg'),
+  'comp-3': require('../../../assets/images/comp-dining-manners.jpg'),
+  'comp-4': require('../../../assets/images/comp-ibn-abbas-counsel.jpg'),
+  'comp-5': require('../../../assets/images/comp-night-prayer.jpg'),
+  'comp-6': require('../../../assets/images/comp-usama-mercy.jpg'),
+  'comp-7': require('../../../assets/images/comp-ibn-umar-patience.jpg'),
+  'comp-8': require('../../../assets/images/comp-ibn-jafar-welcome.jpg'),
+  'comp-9': require('../../../assets/images/comp-ashura-wool-toy.jpg'),
+  'comp-10': require('../../../assets/images/comp-aisha-childhood.jpg'),
+  'comp-11': require('../../../assets/images/comp-hasan-gentle-dates.jpg'),
+  'comp-12': require('../../../assets/images/comp-water-cup-right.jpg'),
+};
+
 export default function CompanionsHubScreen() {
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
@@ -126,11 +141,11 @@ export default function CompanionsHubScreen() {
                       style={[styles.storyChip, isSelected && styles.storyChipActive, isDone && styles.storyChipDone]}
                       onPress={() => setSelectedStoryId(story.id)}
                     >
-                      <Text style={styles.storyChipEmoji}>{story.cardEmoji}</Text>
+                      <Image source={COMPANION_IMAGES[story.id]} style={styles.storyChipThumb} resizeMode="cover" />
                       <Text style={[styles.storyChipTitle, isSelected && styles.storyChipTitleActive]} numberOfLines={1}>
                         {localizedChip.cardTitle || story.cardTitle}
                       </Text>
-                      {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" />}
+                      {isDone && <Ionicons name="checkmark-circle" size={14} color="#10b981" style={styles.storyChipCheck} />}
                     </TouchableOpacity>
                   );
                 })}
@@ -138,11 +153,21 @@ export default function CompanionsHubScreen() {
 
               {/* Story Content Card */}
               <View style={styles.storyCardWrap}>
-                <LinearGradient colors={['#ffffff', '#fffdfa']} style={styles.storyCard}>
-                  {/* Title & Source */}
-                  <View style={[styles.storyHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                    <Text style={styles.storyEmojiBadge}>{currentStory.cardEmoji}</Text>
-                    <View style={styles.storyHeaderInfo}>
+                <View style={styles.storyCard}>
+                  {/* Story Hero Scene Banner */}
+                  <View style={styles.storyHeroWrap}>
+                    <Image source={COMPANION_IMAGES[currentStory.id]} style={styles.storyHeroImage} resizeMode="cover" />
+                    <LinearGradient colors={['transparent', 'rgba(20, 15, 10, 0.75)']} style={styles.storyHeroOverlay} />
+                    <View style={[styles.storyHeroIndexPill, isRtl ? { right: 12 } : { left: 12 }]}>
+                      <Text style={styles.storyHeroIndexText}>
+                        {`${getUpgradeLabel('storyLabelShort', language)} ${currentStory.index}`}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.storyCardContent}>
+                    {/* Title & Source */}
+                    <View style={styles.storyHeaderBlock}>
                       <Text style={[styles.storyTitleText, isRtl && { textAlign: 'right' }]}>
                         {localizedStory.title}
                       </Text>
@@ -150,7 +175,6 @@ export default function CompanionsHubScreen() {
                         {`${getUpgradeLabel('sourceLabel', language)} ${localizedStory.source || currentStory.source}`}
                       </Text>
                     </View>
-                  </View>
 
                   {/* Story Text */}
                   <View style={styles.storyNarrativeBox}>
@@ -212,18 +236,19 @@ export default function CompanionsHubScreen() {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Two Questions */}
-                  {currentStory.quizText ? (
-                    <View style={styles.twoQuizBox}>
-                      <Text style={[styles.twoQuizTitle, isRtl && { textAlign: 'right' }]}>
-                        {getUpgradeLabel('takeQuickQuiz', language)}
-                      </Text>
-                      <Text style={[styles.twoQuizBody, isRtl && { textAlign: 'right' }]}>
-                        {currentStory.quizText}
-                      </Text>
-                    </View>
-                  ) : null}
-                </LinearGradient>
+                    {/* Two Questions */}
+                    {currentStory.quizText ? (
+                      <View style={styles.twoQuizBox}>
+                        <Text style={[styles.twoQuizTitle, isRtl && { textAlign: 'right' }]}>
+                          {getUpgradeLabel('takeQuickQuiz', language)}
+                        </Text>
+                        <Text style={[styles.twoQuizBody, isRtl && { textAlign: 'right' }]}>
+                          {currentStory.quizText}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
               </View>
             </>
           ) : (
@@ -240,13 +265,32 @@ export default function CompanionsHubScreen() {
                       setSelectedStoryId(story.id);
                       setActiveTab('stories');
                     }}
+                    activeOpacity={0.85}
                   >
                     <View style={[styles.badgeCard, isEarned ? styles.badgeCardEarned : styles.badgeCardLocked]}>
-                      <Text style={styles.badgeEmoji}>{story.cardEmoji}</Text>
-                      <Text style={styles.badgeNum}>{`${getUpgradeLabel('storyLabelShort', language)} ${story.index}`}</Text>
-                      <Text style={styles.badgeName} numberOfLines={2}>
-                        {localizedBadge.cardTitle || story.cardTitle}
-                      </Text>
+                      <View style={styles.badgeCoverWrap}>
+                        <Image source={COMPANION_IMAGES[story.id]} style={styles.badgeCoverImg} resizeMode="cover" />
+                        <LinearGradient colors={['transparent', 'rgba(15, 23, 42, 0.7)']} style={styles.badgeCoverGradient} />
+                        <View style={[styles.badgePillFloating, isRtl ? { right: 8 } : { left: 8 }]}>
+                          <Text style={styles.badgePillText}>{`${getUpgradeLabel('storyLabelShort', language)} ${story.index}`}</Text>
+                        </View>
+                        {isEarned && (
+                          <View style={[styles.badgeEarnedStar, isRtl ? { left: 8 } : { right: 8 }]}>
+                            <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                          </View>
+                        )}
+                      </View>
+                      <View style={styles.badgeBody}>
+                        <Text style={[styles.badgeName, isRtl && { textAlign: 'right' }]} numberOfLines={2}>
+                          {localizedBadge.cardTitle || story.cardTitle}
+                        </Text>
+                        <View style={[styles.badgeActionRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                          <Text style={styles.badgeReadAction}>
+                            {language === 'ar' ? 'اقرأ القصة' : 'Read Story'}
+                          </Text>
+                          <Ionicons name={isRtl ? 'chevron-back' : 'chevron-forward'} size={14} color="#b45309" />
+                        </View>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 );
@@ -323,32 +367,45 @@ const styles = StyleSheet.create({
   storyChip: {
     backgroundColor: '#ffffff',
     borderRadius: RADIUS.xl,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#fed7aa',
-    minWidth: 80,
+    minWidth: 84,
     ...SHADOWS.soft,
   },
   storyChipActive: { borderColor: '#b45309', backgroundColor: '#fffbeb' },
   storyChipDone: { borderColor: '#10b981' },
-  storyChipEmoji: { fontSize: 20, marginBottom: 2 },
-  storyChipTitle: { fontSize: 12, fontWeight: '700', color: '#78350f', maxWidth: 90 },
+  storyChipThumb: { width: 44, height: 44, borderRadius: 22, marginBottom: 5 },
+  storyChipCheck: { position: 'absolute', top: 6, right: 6 },
+  storyChipTitle: { fontSize: 11, fontWeight: '700', color: '#78350f', maxWidth: 90, textAlign: 'center' },
   storyChipTitleActive: { color: '#b45309', fontWeight: '800' },
   storyCardWrap: { marginHorizontal: SPACING.md, marginTop: 4 },
   storyCard: {
     borderRadius: RADIUS.xxl,
-    padding: SPACING.lg,
     borderWidth: 1.5,
     borderColor: '#fde68a',
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
     ...SHADOWS.medium,
   },
-  storyHeaderRow: { alignItems: 'center', gap: 12, marginBottom: SPACING.md },
-  storyEmojiBadge: { fontSize: 32 },
-  storyHeaderInfo: { flex: 1 },
+  storyHeroWrap: { height: 170, width: '100%', position: 'relative' },
+  storyHeroImage: { width: '100%', height: '100%' },
+  storyHeroOverlay: { ...StyleSheet.absoluteFill },
+  storyHeroIndexPill: {
+    position: 'absolute',
+    top: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  storyHeroIndexText: { color: '#fbbf24', fontSize: 12, fontWeight: '700' },
+  storyCardContent: { padding: SPACING.lg },
+  storyHeaderBlock: { marginBottom: SPACING.md },
   storyTitleText: { fontSize: 18, fontWeight: '800', color: '#451a03' },
-  storySourceText: { fontSize: 12, color: '#92400e', marginTop: 2 },
+  storySourceText: { fontSize: 12, color: '#92400e', marginTop: 3 },
   storyNarrativeBox: {
     backgroundColor: '#fffbeb',
     padding: SPACING.md,
@@ -419,16 +476,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   badgeCardTouch: { width: '48%' },
-  badgeCardTouchLocked: { opacity: 0.7 },
+  badgeCardTouchLocked: { opacity: 0.9 },
   badgeCard: {
-    padding: SPACING.md,
     borderRadius: RADIUS.xl,
-    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
     borderWidth: 1.5,
   },
-  badgeCardEarned: { backgroundColor: '#ffffff', borderColor: '#d97706', ...SHADOWS.medium },
-  badgeCardLocked: { backgroundColor: '#f1f5f9', borderColor: '#cbd5e1' },
-  badgeEmoji: { fontSize: 32, marginBottom: 4 },
-  badgeNum: { fontSize: 10, fontWeight: '700', color: '#94a3b8' },
-  badgeName: { fontSize: 13, fontWeight: '800', color: '#451a03', marginTop: 2, textAlign: 'center' },
+  badgeCardEarned: { borderColor: '#d97706', ...SHADOWS.medium },
+  badgeCardLocked: { borderColor: '#e2e8f0', ...SHADOWS.soft },
+  badgeCoverWrap: { width: '100%', height: 125, position: 'relative' },
+  badgeCoverImg: { width: '100%', height: '100%' },
+  badgeCoverGradient: { ...StyleSheet.absoluteFill },
+  badgePillFloating: {
+    position: 'absolute',
+    top: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
+  },
+  badgeEarnedStar: {
+    position: 'absolute',
+    top: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: RADIUS.full,
+    padding: 2,
+    ...SHADOWS.soft,
+  },
+  badgeBody: { padding: 10, backgroundColor: '#ffffff', width: '100%' },
+  badgeName: { fontSize: 13, fontWeight: '800', color: '#451a03', minHeight: 34 },
+  badgeActionRow: { alignItems: 'center', marginTop: 6, gap: 4 },
+  badgeReadAction: { fontSize: 11, fontWeight: '700', color: '#b45309' },
 });
