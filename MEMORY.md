@@ -1674,6 +1674,45 @@
   - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
   - Security Test Suite (`node scripts/test-security.js`): **58 / 58 passed (100%)**.
 
+### Milestone 31: PDF Mockup & Redesign PRD (2) Alignment
+- **Seedling Mode (Ages 4–6) Home Screen ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx)):**
+  - Clean Header: removed online presence dot from avatar, two-line greeting (`السَّلَامُ عَلَيْكُمْ` / `أَهْلًا يَا بَطَلُ`), sprout streak chip (`٣ 🌱`), and Parent Lock (`🔒`).
+  - Clutter removal: date pill, profile switch button, and country flag are hidden for early readers in 4–6 mode per PRD §18 Finding 1.
+  - Arabic Name Validator: automatically replaces test nicknames (`dfd`, `test`) with Arabic fallbacks (`يَا بَطَلُ 🌿` / `يَا بَطَلَةُ 🌸`).
+  - Mascot Speech Card: shortened friendly prompt (`هَيَّا نَتَعَلَّمْ مَعًا!`) with interactive audio playback button (`🔊`) calling `audioService.playDua` and 3D Noor bird avatar.
+  - Slim Continue Card: coral rounded card (`كَمِّلْ مِنْ حَيْثُ تَوَقَّفْتَ` / `الْمُصْحَفُ — صَفْحَةُ ١`).
+  - 3 Giant Action Tiles: `اِسْتَمِعْ وَرَدِّدْ` (Quran Garden), `صَلَاتِي وَوُضُوئِي` (Prayer & Wudu), and `قِصَصٌ وَعَجَائِبُ` (Stories & Wonder). All emoji removed from titles.
+- **Canonical 10-Step Wudu Simulator ([`src/app/arkan/[pillarId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/arkan/%5BpillarId%5D.tsx)):**
+  - Canonical 10 steps (Niyyah, Hands, Mouth, Nose, Face, Arms, Head, Ears, Feet, Dua).
+  - 10 progress segments across top.
+  - Hero scene with repetition badge (`٣ مَرَّاتٍ` / `مَرَّةٌ وَاحِدَةٌ`) and step counter chip (`الْخُطْوَةُ ٦ مِنْ ١٠`).
+  - Interactive 3-drop tap checklist (`اِضْغَطْ بَعْدَ كُلِّ مَرَّةٍ:`) with water drop buttons turning into checkmarks (`✓`).
+  - Full Tashkeel action buttons: `اِسْتَمِعْ 🔊`, `أَعِدِ الْخُطْوَةَ 🔄`, and full-width coral primary button `أَنَا فَعَلْتُهَا! ✓`.
+- **Bottom Navigation ([`src/components/AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx)):**
+  - Added full Tashkeel to all 5 Arabic tab labels: `الرَّئِيسِيَّةُ`, `الْقُرْآنُ`, `صَلَاتِي`, `اِكْتَشِفْ`, `أَنَا`.
+
+### Milestone 32: Offline Audio Storage Manager (OFF-1), Quran Etiquette Hint, Salah 5-Prayer Selector & Animated Bismillah
+- **Offline Audio Storage & Quota Manager ([`src/components/parents/OfflineStorageCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/OfflineStorageCard.tsx) — PRD §10 - OFF-1 & §16):**
+  - Modular parent card integrated in the Parent Zone (`/parents`).
+  - Quota limit selector chips (`١٠٠ ميغابايت`, `٢٠٠ ميغابايت (الموصى به)`, `٥٠٠ ميغابايت`, `بلا حد ♾️`) with visual progress bar and near-capacity warnings.
+  - Real-time cache gauge calculating downloaded Surahs and estimated audio size in MB.
+  - One-tap batch download for full Juz Amma (37 Surahs + Al-Fatihah) with live progress indicator (`جاري تنزيل جزء عمّ... 45%`).
+  - One-tap cache clear (`مسح التلاوات المحفوظة محلياً 🗑️`).
+  - Expandable individual Surah download list with verse counts.
+- **Quran Reader Dismissible Etiquette Guidance ([`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx) — PRD §7.3 Item 7):**
+  - Added dismissible guidance banner: `تَأَكَّدْ مِنْ طَهَارَتِكَ وَاسْتَمِعْ بِخُشُوعٍ وَانْتَبِهْ 🌿` (guidance, never a blocker).
+- **Salah Simulator 5-Prayer Selector ([`src/app/arkan/[pillarId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/arkan/%5BpillarId%5D.tsx) — PRD §7.4 Item 3):**
+  - Interactive prayer selector chips allowing children to choose their specific prayer (`الْفَجْرُ (٢)`, `الظُّهْرُ (٤)`, `الْعَصْرُ (٤)`, `الْمَغْرِبُ (٣)`, `الْعِشَاءُ (٤)`).
+- **Animated Bismillah Opening Banner ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §7.2 Block 2 & HOME-5):**
+  - Session opening banner with fade-in and smooth collapse.
+- **Verification:**
+  - TypeScript: `npx tsc --noEmit` exited code 0 (zero errors).
+  - ESLint: `npx expo lint` exited code 0 (zero errors).
+  - Web Build: `npx expo export --platform web` built all 34 routes cleanly to `dist/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
+  - GitHub: Pushed to `main` at `https://github.com/abdobody2040/rawdakids.git`.
+  - Vercel: Live and responding at `https://rawdakids.vercel.app` (HTTP 200).
+
 ## 3. Strict Rules & Constraints for Future AI Agents
 
 1. **Theological Integrity & Respect:**
