@@ -61,7 +61,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [_fontsLoaded] = useFonts({
     ...Ionicons.font,
     ...FontAwesome5.font,
   });
@@ -97,7 +97,7 @@ export default function RootLayout() {
   }, [incrementTimeSpent]);
 
   return (
-    <SafeAreaProvider style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: COLORS.sand50 }}>
       <GestureHandlerRootView style={styles.rootContainer}>
         <StatusBar style="dark" />
         <Stack
@@ -150,7 +150,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.sand50,
     width: '100%',
     height: '100%',
   },

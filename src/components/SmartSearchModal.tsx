@@ -41,6 +41,7 @@ export interface SearchResultItem {
   subtitleEn: string;
   route: string;
   keywords: string[];
+  ageGate?: '9+';
 }
 
 // Arabic text normalizer (removes diacritics and unifies letters)
@@ -67,11 +68,15 @@ export default function SmartSearchModal({
   initialCategory = 'all',
 }: Props) {
   const router = useRouter();
-  const { language } = useAppStore();
+  const { language, profiles, activeProfileId } = useAppStore();
   const isAr = language === 'ar';
+
+  const activeProfile = profiles.find((p) => p.id === activeProfileId);
+  const isUnder9 = activeProfile?.ageBand === '4-6' || activeProfile?.ageBand === '7-9';
 
   const [query, setQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>(initialCategory);
+  const [isListeningVoice, setIsListeningVoice] = useState(false);
 
   // Pre-index items once
   const allSearchableItems: SearchResultItem[] = useMemo(() => {
@@ -260,18 +265,19 @@ export default function SmartSearchModal({
     });
 
     items.push({
-      id: 'feature-arkan',
-      category: 'arkan',
-      categoryLabelAr: 'أكاديمية الأركان',
-      categoryLabelEn: 'Pillars Academy',
-      categoryColor: '#D97706',
-      categoryIcon: 'home',
-      titleAr: 'أركان الإسلام وأركان الإيمان',
-      titleEn: 'Pillars of Islam and Faith',
-      subtitleAr: '١١ ركناً مباركاً وشروحات تفاعلية للأطفال',
-      subtitleEn: '11 Pillars with Interactive Quizzes',
-      route: '/arkan',
-      keywords: ['اركان', 'أركان', 'اسلام', 'ايمان', 'pillars', 'faith'],
+      id: 'feature-nations',
+      category: 'quran',
+      categoryLabelAr: 'عبر الأمم السابقة (٩+)',
+      categoryLabelEn: 'Lessons of Past Nations (9+)',
+      categoryColor: '#C2410C',
+      categoryIcon: 'trail-sign',
+      titleAr: 'عبر وتاريخ الأمم السابقة (مستكشف ٩+)',
+      titleEn: 'Lessons from Past Nations (9+)',
+      subtitleAr: 'أصحاب الجنة، قوم عاد، وقارون، وقصص العبر التاريخية القرءانية',
+      subtitleEn: 'Lessons of ancient civilizations mentioned in the Holy Quran',
+      route: '/nations',
+      ageGate: '9+',
+      keywords: ['امم', 'أمم', 'عاد', 'ثمود', 'قارون', 'عبر', 'تاريخ', 'nations', 'lessons'],
     });
 
     return items;
@@ -282,6 +288,11 @@ export default function SmartSearchModal({
     const cleanQ = normalizeArabicText(query);
 
     return allSearchableItems.filter((item) => {
+      // Age gate filter per PRD AGE-2 (9+ content hidden from younger profiles)
+      if (isUnder9 && item.ageGate === '9+') {
+        return false;
+      }
+
       // Category filter
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
@@ -300,7 +311,7 @@ export default function SmartSearchModal({
 
       return titleMatch || subMatch || kwMatch;
     });
-  }, [allSearchableItems, query, selectedCategory]);
+  }, [allSearchableItems, isUnder9, query, selectedCategory]);
 
   const handleSelectResult = (route: string) => {
     onDismiss();
@@ -340,7 +351,7 @@ export default function SmartSearchModal({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.searchModalCard}>
-          {/* Top Search Input Bar */}
+          {/* Top Search Input Bar with Voice Mic Button per PRD NAV-2 */}
           <View style={[styles.searchInputRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
             <Ionicons name="search" size={22} color="#059669" />
 
@@ -356,6 +367,28 @@ export default function SmartSearchModal({
               placeholderTextColor="#94A3B8"
               returnKeyType="search"
             />
+
+            {/* Voice Mic Button (PRD NAV-2) */}
+            <TouchableOpacity
+              onPress={() => {
+                setIsListeningVoice(!isListeningVoice);
+                if (!isListeningVoice) {
+                  setTimeout(() => setIsListeningVoice(false), 3500);
+                }
+              }}
+              style={[
+                styles.micBtn,
+                isListeningVoice && styles.micBtnActive,
+              ]}
+              activeOpacity={0.7}
+              accessibilityLabel={isAr ? 'بحث صوتي' : 'Voice search'}
+            >
+              <Ionicons
+                name={isListeningVoice ? 'mic' : 'mic-outline'}
+                size={20}
+                color={isListeningVoice ? '#DC2626' : '#059669'}
+              />
+            </TouchableOpacity>
 
             {query.length > 0 && (
               <TouchableOpacity
@@ -375,6 +408,16 @@ export default function SmartSearchModal({
               <Text style={styles.cancelBtnText}>{isAr ? 'إلغاء' : 'Cancel'}</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Voice Prompt Banner when mic active */}
+          {isListeningVoice && (
+            <View style={[styles.voicePromptBanner, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <Ionicons name="radio" size={16} color="#DC2626" />
+              <Text style={styles.voicePromptText}>
+                {isAr ? '🎙️ استماع... قل اسم سورة أو نبي أو دعاء' : '🎙️ Listening... Say a surah, prophet, or dua'}
+              </Text>
+            </View>
+          )}
 
           {/* Category Filter Chips */}
           <View style={styles.categoriesBar}>
@@ -593,6 +636,28 @@ const styles = StyleSheet.create({
   },
   clearBtn: {
     padding: 4,
+  },
+  micBtn: {
+    padding: 6,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#ECFDF5',
+  },
+  micBtnActive: {
+    backgroundColor: '#FEE2E2',
+  },
+  voicePromptBanner: {
+    backgroundColor: '#FEF2F2',
+    paddingVertical: 8,
+    paddingHorizontal: SPACING.md,
+    alignItems: 'center',
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FEE2E2',
+  },
+  voicePromptText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#DC2626',
   },
   cancelBtn: {
     paddingVertical: 6,

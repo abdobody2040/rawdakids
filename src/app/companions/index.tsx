@@ -14,11 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
-import { COMPANIONS_DATA, CompanionStoryItem } from '@/data/companionsData';
+import { COMPANIONS_DATA } from "@/data/companionsData";
 import {
   getUpgradeLabel,
   getLocalizedCompanionStory,

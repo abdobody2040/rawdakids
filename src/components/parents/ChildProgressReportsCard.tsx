@@ -1,5 +1,4 @@
 // src/components/parents/ChildProgressReportsCard.tsx
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Language } from '@/constants/i18n';

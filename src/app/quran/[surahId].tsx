@@ -31,6 +31,7 @@ import AyahTafsirModal from '@/components/AyahTafsirModal';
 import WordMeaningBubbleModal from '@/components/WordMeaningBubbleModal';
 import ChildVoiceRecorderModal from '@/components/ChildVoiceRecorderModal';
 import AchievementCertificateModal from '@/components/AchievementCertificateModal';
+import TajweedLegendModal from '@/components/TajweedLegendModal';
 import { quranWordsService } from '@/services/quranWordsService';
 import { WordMeaning } from '@/data/quranWordsData';
 
@@ -116,6 +117,8 @@ export default function SurahDetailScreen() {
   const [showTafsir, setShowTafsir] = useState<boolean>(
     parentSettings.showSimpleTafsir !== undefined ? parentSettings.showSimpleTafsir : true
   );
+  const [tajweedEnabled, setTajweedEnabled] = useState<boolean>(false);
+  const [showTajweedModal, setShowTajweedModal] = useState<boolean>(false);
 
   // Word-by-word tap meaning
   const [selectedWordMeaning, setSelectedWordMeaning] = useState<WordMeaning | null>(null);
@@ -427,7 +430,42 @@ export default function SurahDetailScreen() {
           >
             <Ionicons name="book" size={13} color="#B45309" />
             <Text style={styles.openInMushafChipText}>
-              {language === 'ar' ? 'عرض في المصحف 📄' : 'View in Mushaf 📄'}
+              {language === 'ar' ? 'المصحف 📄' : 'Mushaf 📄'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.memorizeChip}
+            onPress={() => {
+              router.push({
+                pathname: '/quran/repeat' as any,
+                params: { surahId: surah.number.toString() },
+              });
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="sparkles" size={13} color="#059669" />
+            <Text style={styles.memorizeChipText}>
+              {language === 'ar' ? 'تحفيظ 🧠' : 'Memorize 🧠'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Tajweed Colors & Guide Chip (QUR-4) */}
+          <TouchableOpacity
+            style={[styles.tajweedChip, tajweedEnabled && styles.tajweedChipActive]}
+            onPress={() => {
+              setTajweedEnabled(!tajweedEnabled);
+              setShowTajweedModal(true);
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="color-palette"
+              size={13}
+              color={tajweedEnabled ? '#FFFFFF' : '#7C3AED'}
+            />
+            <Text style={[styles.tajweedChipText, tajweedEnabled && styles.tajweedChipTextActive]}>
+              {language === 'ar' ? 'تجويد 🎨' : 'Tajweed 🎨'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -914,6 +952,13 @@ export default function SurahDetailScreen() {
           setShowCelebration(true);
         }}
       />
+
+      {/* Tajweed Color Guide Modal (QUR-4) */}
+      <TajweedLegendModal
+        visible={showTajweedModal}
+        language={language}
+        onClose={() => setShowTajweedModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1094,6 +1139,45 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#B45309',
+  },
+  memorizeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  memorizeChipText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  tajweedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F5F3FF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+  },
+  tajweedChipActive: {
+    backgroundColor: '#7C3AED',
+    borderColor: '#7C3AED',
+  },
+  tajweedChipText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#7C3AED',
+  },
+  tajweedChipTextActive: {
+    color: '#FFFFFF',
   },
   ayahsContainer: {
     padding: SPACING.md,

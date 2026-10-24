@@ -88,6 +88,16 @@ async function runRouteTests() {
     { path: '/arkan/iman_messengers', expectedContent: 'html' },
     { path: '/arkan/iman_lastday', expectedContent: 'html' },
     { path: '/arkan/iman_qadar', expectedContent: 'html' },
+    { path: '/asma-allah', expectedContent: 'html' },
+    { path: '/nations', expectedContent: 'html' },
+    { path: '/tafakkur', expectedContent: 'html' },
+    { path: '/seerah', expectedContent: 'html' },
+    { path: '/animals', expectedContent: 'html' },
+    { path: '/animals/elephant', expectedContent: 'html' },
+    { path: '/companions', expectedContent: 'html' },
+    { path: '/prayer', expectedContent: 'html' },
+    { path: '/discover', expectedContent: 'html' },
+    { path: '/me', expectedContent: 'html' },
   ];
 
   for (const r of routes) {
@@ -130,6 +140,26 @@ async function runImageTests() {
     '/assets/images/wudu-arms-child.jpg',
     '/assets/images/wudu-head-boy.jpg',
     '/assets/images/wudu-feet-child.jpg',
+    '/assets/images/asma-allah-world.jpg',
+    '/assets/images/asma-allah-badge.jpg',
+    '/assets/images/nation-aad.jpg',
+    '/assets/images/nation-qarun.jpg',
+    '/assets/images/nation-garden.jpg',
+    '/assets/images/tafakkur-rain.jpg',
+    '/assets/images/tafakkur-ship.jpg',
+    '/assets/images/tafakkur-heart.jpg',
+    '/assets/images/tafakkur-plant.jpg',
+    '/assets/images/seerah-isra.jpg',
+    '/assets/images/seerah-sheep.jpg',
+    '/assets/images/nav-home-3d.jpg',
+    '/assets/images/nav-quran-3d.jpg',
+    '/assets/images/nav-sunnah-3d.jpg',
+    '/assets/images/nav-prophets-3d.jpg',
+    '/assets/images/nav-rewards-3d.jpg',
+    '/assets/images/icon-star-3d.jpg',
+    '/assets/images/icon-gem-3d.jpg',
+    '/assets/images/avatar-boy-1.jpg',
+    '/assets/images/avatar-girl-1.jpg',
   ];
 
   for (const img of images) {
@@ -379,6 +409,93 @@ async function runDataIntegrityTests() {
       'i18n supports Arabic, English, French, German, and Spanish with accurate flags and native names',
       hasAll5Languages && hasFlags,
       'One or more languages or flags missing'
+    );
+
+    // 99 Names of Allah Sanctuary (asmaAllahData.ts)
+    const asmaCode = fs.readFileSync(path.join(__dirname, '../src/data/asmaAllahData.ts'), 'utf-8');
+    const dayMatches = asmaCode.match(/"day":\s*\d+/g) || [];
+    const has99Days = dayMatches.length === 99;
+    const hasNameProps = (asmaCode.match(/"name":\s*['"][^'"]+['"]/g) || []).length >= 99;
+    const hasMeaningProps = (asmaCode.match(/"meaning":\s*['"][^'"]+['"]/g) || []).length >= 99;
+    const hasStoryProps = (asmaCode.match(/"story":\s*['"][^'"]+['"]/g) || []).length >= 99;
+    const hasApplyProps = (asmaCode.match(/"apply":\s*['"][^'"]+['"]/g) || []).length >= 99;
+    const hasQuizProps = (asmaCode.match(/"quizQuestion":\s*['"][^'"]+['"]/g) || []).length >= 99;
+    recordTest(
+      'Dataset Integrity',
+      'Asma Allah Al-Husna catalog contains exactly 99 verified Names with Tashkeel, meanings, stories, applications & quizzes',
+      has99Days && hasNameProps && hasMeaningProps && hasStoryProps && hasApplyProps && hasQuizProps,
+      `Days: ${dayMatches.length}, Names: ${(asmaCode.match(/"name":\s*['"][^'"]+['"]/g) || []).length}`
+    );
+
+    // Nations Lessons (nationsData.ts)
+    const nationsCode = fs.readFileSync(path.join(__dirname, '../src/data/nationsData.ts'), 'utf-8');
+    const hasNationsData = nationsCode.includes('NATIONS_DATA') && nationsCode.includes('قوم عاد') && nationsCode.includes('قارون');
+    recordTest(
+      'Dataset Integrity',
+      'Stories of the Nations dataset loaded with historical lessons and Quranic reflections',
+      hasNationsData,
+      'Nations data missing required lessons'
+    );
+
+    // Tafakkur Stations (tafakkurData.ts)
+    const tafakkurCode = fs.readFileSync(path.join(__dirname, '../src/data/tafakkurData.ts'), 'utf-8');
+    const hasTafakkurData = tafakkurCode.includes('TAFAKKUR_DATA') && tafakkurCode.includes('المطر') && tafakkurCode.includes('نجوم تهدينا');
+    recordTest(
+      'Dataset Integrity',
+      'Tafakkur & Cosmic Wonders dataset loaded with observational stations and Duas',
+      hasTafakkurData,
+      'Tafakkur data missing required stations'
+    );
+
+    // Seerah Milestones (seerahData.ts)
+    const seerahCode = fs.readFileSync(path.join(__dirname, '../src/data/seerahData.ts'), 'utf-8');
+    const hasSeerahData = seerahCode.includes('SEERAH_DATA') && seerahCode.includes('عام الفيل') && seerahCode.includes('غار حراء') && seerahCode.includes('الإسراء والمعراج');
+    recordTest(
+      'Dataset Integrity',
+      'Prophetic Milestones (Seerah) dataset loaded with chronological events (Strictly 0 faces)',
+      hasSeerahData,
+      'Seerah data missing required milestones'
+    );
+
+    // Animals of the Quran (animalsData.ts)
+    const animalsCode = fs.readFileSync(path.join(__dirname, '../src/data/animalsData.ts'), 'utf-8');
+    const hasAnimalsCatalog = animalsCode.includes('QURAN_ANIMALS_CATALOG') && (animalsCode.match(/id:\s*['"][^'"]+['"]/g) || []).length >= 10;
+    const hasAnimalStories = animalsCode.includes('ANIMAL_MIRACLE_STORIES');
+    recordTest(
+      'Dataset Integrity',
+      'Animals in the Quran & Sunnah dataset loaded with animal fact cards and miracle stories',
+      hasAnimalsCatalog && hasAnimalStories,
+      'Animals data missing catalog or stories'
+    );
+
+    // Companions of the Prophet (companionsData.ts)
+    const companionsCode = fs.readFileSync(path.join(__dirname, '../src/data/companionsData.ts'), 'utf-8');
+    const hasCompanions = companionsCode.includes('COMPANIONS_DATA') && companionsCode.includes('أنس بن مالك') && companionsCode.includes('عمر بن أبي سلمة');
+    recordTest(
+      'Dataset Integrity',
+      'Companions of the Prophet (Sahabah) dataset loaded with virtues and life lessons',
+      hasCompanions,
+      'Companions data missing key Sahabah'
+    );
+
+    // 10-Language Multilingual Localization Upgrade (multilingualUpgradeData.ts)
+    const upgradeDataCode = fs.readFileSync(path.join(__dirname, '../src/services/multilingualUpgradeData.ts'), 'utf-8');
+    const has10Langs =
+      upgradeDataCode.includes('ar:') &&
+      upgradeDataCode.includes('en:') &&
+      upgradeDataCode.includes('bn:') &&
+      upgradeDataCode.includes('ur:') &&
+      upgradeDataCode.includes('tr:') &&
+      upgradeDataCode.includes('ru:') &&
+      upgradeDataCode.includes('id:') &&
+      upgradeDataCode.includes('fr:') &&
+      upgradeDataCode.includes('de:') &&
+      upgradeDataCode.includes('es:');
+    recordTest(
+      'Multilingual Integrity',
+      'Global Localization supports 10 languages (AR, EN, BN, UR, TR, RU, ID, FR, DE, ES) across all app hubs',
+      has10Langs,
+      'One or more of the 10 languages missing in upgrade data'
     );
   } catch (e) {
     recordTest('Dataset Integrity', `Data and Services parsed cleanly`, false, e.message);

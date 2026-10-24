@@ -2,11 +2,6 @@
 // 10 Supported Languages: ar, en, bn, ru, ur, id, tr, fr, de, es
 
 import { Language } from '../constants/i18n';
-import { CompanionStoryItem } from '../data/companionsData';
-import { TafakkurStationItem } from '../data/tafakkurData';
-import { NationLessonItem } from '../data/nationsData';
-import { SeerahStationItem } from '../data/seerahData';
-import { AsmaAllahItem } from '../data/asmaAllahData';
 
 // Extended Universal UI Labels for all 5 Modules
 export const UPGRADE_HUB_LABELS: Record<string, Record<Language, string>> = {
@@ -132,6 +127,30 @@ export const UPGRADE_HUB_LABELS: Record<string, Record<Language, string>> = {
     id: 'Hari 1–30',
     bn: 'দিন ১–৩০',
     tr: '1–30. Günler',
+  },
+  asmaTabDays1to50: {
+    ar: 'الأيام ١–٥٠',
+    en: 'Days 1–50',
+    fr: 'Jours 1–50',
+    de: 'Tage 1–50',
+    es: 'Días 1–50',
+    ru: 'Дни 1–50',
+    ur: 'دن ۱–۵۰',
+    id: 'Hari 1–50',
+    bn: 'দিন ১–৫০',
+    tr: '1–50. Günler',
+  },
+  asmaTabDays51to99: {
+    ar: 'الأيام ٥١–٩٩',
+    en: 'Days 51–99',
+    fr: 'Jours 51–99',
+    de: 'Tage 51–99',
+    es: 'Días 51–99',
+    ru: 'Дни 51–99',
+    ur: 'دن ۵۱–۹۹',
+    id: 'Hari 51–99',
+    bn: 'দিন ৫১–৯৯',
+    tr: '51–99. Günler',
   },
   asmaTabDays31to78: {
     ar: 'الأيام ٣١–٧٨',

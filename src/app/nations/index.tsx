@@ -14,11 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
-import { NATIONS_DATA, NationLessonItem } from '@/data/nationsData';
+import { NATIONS_DATA } from "@/data/nationsData";
 import {
   getUpgradeLabel,
   getLocalizedNationLesson,
@@ -26,6 +26,16 @@ import {
 
 const NATIONS_WORLD_COVER = require('../../../assets/images/nations-world.jpg');
 const NATIONS_BADGE_IMG = require('../../../assets/images/sticker-kaaba.jpg');
+
+const NATION_IMAGES: Record<string, any> = {
+  'nation-1': require('../../../assets/images/nation-aad.jpg'),
+  'nation-2': require('../../../assets/images/scene-she-camel-rock.jpg'),
+  'nation-3': require('../../../assets/images/scene-palace-garden.jpg'),
+  'nation-4': require('../../../assets/images/nation-garden.jpg'),
+  'nation-5': require('../../../assets/images/nation-garden.jpg'),
+  'nation-6': require('../../../assets/images/nation-qarun.jpg'),
+  'nation-7': require('../../../assets/images/scene-earth-dawn.jpg'),
+};
 
 export default function NationsHubScreen() {
   const router = useRouter();
@@ -105,7 +115,13 @@ export default function NationsHubScreen() {
                   style={[styles.natChip, isSelected && styles.natChipActive, isDone && styles.natChipDone]}
                   onPress={() => setSelectedNationId(nat.id)}
                 >
-                  <Text style={styles.natChipEmoji}>{nat.cardEmoji}</Text>
+                  <View style={styles.natChipThumbWrap}>
+                    <Image
+                      source={NATION_IMAGES[nat.id] || NATIONS_BADGE_IMG}
+                      style={styles.natChipThumb}
+                      resizeMode="cover"
+                    />
+                  </View>
                   <Text style={[styles.natChipTitle, isSelected && styles.natChipTitleActive]} numberOfLines={1}>
                     {localizedChip.cardTitle || nat.cardTitle}
                   </Text>
@@ -118,9 +134,30 @@ export default function NationsHubScreen() {
           {/* Active Lesson Card */}
           <View style={styles.lessonCardWrap}>
             <LinearGradient colors={['#ffffff', '#fffefc']} style={styles.lessonCard}>
+              {/* Active Lesson Scene Image Banner */}
+              <View style={styles.lessonHeroSceneWrap}>
+                <Image
+                  source={NATION_IMAGES[currentNation.id] || NATIONS_BADGE_IMG}
+                  style={styles.lessonHeroSceneImage}
+                  resizeMode="cover"
+                />
+                <LinearGradient colors={['transparent', 'rgba(30, 15, 5, 0.75)']} style={styles.lessonHeroSceneOverlay} />
+                <View style={[styles.lessonScenePill, isRtl ? { right: 12 } : { left: 12 }]}>
+                  <Text style={styles.lessonScenePillText}>
+                    {`${getUpgradeLabel('storyLabelShort', language) || 'عبرة'} ${currentNation.index}`}
+                  </Text>
+                </View>
+              </View>
+
               {/* Header */}
               <View style={[styles.lessonHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Text style={styles.lessonEmojiBadge}>{currentNation.cardEmoji}</Text>
+                <View style={styles.lessonImgBadgeWrap}>
+                  <Image
+                    source={NATION_IMAGES[currentNation.id] || NATIONS_BADGE_IMG}
+                    style={styles.lessonImgBadge}
+                    resizeMode="cover"
+                  />
+                </View>
                 <View style={styles.lessonHeaderInfo}>
                   <Text style={[styles.lessonTitleText, isRtl && { textAlign: 'right' }]}>
                     {localizedNation.title}
@@ -283,18 +320,28 @@ const styles = StyleSheet.create({
   natChip: {
     backgroundColor: '#ffffff',
     borderRadius: RADIUS.xl,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#fed7aa',
-    minWidth: 84,
+    minWidth: 88,
     ...SHADOWS.soft,
   },
-  natChipActive: { borderColor: '#b45309', backgroundColor: '#fffbeb' },
+  natChipActive: { borderColor: '#b45309', backgroundColor: '#fffbeb', borderWidth: 2 },
   natChipDone: { borderColor: '#10b981' },
-  natChipEmoji: { fontSize: 20, marginBottom: 2 },
-  natChipTitle: { fontSize: 12, fontWeight: '700', color: '#78350f', maxWidth: 90 },
+  natChipThumbWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#fed7aa',
+    marginBottom: 4,
+    backgroundColor: '#fffbeb',
+  },
+  natChipThumb: { width: '100%', height: '100%' },
+  natChipTitle: { fontSize: 12, fontWeight: '700', color: '#78350f', maxWidth: 96, textAlign: 'center' },
   natChipTitleActive: { color: '#b45309', fontWeight: '800' },
   lessonCardWrap: { marginHorizontal: SPACING.md, marginTop: 4 },
   lessonCard: {
@@ -303,9 +350,37 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#fed7aa',
     ...SHADOWS.medium,
+    overflow: 'hidden',
   },
+  lessonHeroSceneWrap: {
+    height: 140,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    position: 'relative',
+  },
+  lessonHeroSceneImage: { width: '100%', height: '100%' },
+  lessonHeroSceneOverlay: { ...StyleSheet.absoluteFill },
+  lessonScenePill: {
+    position: 'absolute',
+    top: 10,
+    backgroundColor: 'rgba(245, 158, 11, 0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  lessonScenePillText: { fontSize: 11, fontWeight: '800', color: '#ffffff' },
   lessonHeaderRow: { alignItems: 'center', gap: 12, marginBottom: SPACING.md },
-  lessonEmojiBadge: { fontSize: 32 },
+  lessonImgBadgeWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#f59e0b',
+    ...SHADOWS.soft,
+  },
+  lessonImgBadge: { width: '100%', height: '100%' },
   lessonHeaderInfo: { flex: 1 },
   lessonTitleText: { fontSize: 18, fontWeight: '800', color: '#451a03' },
   lessonRefText: { fontSize: 12, color: '#9a3412', marginTop: 2 },

@@ -14,11 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
-import { TAFAKKUR_DATA, TafakkurStationItem } from '@/data/tafakkurData';
+import { TAFAKKUR_DATA } from "@/data/tafakkurData";
 import {
   getUpgradeLabel,
   getLocalizedTafakkurStation,
@@ -26,6 +26,20 @@ import {
 
 const TAFAKKUR_WORLD_COVER = require('../../../assets/images/tafakkur-world.jpg');
 const TAFAKKUR_BADGE_IMG = require('../../../assets/images/tafakkur-badge.jpg');
+
+const TAFAKKUR_IMAGES: Record<string, any> = {
+  'tafakkur-1': require('../../../assets/images/scene-she-camel-rock.jpg'),
+  'tafakkur-2': require('../../../assets/images/hero-oasis.jpg'),
+  'tafakkur-3': require('../../../assets/images/scene-desert-stars.jpg'),
+  'tafakkur-4': require('../../../assets/images/scene-ibrahim-kaaba.jpg'),
+  'tafakkur-5': require('../../../assets/images/scene-earth-dawn.jpg'),
+  'tafakkur-6': require('../../../assets/images/tafakkur-rain.jpg'),
+  'tafakkur-7': require('../../../assets/images/tafakkur-plant.jpg'),
+  'tafakkur-8': require('../../../assets/images/tafakkur-ship.jpg'),
+  'tafakkur-9': require('../../../assets/images/scene-isa-bird.jpg'),
+  'tafakkur-10': require('../../../assets/images/nation-garden.jpg'),
+  'tafakkur-11': require('../../../assets/images/tafakkur-heart.jpg'),
+};
 
 export default function TafakkurHubScreen() {
   const router = useRouter();
@@ -119,7 +133,13 @@ export default function TafakkurHubScreen() {
                   style={[styles.stChip, isSelected && styles.stChipActive, isDone && styles.stChipDone]}
                   onPress={() => setSelectedStationId(st.id)}
                 >
-                  <Text style={styles.stChipEmoji}>{st.cardEmoji}</Text>
+                  <View style={styles.stChipThumbWrap}>
+                    <Image
+                      source={TAFAKKUR_IMAGES[st.id] || TAFAKKUR_BADGE_IMG}
+                      style={styles.stChipThumb}
+                      resizeMode="cover"
+                    />
+                  </View>
                   <Text style={[styles.stChipNum, isSelected && styles.stChipNumActive]}>
                     {`${getUpgradeLabel('stationLabel', language)} ${st.stationNumber}`}
                   </Text>
@@ -132,10 +152,29 @@ export default function TafakkurHubScreen() {
           {/* Active Station Content Card */}
           <View style={styles.stationCardWrap}>
             <LinearGradient colors={['#ffffff', '#f8fafc']} style={styles.stationCard}>
+              {/* Active Station Scene Image Banner */}
+              <View style={styles.stationHeroSceneWrap}>
+                <Image
+                  source={TAFAKKUR_IMAGES[currentStation.id] || TAFAKKUR_BADGE_IMG}
+                  style={styles.stationHeroSceneImage}
+                  resizeMode="cover"
+                />
+                <LinearGradient colors={['transparent', 'rgba(12, 74, 110, 0.75)']} style={styles.stationHeroSceneOverlay} />
+                <View style={[styles.stationScenePill, isRtl ? { right: 12 } : { left: 12 }]}>
+                  <Text style={styles.stationScenePillText}>
+                    {`${getUpgradeLabel('stationLabel', language)} ${currentStation.stationNumber}`}
+                  </Text>
+                </View>
+              </View>
+
               {/* Header */}
               <View style={[styles.stHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <View style={styles.stEmojiCircle}>
-                  <Text style={styles.stEmojiText}>{currentStation.cardEmoji}</Text>
+                <View style={styles.stImageBadgeWrap}>
+                  <Image
+                    source={TAFAKKUR_IMAGES[currentStation.id] || TAFAKKUR_BADGE_IMG}
+                    style={styles.stImageBadge}
+                    resizeMode="cover"
+                  />
                 </View>
                 <View style={styles.stTitleWrap}>
                   <Text style={[styles.stStationBadge, isRtl && { textAlign: 'right' }]}>
@@ -295,17 +334,27 @@ const styles = StyleSheet.create({
   stChip: {
     backgroundColor: '#ffffff',
     borderRadius: RADIUS.xl,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#bae6fd',
-    minWidth: 76,
+    minWidth: 80,
     ...SHADOWS.soft,
   },
-  stChipActive: { borderColor: '#0284c7', backgroundColor: '#e0f2fe' },
+  stChipActive: { borderColor: '#0284c7', backgroundColor: '#e0f2fe', borderWidth: 2 },
   stChipDone: { borderColor: '#10b981' },
-  stChipEmoji: { fontSize: 20, marginBottom: 2 },
+  stChipThumbWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#bae6fd',
+    marginBottom: 4,
+    backgroundColor: '#f0f9ff',
+  },
+  stChipThumb: { width: '100%', height: '100%' },
   stChipNum: { fontSize: 11, fontWeight: '700', color: '#0369a1' },
   stChipNumActive: { color: '#0c4a6e', fontWeight: '800' },
   stationCardWrap: { marginHorizontal: SPACING.md, marginTop: 4 },
@@ -315,17 +364,37 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#bae6fd',
     ...SHADOWS.medium,
+    overflow: 'hidden',
   },
+  stationHeroSceneWrap: {
+    height: 140,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    position: 'relative',
+  },
+  stationHeroSceneImage: { width: '100%', height: '100%' },
+  stationHeroSceneOverlay: { ...StyleSheet.absoluteFill },
+  stationScenePill: {
+    position: 'absolute',
+    top: 10,
+    backgroundColor: 'rgba(2, 132, 199, 0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  stationScenePillText: { fontSize: 11, fontWeight: '800', color: '#ffffff' },
   stHeaderRow: { alignItems: 'center', gap: 12, marginBottom: SPACING.md },
-  stEmojiCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#e0f2fe',
-    alignItems: 'center',
-    justifyContent: 'center',
+  stImageBadgeWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#0284c7',
+    ...SHADOWS.soft,
   },
-  stEmojiText: { fontSize: 24 },
+  stImageBadge: { width: '100%', height: '100%' },
   stTitleWrap: { flex: 1 },
   stStationBadge: { fontSize: 12, fontWeight: '700', color: '#0284c7' },
   stTitleText: { fontSize: 17, fontWeight: '800', color: '#0c4a6e', marginTop: 2 },

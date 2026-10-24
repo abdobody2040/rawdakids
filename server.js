@@ -742,7 +742,7 @@ const server = http.createServer(async (req, res) => {
         sendJson(502, { error: 'Proxy fetch failed: ' + err.message });
       });
       return;
-    } catch (err) {
+    } catch (_err) {
       return sendJson(500, { error: 'Internal proxy error' });
     }
   }

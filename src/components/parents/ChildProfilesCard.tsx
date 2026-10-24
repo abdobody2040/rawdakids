@@ -1,5 +1,5 @@
 // src/components/parents/ChildProfilesCard.tsx
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

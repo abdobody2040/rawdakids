@@ -237,7 +237,7 @@ export default function AnimalStoryScreen() {
 
             {language !== 'ar' && (
               <Text style={styles.ayahTransText}>
-                "{getLocalizedAyahTranslation(story.id, language) || story.linkedAyah.translationEn}"
+                {`"${getLocalizedAyahTranslation(story.id, language) || story.linkedAyah.translationEn}"`}
               </Text>
             )}
 

@@ -1,3 +1,4 @@
+import { formatLocalizedTodayDate as formatHijriTodayDate } from './hijriDateService';
 import type { Language } from '../constants/i18n';
 import type { StoryScene, ProphetStory, StoryDecisionMoment, StoryQuizQuestion } from '../data/storiesData';
 import type { KidHadith } from '../data/hadithData';
@@ -2495,29 +2496,7 @@ export function getLocalizedPillarStep(
 }
 
 export function formatLocalizedTodayDate(lang: Language): string {
-  if (lang === 'ar') return 'الأحد، ٤ ربيع الأول';
-  if (lang === 'ur') return 'اتوار، 4 ربیع الاول';
-  const locale =
-    lang === 'fr'
-      ? 'fr-FR'
-      : lang === 'de'
-      ? 'de-DE'
-      : lang === 'es'
-      ? 'es-ES'
-      : lang === 'ru'
-      ? 'ru-RU'
-      : lang === 'id'
-      ? 'id-ID'
-      : lang === 'bn'
-      ? 'bn-BD'
-      : lang === 'tr'
-      ? 'tr-TR'
-      : 'en-US';
-  return new Date().toLocaleDateString(locale, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+  return formatHijriTodayDate(lang);
 }
 export function getPillarHeroBadge(lang: Language): string {
   const map: Record<Language, string> = {

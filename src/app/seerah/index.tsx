@@ -14,11 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
+import { SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
-import { SEERAH_DATA, SeerahStationItem } from '@/data/seerahData';
+import { SEERAH_DATA } from "@/data/seerahData";
 import {
   getUpgradeLabel,
   getLocalizedSeerahStation,
@@ -26,6 +26,25 @@ import {
 
 const SEERAH_WORLD_COVER = require('../../../assets/images/seerah-world.jpg');
 const SEERAH_BADGE_IMG = require('../../../assets/images/sticker-lantern.jpg');
+
+const SEERAH_IMAGES: Record<string, any> = {
+  'seerah-1': require('../../../assets/images/scene-ibrahim-kaaba.jpg'),
+  'seerah-2': require('../../../assets/images/hero-oasis.jpg'),
+  'seerah-3': require('../../../assets/images/seerah-sheep.jpg'),
+  'seerah-4': require('../../../assets/images/icon-gem-3d.jpg'),
+  'seerah-5': require('../../../assets/images/scene-muhammad-hira.jpg'),
+  'seerah-6': require('../../../assets/images/scene-desert-stars.jpg'),
+  'seerah-7': require('../../../assets/images/scene-musa-sinai.jpg'),
+  'seerah-8': require('../../../assets/images/comp-nughayr-bird.jpg'),
+  'seerah-9': require('../../../assets/images/seerah-isra.jpg'),
+  'seerah-10': require('../../../assets/images/scene-thawr-cave.jpg'),
+  'seerah-11': require('../../../assets/images/scene-desert-migration.jpg'),
+  'seerah-12': require('../../../assets/images/scene-medina-mosque.jpg'),
+  'seerah-13': require('../../../assets/images/mascot-noor.jpg'),
+  'seerah-14': require('../../../assets/images/sticker-kaaba.jpg'),
+  'seerah-15': require('../../../assets/images/scene-desert-migration.jpg'),
+  'seerah-16': require('../../../assets/images/scene-medina-mosque.jpg'),
+};
 
 export default function SeerahHubScreen() {
   const router = useRouter();
@@ -101,7 +120,13 @@ export default function SeerahHubScreen() {
                   style={[styles.stChip, isSelected && styles.stChipActive, isDone && styles.stChipDone]}
                   onPress={() => setSelectedStationId(st.id)}
                 >
-                  <Text style={styles.stChipEmoji}>{st.cardEmoji}</Text>
+                  <View style={styles.stChipThumbWrap}>
+                    <Image
+                      source={SEERAH_IMAGES[st.id] || SEERAH_BADGE_IMG}
+                      style={styles.stChipThumb}
+                      resizeMode="cover"
+                    />
+                  </View>
                   <Text style={[styles.stChipNum, isSelected && styles.stChipNumActive]}>
                     {`${getUpgradeLabel('milestoneLabel', language)} ${st.stationNumber}`}
                   </Text>
@@ -114,9 +139,30 @@ export default function SeerahHubScreen() {
           {/* Detailed Milestone Card */}
           <View style={styles.milestoneCardWrap}>
             <LinearGradient colors={['#ffffff', '#fcfdfd']} style={styles.milestoneCard}>
+              {/* Active Milestone Scene Image Banner */}
+              <View style={styles.milestoneHeroSceneWrap}>
+                <Image
+                  source={SEERAH_IMAGES[currentStation.id] || SEERAH_BADGE_IMG}
+                  style={styles.milestoneHeroSceneImage}
+                  resizeMode="cover"
+                />
+                <LinearGradient colors={['transparent', 'rgba(6, 78, 59, 0.75)']} style={styles.milestoneHeroSceneOverlay} />
+                <View style={[styles.milestoneScenePill, isRtl ? { right: 12 } : { left: 12 }]}>
+                  <Text style={styles.milestoneScenePillText}>
+                    {`${getUpgradeLabel('milestoneLabel', language)} ${currentStation.stationNumber}`}
+                  </Text>
+                </View>
+              </View>
+
               {/* Header */}
               <View style={[styles.stHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <Text style={styles.stEmojiBadge}>{currentStation.cardEmoji}</Text>
+                <View style={styles.stImageBadgeWrap}>
+                  <Image
+                    source={SEERAH_IMAGES[currentStation.id] || SEERAH_BADGE_IMG}
+                    style={styles.stImageBadge}
+                    resizeMode="cover"
+                  />
+                </View>
                 <View style={styles.stHeaderInfo}>
                   <Text style={[styles.stTitleText, isRtl && { textAlign: 'right' }]}>
                     {localizedStation.title}
@@ -251,17 +297,27 @@ const styles = StyleSheet.create({
   stChip: {
     backgroundColor: '#ffffff',
     borderRadius: RADIUS.xl,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#bbf7d0',
     minWidth: 80,
     ...SHADOWS.soft,
   },
-  stChipActive: { borderColor: '#059669', backgroundColor: '#dcfce7' },
+  stChipActive: { borderColor: '#059669', backgroundColor: '#dcfce7', borderWidth: 2 },
   stChipDone: { borderColor: '#10b981' },
-  stChipEmoji: { fontSize: 20, marginBottom: 2 },
+  stChipThumbWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#bbf7d0',
+    marginBottom: 4,
+    backgroundColor: '#f0fdf4',
+  },
+  stChipThumb: { width: '100%', height: '100%' },
   stChipNum: { fontSize: 11, fontWeight: '700', color: '#166534' },
   stChipNumActive: { color: '#064e3b', fontWeight: '800' },
   milestoneCardWrap: { marginHorizontal: SPACING.md, marginTop: 4 },
@@ -271,9 +327,37 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#bbf7d0',
     ...SHADOWS.medium,
+    overflow: 'hidden',
   },
+  milestoneHeroSceneWrap: {
+    height: 140,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    position: 'relative',
+  },
+  milestoneHeroSceneImage: { width: '100%', height: '100%' },
+  milestoneHeroSceneOverlay: { ...StyleSheet.absoluteFill },
+  milestoneScenePill: {
+    position: 'absolute',
+    top: 10,
+    backgroundColor: 'rgba(5, 150, 105, 0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  milestoneScenePillText: { fontSize: 11, fontWeight: '800', color: '#ffffff' },
   stHeaderRow: { alignItems: 'center', gap: 12, marginBottom: SPACING.md },
-  stEmojiBadge: { fontSize: 32 },
+  stImageBadgeWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#059669',
+    ...SHADOWS.soft,
+  },
+  stImageBadge: { width: '100%', height: '100%' },
   stHeaderInfo: { flex: 1 },
   stTitleText: { fontSize: 18, fontWeight: '800', color: '#064e3b' },
   stSourceText: { fontSize: 12, color: '#047857', marginTop: 2 },

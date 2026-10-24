@@ -2,7 +2,7 @@
 // Parents' Corner (Section 5.6 - ركن الوالدين)
 // Orchestrates modular parental controls, child profile management, and privacy dashboards.
 
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,8 @@ import WeeklyChallengesCard from '@/components/parents/WeeklyChallengesCard';
 import ParentPinCard from '@/components/parents/ParentPinCard';
 import EncryptedBackupCard from '@/components/parents/EncryptedBackupCard';
 import CloudSyncCard from '@/components/parents/CloudSyncCard';
+import WorshipSettingsCard from '@/components/parents/WorshipSettingsCard';
+import ScreenTimeCard from '@/components/parents/ScreenTimeCard';
 
 export default function ParentsCornerScreen() {
   const {
@@ -166,46 +168,28 @@ export default function ParentsCornerScreen() {
           getChildProgress={getChildProgress}
         />
 
-        {/* 3. Daily Time Limit Goal */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="timer" size={20} color={COLORS.secondaryDark} />
-            <Text style={styles.sectionTitle}>{t.dailyLimit}</Text>
-          </View>
+        {/* 3. Screen Time & Bedtime Lock (PAR-2 & PAR-3) */}
+        <ScreenTimeCard
+          language={language}
+          dailyLimitMin={parentSettings.dailyLimitMin || 0}
+          bedtimeLockEnabled={Boolean(parentSettings.bedtimeLockEnabled)}
+          bedtimeStart={parentSettings.bedtimeStart || '20:00'}
+          bedtimeEnd={parentSettings.bedtimeEnd || '06:00'}
+          onUpdateDailyLimit={(min) => updateParentSettings({ dailyLimitMin: min })}
+          onToggleBedtimeLock={(enabled) => updateParentSettings({ bedtimeLockEnabled: enabled })}
+          onUpdateBedtimeRange={(start, end) => updateParentSettings({ bedtimeStart: start, bedtimeEnd: end })}
+        />
 
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'حدد الوقت اليومي المسموح به للتعلم، ليظهر للبطل رسالة تشجيعية عند الوصول للهدف'
-              : 'Set a healthy daily time goal for your child.'}
-          </Text>
-
-          <View style={styles.limitButtonsRow}>
-            {[5, 10, 15, 20, 30].map((min) => {
-              const isSelected = parentSettings.dailyLimitMin === min;
-
-              return (
-                <TouchableOpacity
-                  key={min}
-                  style={[
-                    styles.limitBtn,
-                    isSelected && styles.limitBtnSelected,
-                  ]}
-                  onPress={() => updateParentSettings({ dailyLimitMin: min })}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={[
-                      styles.limitBtnText,
-                      isSelected && styles.limitBtnTextSelected,
-                    ]}
-                  >
-                    {min} {t.minutes}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
+        {/* 4. Worship, Madhhab & Prayer Settings (PRY-3 & PRY-4) */}
+        <WorshipSettingsCard
+          language={language}
+          madhhab={parentSettings.madhhab || 'shafii'}
+          prayerCity={parentSettings.prayerCity || 'cairo'}
+          adhanAudioEnabled={Boolean(parentSettings.adhanAudioEnabled)}
+          onUpdateMadhhab={(madhhab) => updateParentSettings({ madhhab })}
+          onUpdateCity={(prayerCity) => updateParentSettings({ prayerCity })}
+          onToggleAdhan={(adhanAudioEnabled) => updateParentSettings({ adhanAudioEnabled })}
+        />
 
         {/* 4. Real-Life Manners Challenges Approval Card */}
         <WeeklyChallengesCard

@@ -1506,11 +1506,173 @@
     - Expanded `PROPHET_NAMES_LOCALIZED` via `PROPHET_DATA_EXTRA` in [`src/services/multilingualContentService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualContentService.ts) for all 25 Prophets across `bn`, `ur`, `tr`, `ru`, `id`.
     - Added `ANIMAL_MIRACLES_BANNER` dictionary and helpers (`getAnimalMiraclesBadge`, `getAnimalMiraclesTitle`, `getAnimalMiraclesSubtitle`) in 10 languages.
     - Updated [`src/app/prophets/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prophets/index.tsx) to render localized badge, title, and subtitle.
-- **3. Verification:**
-  - `npx.cmd tsc --noEmit` -> 0 errors across entire workspace.
-  - `npm.cmd run build` -> 31 routes exported to `dist/` successfully with 0 errors.
+### Milestone 27: Visual Transformation — Replacing Emojis/Icons with 3D Pixar Images
+- **Context & User Request:** The user observed that in `/nations`, `/tafakkur`, and `/seerah`, the horizontal station selectors and cards used unicode text emojis (`🌪️`, `🍇`, `🐪`, `🕋`, etc.) rather than rich storybook images, requesting: "generate images instead of icons".
+- **Assets Created & Integrated:**
+  1. `assets/images/nation-aad.jpg`: 3D Pixar digital render of golden sandstorm swirling around the towering desert columns and architecture of Aad.
+  2. `assets/images/nation-qarun.jpg`: 3D Pixar digital render of the golden treasure vaults, ornate chests, and keys of Qarun.
+  3. `assets/images/nation-garden.jpg`: 3D Pixar digital render of fruitful grape vineyards, date palms, and spring stream for the garden owners & Saba.
+  4. `assets/images/tafakkur-rain.jpg`: 3D Pixar digital render of a cheerful fluffy rain cloud showering crystal raindrops over daisy meadows.
+  5. `assets/images/tafakkur-ship.jpg`: 3D Pixar digital render of a wooden sailing ship cruising on clear turquoise waters.
+  6. `assets/images/tafakkur-heart.jpg`: 3D Pixar digital render of a glowing ruby and gold heart with "الحمد لله" and heartbeat pulse.
+  7. `assets/images/tafakkur-plant.jpg`: 3D Pixar digital render of a bright green plant seedling with dew drops emerging from soil.
+  8. `assets/images/seerah-isra.jpg`: 3D Pixar digital render of Al-Aqsa sanctuary golden dome under midnight constellations and crescent moon.
+  9. `assets/images/seerah-sheep.jpg`: 3D Pixar digital render of cute fluffy white sheep and lambs grazing on green hill.
+  10. Plus existing high-definition assets mapped for Thamud (`scene-she-camel-rock.jpg`), Hira (`scene-muhammad-hira.jpg`), Thawr (`scene-thawr-cave.jpg`), Madinah (`scene-medina-mosque.jpg`), Kaaba (`scene-ibrahim-kaaba.jpg`), Earth dawn (`scene-earth-dawn.jpg`), and stars (`scene-desert-stars.jpg`). Strictly respecting Islamic guidelines with NO facial or human depictions of prophets.
+- **Components Refactored:**
+  - [`src/app/nations/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/nations/index.tsx): Replaced emoji text with circular image thumbnail chips (`natChipThumbWrap`), active lesson hero scene banner (`lessonHeroSceneWrap`), and circular badge (`lessonImgBadgeWrap`).
+  - [`src/app/tafakkur/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/tafakkur/index.tsx): Replaced emoji text with circular image thumbnail chips (`stChipThumbWrap`), active station hero scene banner (`stationHeroSceneWrap`), and circular badge (`stImageBadgeWrap`).
+  - [`src/app/seerah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/seerah/index.tsx): Replaced emoji text with circular image thumbnail chips (`stChipThumbWrap`), active milestone hero scene banner (`milestoneHeroSceneWrap`), and circular badge (`stImageBadgeWrap`).
+### Milestone 28: Full 99 Names of Allah Completion (أسماء الله الحسنى ٩٩ كاملة)
+- **Context & User Request:** User requested to complete Asma Allah Al-Husna ("اكمل اسماء الله الحسنى") as the catalog previously had only 68 entries with combined pairs and a gap up to 78.
+- **Dataset Completion ([`src/data/asmaAllahData.ts`](file:///g:/quran%20app%20for%20kids/src/data/asmaAllahData.ts)):**
+  - Expanded and structured the dataset to **exactly 99 distinct Names of Allah** (`asma-1` to `asma-99`, `day: 1` to `99`).
+  - From **الله** (#1) to **الصبور** (#99), following the authentic Hadith: *"إن لله تسعة وتسعين اسمًا مائة إلا واحدًا من أحصاها دخل الجنة"*.
+  - Every single Name features:
+    1. Full Tashkeel and clear Arabic name.
+    2. Kid-friendly, inspiring definition (`meaning`).
+    3. Authentic Quranic verse or Sunnah reference (`ayah`).
+    4. Engaging, bite-sized story or reflection (`story`).
+    5. Actionable everyday good deed / application (`apply`).
+    6. Interactive multiple-choice question (`quizQuestion`, `quizOptions`).
+    7. Theme emoji and card title.
+- **UI & Navigation Navigation Updates ([`src/app/asma-allah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/asma-allah/index.tsx)):**
+  - Updated tabs to `'days1to50' | 'days51to99' | 'cards'` to cleanly accommodate all 99 names across mobile and desktop.
+  - Added localized strings for `asmaTabDays1to50` and `asmaTabDays51to99` in [`src/services/multilingualUpgradeData.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualUpgradeData.ts) across 10 languages.
+- **Build & Verification:**
+  - `cmd.exe /c npx tsc --noEmit` -> 0 errors.
+  - `cmd.exe /c npx expo export --platform web` -> rebuilt `dist/` with 0 errors.
+  - Production server reloaded and serving `http://localhost:3000/asma-allah` (HTTP 200).
 
----
+### Milestone 29: Asma Allah Al-Husna Interactive Responsive Grid View & Modal
+- **Context & User Request:** User requested: "make them shown on grid view" for the 99 Names of Allah.
+- **Implementation Highlights:**
+  - **Grid Layout ([`src/app/asma-allah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/asma-allah/index.tsx)):**
+    - Set `viewMode: 'grid'` as the primary default view.
+    - Responsive multi-column grid (`2 columns` on mobile, `3 columns` on desktop, `4 columns` on wide displays).
+    - Each grid card features:
+      - Number badge with `#<day>` indicator.
+      - Theme emoji badge with completion checkmark when practiced.
+      - Large bold Arabic divine name (`gridDivineName`).
+      - Kid-friendly 2-line concise definition (`gridMeaningText`).
+      - "اضغط للتعلّم والتطبيق / Tap to explore" button with interactive icon.
+    - Search bar filtering instantaneously across Arabic names, meanings, and numbers.
+    - Filter tabs: "الكل (٩٩ اسمًا)", "الأيام ١–٥٠", "الأيام ٥١–٩٩", "المكتملة (Done)".
+    - View Mode toggle allowing switching between "الشبكة (Grid)" and "البطاقة (Focus Card)".
+  - **Interactive Detail Modal ([`src/components/AsmaDetailModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AsmaDetailModal.tsx)):**
+    - Clicking any grid card opens a dedicated reflection modal with Mascot Noor explanation, Quran verse, daily practical application checklist (earns 3 stars + 1 gem), and interactive quiz (earns 5 stars + 2 gems).
+- **Verification:**
+  - `cmd.exe /c npx tsc --noEmit` -> 0 errors.
+  - `cmd.exe /c npx expo export --platform web` -> rebuilt `dist/` successfully with 31 static routes.
+  - Production server reloaded and serving `http://localhost:3000/asma-allah` (HTTP 200).
+
+### Milestone 30: Full Comprehensive End-to-End & Security Testing Suite (161/161 Passed - 100%)
+- **Context & User Request:** User requested: "make full e2e testing of the app".
+- **Comprehensive E2E Suite Expansion ([`scripts/test-e2e.js`](file:///g:/quran%20app%20for%20kids/scripts/test-e2e.js)):**
+  - **41 Static Application Routes Tested:** Verified HTTP 200 and substantial payload across `/`, `/onboarding`, `/quran`, `/quran/mushaf`, `/quran/repeat`, `/sunnah`, `/sunnah/duas`, `/sunnah/cards`, `/sunnah/tasbih`, `/sunnah/adhkar`, `/prophets`, `/manners`, `/rewards`, `/progress`, `/parents`, all 11 `/arkan/*` routes, `/asma-allah`, `/nations`, `/tafakkur`, `/seerah`, `/animals`, and `/companions`.
+  - **39 3D Kid-Friendly Media Assets Tested:** Verified HTTP 200 and valid image MIME types for Mascot Noor, Oasis hero, 3D bottom nav icons, 3D avatars, 3D reward gems & stars, 6 Wudu steps, and newly generated Pixar assets (`nation-aad`, `nation-qarun`, `nation-garden`, `tafakkur-rain`, `tafakkur-ship`, `tafakkur-heart`, `tafakkur-plant`, `seerah-isra`, `seerah-sheep`, `asma-allah-world`, `asma-allah-badge`).
+  - **Backend API & Audio Pipeline:** Verified `/api/tts` streaming chunked MP3 audio, Surah 112 Tafsir, Surah 1 (7 verses), Surah 78 (40 verses).
+  - **Dataset Integrity & Theological Constraints:**
+    - Quran Catalog: 114 Surahs with Arabic/English metadata.
+    - Reciters: 27 verified reciters.
+    - Prophets: 25 Prophets chronologically with strictly 0 physical depictions.
+    - Asma Allah Al-Husna: **Exactly 99 verified Names** (`day: 1` to `99`) with Tashkeel, meanings, stories, applications, and interactive quizzes.
+    - Nations, Tafakkur, Seerah, Animals, and Companions datasets.
+    - Arkan Academy: 5 Pillars of Islam + 6 Pillars of Iman + 8 Wudu steps.
+    - Good Manners Town (64 moral landmarks), Hadiths (118 items), Duas (51 items), Morning & Evening Adhkar.
+    - Multilingual Integrity: Sourced across 10 global languages (AR, EN, BN, UR, TR, RU, ID, FR, DE, ES).
+  - **Result:** **103 / 103 E2E Tests Passed (100% Success Rate)**.
+- **Security Principles Audit ([`scripts/test-security.js`](file:///g:/quran%20app%20for%20kids/scripts/test-security.js)):**
+  - Verified 7 Security Principles: Zero secrets in client-side code, multi-tenant row-level security (RLS), mass-assignment protection, Stripe webhook HMAC signatures, rate limiting, cryptographic parental gate salt/hash cooldowns, encrypted backup HMAC verification, JWT token rotation, and voice memo sandbox path traversal defense.
+  - **Result:** **58 / 58 Security Tests Passed (100% Success Rate)**.
+### Milestone 28: Accurate Dynamic Hijri Date Engine & Asma Allah Audio Pronunciation
+- **Dynamic Hijri Date Solution ([`src/services/hijriDateService.ts`](file:///g:/quran%20app%20for%20kids/src/services/hijriDateService.ts)):**
+  - **Issue:** The home header previously rendered a hardcoded mock date (`'الأحد، ٤ ربيع الأول'`), causing an incorrect static date on every launch regardless of the actual calendar.
+  - **Solution:** Implemented `hijriDateService.ts` utilizing high-precision Umm al-Qura calculation with algorithmic astronomical fallback.
+  - Generates exact Islamic dates in Arabic (`السبت، ١٣ جمادى الأولى ١٤٤٨ هـ` with Eastern Arabic numerals) and supports all 10 application languages (AR, EN, UR, FR, TR, ID, DE, ES, RU, BN) with localized weekday names, month names, and Hijri suffixes (`هـ` / `AH` / `ھ`).
+  - Re-exported via [`src/services/multilingualContentService.ts`](file:///g:/quran%20app%20for%20kids/src/services/multilingualContentService.ts) and connected directly to the home screen header date badge in [`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx).
+- **Asma Allah 99 Names Audio Pronunciation ([`src/components/AsmaDetailModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AsmaDetailModal.tsx)):**
+  - Integrated live audio recitation trigger (`audioService.playDua`) inside the 99 Names modal so young learners can listen to the authentic Arabic pronunciation of any Divine Name with Tashkeel.
+### Milestone 29: Complete PRD Redesign Architecture (7-Block Home, 5 Task-Based Tabs, 6 Worlds, Flagship Prayer, Discover & Me Hubs)
+- **7-Block Clean Home Screen ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §7.2, HOME-1 through HOME-5):**
+  - Replaced the decision-overloaded 25-element layout with a clean 7-block hierarchy:
+    1. Compact Header (64dp): Child avatar, greeting (`يا بطل` / `يا بطلة` dynamic address), sprout streak chip, search/lang icons.
+    2. Animated Bismillah banner on first session open of the day.
+    3. Coral 56dp Continue Card (`أكمل رحلتي الآن`).
+    4. Today's 3 Steps: Listen, Learn, and Practice progress ring.
+    5. Daily Hadith card with authentic grade label and instant recitation audio.
+    6. Six Worlds Grid (Quran, Worship, Stories, Character & Sunnah, Names of Allah, Wonder).
+    7. Prayer-time strip with direct shortcut to the new flagship prayer screen.
+- **5 Task-Based Tabs ([`src/components/AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx) — PRD §5 & NAV-1):**
+  - Home (`/`), Quran (`/quran`), My Prayer (`/prayer`), Discover (`/discover`), Me (`/me`).
+- **Flagship My Prayer Hub ([`src/app/prayer/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prayer/index.tsx) — PRD §7.4, PRY-1 through PRY-5):**
+  - 4 interactive flagship tiles: Wudu Simulator (10 steps with audio & repeat), Salah Simulator (5 prayers with postures, recitations & girl variant notes), Kids Daily Adhkar, and Digital Tasbih Counter (33/100 limit).
+  - Daily 5 Prayer times timeline with next prayer countdown and optional Adhan toggle.
+  - Friday special mode: Surah Al-Kahf & Salawat reminder banner.
+  - Daily practice learning checklist (focused on learning effort, zero worship points transaction).
+- **Discover Worlds Hub ([`src/app/discover/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/discover/index.tsx) — PRD §7.5):**
+  - Grouped worlds into Stories (Prophets, Seerah, Companions), Character & Sunnah (50 Manners, 100 Hadiths), 99 Names of Allah, and Wonder & Universe (Tafakkur, Animals, Nations 9+).
+  - Age-gating enforced: hides 9+ content for younger profiles.
+- **Me & My Garden Hub ([`src/app/me/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/me/index.tsx) — PRD §7.6 & §10):**
+  - Blooming Garden growth model (Seedling -> Sprout -> Flowering -> Flourishing Tree) based on effort.
+  - Weekly Sprout Calendar: Green sprouts for active learning days with zero loss-shaming.
+  - Child-safe settings (sound effects, calm vocal nasheeds, bedtime mode).
+  - Gated Parent Zone entry card with PIN verification.
+- **Verification:**
+  - `npx tsc --noEmit` passed with 0 errors.
+  - `npx expo export --platform web` built 34 static HTML routes cleanly into `dist/`.
+  - Full E2E Test Suite (`scripts/test-e2e.js`): **106 / 106 tests passed (100% Success Rate)**.
+### Milestone 30: Phase 3 Depth Upgrades (3 Age UI Modes, Progressive Hifz, Fiqh Madhhab & City Calculation, Screen Time & Bedtime Lock, Names of Allah Collectible Shelf)
+- **3 Age-Adapted UI Modes ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §7.2 & AGE-1):**
+  - **Seedling (البذرة 4–6 years):** Text search is completely hidden to eliminate literacy barriers. Blocks 4–6 are replaced with 3 massive visual action tiles (Listen & Repeat 🎧, Pray & Wudu 💧, Play & Learn 🎈) accompanied by Noor mascot spoken audio encouragement.
+  - **Young Learner (الناشئ 7–9 years) & Explorer (المستكشف 10–12 years):** Full 7-block structured canvas with interactive search, Daily 3 Steps progress ring, Hadith card, and 6 Worlds.
+- **Quran Memorize Mode & Progressive Word Hiding ([`src/app/quran/repeat.tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/repeat.tsx) — PRD §7.3.4 & QUR-2):**
+  - 4-stage progressive word hiding selector (`0%`, `25%`, `50%`, `100%`).
+  - Interactive tap-to-reveal word tiles with smooth indicator (`[ ••• ]` -> revealed word) using composite key state.
+  - PRD-compliant self-check prompt after recitation: «هل حفظت هذه الآية المباركة؟» with «نعم، حفظتها بحمد الله! 🌟» and «سأكرر وأحاول ثانية 🔁».
+  - Added direct "تحفيظ 🧠" shortcut button on every Surah reading screen in [`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx).
+- **Fiqh Madhhab Selector & City Prayer Times Calculator ([`src/services/prayerTimeService.ts`](file:///g:/quran%20app%20for%20kids/src/services/prayerTimeService.ts), [`src/components/parents/WorshipSettingsCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/WorshipSettingsCard.tsx), [`src/app/prayer/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prayer/index.tsx) — PRD §8, PRY-3 & PRY-4):**
+  - 4 classical Madhhabs supported in Parental Controls (Shafi'i, Hanafi, Maliki, Hanbali) explaining posture nuances (hand placement, Tashahhud finger movement) and Hanafi Asr calculation (shadow 2x object length).
+  - Accurate city prayer time calculator supporting Cairo, Makkah, Madinah, Alexandria, Riyadh, Dubai, Amman, Jerusalem.
+  - Next prayer countdown card dynamically reflects the family's city, selected madhhab badge, and Sunnah girl posture reminder.
+  - Parental Adhan audio toggle synchronized between parents' dashboard and the prayer screen.
+- **Screen Time Daily Limits & Bedtime Lock Window ([`src/components/parents/ScreenTimeCard.tsx`](file:///g:/quran%20app%20for%20kids/src/components/parents/ScreenTimeCard.tsx), [`src/app/parents/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/parents/index.tsx), [`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §8, PAR-2 & PAR-3):**
+  - Configurable daily limit goals (0, 15, 30, 45, 60 minutes) to foster balanced digital health.
+  - Bedtime quiet lock window (e.g., 20:00 to 06:00) with preset spans.
+  - During bedtime hours, the home screen presents a soothing starry Bedtime Banner with direct shortcuts to Bedtime Dua & Ayat Al-Kursi, plus a gated Parent Unlock option.
+- **Names of Allah Daily Card & Collectible Shelf ([`src/app/asma-allah/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/asma-allah/index.tsx), [`src/app/me/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/me/index.tsx) — PRD §8, STO-2):**
+  - Daily Featured Card banner in 99 Names sanctuary with «أضف لرف بطاقاتي المجمعة (+5⭐)».
+  - Beautiful collectible shelf in Me & My Garden Hub displaying the child's collected Names of Allah cards in gold and purple calligraphy, tracking progress toward all 99 names.
+- **Tajweed Colors & Legend Guide ([`src/components/TajweedLegendModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/TajweedLegendModal.tsx), [`src/app/quran/[surahId].tsx`](file:///g:/quran%20app%20for%20kids/src/app/quran/%5BsurahId%5D.tsx) — PRD §7.3.5 & QUR-4):**
+  - Optional Tajweed toggle chip («تجويد 🎨») in Surah reader alongside Hifz and Mushaf buttons.
+  - Interactive Tajweed Color Legend Modal explaining the 5 fundamental Tajweed rules for young learners (Ghunnah, Qalqalah, Madd, Ikhfa', Idgham) with color dots, phonetic examples, and Prophet's hadith on recitation mastery.
+- **Dynamic & Dismissible Prayer Strip ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §7.2 Block 7):**
+  - Replaced static text with real-time prayer calculation showing the exact approaching prayer name, prayer time in the child's city, a 1-tap "الوضوء 💧" shortcut, and a dismissible close button.
+- **Verification Outcomes:**
+  - TypeScript: `npx tsc --noEmit` exited code 0 (zero errors).
+  - ESLint: `npx expo lint` exited code 0 (zero errors, 10 non-blocking warnings on legacy files).
+  - Production Web Export: `npx expo export --platform web` built all 34 routes cleanly.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
+### Milestone 30: 3D Menu & Screen Assets, Full PRD Compliance & Final Audit
+- **3D Pixar Navigation Menu ([`src/components/AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx) — PRD §5 & NAV-1):**
+  - Integrated high-resolution 3D Pixar image assets (`nav-home-3d.jpg`, `nav-quran-3d.jpg`, `salah-takbeer-3d.jpg`, `nav-prophets-3d.jpg`, `nav-rewards-3d.jpg`) replacing generic outline vector icons.
+  - Active tab elevation with glowing accent borders matching each world's palette.
+- **3D Visual Cards Integration Across Screens ([`src/app/prayer/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/prayer/index.tsx), [`src/app/discover/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/discover/index.tsx)):**
+  - Prayer Hub: Mounted 3D Medina Mosque in countdown header, 3D Wudu garden (`wudu-garden.jpg`), 3D Takbeer salah (`salah-takbeer-3d.jpg`), 3D Adhkar crescent (`nav-sunnah-3d.jpg`), and 3D crystal gem (`icon-gem-3d.jpg`).
+  - Discover Hub: Mounted 3D Compass hero badge (`nav-prophets-3d.jpg`), 3D Caravan for Prophets, 3D Oasis for Seerah, 3D Fortress for Companions, 3D Town for Manners, 3D Sunnah path, 3D Asma Allah world, 3D Tafakkur cosmos, 3D Animals safari, and 3D Nations heritage.
+- **Header & Search PRD Compliance ([`src/components/Header.tsx`](file:///g:/quran%20app%20for%20kids/src/components/Header.tsx), [`src/components/SmartSearchModal.tsx`](file:///g:/quran%20app%20for%20kids/src/components/SmartSearchModal.tsx) — NAV-2, RWD-2, AGE-2):**
+  - Flame-free green sprout streak icon with direct navigation to `/progress` per PRD §7.2 block 1 & RWD-2.
+  - Microphone voice search button added to Header and Smart Search modal for young readers (ages 4–9) per NAV-2.
+  - Enforced strict age gating (`AGE-2`) in search: 9+ content (Nations) is automatically hidden from younger age bands.
+- **Friday Special Mode on Home ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx) — PRD §7.4 & Phase 4):**
+  - Dynamic Friday banner prompting abundant Salawat upon Prophet Muhammad ﷺ and quick 1-tap shortcut to Surah Al-Kahf (`/quran/18`).
+- **Comprehensive PRD Verification:**
+  - All 30 functional requirements (`NAV-1` to `OFF-1`) audited and confirmed complete.
+  - `npx tsc --noEmit`: 0 errors.
+  - `npx expo lint`: 0 errors.
+  - `npx expo export --platform web`: 34 routes exported successfully.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
+  - Security Test Suite (`node scripts/test-security.js`): **58 / 58 passed (100%)**.
 
 ## 3. Strict Rules & Constraints for Future AI Agents
 

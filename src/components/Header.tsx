@@ -34,7 +34,7 @@ export default function Header({
   const pathname = usePathname();
   const {
     language,
-    setLanguage,
+    setLanguage: _setLanguage,
     stars,
     gems,
     streakCount,
@@ -122,11 +122,16 @@ export default function Header({
       </View>
 
       <View style={styles.rightRow}>
-        {/* Streak */}
-        <View style={styles.statChip}>
-          <Ionicons name="flame" size={15} color={COLORS.streak} />
-          <Text style={styles.statText}>{streakCount}</Text>
-        </View>
+        {/* Streak (Sprout per PRD §7.2 block 1 & RWD-2, tap opens Me > Progress) */}
+        <TouchableOpacity
+          style={styles.statChip}
+          onPress={() => router.push('/progress')}
+          activeOpacity={0.7}
+          accessibilityLabel={language === 'ar' ? 'مسيرة الاستمرار' : 'Streak'}
+        >
+          <Ionicons name="leaf" size={15} color="#16A34A" />
+          <Text style={[styles.statText, { color: '#16A34A' }]}>{streakCount}</Text>
+        </TouchableOpacity>
 
         {/* Stars */}
         <TouchableOpacity
@@ -148,15 +153,28 @@ export default function Header({
           <Text style={styles.statText}>{gems}</Text>
         </TouchableOpacity>
 
-        {/* Quick Smart Search Button */}
+        {/* Quick Smart Search Button & Voice Mic (PRD NAV-2) */}
         {showSearch && (
-          <TouchableOpacity
-            style={styles.searchHeaderBtn}
-            onPress={() => setSearchModalVisible(true)}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="search" size={16} color="#059669" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <TouchableOpacity
+              style={styles.searchHeaderBtn}
+              onPress={() => setSearchModalVisible(true)}
+              activeOpacity={0.7}
+              accessibilityLabel={language === 'ar' ? 'بحث' : 'Search'}
+            >
+              <Ionicons name="search" size={16} color="#059669" />
+            </TouchableOpacity>
+            {activeProfile?.ageBand !== '10-13' && (
+              <TouchableOpacity
+                style={[styles.searchHeaderBtn, { backgroundColor: '#ECFDF5' }]}
+                onPress={() => setSearchModalVisible(true)}
+                activeOpacity={0.7}
+                accessibilityLabel={language === 'ar' ? 'بحث صوتي' : 'Voice search'}
+              >
+                <Ionicons name="mic" size={16} color="#059669" />
+              </TouchableOpacity>
+            )}
+          </View>
         )}
 
         {/* Multilingual Selector & Parent Lock (only on screens without back navigation) */}

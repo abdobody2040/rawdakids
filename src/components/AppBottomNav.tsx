@@ -1,17 +1,21 @@
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Image } from 'expo-image';
+// AppBottomNav — 5 task-based tabs per PRD §5 (NAV-1)
+// Home · Quran · My Prayer · Discover · Me
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
 import { Language, isRTL } from '@/constants/i18n';
-import { SHADOWS } from '@/constants/theme';
+import { SHADOWS, COLORS } from '@/constants/theme';
 
-const NAV_HOME_IMG = require('../../assets/images/nav-home-3d.jpg');
-const NAV_QURAN_IMG = require('../../assets/images/nav-quran-3d.jpg');
-const NAV_SUNNAH_IMG = require('../../assets/images/nav-sunnah-3d.jpg');
-const NAV_PROPHETS_IMG = require('../../assets/images/nav-prophets-3d.jpg');
-const NAV_MANNERS_IMG = require('../../assets/images/nav-manners-3d.jpg');
-const NAV_REWARDS_IMG = require('../../assets/images/nav-rewards-3d.jpg');
+// 3D Pixar-style visual assets for bottom navigation menu
+const TAB_IMAGES: Record<string, any> = {
+  home: require('../../assets/images/nav-home-3d.jpg'),
+  quran: require('../../assets/images/nav-quran-3d.jpg'),
+  prayer: require('../../assets/images/salah-takbeer-3d.jpg'),
+  discover: require('../../assets/images/nav-prophets-3d.jpg'),
+  me: require('../../assets/images/nav-rewards-3d.jpg'),
+};
 
+// Multilingual labels for each of the 5 tabs
 const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
   home: {
     ar: 'الرئيسية',
@@ -37,135 +41,112 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
     bn: 'কুরআন',
     tr: 'Kuran',
   },
-  sunnah: {
-    ar: 'السنّة',
-    en: 'Sunnah',
-    fr: 'Sunnah',
-    de: 'Sunnah',
-    es: 'Sunna',
-    ru: 'Сунна',
-    ur: 'سنت',
-    id: 'Sunnah',
-    bn: 'সুন্নাহ',
-    tr: 'Sünnet',
+  prayer: {
+    ar: 'صلاتي',
+    en: 'My Prayer',
+    fr: 'Ma Prière',
+    de: 'Mein Gebet',
+    es: 'Mi Oración',
+    ru: 'Молитва',
+    ur: 'میری نماز',
+    id: 'Salatku',
+    bn: 'আমার সালাত',
+    tr: 'Namazım',
   },
-  prophets: {
-    ar: 'الأنبياء',
-    en: 'Stories',
-    fr: 'Histoires',
-    de: 'Geschichten',
-    es: 'Historias',
-    ru: 'Истории',
-    ur: 'کہانیاں',
-    id: 'Kisah',
-    bn: 'গল্পমালা',
-    tr: 'Hikayeler',
+  discover: {
+    ar: 'اكتشف',
+    en: 'Discover',
+    fr: 'Découvrir',
+    de: 'Entdecken',
+    es: 'Explorar',
+    ru: 'Изучить',
+    ur: 'دریافت',
+    id: 'Temukan',
+    bn: 'আবিষ্কার',
+    tr: 'Keşfet',
   },
-  manners: {
-    ar: 'الأخلاق',
-    en: 'Manners',
-    fr: 'Manières',
-    de: 'Manieren',
-    es: 'Modales',
-    ru: 'Нравы',
-    ur: 'اخلاق',
-    id: 'Akhlak',
-    bn: 'আচরণ',
-    tr: 'Ahlak',
+  me: {
+    ar: 'أنا',
+    en: 'Me',
+    fr: 'Moi',
+    de: 'Ich',
+    es: 'Yo',
+    ru: 'Я',
+    ur: 'میں',
+    id: 'Aku',
+    bn: 'আমি',
+    tr: 'Ben',
   },
-  rewards: {
-    ar: 'الكنوز',
-    en: 'Treasures',
-    fr: 'Trésors',
-    de: 'Schätze',
-    es: 'Tesoros',
-    ru: 'Сокровища',
-    ur: 'خزانے',
-    id: 'Hadiah',
-    bn: 'পুরস্কার',
-    tr: 'Ödüller',
-  },
+};
+
+// Tab color accents
+const TAB_COLORS: Record<string, string> = {
+  home: COLORS.gardenGreen,
+  quran: '#059669',
+  prayer: '#0284C7',
+  discover: '#7C3AED',
+  me: '#D97706',
 };
 
 export default function AppBottomNav() {
   const router = useRouter();
   const pathname = usePathname() || '/';
   const { language } = useAppStore();
-  const isAr = language === 'ar';
 
   const isHomeActive = pathname === '/';
   const isQuranActive = pathname.startsWith('/quran');
-  const isSunnahActive = pathname.startsWith('/sunnah');
-  const isProphetsActive = pathname.startsWith('/prophets');
-  const isMannersActive = pathname.startsWith('/manners');
-  const isRewardsActive = pathname.startsWith('/rewards') || pathname.startsWith('/progress');
+  // Prayer tab: prayer hub, wudu, salah, arkan, adhkar, tasbih screens
+  const isPrayerActive =
+    pathname.startsWith('/prayer') ||
+    pathname.startsWith('/arkan') ||
+    pathname.startsWith('/wudu') ||
+    pathname.startsWith('/sunnah/adhkar') ||
+    pathname.startsWith('/sunnah/tasbih');
+  // Discover: discover hub, prophets, companions, seerah, manners, asma-allah, tafakkur, nations, animals, sunnah
+  const isDiscoverActive =
+    pathname.startsWith('/discover') ||
+    pathname.startsWith('/prophets') ||
+    pathname.startsWith('/companions') ||
+    pathname.startsWith('/seerah') ||
+    pathname.startsWith('/manners') ||
+    pathname.startsWith('/asma-allah') ||
+    pathname.startsWith('/tafakkur') ||
+    pathname.startsWith('/nations') ||
+    pathname.startsWith('/animals') ||
+    (pathname.startsWith('/sunnah') && !pathname.startsWith('/sunnah/adhkar') && !pathname.startsWith('/sunnah/tasbih'));
+  // Me: me hub, profile, progress, rewards, parents
+  const isMeActive =
+    pathname.startsWith('/me') ||
+    pathname.startsWith('/rewards') ||
+    pathname.startsWith('/progress') ||
+    pathname.startsWith('/parents') ||
+    pathname.startsWith('/profile');
 
   const tabs = [
     {
       id: 'home',
-      labelAr: 'الرئيسية',
-      labelEn: 'Home',
-      image: NAV_HOME_IMG,
       route: '/',
       isActive: isHomeActive,
-      color: '#16A34A',
-      activeBg: '#DCFCE7',
-      borderColor: '#86EFAC',
     },
     {
       id: 'quran',
-      labelAr: 'القرآن',
-      labelEn: 'Quran',
-      image: NAV_QURAN_IMG,
       route: '/quran',
       isActive: isQuranActive,
-      color: '#0D9488',
-      activeBg: '#CCFBF1',
-      borderColor: '#5EEAD4',
     },
     {
-      id: 'sunnah',
-      labelAr: 'السنّة',
-      labelEn: 'Sunnah',
-      image: NAV_SUNNAH_IMG,
-      route: '/sunnah',
-      isActive: isSunnahActive,
-      color: '#D97706',
-      activeBg: '#FEF3C7',
-      borderColor: '#FDE68A',
+      id: 'prayer',
+      route: '/prayer',
+      isActive: isPrayerActive,
     },
     {
-      id: 'prophets',
-      labelAr: 'الأنبياء',
-      labelEn: 'Stories',
-      image: NAV_PROPHETS_IMG,
-      route: '/prophets',
-      isActive: isProphetsActive,
-      color: '#7C3AED',
-      activeBg: '#EDE9FE',
-      borderColor: '#DDD6FE',
+      id: 'discover',
+      route: '/discover',
+      isActive: isDiscoverActive,
     },
     {
-      id: 'manners',
-      labelAr: 'الأخلاق',
-      labelEn: 'Manners',
-      image: NAV_MANNERS_IMG,
-      route: '/manners',
-      isActive: isMannersActive,
-      color: '#0284C7',
-      activeBg: '#E0F2FE',
-      borderColor: '#BAE6FD',
-    },
-    {
-      id: 'rewards',
-      labelAr: 'الكنوز',
-      labelEn: 'Treasures',
-      image: NAV_REWARDS_IMG,
-      route: '/rewards',
-      isActive: isRewardsActive,
-      color: '#E11D48',
-      activeBg: '#FFE4E6',
-      borderColor: '#FECDD3',
+      id: 'me',
+      route: '/me',
+      isActive: isMeActive,
     },
   ];
 
@@ -178,6 +159,10 @@ export default function AppBottomNav() {
         ]}
       >
         {tabs.map((tab) => {
+          const color = TAB_COLORS[tab.id] || COLORS.gardenGreen;
+          const imageSrc = TAB_IMAGES[tab.id];
+          const label = NAV_TAB_LABELS[tab.id]?.[language] || tab.id;
+
           return (
             <TouchableOpacity
               key={tab.id}
@@ -188,39 +173,46 @@ export default function AppBottomNav() {
                 }
               }}
               activeOpacity={0.75}
+              accessibilityLabel={label}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: tab.isActive }}
             >
+              {/* Active indicator bar at top */}
+              {tab.isActive && (
+                <View style={[styles.activeBar, { backgroundColor: color }]} />
+              )}
+
+              {/* 3D Visual Icon Badge */}
               <View
                 style={[
                   styles.iconBadge,
-                  tab.isActive && {
-                    borderColor: tab.color,
-                    borderWidth: 2,
-                    backgroundColor: tab.activeBg,
-                    transform: [{ scale: 1.1 }],
-                  },
+                  tab.isActive
+                    ? [styles.iconBadgeActive, { borderColor: color }]
+                    : null,
                 ]}
               >
-                <Image
-                  source={tab.image}
-                  style={styles.tabImage}
-                  contentFit="cover"
-                  transition={150}
-                />
+                {imageSrc ? (
+                  <Image
+                    source={imageSrc}
+                    style={[
+                      styles.tabImage,
+                      { opacity: tab.isActive ? 1 : 0.72 },
+                    ]}
+                    resizeMode="cover"
+                  />
+                ) : null}
               </View>
 
+              {/* Label */}
               <Text
                 style={[
                   styles.tabLabel,
-                  tab.isActive && { color: tab.color, fontWeight: '900' },
+                  tab.isActive && { color, fontWeight: '800' },
                 ]}
                 numberOfLines={1}
               >
-                {NAV_TAB_LABELS[tab.id]?.[language] || tab.labelEn}
+                {label}
               </Text>
-
-              {tab.isActive && (
-                <View style={[styles.activeDot, { backgroundColor: tab.color }]} />
-              )}
             </TouchableOpacity>
           );
         })}
@@ -234,7 +226,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: '#E8D9BF',
     ...SHADOWS.soft,
     zIndex: 999,
   },
@@ -244,44 +236,55 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingTop: 4,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
     paddingHorizontal: 4,
-    paddingBottom: Platform.OS === 'ios' ? 22 : 6,
     backgroundColor: '#FFFFFF',
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 3,
-    minHeight: 52,
+    justifyContent: 'flex-start',
+    minHeight: 56, // PRD: 56dp touch target for ages 4-9
+    paddingTop: 2,
+    position: 'relative',
+  },
+  activeBar: {
+    position: 'absolute',
+    top: 0,
+    left: '20%',
+    right: '20%',
+    height: 3,
+    borderRadius: 2,
   },
   iconBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+    marginBottom: 2,
     overflow: 'hidden',
     backgroundColor: '#F3F4F6',
     borderWidth: 1.5,
     borderColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  iconBadgeActive: {
+    transform: [{ scale: 1.1 }],
+    borderWidth: 2,
+    ...SHADOWS.soft,
   },
   tabImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 17,
   },
   tabLabel: {
     fontSize: 10.5,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#6B7280',
     textAlign: 'center',
-    marginTop: 2,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 2,
+    letterSpacing: 0.1,
   },
 });

@@ -1,16 +1,4 @@
 import { Language } from '../constants/i18n';
-import {
-  ANIMAL_MIRACLE_STORIES,
-  ANIMAL_KINDNESS_HADITHS,
-  ANIMAL_KINDNESS_SCENARIOS,
-  QURAN_ANIMALS_CATALOG,
-  GUESS_ANIMAL_ROUNDS,
-  AnimalMiracleStory,
-  QuranAnimalItem,
-  AnimalKindnessHadith,
-  AnimalKindnessScenario,
-  GuessAnimalRound,
-} from '../data/animalsData';
 
 // Hub UI Labels in 10 Languages
 export const HUB_LABELS: Record<string, Record<Language, string>> = {

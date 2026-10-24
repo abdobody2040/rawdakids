@@ -27,9 +27,8 @@ import {
   ANIMAL_KINDNESS_SCENARIOS,
   QURAN_ANIMALS_CATALOG,
   GUESS_ANIMAL_ROUNDS,
-  AnimalMiracleStory,
   QuranAnimalItem,
-} from '@/data/animalsData';
+} from "@/data/animalsData";
 import {
   getAnimalsHubLabel,
   getLocalizedAnimalStoryMeta,

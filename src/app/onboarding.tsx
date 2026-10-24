@@ -105,16 +105,17 @@ export default function OnboardingScreen() {
 
   const handleFinish = () => {
     const chosenName = childName.trim();
+    // ONB-2: store empty string when no nickname — home renders يا بطل / يا بطلة
     if (profiles.length === 1 && profiles[0].id === 'default-child') {
       addProfile({
-        name: chosenName || (language === 'ar' ? 'البطل' : 'Champion'),
+        name: chosenName, // empty string → home shows يا بطل
         ageBand: selectedAgeBand,
         avatar: selectedAvatar,
       });
       deleteProfile('default-child');
     } else {
       addProfile({
-        name: chosenName || (language === 'ar' ? 'البطل' : 'Champion'),
+        name: chosenName, // empty string → home shows يا بطل
         ageBand: selectedAgeBand,
         avatar: selectedAvatar,
       });

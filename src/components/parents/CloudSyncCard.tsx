@@ -1,5 +1,5 @@
 // src/components/parents/CloudSyncCard.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Language } from '@/constants/i18n';

@@ -1,5 +1,5 @@
 // src/components/parents/EncryptedBackupCard.tsx
-import React, { useState } from 'react';
+import { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Language } from '@/constants/i18n';

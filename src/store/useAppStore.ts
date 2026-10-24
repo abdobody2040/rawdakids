@@ -157,6 +157,12 @@ export interface AppState {
     showEnglishTranslation: boolean;
     showSimpleTafsir: boolean;
     translationSource: 'sahih' | 'clearquran' | 'abdelhaleem';
+    madhhab: 'hanafi' | 'maliki' | 'shafii' | 'hanbali';
+    prayerCity: string;
+    adhanAudioEnabled: boolean;
+    bedtimeLockEnabled: boolean;
+    bedtimeStart: string;
+    bedtimeEnd: string;
     pin: string;
     pinHash?: string;
     pinSalt?: string;
@@ -841,6 +847,12 @@ export const useAppStore = create<AppState>((set, get) => ({
       showEnglishTranslation: false,
       showSimpleTafsir: true,
       translationSource: 'sahih' as const,
+      madhhab: 'shafii' as const,
+      prayerCity: 'cairo',
+      adhanAudioEnabled: false,
+      bedtimeLockEnabled: false,
+      bedtimeStart: '20:30',
+      bedtimeEnd: '06:00',
       pin: '••••',
       pinHash: defaultCrypto.hash,
       pinSalt: defaultCrypto.salt,
@@ -1013,6 +1025,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         showEnglishTranslation: state.parentSettings.showEnglishTranslation,
         showSimpleTafsir: state.parentSettings.showSimpleTafsir,
         translationSource: state.parentSettings.translationSource,
+        madhhab: state.parentSettings.madhhab,
+        prayerCity: state.parentSettings.prayerCity,
+        adhanAudioEnabled: state.parentSettings.adhanAudioEnabled,
+        bedtimeLockEnabled: state.parentSettings.bedtimeLockEnabled,
+        bedtimeStart: state.parentSettings.bedtimeStart,
+        bedtimeEnd: state.parentSettings.bedtimeEnd,
         pin: '••••',
         pinHash: state.parentSettings.pinHash,
         pinSalt: state.parentSettings.pinSalt,
