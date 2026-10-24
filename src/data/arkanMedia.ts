@@ -74,21 +74,25 @@ export function getStepMedia(simMode: 'wudu' | 'prayer', stepNumber: number): an
   if (simMode === 'wudu') {
     switch (stepNumber) {
       case 1:
-        return ARKAN_IMAGES.wuduHands; // النية والتسمية وغسل الكفين
+        return ARKAN_IMAGES.wuduHands; // 1. النية في القلب
       case 2:
-        return ARKAN_IMAGES.wuduHands; // غسل اليدين ثلاثاً
+        return ARKAN_IMAGES.wuduHands; // 2. التسمية
       case 3:
-        return ARKAN_IMAGES.wuduMouth; // المضمضة ثلاثاً (ولد بيتمضمض بماء بيده)
+        return ARKAN_IMAGES.wuduHands; // 3. غسل الكفين ثلاثاً
       case 4:
-        return ARKAN_IMAGES.wuduNose; // الاستنشاق والاستنثار (بنت محجبة صغيرة بتغسل أنفها بالماء)
+        return ARKAN_IMAGES.wuduMouth; // 4. المضمضة ثلاثاً
       case 5:
-        return ARKAN_IMAGES.wuduFace; // غسل الوجه كاملاً (ولد صغير بيغسل وشه بالماء)
+        return ARKAN_IMAGES.wuduNose; // 5. الاستنشاق والاستنثار
       case 6:
-        return ARKAN_IMAGES.wuduArms; // غسل اليدين للمرفقين (طفل بيغسل بالماء لحد كوعه وهو مشمر هدومه)
+        return ARKAN_IMAGES.wuduFace; // 6. غسل الوجه (matches PDF Page 3)
       case 7:
-        return ARKAN_IMAGES.wuduHead; // مسح الرأس والأذنين (ولد صغير بيغسل شعره وأذنه بالماء)
+        return ARKAN_IMAGES.wuduArms; // 7. غسل اليدين للمرفقين
       case 8:
-        return ARKAN_IMAGES.wuduFeetChild; // غسل القدمين للكعبين (طفل بيغسل قدميه بالماء)
+        return ARKAN_IMAGES.wuduHead; // 8. مسح الرأس
+      case 9:
+        return ARKAN_IMAGES.wuduHead; // 9. مسح الأذنين
+      case 10:
+        return ARKAN_IMAGES.wuduFeetChild; // 10. غسل الرجلين للكعبين والدعاء
       default:
         return ARKAN_IMAGES.wuduHands;
     }

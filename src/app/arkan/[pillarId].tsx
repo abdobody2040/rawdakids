@@ -19,11 +19,7 @@ import {
   getPillarCategoryBadge,
   getPillarProofLabel,
   getPillarSimTab,
-  getPillarSimBadge,
-  getPillarStepCounter,
   getPillarDhikrLabel,
-  getPillarAudioBtnLabel,
-  getPillarNavBtnLabel,
   getPillarQuizTitle,
   getPillarClaimRewardText,
   getPillarCelebrationMeta,
@@ -53,10 +49,31 @@ export default function PillarDetailScreen() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [showCelebration, setShowCelebration] = useState(false);
   const [hasClaimedReward, setHasClaimedReward] = useState(false);
+  const [completedReps, setCompletedReps] = useState<Record<number, number[]>>({});
 
   const hasBothSims = Boolean(pillar.steps && pillar.prayerSteps);
   const activeSteps = (hasBothSims && simMode === 'prayer') ? (pillar.prayerSteps || []) : (pillar.steps || []);
   const currentStep = activeSteps[currentStepIdx] || activeSteps[0];
+
+  const maxReps = currentStep.reps || (simMode === 'wudu' ? ((currentStep.step === 8 || currentStep.step === 9 || currentStep.step === 1 || currentStep.step === 2) ? 1 : 3) : 1);
+  const currentStepReps = completedReps[currentStepIdx] || [];
+
+  const toggleRep = (stepIdx: number, repNum: number) => {
+    setCompletedReps((prev) => {
+      const current = prev[stepIdx] || [];
+      const next = current.includes(repNum)
+        ? current.filter((r) => r !== repNum)
+        : [...current, repNum];
+      return { ...prev, [stepIdx]: next };
+    });
+  };
+
+  const resetCurrentStepReps = () => {
+    setCompletedReps((prev) => ({
+      ...prev,
+      [currentStepIdx]: [],
+    }));
+  };
 
   const handlePlayStepAudio = () => {
     if (isPlayingStepAudio) {
@@ -64,7 +81,9 @@ export default function PillarDetailScreen() {
       setIsPlayingStepAudio(false);
       return;
     }
-    const textToPlay = isAr ? currentStep.dhikrAr : (currentStep.dhikrAr || currentStep.dhikrEn);
+    const textToPlay = isAr
+      ? (currentStep.dhikrAr || currentStep.descAr)
+      : (currentStep.dhikrAr || currentStep.descEn || currentStep.descAr);
     if (!textToPlay) return;
 
     setIsPlayingStepAudio(true);
@@ -193,46 +212,52 @@ export default function PillarDetailScreen() {
                 </View>
               )}
 
-              <View style={[styles.stepsHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <View style={styles.stepsBadge}>
-                  <Ionicons name={simMode === 'prayer' ? 'body' : 'water'} size={16} color="#0284C7" />
-                  <Text style={styles.stepsBadgeText}>
-                    {getPillarSimBadge(simMode, language)}
-                  </Text>
-                </View>
-                <Text style={styles.stepsCounterText}>
-                  {getPillarStepCounter(currentStepIdx + 1, activeSteps.length, language)}
-                </Text>
+              {/* 10 Top Progress Dots (PDF Page 3) */}
+              <View style={[styles.topProgressDotsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                {activeSteps.map((_, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.topProgressDot,
+                      idx < currentStepIdx && styles.topProgressDotCompleted,
+                      idx === currentStepIdx && styles.topProgressDotActive,
+                    ]}
+                  />
+                ))}
               </View>
 
-              {/* Step Display Area */}
-              <View style={styles.stepContentBox}>
-                <View style={styles.stepMediaBox}>
-                  <Image
-                    source={getStepMedia(simMode, currentStep.step)}
-                    style={styles.stepMediaImage}
-                    resizeMode="contain"
-                  />
-                  <View
-                    style={[
-                      styles.stepMediaBadge,
-                      { [isRtl ? 'left' : 'right']: 12 },
-                    ]}
-                  >
-                    <Ionicons
-                      name={simMode === 'prayer' ? 'body' : 'water'}
-                      size={13}
-                      color="#0284C7"
-                    />
-                    <Text style={styles.stepMediaBadgeText}>
-                      {getPillarStepCounter(currentStep.step, activeSteps.length, language)}
-                    </Text>
-                  </View>
+              {/* Step Display Area: Hero Scene */}
+              <View style={styles.wuduHeroScene}>
+                <Image
+                  source={getStepMedia(simMode, currentStep.step)}
+                  style={styles.wuduHeroImage}
+                  resizeMode="contain"
+                />
+
+                {/* Reps Pill Badge (PDF Page 3: "٣ مَرَّاتٍ") */}
+                <View style={[styles.repsPill, { [isRtl ? 'right' : 'left']: 12 }]}>
+                  <Ionicons name="water" size={13} color="#FFFFFF" />
+                  <Text style={styles.repsPillText}>
+                    {isAr ? (currentStep.repsAr || `${maxReps} مَرَّاتٍ`) : (currentStep.repsEn || `${maxReps} Times`)}
+                  </Text>
                 </View>
-                <Text style={styles.stepTitle}>
+
+                {/* Step Counter Pill Badge (PDF Page 3: "الْخُطْوَةُ ٦ مِنْ ١٠") */}
+                <View style={[styles.stepCountPill, { [isRtl ? 'left' : 'right']: 12 }]}>
+                  <Text style={styles.stepCountPillText}>
+                    {isAr
+                      ? `الْخُطْوَةُ ${currentStep.step} مِنْ ${activeSteps.length}`
+                      : `Step ${currentStep.step} of ${activeSteps.length}`}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Step Instruction Card */}
+              <View style={styles.wuduInstructionCard}>
+                <Text style={[styles.wuduStepTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
                   {isAr ? currentStep.titleAr : currentStep.titleEn}
                 </Text>
-                <Text style={[styles.stepDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
+                <Text style={[styles.wuduStepDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
                   {isAr ? currentStep.descAr : currentStep.descEn}
                 </Text>
 
@@ -248,105 +273,102 @@ export default function PillarDetailScreen() {
                     <Text style={[styles.dhikrText, { textAlign: isRtl ? 'right' : 'left' }]}>
                       «{isAr ? currentStep.dhikrAr : (currentStep.dhikrEn || currentStep.dhikrAr)}»
                     </Text>
-
-                    {/* Listen to Step Dhikr Audio */}
-                    <TouchableOpacity
-                      style={[styles.playAudioBtn, isPlayingStepAudio && styles.playAudioBtnActive]}
-                      onPress={handlePlayStepAudio}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons
-                        name={isPlayingStepAudio ? 'stop-circle' : 'volume-high'}
-                        size={16}
-                        color={isPlayingStepAudio ? '#DC2626' : '#059669'}
-                      />
-                      <Text
-                        style={[
-                          styles.playAudioBtnText,
-                          isPlayingStepAudio && { color: '#DC2626' },
-                        ]}
-                      >
-                        {getPillarAudioBtnLabel(isPlayingStepAudio, language)}
-                      </Text>
-                    </TouchableOpacity>
                   </View>
                 )}
-              </View>
 
-              {/* Step Navigation Controls */}
-              <View style={[styles.stepNavRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <TouchableOpacity
-                  style={[
-                    styles.stepNavBtn,
-                    currentStepIdx === 0 && styles.stepNavBtnDisabled,
-                  ]}
-                  onPress={() => {
-                    audioService.stopDua();
-                    setIsPlayingStepAudio(false);
-                    setCurrentStepIdx((prev) => Math.max(0, prev - 1));
-                  }}
-                  disabled={currentStepIdx === 0}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons
-                    name={isRtl ? 'arrow-forward' : 'arrow-back'}
-                    size={16}
-                    color={currentStepIdx === 0 ? '#9CA3AF' : '#1F2937'}
-                  />
-                  <Text
-                    style={[
-                      styles.stepNavBtnText,
-                      currentStepIdx === 0 && { color: '#9CA3AF' },
-                    ]}
+                {/* Interactive Repetition Checklist (PDF Page 3: "اِضْغَطْ بَعْدَ كُلِّ مَرَّةٍ") */}
+                {maxReps > 1 && (
+                  <View style={styles.repChecklistWrap}>
+                    <Text style={[styles.repChecklistHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+                      {isAr ? 'اِضْغَطْ بَعْدَ كُلِّ مَرَّةٍ:' : 'Tap after each repetition:'}
+                    </Text>
+                    <View style={[styles.repDropsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                      {Array.from({ length: maxReps }, (_, i) => i + 1).map((repNum) => {
+                        const isDone = currentStepReps.includes(repNum);
+                        return (
+                          <TouchableOpacity
+                            key={repNum}
+                            style={[styles.dropBtn, isDone && styles.dropBtnDone]}
+                            onPress={() => toggleRep(currentStepIdx, repNum)}
+                            activeOpacity={0.8}
+                          >
+                            <Ionicons
+                              name={isDone ? 'checkmark-circle' : 'water'}
+                              size={18}
+                              color={isDone ? '#10B981' : '#0284C7'}
+                            />
+                            <Text style={[styles.dropBtnText, isDone && styles.dropBtnTextDone]}>
+                              {isDone ? (isAr ? '✓' : '✓') : `${repNum}`}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                )}
+
+                {/* Secondary Action buttons: Listen & Reset (PDF Page 3) */}
+                <View style={[styles.wuduActionsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <TouchableOpacity
+                    style={[styles.wuduSecActionBtn, isPlayingStepAudio && styles.wuduSecActionBtnActive]}
+                    onPress={handlePlayStepAudio}
+                    activeOpacity={0.8}
                   >
-                    {getPillarNavBtnLabel('prev', language)}
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Dots indicator */}
-                <View style={styles.dotsRow}>
-                  {activeSteps.map((_, idx) => (
-                    <View
-                      key={idx}
-                      style={[
-                        styles.dot,
-                        idx === currentStepIdx && styles.dotActive,
-                      ]}
-                    />
-                  ))}
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.stepNavBtn,
-                    styles.stepNavBtnPrimary,
-                    currentStepIdx === activeSteps.length - 1 && styles.stepNavBtnDone,
-                  ]}
-                  onPress={() => {
-                    audioService.stopDua();
-                    setIsPlayingStepAudio(false);
-                    if (currentStepIdx < activeSteps.length - 1) {
-                      setCurrentStepIdx((prev) => prev + 1);
-                    }
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.stepNavBtnPrimaryText}>
-                    {currentStepIdx === activeSteps.length - 1
-                      ? (simMode === 'prayer'
-                          ? getPillarNavBtnLabel('prayerDone', language)
-                          : getPillarNavBtnLabel('wuduDone', language))
-                      : getPillarNavBtnLabel('next', language)}
-                  </Text>
-                  {currentStepIdx < activeSteps.length - 1 && (
                     <Ionicons
-                      name={isRtl ? 'arrow-back' : 'arrow-forward'}
+                      name={isPlayingStepAudio ? 'stop-circle' : 'volume-high'}
                       size={16}
-                      color="#FFFFFF"
+                      color={isPlayingStepAudio ? '#DC2626' : '#0284C7'}
                     />
-                  )}
-                </TouchableOpacity>
+                    <Text style={[styles.wuduSecActionText, isPlayingStepAudio && { color: '#DC2626' }]}>
+                      {isAr ? 'اِسْتَمِعْ 🔊' : 'Listen 🔊'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.wuduSecActionBtn}
+                    onPress={resetCurrentStepReps}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="refresh" size={16} color="#6B7280" />
+                    <Text style={styles.wuduSecActionText}>
+                      {isAr ? 'أَعِدِ الْخُطْوَةَ 🔄' : 'Reset 🔄'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+
+              {/* Big Primary Coral Button (PDF Page 3: "أَنَا فَعَلْتُهَا! ✓") */}
+              <TouchableOpacity
+                style={styles.wuduPrimaryCoralBtn}
+                onPress={() => {
+                  audioService.stopDua();
+                  setIsPlayingStepAudio(false);
+                  if (currentStepIdx < activeSteps.length - 1) {
+                    setCurrentStepIdx((prev) => prev + 1);
+                  } else {
+                    handleFinishQuiz();
+                  }
+                }}
+                activeOpacity={0.88}
+              >
+                <LinearGradient
+                  colors={['#F26B4F', '#E85535']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={[styles.wuduPrimaryCoralInner, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+                >
+                  <Text style={styles.wuduPrimaryCoralText}>
+                    {currentStepIdx === activeSteps.length - 1
+                      ? (isAr ? 'أَتْمَمْتُ الْوُضُوءَ كَامِلًا! 🎉' : 'Completed Wudu! 🎉')
+                      : (isAr ? 'أَنَا فَعَلْتُهَا! ✓' : 'I did it! ✓')}
+                  </Text>
+                  <Ionicons
+                    name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                    size={22}
+                    color="#FFFFFF"
+                  />
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -696,104 +718,198 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#6B7280',
   },
-  stepContentBox: {
+  // Top 10 Progress Dots (PDF Page 3)
+  topProgressDotsRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
+    justifyContent: 'center',
+    gap: 6,
     marginBottom: SPACING.md,
+    paddingHorizontal: SPACING.sm,
   },
-  stepMediaBox: {
+  topProgressDot: {
+    flex: 1,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E2E8F0',
+  },
+  topProgressDotActive: {
+    backgroundColor: '#0284C7',
+    flex: 1.8,
+  },
+  topProgressDotCompleted: {
+    backgroundColor: '#10B981',
+  },
+
+  // Wudu Hero Scene Card (PDF Page 3)
+  wuduHeroScene: {
     width: '100%',
     height: 250,
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
-    marginBottom: SPACING.md,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F0F9FF',
     borderWidth: 2,
     borderColor: '#BAE6FD',
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: SPACING.md,
     ...SHADOWS.medium,
   },
-  stepMediaImage: {
+  wuduHeroImage: {
     width: '100%',
     height: '100%',
   },
-  stepMediaGradient: {
+  repsPill: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 60,
-  },
-  stepMediaBadge: {
-    position: 'absolute',
-    top: 10,
+    top: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
+    backgroundColor: '#059669',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    ...SHADOWS.soft,
+  },
+  repsPillText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  stepCountPill: {
+    position: 'absolute',
+    top: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: RADIUS.full,
     borderWidth: 1,
     borderColor: '#BAE6FD',
     ...SHADOWS.soft,
   },
-  stepMediaBadgeText: {
-    fontSize: 11,
+  stepCountPillText: {
+    fontSize: 12,
     fontWeight: '800',
     color: '#0369A1',
   },
-  stepTitle: {
-    fontSize: 16,
+
+  // Wudu Instruction Card (PDF Page 3)
+  wuduInstructionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    marginBottom: SPACING.lg,
+    ...SHADOWS.soft,
+  },
+  wuduStepTitle: {
+    fontSize: 22,
     fontWeight: '900',
-    color: COLORS.text,
-    marginBottom: 6,
-    textAlign: 'center',
+    color: COLORS.ink900,
+    marginBottom: 8,
   },
-  stepDesc: {
+  wuduStepDesc: {
+    fontSize: 15,
+    color: '#374151',
+    lineHeight: 24,
+    marginBottom: SPACING.md,
+  },
+
+  // Interactive Repetition Checklist
+  repChecklistWrap: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: '#BBF7D0',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  repChecklistHeading: {
     fontSize: 13,
-    color: '#4B5563',
-    lineHeight: 20,
+    fontWeight: '800',
+    color: '#166534',
+    marginBottom: 10,
   },
-  stepNavRow: {
+  repDropsRow: {
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 12,
   },
-  stepNavBtn: {
+  dropBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.md,
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+    ...SHADOWS.soft,
+  },
+  dropBtnDone: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#86EFAC',
+  },
+  dropBtnText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#0369A1',
+  },
+  dropBtnTextDone: {
+    color: '#15803D',
+  },
+
+  // Wudu Secondary Actions
+  wuduActionsRow: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  wuduSecActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    backgroundColor: '#F8FAFC',
     borderRadius: RADIUS.lg,
-    backgroundColor: '#F3F4F6',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
   },
-  stepNavBtnDisabled: {
-    opacity: 0.5,
+  wuduSecActionBtnActive: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FCA5A5',
   },
-  stepNavBtnText: {
-    fontSize: 12,
+  wuduSecActionText: {
+    fontSize: 13,
     fontWeight: '800',
     color: '#1F2937',
   },
-  stepNavBtnPrimary: {
-    backgroundColor: '#0284C7',
+
+  // Big Primary Coral Button (PDF Page 3)
+  wuduPrimaryCoralBtn: {
+    width: '100%',
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
+    ...SHADOWS.medium,
   },
-  stepNavBtnDone: {
-    backgroundColor: '#059669',
+  wuduPrimaryCoralInner: {
+    paddingVertical: 16,
+    paddingHorizontal: SPACING.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
   },
-  stepNavBtnPrimaryText: {
-    fontSize: 12,
-    fontWeight: '800',
+  wuduPrimaryCoralText: {
+    fontSize: 18,
+    fontWeight: '900',
     color: '#FFFFFF',
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    gap: 4,
+    letterSpacing: 0.3,
   },
   dot: {
     width: 6,

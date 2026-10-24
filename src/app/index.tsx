@@ -40,6 +40,8 @@ const WORLD_IMAGES: Record<string, any> = {
   wonder:   require('../../assets/images/tafakkur-world.jpg'),
 };
 
+const MASCOT_NOOR_IMG = require('../../assets/images/mascot-noor.jpg');
+
 
 // ── Daily step data ───────────────────────────────────────────────────────
 interface DailyStep {
@@ -55,7 +57,7 @@ interface DailyStep {
 const DAILY_STEPS: DailyStep[] = [
   {
     id: 'listen',
-    labelAr: 'استمع',
+    labelAr: 'اِسْتَمِعْ',
     labelEn: 'Listen',
     icon: 'headset',
     color: '#059669',
@@ -64,7 +66,7 @@ const DAILY_STEPS: DailyStep[] = [
   },
   {
     id: 'learn',
-    labelAr: 'تعلّم',
+    labelAr: 'تَعَلَّمْ',
     labelEn: 'Learn',
     icon: 'book-outline',
     color: '#7C3AED',
@@ -73,16 +75,16 @@ const DAILY_STEPS: DailyStep[] = [
   },
   {
     id: 'practice',
-    labelAr: 'طبّق',
+    labelAr: 'طَبِّقْ',
     labelEn: 'Practice',
-    icon: 'flower-outline',
+    icon: 'star-outline',
     color: '#0284C7',
     bg: '#E0F2FE',
-    route: '/arkan/salah',
+    route: '/arkan/salah?mode=wudu',
   },
 ];
 
-// ── Six Worlds (PRD §5, mapping from 13 cards) ────────────────────────────
+// ── Six Worlds (PDF Page 2: عوالمنا) ───────────────────────────────────────
 interface World {
   id: string;
   titleAr: string;
@@ -98,9 +100,9 @@ interface World {
 const SIX_WORLDS: World[] = [
   {
     id: 'quran',
-    titleAr: 'حديقة القرآن',
+    titleAr: 'حَدِيقَةُ الْقُرْآنِ',
     titleEn: 'Quran Garden',
-    subtitleAr: '١١٤ سورة مباركة',
+    subtitleAr: '١١٤ سُورَةً مُبَارَكَةً',
     subtitleEn: '114 Surahs',
     route: '/quran',
     accent: '#059669',
@@ -108,9 +110,9 @@ const SIX_WORLDS: World[] = [
   },
   {
     id: 'worship',
-    titleAr: 'العبادة',
+    titleAr: 'الْعِبَادَةُ',
     titleEn: 'Worship',
-    subtitleAr: 'الوضوء والصلاة والأذكار',
+    subtitleAr: 'الْوُضُوءُ وَالصَّلَاةُ وَالْأَذْكَارُ',
     subtitleEn: 'Wudu, Prayer & Adhkar',
     route: '/prayer',
     accent: '#0284C7',
@@ -118,9 +120,9 @@ const SIX_WORLDS: World[] = [
   },
   {
     id: 'stories',
-    titleAr: 'القصص',
+    titleAr: 'الْقِصَصُ',
     titleEn: 'Stories',
-    subtitleAr: 'الأنبياء والصحابة والسيرة',
+    subtitleAr: 'الْأَنْبِيَاءُ وَالصَّحَابَةُ وَالسِّيرَةُ',
     subtitleEn: 'Prophets, Companions, Seerah',
     route: '/prophets',
     accent: '#7C3AED',
@@ -128,9 +130,9 @@ const SIX_WORLDS: World[] = [
   },
   {
     id: 'akhlaq',
-    titleAr: 'الأخلاق والسنّة',
+    titleAr: 'الْأَخْلَاقُ وَالسُّنَّةُ',
     titleEn: 'Character & Sunnah',
-    subtitleAr: '١٠٠ حديث نبوي وأخلاق',
+    subtitleAr: '١٠٠ حَدِيثٍ نَبَوِيٍّ وَأَخْلَاقٍ',
     subtitleEn: '100 Hadiths & Manners',
     route: '/manners',
     accent: '#D97706',
@@ -138,9 +140,9 @@ const SIX_WORLDS: World[] = [
   },
   {
     id: 'asmaAllah',
-    titleAr: 'أسماء الله',
+    titleAr: 'أَسْمَاءُ اللَّهِ',
     titleEn: 'Names of Allah',
-    subtitleAr: '٩٩ اسماً مباركاً — واحد كل يوم',
+    subtitleAr: '٩٩ اسْمًا مُبَارَكًا — وَاحِدٌ كُلَّ يَوْمٍ',
     subtitleEn: '99 Names — one per day',
     route: '/asma-allah',
     accent: '#5B21B6',
@@ -148,9 +150,9 @@ const SIX_WORLDS: World[] = [
   },
   {
     id: 'wonder',
-    titleAr: 'التفكّر',
+    titleAr: 'التَّفَكُّرُ',
     titleEn: 'Wonder',
-    subtitleAr: 'آيات الله في الكون والحياة',
+    subtitleAr: 'آيَاتُ اللَّهِ فِي الْكَوْنِ وَالْحَيَاةِ',
     subtitleEn: 'Signs of Allah in creation',
     route: '/tafakkur',
     accent: '#0369A1',
@@ -191,6 +193,7 @@ export default function HomeScreen() {
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [isPrayerStripDismissed, setIsPrayerStripDismissed] = useState(false);
+  const [isPlayingMascot, setIsPlayingMascot] = useState(false);
 
   const prayerData = useMemo(() => {
     return getPrayerTimesForCity(
@@ -273,12 +276,43 @@ export default function HomeScreen() {
       ageBand: '7-9' as const,
     };
 
-  // ONB-2: No hard-coded name — use يا بطل / يا بطلة when name is empty
-  const displayName = activeProfile.name?.trim()
+  const toEasternArabic = (val: number | string) => {
+    return String(val).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d, 10)]);
+  };
+
+  const isValidNickname = (name?: string) => {
+    if (!name) return false;
+    const clean = name.trim();
+    if (clean.length < 2 || clean.length > 15) return false;
+    if (/^(dfd|asdf|test|abc|xyz)$/i.test(clean)) return false;
+    return /^[\p{L}\s]+$/u.test(clean);
+  };
+
+  const isGirl = activeProfile?.avatar?.includes('girl') || activeProfile?.avatar?.includes('female');
+
+  // PRD §18 Finding 2: Validate nicknames and fallback to يا بطل or يا بطلة
+  const displayName = isValidNickname(activeProfile.name)
     ? activeProfile.name
-    : (isAr ? 'يا بطل' : 'Friend');
+    : (isAr ? (isGirl ? 'يَا بَطَلَةُ 🌸' : 'يَا بَطَلُ 🌿') : 'Friend');
 
   const ageBand = activeProfile?.ageBand || '7-9';
+
+  const handlePlayMascotGreeting = async () => {
+    if (isPlayingMascot) {
+      await audioService.stopDua();
+      setIsPlayingMascot(false);
+      return;
+    }
+    setIsPlayingMascot(true);
+    const speech = isAr
+      ? 'هَيَّا نَتَعَلَّمْ مَعًا! أَهْلًا يَا صَدِيقِي الصَّغِيرَ، اخْتَرْ زِرًّا كَبِيرًا لِنَبْدَأَ رِحْلَتَنَا الْمُبَارَكَةَ'
+      : 'Welcome little friend! Tap a big tile to listen, pray, and explore together';
+    await audioService.playDua(speech, (status) => {
+      if (status.didJustFinish || !status.isPlaying) {
+        setIsPlayingMascot(false);
+      }
+    });
+  };
 
   // AGE-2: Hide 9+ content from profiles younger than 10
   const canSeeAgedContent = ageBand === '10-13';
@@ -324,32 +358,34 @@ export default function HomeScreen() {
               >
                 <View style={styles.avatarWrapper}>
                   <KidAvatar avatar={activeProfile.avatar} size={44} />
-                  <View style={styles.avatarOnlineDot} />
                 </View>
                 <View style={[styles.greetingCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
                   <Text style={[styles.greetingSub, { textAlign: isAr ? 'right' : 'left' }]}>
-                    {isAr ? 'السلام عليكم 🌿' : 'As-salamu alaykum 🌿'}
+                    {isAr ? 'السَّلَامُ عَلَيْكُمْ' : 'As-salamu alaykum 🌿'}
                   </Text>
                   <Text style={[styles.greetingMain, { textAlign: isAr ? 'right' : 'left' }]}>
-                    {(t as any).welcomePrefix || (isAr ? 'أهلاً يا ' : 'Welcome, ')}
-                    <Text style={styles.greetingName}>{displayName}</Text>
+                    {isAr
+                      ? (isValidNickname(activeProfile.name) ? `أَهْلًا ${activeProfile.name}` : `أَهْلًا ${displayName}`)
+                      : `Welcome, ${displayName}`}
                   </Text>
                 </View>
               </TouchableOpacity>
 
-              {/* Right actions: Streak sprout + Search + Lang + Parent */}
+              {/* Right actions: Streak sprout + Search + Parent */}
               <View style={[styles.headerActions, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                {/* Streak (sprout icon, not flame) */}
+                {/* Sprout Streak: "٣ 🌱" per PDF Page 1 & 2 */}
                 <TouchableOpacity
                   style={styles.streakChip}
                   onPress={() => router.push('/progress')}
                   activeOpacity={0.8}
+                  accessibilityLabel={isAr ? `أيام متتالية: ${streakCount}` : `Streak: ${streakCount}`}
                 >
-                  <Ionicons name="leaf" size={14} color="#16A34A" />
-                  <Text style={styles.streakText}>{streakCount}</Text>
+                  <Text style={styles.streakText}>
+                    {isAr ? `${toEasternArabic(streakCount)} 🌱` : `${streakCount} 🌱`}
+                  </Text>
                 </TouchableOpacity>
 
-                {/* Search icon (hidden for 4-6 per PRD §7.2) */}
+                {/* Search icon (hidden for 4-6 per PRD §7.2 & Finding 1) */}
                 {ageBand !== '4-6' && (
                   <TouchableOpacity
                     style={styles.iconBtn}
@@ -361,17 +397,19 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 )}
 
-                {/* Language */}
-                <TouchableOpacity
-                  style={styles.iconBtn}
-                  onPress={() => setShowLanguageModal(true)}
-                  activeOpacity={0.8}
-                  accessibilityLabel={isAr ? 'اللغة' : 'Language'}
-                >
-                  <Text style={styles.flagText}>
-                    {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
-                  </Text>
-                </TouchableOpacity>
+                {/* Language (hidden for 4-6 mode per PRD §18 Finding 1) */}
+                {ageBand !== '4-6' && (
+                  <TouchableOpacity
+                    style={styles.iconBtn}
+                    onPress={() => setShowLanguageModal(true)}
+                    activeOpacity={0.8}
+                    accessibilityLabel={isAr ? 'اللغة' : 'Language'}
+                  >
+                    <Text style={styles.flagText}>
+                      {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 {/* Parent zone (lock icon) */}
                 <TouchableOpacity
@@ -385,22 +423,24 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {/* Row 2: Date pill (phones only show on wide, always in parent zone) */}
-            <View style={[styles.datePillRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <View style={styles.datePill}>
-                <Ionicons name="calendar-outline" size={12} color="#16A34A" />
-                <Text style={styles.dateText}>{todayDateStr}</Text>
+            {/* Row 2: Date pill & Profile switcher (HIDDEN for 4-6 mode per PRD §18 Finding 1 & PDF Page 1) */}
+            {ageBand !== '4-6' && (
+              <View style={[styles.datePillRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={styles.datePill}>
+                  <Ionicons name="calendar-outline" size={12} color="#16A34A" />
+                  <Text style={styles.dateText}>{todayDateStr}</Text>
+                </View>
+                {/* Profile switch */}
+                <TouchableOpacity
+                  style={styles.switchBtn}
+                  onPress={() => setShowProfileSwitcher(true)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="swap-horizontal" size={13} color="#064E3B" />
+                  <Text style={styles.switchBtnText}>{t.switchProfile}</Text>
+                </TouchableOpacity>
               </View>
-              {/* Profile switch */}
-              <TouchableOpacity
-                style={styles.switchBtn}
-                onPress={() => setShowProfileSwitcher(true)}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="swap-horizontal" size={13} color="#064E3B" />
-                <Text style={styles.switchBtnText}>{t.switchProfile}</Text>
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
 
           {/* ── BLOCK 2: BISMILLAH BANNER ──────────────────────────────── */}
@@ -511,11 +551,11 @@ export default function HomeScreen() {
               {/* Center: label */}
               <View style={[styles.continueMid, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
                 <Text style={[styles.continueLabel, { textAlign: isAr ? 'right' : 'left' }]}>
-                  {isAr ? 'كمل من حيث توقفت' : 'Continue where you left off'}
+                  {isAr ? 'كَمِّلْ مِنْ حَيْثُ تَوَقَّفْتَ' : 'Continue where you left off'}
                 </Text>
                 <Text style={[styles.continueSub, { textAlign: isAr ? 'right' : 'left' }]}>
                   {isAr
-                    ? `المصحف — صفحة ${lastReadMushafPage || 1}`
+                    ? `الْمُصْحَفُ — صَفْحَةُ ${toEasternArabic(lastReadMushafPage || 1)}`
                     : `Mushaf — page ${lastReadMushafPage || 1}`}
                 </Text>
               </View>
@@ -529,27 +569,40 @@ export default function HomeScreen() {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* ── AGES 4–6: THREE HUGE TILES (PRD §7.2) vs AGES 7–12 REGULAR BLOCKS ── */}
+          {/* ── AGES 4–6: THREE HUGE TILES (PDF Page 1) vs AGES 7–12 (PDF Page 2) ── */}
           {ageBand === '4-6' ? (
             <View style={styles.seedlingSection}>
-              {/* Mascot voice prompt */}
+              {/* Mascot voice prompt card (PDF Page 1) */}
               <View style={[styles.mascotVoiceCard, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                 <View style={styles.mascotVoiceAvatar}>
-                  <Text style={{ fontSize: 32 }}>🏮</Text>
+                  <Image source={MASCOT_NOOR_IMG} style={styles.mascotVoiceImg} resizeMode="cover" />
                 </View>
                 <View style={[styles.mascotVoiceTexts, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
                   <Text style={styles.mascotVoiceTitle}>
-                    {isAr ? 'صديقك نور المحبوب يقول لك:' : 'Noor the Mascot says to you:'}
+                    {isAr ? 'هَيَّا نَتَعَلَّمْ مَعًا!' : 'Let’s learn together!'}
                   </Text>
                   <Text style={[styles.mascotVoiceSpeech, { textAlign: isAr ? 'right' : 'left' }]}>
                     {isAr
-                      ? 'أهلاً يا صديقي الصغير! 🎈 اختر زراً كبيراً لنستمع ونلعب ونتعلم معاً 🌸'
-                      : 'Welcome little friend! 🎈 Tap a big tile to listen, pray, and play together 🌸'}
+                      ? 'أَهْلًا يَا صَدِيقِي! اخْتَرْ زِرًّا لِنَبْدَأَ رِحْلَتَنَا 🌸'
+                      : 'Welcome little friend! Tap a big tile to begin our journey 🌸'}
                   </Text>
                 </View>
+                {/* Audio speaker button (PDF Page 1) */}
+                <TouchableOpacity
+                  style={[styles.mascotSpeakerBtn, isPlayingMascot && styles.mascotSpeakerBtnActive]}
+                  onPress={handlePlayMascotGreeting}
+                  activeOpacity={0.8}
+                  accessibilityLabel={isAr ? 'استمع إلى نور' : 'Listen to Noor'}
+                >
+                  <Ionicons
+                    name={isPlayingMascot ? 'stop-circle' : 'volume-high'}
+                    size={22}
+                    color={isPlayingMascot ? '#DC2626' : '#16A34A'}
+                  />
+                </TouchableOpacity>
               </View>
 
-              {/* 3 Huge Action Tiles */}
+              {/* 3 Huge Action Tiles (PDF Page 1: no emoji in titles, high contrast) */}
               <View style={styles.seedlingTilesRow}>
                 {/* Tile 1: Listen & Repeat */}
                 <TouchableOpacity
@@ -563,10 +616,10 @@ export default function HomeScreen() {
                   >
                     <Ionicons name="headset" size={44} color="#FFFFFF" />
                     <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'استمع وردد 🎧' : 'Listen & Repeat 🎧'}
+                      {isAr ? 'اِسْتَمِعْ وَرَدِّدْ' : 'Listen & Repeat'}
                     </Text>
                     <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'قصار السور بصوت الشيخ والترديد' : 'Short Surahs with joyful recitation'}
+                      {isAr ? 'قِصَارُ السُّوَرِ بِصَوْتِ الشَّيْخِ' : 'Short Surahs with joyful recitation'}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -574,7 +627,7 @@ export default function HomeScreen() {
                 {/* Tile 2: Pray & Wudu */}
                 <TouchableOpacity
                   style={styles.seedlingTile}
-                  onPress={() => router.push('/prayer' as any)}
+                  onPress={() => router.push('/arkan/salah?mode=wudu' as any)}
                   activeOpacity={0.88}
                 >
                   <LinearGradient
@@ -583,15 +636,15 @@ export default function HomeScreen() {
                   >
                     <Ionicons name="water" size={44} color="#FFFFFF" />
                     <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'صلاتي ووضوئي 💧' : 'My Prayer & Wudu 💧'}
+                      {isAr ? 'صَلَاتِي وَوُضُوئِي' : 'My Prayer & Wudu'}
                     </Text>
                     <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'تعلم الوضوء والصلاة خطوة بخطوة' : 'Learn Wudu & Prayer step by step'}
+                      {isAr ? 'تَعَلَّمِ الْوُضُوءَ وَالصَّلَاةَ خُطْوَةً خُطْوَةً' : 'Learn Wudu & Prayer step by step'}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
 
-                {/* Tile 3: Play & Learn */}
+                {/* Tile 3: Stories & Wonders (PRD §18 Finding 6 & PDF Page 1) */}
                 <TouchableOpacity
                   style={styles.seedlingTile}
                   onPress={() => router.push('/discover' as any)}
@@ -603,10 +656,10 @@ export default function HomeScreen() {
                   >
                     <Ionicons name="sparkles" size={44} color="#FFFFFF" />
                     <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'العب وتعلم 🎈' : 'Play & Learn 🎈'}
+                      {isAr ? 'قِصَصٌ وَعَجَائِبُ' : 'Stories & Wonders'}
                     </Text>
                     <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'قصص الأنبياء وحيوانات القرآن' : 'Prophets stories & Quran animals'}
+                      {isAr ? 'قِصَصُ الْأَنْبِيَاءِ وَحَيَوَانَاتِ الْقُرْآنِ' : 'Prophets stories & Quran animals'}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -614,138 +667,140 @@ export default function HomeScreen() {
             </View>
           ) : (
             <>
-              {/* ── BLOCK 4: TODAY'S 3 STEPS ─────────────────────────────────── */}
+              {/* ── BLOCK 4: TODAY'S 3 STEPS (PDF Page 2) ───────────────────── */}
               <View style={styles.stepsSection}>
-            <View style={[styles.stepsSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              {/* Progress ring summary */}
-              <View style={styles.stepsRingWrap}>
-                <View style={[styles.stepsRing, { borderColor: completedCount === 3 ? '#16A34A' : '#E8D9BF' }]}>
-                  <Text style={styles.stepsRingCount}>{completedCount}</Text>
-                  <Text style={styles.stepsRingTotal}>/3</Text>
-                </View>
-              </View>
-              <View style={[{ flex: 1 }, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
-                <Text style={[styles.stepsSectionTitle, { textAlign: isAr ? 'right' : 'left' }]}>
-                  {isAr ? 'خطوات اليوم الثلاث' : "Today's 3 steps"}
-                </Text>
-                <Text style={[styles.stepsSectionSub, { textAlign: isAr ? 'right' : 'left' }]}>
-                  {completedCount === 3
-                    ? (isAr ? 'ما شاء الله! أكملت اليوم! 🌱' : 'MashaAllah! Day complete! 🌱')
-                    : (isAr ? 'اكتشف خطوة جديدة' : 'Discover a new step')}
-                </Text>
-              </View>
-            </View>
-
-            {/* Three step tiles */}
-            <View style={styles.stepsTiles}>
-              {DAILY_STEPS.map((step) => {
-                const done = completedSteps.has(step.id);
-                return (
-                  <TouchableOpacity
-                    key={step.id}
-                    style={[
-                      styles.stepTile,
-                      { backgroundColor: done ? step.bg : '#FFFFFF', borderColor: done ? step.color + '44' : '#E8D9BF' },
-                    ]}
-                    onPress={() => handleStepTap(step)}
-                    activeOpacity={0.8}
-                  >
-                    <View style={[styles.stepTileIcon, { backgroundColor: step.bg }]}>
-                      <Ionicons
-                        name={done ? 'checkmark-circle' : step.icon}
-                        size={22}
-                        color={done ? '#16A34A' : step.color}
-                      />
+                <View style={[styles.stepsSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  {/* Progress ring summary */}
+                  <View style={styles.stepsRingWrap}>
+                    <View style={[styles.stepsRing, { borderColor: completedCount === 3 ? '#16A34A' : '#E8D9BF' }]}>
+                      <Text style={styles.stepsRingCount}>{isAr ? toEasternArabic(completedCount) : completedCount}</Text>
+                      <Text style={styles.stepsRingTotal}>{isAr ? '/٣' : '/3'}</Text>
                     </View>
-                    <Text style={[styles.stepTileLabel, { color: done ? '#16A34A' : COLORS.ink900 }]}>
-                      {isAr ? step.labelAr : step.labelEn}
+                  </View>
+                  <View style={[{ flex: 1 }, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+                    <Text style={[styles.stepsSectionTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                      {isAr ? 'خُطُوَاتُ الْيَوْمِ الثَّلَاثُ' : "Today's 3 steps"}
                     </Text>
-                    {done && (
-                      <View style={styles.stepDoneSprout}>
-                        <Ionicons name="leaf" size={10} color="#16A34A" />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
+                    <Text style={[styles.stepsSectionSub, { textAlign: isAr ? 'right' : 'left' }]}>
+                      {completedCount === 3
+                        ? (isAr ? 'ما شاء الله! أكملت خطوات اليوم! 🌱' : 'MashaAllah! Day complete! 🌱')
+                        : (isAr ? `${toEasternArabic(completedCount)} مِنْ ٣ خُطُوَاتٍ` : `${completedCount} of 3 steps`)}
+                    </Text>
+                  </View>
+                </View>
 
-          {/* ── BLOCK 5: HADITH OF THE DAY (collapsed card) ─────────────── */}
-          <View style={styles.hadithCard}>
-            <LinearGradient
-              colors={['#FFFBF0', '#FFF3D4']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.hadithCardInner}
-            >
-              {/* Header row */}
-              <View style={[styles.hadithHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                <Text style={styles.hadithLabel}>
-                  {isAr ? 'حديث اليوم المبارك' : 'Hadith of the Day'}
-                </Text>
-                <View style={styles.hadithGradePill}>
-                  <Text style={styles.hadithGradeText}>{hadithOfTheDay.grade}</Text>
+                {/* Three step tiles */}
+                <View style={styles.stepsTiles}>
+                  {DAILY_STEPS.map((step) => {
+                    const done = completedSteps.has(step.id);
+                    return (
+                      <TouchableOpacity
+                        key={step.id}
+                        style={[
+                          styles.stepTile,
+                          { backgroundColor: done ? step.bg : '#FFFFFF', borderColor: done ? step.color + '44' : '#E8D9BF' },
+                        ]}
+                        onPress={() => handleStepTap(step)}
+                        activeOpacity={0.8}
+                      >
+                        <View style={[styles.stepTileIcon, { backgroundColor: step.bg }]}>
+                          <Ionicons
+                            name={done ? 'checkmark-circle' : step.icon}
+                            size={22}
+                            color={done ? '#16A34A' : step.color}
+                          />
+                        </View>
+                        <Text style={[styles.stepTileLabel, { color: done ? '#16A34A' : COLORS.ink900 }]}>
+                          {isAr ? step.labelAr : step.labelEn}
+                        </Text>
+                        {done && (
+                          <View style={styles.stepDoneSprout}>
+                            <Ionicons name="leaf" size={10} color="#16A34A" />
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
 
-              {/* Arabic text */}
-              <Text style={[styles.hadithArabic, { textAlign: isAr ? 'right' : 'left' }]}>
-                «{hadithOfTheDay.arabicText}»
-              </Text>
-
-              {/* Explanation (collapsed size) */}
-              <Text
-                style={[styles.hadithExplanation, { textAlign: isAr ? 'right' : 'left' }]}
-                numberOfLines={2}
-              >
-                {getLocalizedHadith(hadithOfTheDay, language).explanation}
-              </Text>
-
-              {/* Actions */}
-              <View style={[styles.hadithActions, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                <TouchableOpacity
-                  style={[styles.hadithPlayBtn, isPlayingHadith && styles.hadithPlayBtnActive]}
-                  onPress={handlePlayHadithOfTheDay}
-                  activeOpacity={0.8}
+              {/* ── BLOCK 5: HADITH OF THE DAY (PDF Page 2) ─────────────────── */}
+              <View style={styles.hadithCard}>
+                <LinearGradient
+                  colors={['#FFFBF0', '#FFF3D4']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.hadithCardInner}
                 >
-                  <Ionicons
-                    name={isPlayingHadith ? 'pause-circle' : 'volume-high'}
-                    size={16}
-                    color="#FFFFFF"
-                  />
-                  <Text style={styles.hadithPlayBtnText}>
-                    {isPlayingHadith
-                      ? (isAr ? 'إيقاف' : 'Pause')
-                      : (isAr ? 'استمع' : 'Listen')}
-                  </Text>
-                </TouchableOpacity>
+                  {/* Header row */}
+                  <View style={[styles.hadithHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <View style={{ flexDirection: isAr ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                      <View style={styles.hadithLabelPill}>
+                        <Text style={styles.hadithLabel}>
+                          {isAr ? 'حَدِيثُ الْيَوْمِ' : 'Hadith of the Day'}
+                        </Text>
+                      </View>
+                      <View style={styles.hadithGradePill}>
+                        <Text style={styles.hadithGradeText}>
+                          {isAr ? (hadithOfTheDay.source || 'صَحِيحُ الْبُخَارِيِّ') : hadithOfTheDay.grade}
+                        </Text>
+                      </View>
+                    </View>
 
-                <TouchableOpacity
-                  style={styles.hadithMoreBtn}
-                  onPress={() => router.push(`/sunnah/${hadithOfTheDay.id}`)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.hadithMoreBtnText}>
-                    {isAr ? 'قصة وعمل اليوم' : 'Story & Action'}
+                    {/* Green circle speaker button (PDF Page 2) */}
+                    <TouchableOpacity
+                      style={[styles.hadithPlayRoundBtn, isPlayingHadith && styles.hadithPlayRoundBtnActive]}
+                      onPress={handlePlayHadithOfTheDay}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons
+                        name={isPlayingHadith ? 'stop' : 'volume-high'}
+                        size={16}
+                        color="#FFFFFF"
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Arabic text with Tashkeel */}
+                  <Text style={[styles.hadithArabic, { textAlign: isAr ? 'right' : 'left' }]}>
+                    «{hadithOfTheDay.arabicText}»
                   </Text>
-                  <Ionicons
-                    name={isAr ? 'chevron-back' : 'chevron-forward'}
-                    size={14}
-                    color="#92400E"
-                  />
-                </TouchableOpacity>
+
+                  {/* Explanation (collapsed size) */}
+                  <Text
+                    style={[styles.hadithExplanation, { textAlign: isAr ? 'right' : 'left' }]}
+                    numberOfLines={2}
+                  >
+                    {getLocalizedHadith(hadithOfTheDay, language).explanation}
+                  </Text>
+
+                  {/* Actions */}
+                  <View style={[styles.hadithActions, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <TouchableOpacity
+                      style={styles.hadithMoreBtn}
+                      onPress={() => router.push(`/sunnah/${hadithOfTheDay.id}`)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.hadithMoreBtnText}>
+                        {isAr ? 'قِصَّةُ وَعَمَلُ الْيَوْمِ' : 'Story & Action'}
+                      </Text>
+                      <Ionicons
+                        name={isAr ? 'chevron-back' : 'chevron-forward'}
+                        size={14}
+                        color="#92400E"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </LinearGradient>
               </View>
-            </LinearGradient>
-          </View>
 
-          {/* ── BLOCK 6: SIX WORLDS GRID (2 columns) ─────────────────────── */}
-          <View style={styles.worldsSection}>
-            <View style={[styles.worldsSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              <Text style={[styles.worldsSectionTitle, { textAlign: isAr ? 'right' : 'left' }]}>
-                {isAr ? 'ستة عوالم مباركة' : 'Six wonderful worlds'}
-              </Text>
-            </View>
+              {/* ── BLOCK 6: OUR WORLDS (PDF Page 2: عوالمنا) ───────────────── */}
+              <View style={styles.worldsSection}>
+                <View style={[styles.worldsSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  <Text style={[styles.worldsSectionTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                    {isAr ? 'عَوَالِمُنَا' : 'Our Worlds'}
+                  </Text>
+                </View>
 
             <View style={styles.worldsGrid}>
               {visibleWorlds.map((world) => (
@@ -1470,36 +1525,58 @@ const styles = StyleSheet.create({
   },
   mascotVoiceCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     padding: SPACING.md,
     alignItems: 'center',
     gap: SPACING.md,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E8D9BF',
-    ...SHADOWS.sm,
+    ...SHADOWS.soft,
   },
   mascotVoiceAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#FEF3C7',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+  },
+  mascotVoiceImg: {
+    width: '100%',
+    height: '100%',
+  },
+  mascotSpeakerBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1.5,
+    borderColor: '#86EFAC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.soft,
+  },
+  mascotSpeakerBtnActive: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FCA5A5',
   },
   mascotVoiceTexts: {
     flex: 1,
   },
   mascotVoiceTitle: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '900',
     color: '#064E3B',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   mascotVoiceSpeech: {
     fontSize: 14,
     color: '#334155',
-    lineHeight: 20,
-    fontWeight: '600',
+    lineHeight: 22,
+    fontWeight: '700',
   },
   seedlingTilesRow: {
     gap: SPACING.md,
@@ -1510,22 +1587,44 @@ const styles = StyleSheet.create({
     ...SHADOWS.md,
   },
   seedlingTileGradient: {
-    paddingVertical: 22,
+    paddingVertical: 24,
     paddingHorizontal: SPACING.lg,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
   },
   seedlingTileTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
     color: '#FFFFFF',
     marginTop: 4,
+    letterSpacing: 0.2,
   },
   seedlingTileSub: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.92)',
-    fontWeight: '600',
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.95)',
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  hadithLabelPill: {
+    backgroundColor: '#DCFCE7',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+  },
+  hadithPlayRoundBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#16A34A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.soft,
+  },
+  hadithPlayRoundBtnActive: {
+    backgroundColor: '#DC2626',
   },
   // Bedtime Lock Banner styles
   bedtimeBanner: {

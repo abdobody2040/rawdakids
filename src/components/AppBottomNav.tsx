@@ -18,7 +18,7 @@ const TAB_IMAGES: Record<string, any> = {
 // Multilingual labels for each of the 5 tabs
 const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
   home: {
-    ar: 'الرئيسية',
+    ar: 'الرَّئِيسِيَّةُ',
     en: 'Home',
     fr: 'Accueil',
     de: 'Start',
@@ -30,7 +30,7 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
     tr: 'Ana Sayfa',
   },
   quran: {
-    ar: 'القرآن',
+    ar: 'الْقُرْآنُ',
     en: 'Quran',
     fr: 'Coran',
     de: 'Koran',
@@ -42,7 +42,7 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
     tr: 'Kuran',
   },
   prayer: {
-    ar: 'صلاتي',
+    ar: 'صَلَاتِي',
     en: 'My Prayer',
     fr: 'Ma Prière',
     de: 'Mein Gebet',
@@ -54,7 +54,7 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
     tr: 'Namazım',
   },
   discover: {
-    ar: 'اكتشف',
+    ar: 'اِكْتَشِفْ',
     en: 'Discover',
     fr: 'Découvrir',
     de: 'Entdecken',
@@ -66,7 +66,7 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
     tr: 'Keşfet',
   },
   me: {
-    ar: 'أنا',
+    ar: 'أَنَا',
     en: 'Me',
     fr: 'Moi',
     de: 'Ich',
@@ -281,8 +281,8 @@ const styles = StyleSheet.create({
     borderRadius: 17,
   },
   tabLabel: {
-    fontSize: 10.5,
-    fontWeight: '600',
+    fontSize: 11.5,
+    fontWeight: '700',
     color: '#6B7280',
     textAlign: 'center',
     letterSpacing: 0.1,
