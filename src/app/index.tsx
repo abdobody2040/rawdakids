@@ -498,6 +498,15 @@ export default function HomeScreen() {
             </View>
           )}
 
+          {/* ── BLOCK 2: BISMILLAH BANNER (PRD §7.2 Block 2 & HOME-5) ─ */}
+          {showBismillah && (
+            <Animated.View style={[styles.bismillahBanner, { opacity: bismillahOpacity }]}>
+              <Text style={styles.bismillahText}>
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+              </Text>
+            </Animated.View>
+          )}
+
           {/* ── FRIDAY SPECIAL BANNER (PRD §7.4 & Phase 4) ─ */}
           {isFriday && (
             <View style={styles.fridayHomeBanner}>

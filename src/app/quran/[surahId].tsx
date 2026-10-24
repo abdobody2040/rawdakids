@@ -119,6 +119,7 @@ export default function SurahDetailScreen() {
   );
   const [tajweedEnabled, setTajweedEnabled] = useState<boolean>(false);
   const [showTajweedModal, setShowTajweedModal] = useState<boolean>(false);
+  const [showEtiquetteHint, setShowEtiquetteHint] = useState<boolean>(true);
 
   // Word-by-word tap meaning
   const [selectedWordMeaning, setSelectedWordMeaning] = useState<WordMeaning | null>(null);
@@ -477,6 +478,28 @@ export default function SurahDetailScreen() {
         contentContainerStyle={styles.ayahsContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* Etiquette Hint (PRD §7.3 Item 7: "تأكد من طهارتك وانتبه" as guidance, never a blocker) */}
+        {showEtiquetteHint && (
+          <View style={[styles.etiquetteHintBanner, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+              <Ionicons name="sparkles" size={15} color="#059669" />
+              <Text style={styles.etiquetteHintText}>
+                {language === 'ar'
+                  ? 'تَأَكَّدْ مِنْ طَهَارَتِكَ وَاسْتَمِعْ بِخُشُوعٍ وَانْتَبِهْ 🌿'
+                  : 'Ensure you are pure (tahir), listen mindfully and reflect 🌿'}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setShowEtiquetteHint(false)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              style={styles.etiquetteDismissBtn}
+              accessibilityLabel={language === 'ar' ? 'إغلاق التنبيه' : 'Dismiss hint'}
+            >
+              <Ionicons name="close" size={14} color="#065F46" />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Bismillah Header (except for Surah 9 / At-Tawbah if applicable) */}
         {surah.number !== 1 && (
           <View style={styles.bismillahBanner}>
@@ -1637,5 +1660,29 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#FFFFFF',
     textAlign: 'center',
+  },
+  etiquetteHintBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: RADIUS.md,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    marginBottom: SPACING.sm,
+    gap: 8,
+  },
+  etiquetteHintText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#065F46',
+    flex: 1,
+  },
+  etiquetteDismissBtn: {
+    padding: 3,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#D1FAE5',
   },
 });

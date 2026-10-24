@@ -31,6 +31,14 @@ import { arkanService } from '@/data/arkanData';
 import { audioService } from '@/services/audioService';
 import { getPillarMedia, getStepMedia } from '@/data/arkanMedia';
 
+const PRAYERS_LIST = [
+  { id: 'fajr', nameAr: 'الْفَجْرُ', nameEn: 'Fajr', rakahs: 2 },
+  { id: 'dhuhr', nameAr: 'الظُّهْرُ', nameEn: 'Dhuhr', rakahs: 4 },
+  { id: 'asr', nameAr: 'الْعَصْرُ', nameEn: 'Asr', rakahs: 4 },
+  { id: 'maghrib', nameAr: 'الْمَغْرِبُ', nameEn: 'Maghrib', rakahs: 3 },
+  { id: 'isha', nameAr: 'الْعِشَاءُ', nameEn: 'Isha', rakahs: 4 },
+];
+
 export default function PillarDetailScreen() {
   const router = useRouter();
   const { pillarId, mode } = useLocalSearchParams();
@@ -44,6 +52,7 @@ export default function PillarDetailScreen() {
 
   const initialMode = (pillarId === 'wudu' || mode === 'wudu') ? 'wudu' : ((mode === 'prayer' || mode === 'salah') ? 'prayer' : 'wudu');
   const [simMode, setSimMode] = useState<'wudu' | 'prayer'>(initialMode);
+  const [selectedPrayer, setSelectedPrayer] = useState<string>('fajr');
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [isPlayingStepAudio, setIsPlayingStepAudio] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -209,6 +218,32 @@ export default function PillarDetailScreen() {
                       {getPillarSimTab('prayer', language)}
                     </Text>
                   </TouchableOpacity>
+                </View>
+              )}
+
+              {/* 5 Prayers Selector (PRD §7.4 Item 3: choose the prayer Fajr 2, Dhuhr 4, Asr 4, Maghrib 3, Isha 4) */}
+              {simMode === 'prayer' && (
+                <View style={styles.prayerChoiceWrap}>
+                  <Text style={[styles.prayerChoiceHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+                    {isAr ? 'اخْتَرِ الصَّلَاةَ لِمَعْرِفَةِ عَدَدِ رَكَعَاتِهَا:' : 'Choose a prayer to learn:'}
+                  </Text>
+                  <View style={[styles.prayerChipsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                    {PRAYERS_LIST.map((pr) => {
+                      const isSelected = selectedPrayer === pr.id;
+                      return (
+                        <TouchableOpacity
+                          key={pr.id}
+                          style={[styles.prayerChip, isSelected && styles.prayerChipActive]}
+                          onPress={() => setSelectedPrayer(pr.id)}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={[styles.prayerChipText, isSelected && styles.prayerChipTextActive]}>
+                            {isAr ? pr.nameAr : pr.nameEn} ({isAr ? (pr.rakahs === 2 ? '٢' : pr.rakahs === 3 ? '٣' : '٤') : pr.rakahs})
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
               )}
 
@@ -1083,6 +1118,41 @@ const styles = StyleSheet.create({
   claimQuizBtnText: {
     fontSize: 14,
     fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  prayerChoiceWrap: {
+    marginBottom: SPACING.sm,
+    gap: 4,
+  },
+  prayerChoiceHeading: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0369A1',
+  },
+  prayerChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 2,
+  },
+  prayerChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.md,
+    backgroundColor: '#F0F9FF',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  prayerChipActive: {
+    backgroundColor: '#0284C7',
+    borderColor: '#0369A1',
+  },
+  prayerChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0369A1',
+  },
+  prayerChipTextActive: {
     color: '#FFFFFF',
   },
 });
