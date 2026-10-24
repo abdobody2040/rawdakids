@@ -31,6 +31,7 @@ import EncryptedBackupCard from '@/components/parents/EncryptedBackupCard';
 import CloudSyncCard from '@/components/parents/CloudSyncCard';
 import WorshipSettingsCard from '@/components/parents/WorshipSettingsCard';
 import ScreenTimeCard from '@/components/parents/ScreenTimeCard';
+import OfflineStorageCard from '@/components/parents/OfflineStorageCard';
 
 export default function ParentsCornerScreen() {
   const {
@@ -51,6 +52,9 @@ export default function ParentsCornerScreen() {
     weeklyChallenges,
     confirmWeeklyChallenge,
     resetChildProgress,
+    downloadedSurahs,
+    setSurahDownloaded,
+    clearAllDownloadedSurahs,
   } = useAppStore();
 
   const t = TRANSLATIONS[language];
@@ -611,7 +615,18 @@ export default function ParentsCornerScreen() {
           )}
         </View>
 
-        {/* 13. Offline Mode & Transparency */}
+        {/* 13. Offline Audio Storage & Quota Manager (OFF-1) */}
+        <OfflineStorageCard
+          language={language}
+          downloadedSurahs={downloadedSurahs}
+          reciterId={parentSettings.reciterId || 'alafasy'}
+          audioStorageLimitMB={parentSettings.audioStorageLimitMB || 200}
+          onUpdateStorageLimit={(limitMB) => updateParentSettings({ audioStorageLimitMB: limitMB })}
+          onToggleSurahDownload={(surahNumber, downloaded) => setSurahDownloaded(surahNumber, downloaded)}
+          onClearAllAudio={clearAllDownloadedSurahs}
+        />
+
+        {/* 14. Offline Mode & Transparency */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
             <Ionicons name="cloud-offline" size={20} color="#059669" />

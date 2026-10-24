@@ -104,6 +104,7 @@ export interface AppState {
   markSurahCompleted: (surahNumber: number) => void;
   downloadedSurahs: Record<number, boolean>;
   setSurahDownloaded: (surahNumber: number, downloaded: boolean) => void;
+  clearAllDownloadedSurahs: () => void;
   // Madinah Mushaf Page Reader (604 Pages)
   lastReadMushafPage: number;
   setLastReadMushafPage: (page: number) => void;
@@ -168,6 +169,7 @@ export interface AppState {
     pinSalt?: string;
     pinFailedAttempts?: number;
     pinLockoutUntil?: number | null;
+    audioStorageLimitMB?: number;
   };
   updateParentSettings: (settings: Partial<AppState['parentSettings']>) => void;
   setParentPin: (pin: string) => boolean;
@@ -649,6 +651,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     }));
     persistState(get());
   },
+  clearAllDownloadedSurahs: () => {
+    set({ downloadedSurahs: {} });
+    persistState(get());
+  },
 
   lastReadMushafPage: 1,
   setLastReadMushafPage: (page: number) => {
@@ -858,6 +864,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       pinSalt: defaultCrypto.salt,
       pinFailedAttempts: 0,
       pinLockoutUntil: null,
+      audioStorageLimitMB: 200,
     };
   })(),
   updateParentSettings: (settings) => {
