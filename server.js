@@ -837,6 +837,19 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (reqPath.startsWith('/data/')) {
+    const rawDataPath = path.join(__dirname, 'public', reqPath);
+    if (fs.existsSync(rawDataPath) && fs.statSync(rawDataPath).isFile()) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=86400',
+      });
+      fs.createReadStream(rawDataPath).pipe(res);
+      return;
+    }
+  }
+
   if (reqPath === '/manifest.json') {
     const manifestPath = path.join(__dirname, 'public/manifest.json');
     if (fs.existsSync(manifestPath)) {

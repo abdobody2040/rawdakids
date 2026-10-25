@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import juzAmmaData from '@/data/juzAmmaOffline.json';
+import { getLocalSurahWordData } from './quranDataLoader';
 import {
   ALL_114_SURAHS_CATALOG,
   BUNDLED_SURAHS,
@@ -63,7 +64,36 @@ export const quranService = {
       };
     }
 
-    // 3. Fallback for unbundled surahs before async fetch finishes
+    // 3. Check complete local 114 Surahs dataset (instant 0ms)
+    const localData = getLocalSurahWordData(surahNumber);
+    if (localData && localData.verses && localData.verses.length > 0) {
+      const ayahs: Ayah[] = localData.verses.map((v: any) => ({
+        number: v.n,
+        globalNumber: v.globalNumber || v.n,
+        textUthmani: (v.words || []).map((w: any) => w.t).join(' '),
+        simpleTafsir: `آية مباركة من سورة ${meta.nameArabic}`,
+        translationEn: `Verse ${v.n} of Surah ${meta.nameTransliteration}`,
+      }));
+
+      return {
+        ...meta,
+        storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+        storyIntroEn: `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+        coreLessonsAr: [
+          `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+          'العمل بما جاء في القرآن الكريم',
+          'طلب الأجر والبركة من تلاوة كتاب الله',
+        ],
+        coreLessonsEn: [
+          `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+          'Living by the guidance of the Holy Quran',
+          'Seeking blessings through recitation',
+        ],
+        ayahs,
+      };
+    }
+
+    // 4. Fallback for unbundled surahs before async fetch finishes
     const placeholderAyahs: Ayah[] = Array.from(
       { length: meta.ayahCount },
       (_, i) => ({
@@ -137,6 +167,13 @@ export const quranService = {
     if (bundled && (language === 'ar' || (language === 'en' && translationSource === 'sahih'))) {
       quranService._cache.set(cacheKey, bundled);
       return bundled;
+    }
+
+    // 2. Instant local dataset check (0ms for all 114 surahs)
+    const syncSurah = quranService.getSurahSync(surahNumber);
+    if (syncSurah && !syncSurah.ayahs[0]?.textUthmani?.startsWith('آية رقم') && language === 'ar') {
+      quranService._cache.set(cacheKey, syncSurah);
+      return syncSurah;
     }
 
     // 2. Check offline Juz Amma + Al-Mulk dataset

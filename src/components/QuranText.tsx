@@ -12,10 +12,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
+  I18nManager,
 } from 'react-native';
 import { VerseColor } from './VerseColoringModal';
 import { COLORS } from '@/constants/theme';
 import { quranService } from '@/services/quranService';
+import { getLocalSurahWordData } from '@/services/quranDataLoader';
 
 export interface QuranWord {
   p: number; // 1-based word position
@@ -71,8 +74,12 @@ export default function QuranText({
   onVerseMarkerTap,
   onVerseNumberTap,
 }: QuranTextProps) {
-  const [surahData, setSurahData] = useState<QuranSurahData | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [surahData, setSurahData] = useState<QuranSurahData | null>(() => {
+    return getLocalSurahWordData(surahId);
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    return !getLocalSurahWordData(surahId);
+  });
   const longPressTimerRef = useRef<any>(null);
 
   // Load word-by-word surah dataset
@@ -80,8 +87,18 @@ export default function QuranText({
     let isCurrent = true;
 
     async function loadData() {
+      // 1. Instant local module check (0ms)
+      const local = getLocalSurahWordData(surahId);
+      if (local && local.verses) {
+        if (isCurrent) {
+          setSurahData(local);
+          setIsLoading(false);
+        }
+        return;
+      }
+
       try {
-        // 1. Try static fetch from /data/quran/v1/{surahId}.json
+        // 2. Try static fetch from /data/quran/v1/{surahId}.json
         if (typeof window !== 'undefined' && typeof window.fetch === 'function') {
           const res = await fetch(`/data/quran/v1/${surahId}.json`);
           if (res.ok) {
@@ -200,7 +217,7 @@ export default function QuranText({
       ) : null}
 
       {/* Verses Container */}
-      <View style={styles.mushafTextContainer}>
+      <View style={styles.mushafTextContainer} {...({ dir: 'rtl' } as any)}>
         {surahData.verses.map((verse) => {
           const isVerseActive = activeVerseNumber === verse.n;
           const verseColor = versesColorMap[verse.n] || null;
@@ -216,6 +233,7 @@ export default function QuranText({
                 verseColor === 'review' && styles.verseColorReview,
                 isVerseActive && styles.verseActiveHighlight,
               ]}
+              {...({ dir: 'rtl' } as any)}
               // @ts-ignore Web accessibility attributes
               role="region"
               aria-label={`الآية ${verse.n}`}
@@ -332,14 +350,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mushafTextContainer: {
-    flexDirection: 'row-reverse',
+    flexDirection: Platform.OS === 'web' ? 'row' : (I18nManager.isRTL ? 'row' : 'row-reverse'),
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    direction: 'rtl',
+    width: '100%',
   },
   verseInlineBlock: {
-    flexDirection: 'row-reverse',
+    flexDirection: Platform.OS === 'web' ? 'row' : (I18nManager.isRTL ? 'row' : 'row-reverse'),
     flexWrap: 'wrap',
     alignItems: 'center',
     marginVertical: 4,
@@ -386,6 +404,7 @@ const styles = StyleSheet.create({
     fontFamily: 'AmiriQuran-Regular',
     color: '#111827',
     textAlign: 'right',
+    writingDirection: 'rtl',
   },
   wordTextHidden: {
     color: 'transparent',
