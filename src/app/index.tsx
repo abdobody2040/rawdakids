@@ -443,11 +443,11 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* ── BLOCK 2: BISMILLAH BANNER ──────────────────────────────── */}
+          {/* ── BLOCK 2: BISMILLAH BANNER (PRD §7.2 Block 2 & HOME-5) ── */}
           {showBismillah && (
             <Animated.View style={[styles.bismillahBanner, { opacity: bismillahOpacity }]}>
               <Text style={styles.bismillahText}>
-                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
               </Text>
             </Animated.View>
           )}
@@ -496,15 +496,6 @@ export default function HomeScreen() {
                 </View>
               </LinearGradient>
             </View>
-          )}
-
-          {/* ── BLOCK 2: BISMILLAH BANNER (PRD §7.2 Block 2 & HOME-5) ─ */}
-          {showBismillah && (
-            <Animated.View style={[styles.bismillahBanner, { opacity: bismillahOpacity }]}>
-              <Text style={styles.bismillahText}>
-                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-              </Text>
-            </Animated.View>
           )}
 
           {/* ── FRIDAY SPECIAL BANNER (PRD §7.4 & Phase 4) ─ */}
