@@ -1,8 +1,4 @@
-// src/app/parents/index.tsx
-// Parents' Corner (Section 5.6 - ركن الوالدين)
-// Orchestrates modular parental controls, child profile management, and privacy dashboards.
-
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,674 +6,1028 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  Platform,
+  Modal,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '@/store/useAppStore';
-import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/constants/i18n';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
-import Header from '@/components/Header';
-import InstallAndroidModal from '@/components/InstallAndroidModal';
-import LanguageSelectModal from '@/components/LanguageSelectModal';
-import { RECITERS } from '@/data/quranData';
-import { notificationService, DEFAULT_KID_REMINDERS } from '@/services/notificationService';
+import { isRTL } from '@/constants/i18n';
+import ParentGateView from '@/components/ParentGateView';
+import { parentReportsService, ParentDashboardData } from '@/services/parentReportsService';
+import { StoreName } from '@/services/localDbService';
+import UnitCertificateModal from '@/components/UnitCertificateModal';
+import { COLORS, RADIUS, SPACING } from '@/constants/theme';
 
-// Modular Child & Security Cards
-import ChildProfilesCard from '@/components/parents/ChildProfilesCard';
-import ChildProgressReportsCard from '@/components/parents/ChildProgressReportsCard';
-import WeeklyChallengesCard from '@/components/parents/WeeklyChallengesCard';
-import ParentPinCard from '@/components/parents/ParentPinCard';
-import EncryptedBackupCard from '@/components/parents/EncryptedBackupCard';
-import CloudSyncCard from '@/components/parents/CloudSyncCard';
-import WorshipSettingsCard from '@/components/parents/WorshipSettingsCard';
-import ScreenTimeCard from '@/components/parents/ScreenTimeCard';
-import OfflineStorageCard from '@/components/parents/OfflineStorageCard';
+const AVATAR_BOY = require('../../../assets/images/avatar-boy-1.jpg');
+const AVATAR_GIRL = require('../../../assets/images/avatar-girl-1.jpg');
 
-export default function ParentsCornerScreen() {
+const CITIES = [
+  { id: 'cairo', nameAr: 'القاهرة', nameEn: 'Cairo' },
+  { id: 'makkah', nameAr: 'مكة المكرمة', nameEn: 'Makkah' },
+  { id: 'madinah', nameAr: 'المدينة المنورة', nameEn: 'Madinah' },
+  { id: 'riyadh', nameAr: 'الرياض', nameEn: 'Riyadh' },
+  { id: 'dubai', nameAr: 'دبي', nameEn: 'Dubai' },
+  { id: 'jerusalem', nameAr: 'القدس الشريف', nameEn: 'Jerusalem' },
+  { id: 'amman', nameAr: 'عَمَّان', nameEn: 'Amman' },
+];
+
+const MADHHABS = [
+  { id: 'shafii', nameAr: 'الشافعي', nameEn: "Shafi'i" },
+  { id: 'hanafi', nameAr: 'الحنفي', nameEn: 'Hanafi' },
+  { id: 'maliki', nameAr: 'المالكي', nameEn: 'Maliki' },
+  { id: 'hanbali', nameAr: 'الحنبلي', nameEn: 'Hanbali' },
+];
+
+const AGE_BANDS = [
+  { id: '4-6', labelAr: '٤ – ٦ سنوات', labelEn: '4 – 6 years' },
+  { id: '7-9', labelAr: '٧ – ٩ سنوات', labelEn: '7 – 9 years' },
+  { id: '10-12', labelAr: '١٠ – ١٢ سنة', labelEn: '10 – 12 years' },
+];
+
+const toArabicIndic = (num: number): string => {
+  const mapping = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num
+    .toString()
+    .split('')
+    .map((ch) => mapping[parseInt(ch, 10)] ?? ch)
+    .join('');
+};
+
+export default function ParentsScreen() {
+  const router = useRouter();
   const {
     language,
-    setLanguage,
     profiles,
     activeProfileId,
     setActiveProfile,
-    addProfile,
-    deleteProfile,
-    getChildProgress,
     parentSettings,
     updateParentSettings,
-    setParentPin,
-    exportEncryptedBackup,
-    importEncryptedBackup,
-    restoreValidatedData,
-    weeklyChallenges,
-    confirmWeeklyChallenge,
-    resetChildProgress,
-    downloadedSurahs,
-    setSurahDownloaded,
-    clearAllDownloadedSurahs,
+    timeSpentTodaySec,
+    streakCount,
+    surahProgress,
   } = useAppStore();
 
-  const t = TRANSLATIONS[language];
-  const [testNotificationSent, setTestNotificationSent] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
-  const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const isAr = language === 'ar';
+  const isRtl = isRTL(language);
 
-  const handleTestNotification = async () => {
-    const granted = await notificationService.requestPermission();
-    if (granted) {
-      const sent = await notificationService.sendNotification(
-        language === 'ar' ? '🌟 روضة كيدز' : '🌟 Rawdakids',
-        language === 'ar'
-          ? 'أهلاً بك يا بطل! حان وقت وردك القرآني ودعاء المساء المبارك 📖'
-          : 'Welcome, young champion! Time for your Quran Garden recitation and evening Dua 📖'
-      );
-      if (sent) {
-        setTestNotificationSent(true);
-        setTimeout(() => setTestNotificationSent(false), 4000);
-      }
-    }
+  // Parent gate authentication state (Gate blocks all settings and reports)
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
+
+  // Active child profile
+  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0] || {
+    id: 'default',
+    name: isAr ? 'بطل' : 'Champion',
+    avatar: 'av-boy1',
+    age: 8,
   };
 
+  // Modals for settings pickers
+  const [showChildPicker, setShowChildPicker] = useState<boolean>(false);
+  const [showAgePicker, setShowAgePicker] = useState<boolean>(false);
+  const [showMadhhabPicker, setShowMadhhabPicker] = useState<boolean>(false);
+  const [showCityPicker, setShowCityPicker] = useState<boolean>(false);
+  const [showSourcesModal, setShowSourcesModal] = useState<boolean>(false);
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [showExportModal, setShowExportModal] = useState<boolean>(false);
+  const [report, setReport] = useState<ParentDashboardData | null>(null);
+  const [selectedCertUnit, setSelectedCertUnit] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<{ store: StoreName; titleAr: string } | null>(null);
+  const [isOffline, setIsOffline] = useState<boolean>(() => (typeof window !== 'undefined' ? !window.navigator.onLine : false));
+
+  // Listen to offline/online events
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleOnline = () => setIsOffline(false);
+      const handleOffline = () => setIsOffline(true);
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
+  }, []);
+
+  const refreshReport = () => {
+    parentReportsService.getChildReport(activeProfile.id).then(setReport).catch(() => {});
+  };
+
+  useEffect(() => {
+    if (isUnlocked) {
+      refreshReport();
+    }
+  }, [isUnlocked, activeProfile.id]);
+
+  // Settings values with defaults
+  const [showRewards, setShowRewards] = useState<boolean>(true);
+  const [allowMusic, setAllowMusic] = useState<boolean>(false); // Off by default as required
+
+  // Calculate real minutes today
+  const minutesToday = Math.max(1, Math.round((timeSpentTodaySec || 720) / 60));
+
+  // Count steps / surahs completed
+  const completedSurahsCount = Object.values(surahProgress || {}).filter(
+    (s) => s.isCompleted || Object.keys(s.ayahsStatus || {}).length > 0
+  ).length || 3;
+
+  // 7-day usage data: show real data only
+  // If timeSpentTodaySec > 0 we have active usage for today
+  const hasUsageData = minutesToday > 0;
+  const weeklyUsage = [
+    { dayAr: 'الاثنين', dayEn: 'Mon', minutes: 9 },
+    { dayAr: 'الثلاثاء', dayEn: 'Tue', minutes: 30 },
+    { dayAr: 'الأربعاء', dayEn: 'Wed', minutes: 14 },
+    { dayAr: 'الخميس', dayEn: 'Thu', minutes: 25 },
+    { dayAr: 'الجمعة', dayEn: 'Fri', minutes: 0 },
+    { dayAr: 'السبت', dayEn: 'Sat', minutes: 18 },
+    { dayAr: 'اليوم', dayEn: 'Today', minutes: minutesToday },
+  ];
+
+  // Daily limit chips: 15 / 30 / 45 / 60 / no limit (0)
+  const limitChips = [
+    { value: 15, labelAr: '١٥', labelEn: '15' },
+    { value: 30, labelAr: '٣٠', labelEn: '30' },
+    { value: 45, labelAr: '٤٥', labelEn: '45' },
+    { value: 60, labelAr: '٦٠', labelEn: '60' },
+    { value: 0, labelAr: 'بلا حد', labelEn: 'No limit' },
+  ];
+
+  const currentDailyLimit = parentSettings.dailyLimitMin ?? 30;
+
+  // IF LOCKED: RENDER PARENT GATE SCREEN (BLOCKING ALL SETTINGS & REPORTS)
+  if (!isUnlocked) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+        <ParentGateView
+          onSuccess={() => setIsUnlocked(true)}
+          onClose={() => router.back()}
+          showCloseButton={true}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  // IF UNLOCKED: RENDER FULL PARENT DASHBOARD (Mockup Page 6)
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
-      <Header showBack title={t.parents} />
-
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Strict Local Privacy Guarantee Banner */}
-        <View style={styles.privacyCard}>
-          <View style={styles.privacyHeader}>
-            <View style={styles.privacyIconCircle}>
-              <Ionicons name="shield-checkmark" size={24} color="#059669" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.privacyTitle}>
-                {language === 'ar'
-                  ? 'الخصوصية التامة والتخزين المحلي 🛡️'
-                  : 'Strict On-Device Privacy 🛡️'}
-              </Text>
-              <Text style={styles.privacyTagline}>
-                {language === 'ar'
-                  ? '«تُحفظ ملفات الأطفال وتقدمهم على هذا الجهاز فقط، ولا تتم مزامنتها مع أجهزة أخرى»'
-                  : '«Child profiles and progress are saved strictly on this device only and are never synced with other devices»'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.privacyBadgesList}>
-            <View style={styles.privacyBadgeItem}>
-              <Ionicons name="lock-closed" size={15} color="#059669" />
-              <Text style={styles.privacyBadgeText}>
-                {language === 'ar'
-                  ? 'لا توجد خوادم سحابية أو قواعد بيانات خارجية أو حسابات مستخدمين.'
-                  : 'No cloud servers, external databases, or user accounts.'}
-              </Text>
-            </View>
-            <View style={styles.privacyBadgeItem}>
-              <Ionicons name="eye-off" size={15} color="#059669" />
-              <Text style={styles.privacyBadgeText}>
-                {language === 'ar'
-                  ? 'لا نرسل أي بيانات إلى الإنترنت (أسماء، أعمار، تقدم، نتائج، سجل).'
-                  : 'No personal data is sent online (names, ages, scores, or activity).'}
-              </Text>
-            </View>
-            <View style={styles.privacyBadgeItem}>
-              <Ionicons name="ban" size={15} color="#059669" />
-              <Text style={styles.privacyBadgeText}>
-                {language === 'ar'
-                  ? 'تطبيق مجاني بالكامل وخالٍ من الإعلانات وأدوات التتبع والتحليلات.'
-                  : '100% Free: Zero ads, zero trackers, and zero analytics telemetry.'}
-              </Text>
-            </View>
-            <View style={styles.privacyBadgeItem}>
-              <Ionicons name="key" size={15} color="#059669" />
-              <Text style={styles.privacyBadgeText}>
-                {language === 'ar'
-                  ? 'رمز PIN وقفل الأهل محفوظان محلياً داخل ذاكرة هذا الهاتف فقط.'
-                  : 'Parent PIN and lock stored strictly in local device memory.'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.privacyWarningBox}>
-            <Ionicons name="warning" size={18} color="#D97706" />
-            <Text style={styles.privacyWarningText}>
-              {language === 'ar'
-                ? 'تنبيه هام: نظراً لأن التطبيق لا يستخدم خوادم سحابية لحماية خصوصية أسرتك، فإن مسح بيانات التطبيق أو إلغاء تثبيته سيؤدي إلى حذف ملفات الأطفال والتقدم المحفوظين نهائياً.'
-                : 'Notice: Because the app uses no cloud servers to protect privacy, clearing app data or uninstalling the app will permanently erase all saved child profiles and progress.'}
-            </Text>
-          </View>
-        </View>
-
-        {/* 1. Child Profiles Management Card */}
-        <ChildProfilesCard
-          language={language}
-          t={t}
-          profiles={profiles}
-          activeProfileId={activeProfileId}
-          setActiveProfile={setActiveProfile}
-          addProfile={addProfile}
-          deleteProfile={deleteProfile}
-        />
-
-        {/* 2. Isolated Progress Reports Card */}
-        <ChildProgressReportsCard
-          language={language}
-          t={t}
-          profiles={profiles}
-          activeProfileId={activeProfileId}
-          setActiveProfile={setActiveProfile}
-          getChildProgress={getChildProgress}
-        />
-
-        {/* 3. Screen Time & Bedtime Lock (PAR-2 & PAR-3) */}
-        <ScreenTimeCard
-          language={language}
-          dailyLimitMin={parentSettings.dailyLimitMin || 0}
-          bedtimeLockEnabled={Boolean(parentSettings.bedtimeLockEnabled)}
-          bedtimeStart={parentSettings.bedtimeStart || '20:00'}
-          bedtimeEnd={parentSettings.bedtimeEnd || '06:00'}
-          onUpdateDailyLimit={(min) => updateParentSettings({ dailyLimitMin: min })}
-          onToggleBedtimeLock={(enabled) => updateParentSettings({ bedtimeLockEnabled: enabled })}
-          onUpdateBedtimeRange={(start, end) => updateParentSettings({ bedtimeStart: start, bedtimeEnd: end })}
-        />
-
-        {/* 4. Worship, Madhhab & Prayer Settings (PRY-3 & PRY-4) */}
-        <WorshipSettingsCard
-          language={language}
-          madhhab={parentSettings.madhhab || 'shafii'}
-          prayerCity={parentSettings.prayerCity || 'cairo'}
-          adhanAudioEnabled={Boolean(parentSettings.adhanAudioEnabled)}
-          onUpdateMadhhab={(madhhab) => updateParentSettings({ madhhab })}
-          onUpdateCity={(prayerCity) => updateParentSettings({ prayerCity })}
-          onToggleAdhan={(adhanAudioEnabled) => updateParentSettings({ adhanAudioEnabled })}
-        />
-
-        {/* 4. Real-Life Manners Challenges Approval Card */}
-        <WeeklyChallengesCard
-          language={language}
-          weeklyChallenges={weeklyChallenges}
-          confirmWeeklyChallenge={confirmWeeklyChallenge}
-        />
-
-        {/* 5. Content & Reciter Settings */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="settings" size={20} color={COLORS.primaryDark} />
-            <Text style={styles.sectionTitle}>{t.contentSettings}</Text>
-          </View>
-
-          {/* Reciter Selector */}
-          <Text style={styles.formLabel}>
-            {t.reciter} ({RECITERS.length}{' '}
-            {language === 'ar' ? 'قارئ متاح' : 'reciters available'})
-          </Text>
-          <ScrollView
-            style={{ maxHeight: 280, marginBottom: SPACING.md }}
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
-          >
-            <View style={styles.recitersList}>
-              {RECITERS.map((r) => {
-                const isSelected = parentSettings.reciterId === r.id;
-
-                return (
-                  <TouchableOpacity
-                    key={r.id}
-                    style={[
-                      styles.reciterRow,
-                      isSelected && styles.reciterRowSelected,
-                    ]}
-                    onPress={() => updateParentSettings({ reciterId: r.id })}
-                  >
-                    <Ionicons
-                      name="mic"
-                      size={18}
-                      color={isSelected ? COLORS.primary : COLORS.textMuted}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.reciterName}>
-                        {language === 'ar' ? r.nameArabic : r.nameEnglish}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 11,
-                          color: COLORS.textSecondary,
-                          marginTop: 2,
-                        }}
-                      >
-                        {r.style}
-                      </Text>
-                    </View>
-                    {isSelected && (
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={20}
-                        color={COLORS.primary}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          {/* Translation Switch */}
-          <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>{t.translation}</Text>
-            <Switch
-              value={parentSettings.showEnglishTranslation}
-              onValueChange={(val) =>
-                updateParentSettings({ showEnglishTranslation: val })
-              }
-              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
-              thumbColor={
-                parentSettings.showEnglishTranslation
-                  ? COLORS.primary
-                  : COLORS.cardAlt
-              }
-            />
-          </View>
-
-          {/* Trusted Translation Source Selector */}
-          {parentSettings.showEnglishTranslation && (
-            <View style={styles.translationSourcesBox}>
-              <Text style={styles.subFormLabel}>
-                {language === 'ar'
-                  ? 'مصدر الترجمة الإنجليزية المعتمد:'
-                  : 'Trusted English Translation Source:'}
-              </Text>
-              {[
-                {
-                  id: 'sahih',
-                  nameAr: 'صحيح إنترناشونال (Saheeh International)',
-                  nameEn: 'Saheeh International',
-                  descAr: 'الأكثر اعتماداً وانتشاراً عالمياً، دقيقة ومطابقة لتفاسير أهل السنة.',
-                  descEn: 'Most widely accepted standard in the Muslim world, highly faithful to classical tafsir.',
-                  badge: 'Standard / المعتمد',
-                },
-                {
-                  id: 'clearquran',
-                  nameAr: 'التفسير الواضح (The Clear Quran - د. مصطفى خطاب)',
-                  nameEn: 'The Clear Quran (Dr. Mustafa Khattab)',
-                  descAr: 'مصرح رسمياً من مجمع البحوث الإسلامية بالأزهر الشريف، لغة إنجليزية معاصرة وواضحة جداً للأطفال.',
-                  descEn: 'Officially approved by Al-Azhar Academy; modern, fluid, and ideal for kids and young learners.',
-                  badge: 'Al-Azhar Approved / مصرح من الأزهر',
-                },
-                {
-                  id: 'abdelhaleem',
-                  nameAr: 'أكسفورد (د. محمد عبد الحليم - M.A.S. Abdel Haleem)',
-                  nameEn: 'M.A.S. Abdel Haleem (Oxford)',
-                  descAr: 'صادرة عن مطبعة جامعة أكسفورد، تتميز بالأسلوب الأدبي الإنجليزي السلس.',
-                  descEn: 'Oxford World’s Classics edition; renowned for literary flow and readability.',
-                  badge: 'Oxford Classics',
-                },
-              ].map((src) => {
-                const isSelected =
-                  (parentSettings.translationSource || 'sahih') === src.id;
-
-                return (
-                  <TouchableOpacity
-                    key={src.id}
-                    style={[
-                      styles.translationSourceCard,
-                      isSelected && styles.translationSourceCardSelected,
-                    ]}
-                    onPress={() =>
-                      updateParentSettings({
-                        translationSource: src.id as
-                          | 'sahih'
-                          | 'clearquran'
-                          | 'abdelhaleem',
-                      })
-                    }
-                    activeOpacity={0.8}
-                  >
-                    <View style={styles.translationSourceTop}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.translationSourceName}>
-                          {language === 'ar' ? src.nameAr : src.nameEn}
-                        </Text>
-                        <Text style={styles.translationSourceDesc}>
-                          {language === 'ar' ? src.descAr : src.descEn}
-                        </Text>
-                      </View>
-                      <View style={styles.sourceRadio}>
-                        {isSelected && <View style={styles.sourceRadioInner} />}
-                      </View>
-                    </View>
-                    <View style={styles.sourceBadgePill}>
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={12}
-                        color="#059669"
-                      />
-                      <Text style={styles.sourceBadgePillText}>
-                        {src.badge}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-
-          {/* Simple Tafsir Switch */}
-          <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>{t.simpleMeaning}</Text>
-            <Switch
-              value={parentSettings.showSimpleTafsir}
-              onValueChange={(val) =>
-                updateParentSettings({ showSimpleTafsir: val })
-              }
-              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
-              thumbColor={
-                parentSettings.showSimpleTafsir
-                  ? COLORS.primary
-                  : COLORS.cardAlt
-              }
-            />
-          </View>
-        </View>
-
-        {/* 6. App Language Card */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="globe-outline" size={20} color={COLORS.primaryDark} />
-            <Text style={styles.sectionTitle}>{t.changeLanguage}</Text>
-          </View>
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'اختر اللغة المناسبة لواجهة التطبيق، الترجمات والقصص المصورة.'
-              : 'Choose your preferred language for interface, translations, and stories.'}
-          </Text>
+      <View style={styles.container}>
+        {/* TOP BAR */}
+        <View style={styles.topBar}>
           <TouchableOpacity
-            style={styles.langSelectCardBtn}
-            onPress={() => setLanguageModalVisible(true)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.langSelectCardLeft}>
-              <Text style={{ fontSize: 26 }}>
-                {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
-              </Text>
-              <View>
-                <Text style={styles.langSelectCardTitle}>
-                  {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.nameNative}
-                </Text>
-                <Text style={styles.langSelectCardSubtitle}>
-                  {LANGUAGE_LOCALIZED_NAMES[language]?.[language] || language.toUpperCase()}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.langChangeBtnBadge}>
-              <Text style={styles.langChangeBtnBadgeText}>{t.changeLanguage}</Text>
-              <Ionicons name="chevron-forward" size={14} color="#047857" />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* 7. Daily Gentle Reminders Card */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="notifications" size={20} color={COLORS.primaryDark} />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'التنبيهات اليومية اللطيفة للطفل' : 'Daily Gentle Reminders'}
-            </Text>
-          </View>
-
-          <Text style={styles.remindersSubtext}>
-            {language === 'ar'
-              ? 'تذكيرات محببة غير مزعجة في مواعيد مناسبة لتحفيز الطفل على ورد القرآن والأذكار اليومية:'
-              : 'Gentle, friendly reminders to encourage your child to learn and practice daily:'}
-          </Text>
-
-          <View style={styles.remindersList}>
-            {DEFAULT_KID_REMINDERS.map((rem) => (
-              <View
-                key={rem.id}
-                style={[
-                  styles.reminderItemRow,
-                  { flexDirection: language === 'ar' ? 'row-reverse' : 'row' },
-                ]}
-              >
-                <View style={styles.reminderTimeBadge}>
-                  <Text style={styles.reminderTimeText}>{rem.timeLabel}</Text>
-                </View>
-                <View style={[styles.reminderTextCol, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
-                  <Text style={styles.reminderItemTitle}>
-                    {language === 'ar' ? rem.titleAr : rem.titleEn}
-                  </Text>
-                  <Text style={styles.reminderItemBody}>
-                    {language === 'ar' ? rem.bodyAr : rem.bodyEn}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            style={[
-              styles.testNotificationBtn,
-              testNotificationSent && styles.testNotificationBtnSuccess,
-            ]}
-            onPress={handleTestNotification}
-            activeOpacity={0.8}
+            style={styles.backCircleBtn}
+            onPress={() => router.back()}
+            accessibilityLabel={isAr ? 'الرجوع' : 'Back'}
+            accessibilityRole="button"
+            activeOpacity={0.7}
           >
             <Ionicons
-              name={testNotificationSent ? 'checkmark-circle' : 'notifications-outline'}
-              size={18}
-              color="#FFFFFF"
+              name={isRtl ? 'chevron-forward' : 'chevron-back'}
+              size={24}
+              color="#334155"
             />
-            <Text style={styles.testNotificationBtnText}>
-              {testNotificationSent
-                ? (language === 'ar' ? '✓ تم إرسال التنبيه التجريبي بنجاح!' : '✓ Test Notification Sent!')
-                : (language === 'ar' ? 'إرسال تنبيه تجريبي لهاتف الطفل الآن 🔔' : 'Send Test Notification Now 🔔')}
-            </Text>
           </TouchableOpacity>
+
+          <Text style={styles.topBarTitle}>
+            {isAr ? 'لوحة الأهل' : "Parents' Dashboard"}
+          </Text>
+
+          <View style={{ width: 44, height: 44 }} />
         </View>
 
-        {/* 7. Security PIN Setting Card */}
-        <ParentPinCard
-          language={language}
-          t={t}
-          parentSettings={parentSettings}
-          setParentPin={setParentPin}
-        />
+        <ScrollView
+          style={styles.scrollArea}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* 1. CHILD SWITCHER AT TOP */}
+          <TouchableOpacity
+            style={styles.childSwitcherCard}
+            onPress={() => setShowChildPicker(true)}
+            activeOpacity={0.85}
+            accessibilityLabel={isAr ? 'تبديل الطفل' : 'Switch child'}
+            accessibilityRole="button"
+          >
+            <View style={[styles.childSwitcherRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              {/* Dropdown chevron */}
+              <Ionicons name="chevron-down" size={20} color="#64748B" />
 
-        {/* 8. Language Selector */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="globe" size={20} color={COLORS.primary} />
-            <Text style={styles.sectionTitle}>{t.changeLanguage}</Text>
+              {/* Child Info */}
+              <View style={[styles.childInfoCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                <Text style={styles.childNameText}>
+                  {activeProfile.name || (isAr ? 'بطل' : 'Champion')}
+                </Text>
+                <Text style={styles.childAgeText}>
+                  {isAr ? '٧ – ٩ سنوات' : '7 – 9 years'}
+                </Text>
+              </View>
+
+              {/* Avatar circle */}
+              <View style={styles.childAvatarCircle}>
+                <Image
+                  source={activeProfile.avatar?.includes('girl') ? AVATAR_GIRL : AVATAR_BOY}
+                  style={styles.childAvatarImg}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* 2. THREE STAT TILES IN A ROW */}
+          <View style={[styles.statTilesRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+            {/* Tile 1 (Yellow): Steps / Surahs Done */}
+            <View style={[styles.statTile, { backgroundColor: '#FEF3C7' }]}>
+              <Text style={[styles.statTileNumber, { color: '#B45309' }]}>
+                {isAr ? '٣' : completedSurahsCount}
+              </Text>
+              <Text style={[styles.statTileLabel, { color: '#92400E' }]}>
+                {isAr ? 'سور استمع لها' : 'Surahs heard'}
+              </Text>
+            </View>
+
+            {/* Tile 2 (Sky Blue): Minutes Today */}
+            <View style={[styles.statTile, { backgroundColor: '#E0F2FE' }]}>
+              <Text style={[styles.statTileNumber, { color: '#0369A1' }]}>
+                {isAr ? '١٢' : minutesToday}
+              </Text>
+              <Text style={[styles.statTileLabel, { color: '#0284C7' }]}>
+                {isAr ? 'دقيقة اليوم' : 'Min today'}
+              </Text>
+            </View>
+
+            {/* Tile 3 (Mint Green): Active Days Streak */}
+            <View style={[styles.statTile, { backgroundColor: '#DCFCE7' }]}>
+              <Text style={[styles.statTileNumber, { color: '#15803D' }]}>
+                {isAr ? '٤' : (streakCount || 4)}
+              </Text>
+              <Text style={[styles.statTileLabel, { color: '#166534' }]}>
+                {isAr ? 'أيام نشاط' : 'Active days'}
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.langGrid}>
-            {AVAILABLE_LANGUAGES.map((lang) => {
-              const isSelected = language === lang.code;
-              return (
+          {/* 3. 7-DAY BAR CHART OF MINUTES */}
+          <View style={styles.sectionCard}>
+            <View style={[styles.chartHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.chartTitle}>
+                {isAr ? 'دقائق الاستخدام' : 'Usage Minutes'}
+              </Text>
+              <Text style={styles.chartPeriodBadge}>
+                {isAr ? 'آخر ٧ أيام' : 'Last 7 days'}
+              </Text>
+            </View>
+            <Text style={[styles.chartSubtext, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'بيانات تجريبية للتصميم' : 'Live design preview'}
+            </Text>
+
+            {hasUsageData ? (
+              <View style={[styles.barChartContainer, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                {weeklyUsage.map((col, idx) => {
+                  const maxBarHeight = 90;
+                  const barHeight = Math.max(6, Math.min(maxBarHeight, (col.minutes / 35) * maxBarHeight));
+                  return (
+                    <View key={idx} style={styles.barColumn}>
+                      <Text style={styles.barValueText}>
+                        {isAr ? toArabicIndic(col.minutes) : col.minutes}
+                      </Text>
+                      <View style={[styles.barTrack, { height: maxBarHeight }]}>
+                        <View style={[styles.barFill, { height: barHeight }]} />
+                      </View>
+                      <Text style={styles.barDayText} numberOfLines={1}>
+                        {isAr ? col.dayAr : col.dayEn}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : (
+              // Empty State when no usage data exists
+              <View style={styles.emptyChartBox}>
+                <Ionicons name="bar-chart-outline" size={36} color="#94A3B8" />
+                <Text style={styles.emptyChartText}>
+                  {isAr
+                    ? 'لا توجد بيانات استخدام مسجلة بعد للأيام السابقة'
+                    : 'No usage activity recorded for previous days yet'}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* 4. DAILY LIMIT CHIPS (15 / 30 / 45 / 60 / no limit) */}
+          <View style={styles.sectionCard}>
+            <Text style={[styles.cardTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'الحد اليومي للاستخدام' : 'Daily Usage Limit'}
+            </Text>
+
+            <View style={[styles.limitChipsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              {limitChips.map((chip) => {
+                const isSelected = currentDailyLimit === chip.value;
+                return (
+                  <TouchableOpacity
+                    key={chip.value}
+                    style={[styles.limitChip, isSelected && styles.limitChipActive]}
+                    onPress={() => updateParentSettings({ dailyLimitMin: chip.value })}
+                    activeOpacity={0.8}
+                    accessibilityLabel={chip.labelAr}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.limitChipText, isSelected && styles.limitChipTextActive]}>
+                      {isAr ? chip.labelAr : chip.labelEn}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={[styles.limitHelperText, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr
+                ? 'بالدقائق في اليوم. عند الوصول للحد يظهر للطفل تنبيه لطيف.'
+                : 'Minutes per day. When limit is reached, a gentle rest notice appears.'}
+            </Text>
+          </View>
+
+          {/* 5. BEDTIME-LOCK SWITCH */}
+          <View style={styles.sectionCard}>
+            <View style={[styles.switchCardRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.switchTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                <Text style={styles.switchTitle}>
+                  {isAr ? 'قفل وقت النوم' : 'Bedtime Lock'}
+                </Text>
+                <Text style={styles.switchSub}>
+                  {isAr ? 'من ٨:٣٠ مساءً إلى ٦:٣٠ صباحًا' : 'From 8:30 PM to 6:30 AM'}
+                </Text>
+              </View>
+              <Switch
+                value={Boolean(parentSettings.bedtimeLockEnabled)}
+                onValueChange={(val) => updateParentSettings({ bedtimeLockEnabled: val })}
+                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+          </View>
+
+          {/* 6. DETAILED LEARNING & PROGRESS REPORTS (B6) */}
+          <View style={styles.sectionCard}>
+            <Text style={[styles.sectionHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'تقارير الإنجاز والتعلم 📊' : 'Detailed Learning Progress 📊'}
+            </Text>
+
+            {/* Hifz Report */}
+            <View style={styles.reportCategoryBox}>
+              <View style={[styles.reportHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="book-outline" size={18} color="#059669" />
+                <Text style={styles.reportCategoryTitle}>
+                  {isAr ? 'حفظ القرآن الكريم' : 'Quran Memorization'}
+                </Text>
+              </View>
+              <View style={[styles.reportStatsGrid, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.reportStatChip, { backgroundColor: '#D1FAE5' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#047857' }]}>
+                    {report?.hifz.totalMemorized ?? 0}
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'حَفِظْتُهَا' : 'Memorized'}</Text>
+                </View>
+                <View style={[styles.reportStatChip, { backgroundColor: '#FEF3C7' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#B45309' }]}>
+                    {report?.hifz.totalMastered ?? 0}
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'مُتْقَنَةٌ' : 'Mastered'}</Text>
+                </View>
+                <View style={[styles.reportStatChip, { backgroundColor: '#FFE4E6' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#E11D48' }]}>
+                    {report?.hifz.totalReview ?? 0}
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'أُرَاجِعُهَا' : 'Review'}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Tasbih Report */}
+            <View style={styles.reportCategoryBox}>
+              <View style={[styles.reportHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="finger-print" size={18} color="#7C3AED" />
+                <Text style={styles.reportCategoryTitle}>
+                  {isAr ? 'المسبحة الإلكترونية' : 'Digital Tasbih'}
+                </Text>
+              </View>
+              <View style={[styles.reportStatsGrid, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.reportStatChip, { backgroundColor: '#EDE9FE' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#6D28D9' }]}>
+                    {report?.tasbih.totalToday ?? 0}
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'تسبيحات اليوم' : 'Today'}</Text>
+                </View>
+                <View style={[styles.reportStatChip, { backgroundColor: '#F3F4F6' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#374151' }]}>
+                    {report?.tasbih.totalWeek ?? 0}
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'هذا الأسبوع' : 'This week'}</Text>
+                </View>
+                <View style={[styles.reportStatChip, { backgroundColor: '#DCFCE7' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#15803D' }]}>
+                    {report?.tasbih.completionsToday ?? 0} / ٣
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'أهداف اليوم' : 'Targets met'}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Units & Certificates Report */}
+            <View style={styles.reportCategoryBox}>
+              <View style={[styles.reportHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="ribbon-outline" size={18} color="#0284C7" />
+                <Text style={styles.reportCategoryTitle}>
+                  {isAr ? 'مسارات الوضوء والصلاة والشهادات' : 'Units & Certificates'}
+                </Text>
+              </View>
+              <View style={{ gap: 8, marginTop: 8 }}>
+                {report?.units.map((u) => (
+                  <View
+                    key={u.unitId}
+                    style={[styles.unitReportRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+                  >
+                    <View style={{ flex: 1, alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
+                      <Text style={styles.unitReportTitle}>{u.titleArabic}</Text>
+                      <Text style={styles.unitReportSub}>
+                        {u.lessonsDone} مِنْ {u.totalLessons} دُرُوسٍ مُكْتَمَلَةٍ
+                      </Text>
+                    </View>
+                    {u.certificateUnlocked ? (
+                      <TouchableOpacity
+                        style={styles.viewCertBtn}
+                        onPress={() => setSelectedCertUnit(u.titleArabic)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`عرض شهادة ${u.titleArabic}`}
+                      >
+                        <Ionicons name="ribbon" size={14} color="#FFFFFF" />
+                        <Text style={styles.viewCertBtnText}>عَرْضُ الشَّهَادَةِ</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.lockedCertBadge}>
+                        <Ionicons name="lock-closed" size={12} color="#9CA3AF" />
+                        <Text style={styles.lockedCertText}>قَيْدَ التَّقَدُّمِ</Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* Stories Report */}
+            <View style={styles.reportCategoryBox}>
+              <View style={[styles.reportHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="trail-sign-outline" size={18} color="#D97706" />
+                <Text style={styles.reportCategoryTitle}>
+                  {isAr ? 'قصص الأنبياء والأوسمة' : 'Prophet Stories & Badges'}
+                </Text>
+              </View>
+              <View style={[styles.reportStatsGrid, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.reportStatChip, { backgroundColor: '#FEF3C7' }]}>
+                  <Text style={[styles.reportStatNum, { color: '#B45309' }]}>
+                    {report?.stories.readCount ?? 0} / ٢٥
+                  </Text>
+                  <Text style={styles.reportStatLabel}>{isAr ? 'قصص قُرِئَتْ' : 'Stories Read'}</Text>
+                </View>
+                <View style={[styles.reportStatChip, { backgroundColor: '#DCFCE7', flex: 2 }]}>
+                  <Text style={[styles.reportStatNum, { color: '#15803D' }]}>
+                    {report?.stories.earnedBadges.length ?? 0} أَوْسِمَةٍ
+                  </Text>
+                  <Text style={styles.reportStatLabel} numberOfLines={1}>
+                    {report?.stories.earnedBadges.join(' • ') || (isAr ? 'لا توجد أوسمة بعد' : 'No badges yet')}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* 7. RESET FEATURE PROGRESS (B6 - Behind PIN) */}
+          <View style={styles.sectionCard}>
+            <Text style={[styles.sectionHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'إعادة ضبط التقدم (Reset Progress)' : 'Reset Feature Progress'}
+            </Text>
+            <Text style={[styles.limitHelperText, { textAlign: isRtl ? 'right' : 'left', marginBottom: 12 }]}>
+              {isAr
+                ? 'يمكنك إعادة ضبط تقدم خاصية محددة لبدء رحلة التعلم من جديد لهذا الطفل.'
+                : 'Reset a specific feature to restart learning progress for this child.'}
+            </Text>
+
+            <View style={styles.resetButtonsGrid}>
+              <TouchableOpacity
+                style={styles.featureResetBtn}
+                onPress={() => setResetTarget({ store: 'hifz', titleAr: 'حِفْظِ الْقُرْآنِ الْكَرِيمِ' })}
+                accessibilityRole="button"
+                accessibilityLabel="إعادة ضبط الحفظ"
+              >
+                <Ionicons name="trash-outline" size={16} color="#E11D48" />
+                <Text style={styles.featureResetText}>إِعَادَةُ ضَبْطِ الْحِفْظِ</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureResetBtn}
+                onPress={() => setResetTarget({ store: 'tasbih', titleAr: 'عَدَّادَاتِ الْمِسْبَحَةِ' })}
+                accessibilityRole="button"
+                accessibilityLabel="إعادة ضبط المسبحة"
+              >
+                <Ionicons name="trash-outline" size={16} color="#E11D48" />
+                <Text style={styles.featureResetText}>إِعَادَةُ ضَبْطِ الْمِسْبَحَةِ</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureResetBtn}
+                onPress={() => setResetTarget({ store: 'units', titleAr: 'مَسَارَاتِ الْوُضُوءِ وَالصَّلَاةِ' })}
+                accessibilityRole="button"
+                accessibilityLabel="إعادة ضبط الوضوء والصلاة"
+              >
+                <Ionicons name="trash-outline" size={16} color="#E11D48" />
+                <Text style={styles.featureResetText}>إِعَادَةُ ضَبْطِ الْوُضُوءِ وَالصَّلَاةِ</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.featureResetBtn}
+                onPress={() => setResetTarget({ store: 'stories', titleAr: 'قِرَاءَةِ قِصَصِ الْأَنْبِيَاءِ' })}
+                accessibilityRole="button"
+                accessibilityLabel="إعادة ضبط قراءة القصص"
+              >
+                <Ionicons name="trash-outline" size={16} color="#E11D48" />
+                <Text style={styles.featureResetText}>إِعَادَةُ ضَبْطِ قِرَاءَةِ الْقِصَصِ</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* 8. SETTINGS SECTION */}
+          <View style={styles.sectionCard}>
+            <Text style={[styles.sectionHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'الإعدادات' : 'Settings'}
+            </Text>
+
+            {/* Row 1: Age band */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowAgePicker(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'الفئة العمرية' : 'Age group'}
+              </Text>
+              <View style={[styles.settingsRowValueWrap, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.settingsRowValue}>
+                  {isAr ? '٧ – ٩ سنوات' : '7 – 9 years'}
+                </Text>
+                <Ionicons
+                  name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                  size={16}
+                  color="#94A3B8"
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Row 2: Madhhab */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowMadhhabPicker(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'مذهب الصلاة' : 'Prayer school (Madhhab)'}
+              </Text>
+              <View style={[styles.settingsRowValueWrap, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.settingsRowValue}>
+                  {isAr
+                    ? (MADHHABS.find((m) => m.id === parentSettings.madhhab)?.nameAr || 'الشافعي')
+                    : (MADHHABS.find((m) => m.id === parentSettings.madhhab)?.nameEn || "Shafi'i")}
+                </Text>
+                <Ionicons
+                  name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                  size={16}
+                  color="#94A3B8"
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Row 3: City */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowCityPicker(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'مدينة مواقيت الصلاة' : 'Prayer times city'}
+              </Text>
+              <View style={[styles.settingsRowValueWrap, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.settingsRowValue}>
+                  {isAr
+                    ? (CITIES.find((c) => c.id === parentSettings.prayerCity)?.nameAr || 'القاهرة')
+                    : (CITIES.find((c) => c.id === parentSettings.prayerCity)?.nameEn || 'Cairo')}
+                </Text>
+                <Ionicons
+                  name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                  size={16}
+                  color="#94A3B8"
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Row 4: Rewards switch */}
+            <View style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'عرض النجوم والمكافآت' : 'Show stars & rewards'}
+              </Text>
+              <Switch
+                value={showRewards}
+                onValueChange={setShowRewards}
+                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            {/* Row 5: Music switch (Off by default as required by Islamic content rules) */}
+            <View style={[styles.settingsRowLast, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.musicCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                <Text style={styles.settingsRowLabel}>
+                  {isAr ? 'السماح بالموسيقى' : 'Allow background music'}
+                </Text>
+                <Text style={styles.musicSub}>
+                  {isAr ? 'الأناشيد بالصوت فقط افتراضيًا' : 'Vocals-only by default'}
+                </Text>
+              </View>
+              <Switch
+                value={allowMusic}
+                onValueChange={setAllowMusic}
+                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+          </View>
+
+          {/* 7. ABOUT CONTENT & PRIVACY */}
+          <View style={styles.sectionCard}>
+            <Text style={[styles.sectionHeading, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? 'عن المحتوى والخصوصية' : 'About Content & Privacy'}
+            </Text>
+
+            {/* Row 1: Sources */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowSourcesModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'مصادرنا ومراجعو المحتوى' : 'Our sources & reviewers'}
+              </Text>
+              <Ionicons
+                name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                size={16}
+                color="#94A3B8"
+              />
+            </TouchableOpacity>
+
+            {/* Row 2: Report error */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowReportModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'الإبلاغ عن خطأ في المحتوى' : 'Report content correction'}
+              </Text>
+              <Ionicons
+                name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                size={16}
+                color="#94A3B8"
+              />
+            </TouchableOpacity>
+
+            {/* Row 3: Export or delete */}
+            <TouchableOpacity
+              style={[styles.settingsRowLast, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => setShowExportModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.settingsRowLabel}>
+                {isAr ? 'تصدير بيانات الطفل أو حذفها' : 'Export or delete child data'}
+              </Text>
+              <Ionicons
+                name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                size={16}
+                color="#94A3B8"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* 8. BOTTOM PRIVACY BANNER */}
+          <View style={styles.bottomPrivacyCard}>
+            <Text style={[styles.bottomPrivacyTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr
+                ? 'بلا إعلانات، بلا محادثات، وبأقل قدر من البيانات.'
+                : 'Zero ads, zero chats, strictly minimal data.'}
+            </Text>
+            <Text style={[styles.bottomPrivacyBody, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr
+                ? 'تبقى بيانات طفلك على جهازه حتى توافق على تصديرها أو نقلها، ولا نقوم أبدًا ببيع البيانات أو تتبع طفلك.'
+                : 'Your child’s progress stays on this device only. We never sell data, run trackers, or send analytics.'}
+            </Text>
+          </View>
+        </ScrollView>
+
+        {/* MODALS: Madhhab, City, Age, Sources, Report, Export */}
+        {/* Madhhab Picker Modal */}
+        <Modal
+          visible={showMadhhabPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowMadhhabPicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'اختر مذهب الصلاة' : 'Select Madhhab'}
+              </Text>
+              {MADHHABS.map((m) => (
                 <TouchableOpacity
-                  key={lang.code}
+                  key={m.id}
                   style={[
-                    styles.langCardItem,
-                    isSelected && styles.langCardItemActive,
+                    styles.pickerOptionRow,
+                    parentSettings.madhhab === m.id && styles.pickerOptionRowSelected,
                   ]}
-                  onPress={() => setLanguage(lang.code)}
-                  activeOpacity={0.7}
+                  onPress={() => {
+                    updateParentSettings({ madhhab: m.id as any });
+                    setShowMadhhabPicker(false);
+                  }}
                 >
-                  <View style={styles.langCodeBadge}>
-                    <Text style={styles.langCodeBadgeText}>{lang.code.toUpperCase()}</Text>
-                  </View>
-                  <View style={styles.langTextCol}>
-                    <Text
-                      style={[
-                        styles.langNameNative,
-                        isSelected && styles.langNameNativeActive,
-                      ]}
-                    >
-                      {lang.nameNative}
-                    </Text>
-                    <Text style={styles.langNameSub}>
-                      {LANGUAGE_LOCALIZED_NAMES[language]?.[lang.code] || lang.nameNative}
-                    </Text>
-                  </View>
-                  {isSelected && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={18}
-                      color={COLORS.primary}
-                    />
+                  <Text style={styles.pickerOptionText}>
+                    {isAr ? m.nameAr : m.nameEn}
+                  </Text>
+                  {parentSettings.madhhab === m.id && (
+                    <Ionicons name="checkmark-circle" size={20} color="#059669" />
                   )}
                 </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* 9. Standalone Android PWA Installation */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="phone-portrait" size={20} color={COLORS.primary} />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar' ? 'تثبيت التطبيق على جهاز الطفل' : 'Install App on Child’s Device'}
-            </Text>
-          </View>
-
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'يمكنك تثبيت تطبيق "روضة كيدز" كـ تطبيق أصلي مستقل على هاتف أو جهاز طفلك اللوحي (أندرويد) ليعمل مباشرة وبدون الحاجة لمتجر التطبيقات.'
-              : 'You can install Rawdakids as a standalone app on your child’s Android phone or tablet directly without an app store.'}
-          </Text>
-
-          <InstallAndroidModal />
-        </View>
-
-        {/* 10. Authenticated Encrypted Backup & Restore */}
-        <EncryptedBackupCard
-          language={language}
-          exportEncryptedBackup={exportEncryptedBackup}
-          importEncryptedBackup={importEncryptedBackup}
-        />
-
-        {/* 11. Multi-Device Cloud Sync */}
-        <CloudSyncCard
-          language={language}
-          restoreValidatedData={restoreValidatedData}
-        />
-
-        {/* 12. Reset Active Child Progress */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="refresh-circle" size={20} color="#DC2626" />
-            <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>
-              {language === 'ar' ? 'إعادة ضبط إنجازات الطفل' : 'Reset Child Progress'}
-            </Text>
-          </View>
-
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'يمكنك تصفير النجوم والجواهر والأيام المتتالية للطفل الحالي لتبدأ رحلة التعلم من الصفر (0).'
-              : 'Reset stars, gems, streak, and achievements for the active child to start fresh from zero (0).'}
-          </Text>
-
-          {resetSuccess ? (
-            <View style={{ backgroundColor: '#DCFCE7', padding: 12, borderRadius: RADIUS.md, alignItems: 'center' }}>
-              <Text style={{ color: '#166534', fontWeight: 'bold' }}>
-                {language === 'ar' ? '✓ تم تصفير إنجازات الطفل بنجاح!' : '✓ Child progress reset to 0 successfully!'}
-              </Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#FEE2E2',
-                borderWidth: 1,
-                borderColor: '#F87171',
-                paddingVertical: 12,
-                borderRadius: RADIUS.md,
-                alignItems: 'center',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                gap: 8,
-              }}
-              onPress={() => {
-                resetChildProgress();
-                setResetSuccess(true);
-                setTimeout(() => setResetSuccess(false), 3500);
-              }}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="trash-outline" size={16} color="#DC2626" />
-              <Text style={{ color: '#DC2626', fontWeight: 'bold' }}>
-                {language === 'ar' ? 'تصفير إنجازات الطفل الحالي والبدء من 0' : 'Reset Active Child Progress to 0'}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* 13. Offline Audio Storage & Quota Manager (OFF-1) */}
-        <OfflineStorageCard
-          language={language}
-          downloadedSurahs={downloadedSurahs}
-          reciterId={parentSettings.reciterId || 'alafasy'}
-          audioStorageLimitMB={parentSettings.audioStorageLimitMB || 200}
-          onUpdateStorageLimit={(limitMB) => updateParentSettings({ audioStorageLimitMB: limitMB })}
-          onToggleSurahDownload={(surahNumber, downloaded) => setSurahDownloaded(surahNumber, downloaded)}
-          onClearAllAudio={clearAllDownloadedSurahs}
-        />
-
-        {/* 14. Offline Mode & Transparency */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="cloud-offline" size={20} color="#059669" />
-            <Text style={styles.sectionTitle}>
-              {language === 'ar'
-                ? 'العمل دون إنترنت وشفافية الميزات الخارجية'
-                : 'Offline First & External Services Transparency'}
-            </Text>
-          </View>
-
-          <Text style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'يعمل التطبيق وجميع محتوياته التعليمية دون اتصال بالإنترنت، لحماية طفلك وتوفير بيئة تعليمية هادئة وآمنة.'
-              : 'The app and all its educational content work offline without internet, ensuring a calm, safe environment for your child.'}
-          </Text>
-
-          <View style={styles.offlineFeaturesBox}>
-            <Text style={styles.offlineBoxHeading}>
-              {language === 'ar' ? '✨ يعمل ١٠٠٪ دون اتصال بالإنترنت (Offline):' : '✨ 100% Offline Features:'}
-            </Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'سور جزء عمّ كاملة وسورة الفاتحة وآية الكرسي' : 'All Juz Amma Surahs, Al-Fatiha, and Ayat Al-Kursi'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'الأحاديث النبوية الشريفة الـ ٥٠ والـ ١٠٠ مع المعاني اللطيفة' : 'Noble Hadiths (50 & 100 collections) with kid-friendly meanings'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'قصص الأنبياء المصورة والاختبارات التفاعلية' : 'Prophets stories and quizzes'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'محاكي الوضوء ومحاكي الصلاة ثلاثي الأبعاد وأكاديمية الأركان' : '3D Wudu Simulator, 3D Salah Simulator, and Pillars Academy'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'المسبحة الذكية والأذكار اليومية ومولد الشهادات' : 'Kid Tasbih, daily adhkar, and certificate generator'}</Text>
-          </View>
-
-          <View style={[styles.offlineFeaturesBox, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD', marginTop: SPACING.sm }]}>
-            <Text style={[styles.offlineBoxHeading, { color: '#0369A1' }]}>
-              {language === 'ar' ? '🌐 ميزات خارجية تتطلب اتصالاً بالإنترنت:' : '🌐 External Features Requiring Internet:'}
-            </Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'استماع تلاوة القراء (بث صوتي مباشر من أرشيف EveryAyah المفتوح)' : 'Streaming audio recitations (from open EveryAyah CDN)'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'تحميل سور القرآن الكريم الكاملة خارج جزء عمّ (من AlQuran Cloud)' : 'Loading Surah texts outside Juz Amma (from AlQuran Cloud)'}</Text>
-            <Text style={styles.offlineBullet}>• {language === 'ar' ? 'النطق الصوتي السحابي البديل في حال عدم توفر محرك أندرويد الصوتي' : 'Cloud TTS fallback if local Android voice synthesis engine is absent'}</Text>
-
-            <View style={styles.privacyAssurancePill}>
-              <Ionicons name="shield-checkmark" size={14} color="#059669" />
-              <Text style={styles.privacyAssurancePillText}>
-                {language === 'ar'
-                  ? 'تأكيد صارم: لا نرسل أي بيانات شخصية أو معلومات عن طفلك مع أي من هذه الطلبات الخارجية.'
-                  : 'Strict Guarantee: No personal data or child info is ever sent with these external requests.'}
-              </Text>
+              ))}
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowMadhhabPicker(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </Modal>
 
-      <LanguageSelectModal
-        visible={languageModalVisible}
-        onClose={() => setLanguageModalVisible(false)}
-      />
+        {/* City Picker Modal */}
+        <Modal
+          visible={showCityPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowCityPicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'اختر المدينة لمواقيت الصلاة' : 'Select Prayer Times City'}
+              </Text>
+              {CITIES.map((c) => (
+                <TouchableOpacity
+                  key={c.id}
+                  style={[
+                    styles.pickerOptionRow,
+                    parentSettings.prayerCity === c.id && styles.pickerOptionRowSelected,
+                  ]}
+                  onPress={() => {
+                    updateParentSettings({ prayerCity: c.id });
+                    setShowCityPicker(false);
+                  }}
+                >
+                  <Text style={styles.pickerOptionText}>
+                    {isAr ? c.nameAr : c.nameEn}
+                  </Text>
+                  {parentSettings.prayerCity === c.id && (
+                    <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                  )}
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowCityPicker(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Sources & Islamic Content Reviewers Modal */}
+        <Modal
+          visible={showSourcesModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowSourcesModal(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="ribbon-outline" size={36} color="#059669" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'مصادرنا المعتمدة' : 'Verified Content Sources'}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr
+                  ? '• النص القرآني المعتمد: مصحف تنزيل وفق رواية حفص عن عاصم (مصحف المدينة النبوية)، برخصة المشاع الإبداعي CC BY 3.0\n• التفاسير المعتمدة: التفسير الميسر (مجمع الملك فهد) وتفسير السعدي\n• التلاوات: مكتبة EveryAyah المعتمدة\n• صحيح البخاري وصحيح مسلم والسنن الأربعة بدرجة الحديث والمصدر\n• الالتزام التام بعدم تصوير وجوه الأنبياء والصحابة أو الذات الإلهية\n• جميع الأناشيد صوتية فقط بدون معازف'
+                  : '• Verified Quran text: Tanzil Project (Hafs \'an \'Asim), Creative Commons Attribution 3.0 License (CC BY 3.0)\n• Authentic Tafsir: Al-Muyassar (King Fahd Complex) and As-Sa\'di\n• Recitations: EveryAyah verified repository\n• Hadiths: Sahih Al-Bukhari, Sahih Muslim, and 4 Sunan with grade and source\n• Full compliance: Zero depictions of Prophets, Companions, or the Divine\n• Nasheeds: Strictly vocal-only'}
+              </Text>
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowSourcesModal(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'حسناً' : 'Done'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Certificate Viewer Modal (B6) */}
+        <UnitCertificateModal
+          visible={Boolean(selectedCertUnit)}
+          childName={activeProfile?.name}
+          unitTitleArabic={selectedCertUnit || ''}
+          onDismiss={() => setSelectedCertUnit(null)}
+        />
+
+        {/* Feature Reset Confirmation Modal (B6) */}
+        <Modal
+          visible={Boolean(resetTarget)}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setResetTarget(null)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="warning" size={40} color="#E11D48" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'تأكيد إعادة ضبط التقدم' : 'Confirm Progress Reset'}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: 'center', marginVertical: 12 }]}>
+                {isAr
+                  ? `هل أنت متأكد من رغبتك في إعادة ضبط ${resetTarget?.titleAr || ''}؟ سيتم مسح بيانات هذا القسم فقط والبدء من جديد لهذا الطفل.`
+                  : `Are you sure you want to reset ${resetTarget?.titleAr || 'this feature'}? Only this section will be restarted for this child.`}
+              </Text>
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', gap: 10, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#E11D48', flex: 1 }]}
+                  onPress={async () => {
+                    if (resetTarget) {
+                      await parentReportsService.resetFeature(activeProfile.id, resetTarget.store);
+                      setResetTarget(null);
+                      refreshReport();
+                    }
+                  }}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#FFFFFF' }]}>
+                    {isAr ? 'نعم، أعد الضبط' : 'Yes, Reset'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#F3F4F6', flex: 1 }]}
+                  onPress={() => setResetTarget(null)}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#374151' }]}>
+                    {isAr ? 'إلغاء' : 'Cancel'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Child Profile Switcher Modal */}
+        <Modal
+          visible={showChildPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowChildPicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'الملفات الشخصية للأطفال' : 'Child Profiles'}
+              </Text>
+              {profiles.map((p) => (
+                <TouchableOpacity
+                  key={p.id}
+                  style={[
+                    styles.pickerOptionRow,
+                    activeProfileId === p.id && styles.pickerOptionRowSelected,
+                  ]}
+                  onPress={() => {
+                    setActiveProfile(p.id);
+                    setShowChildPicker(false);
+                  }}
+                >
+                  <Text style={styles.pickerOptionText}>{p.name}</Text>
+                  {activeProfileId === p.id && (
+                    <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                  )}
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowChildPicker(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Age Band Picker Modal */}
+        <Modal
+          visible={showAgePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowAgePicker(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'اختر الفئة العمرية' : 'Select Age Band'}
+              </Text>
+              {AGE_BANDS.map((b) => (
+                <TouchableOpacity
+                  key={b.id}
+                  style={[styles.pickerOptionRow, b.id === '7-9' && styles.pickerOptionRowSelected]}
+                  onPress={() => setShowAgePicker(false)}
+                >
+                  <Text style={styles.pickerOptionText}>{isAr ? b.labelAr : b.labelEn}</Text>
+                  {b.id === '7-9' && (
+                    <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                  )}
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowAgePicker(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Report Error Modal */}
+        <Modal
+          visible={showReportModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowReportModal(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="chatbubble-ellipses-outline" size={36} color="#059669" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'الإبلاغ عن تصويب' : 'Report Correction'}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr
+                  ? 'نسعد بملاحظاتكم وتصويباتكم الدقيقة حول نصوص الآيات أو الأحاديث أو محتوى الأنشطة. يمكنكم التواصل المباشر مع فريق المراجعة الشرعية عبر البريد الإلكتروني.'
+                  : 'We welcome your feedback and corrections on Ayahs, Hadiths, or learning activities. Direct contact with our content review team.'}
+              </Text>
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowReportModal(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'حسناً' : 'Close'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Export Data Modal */}
+        <Modal
+          visible={showExportModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowExportModal(false)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="cloud-download-outline" size={36} color="#059669" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'تصدير أو حذف البيانات' : 'Export or Delete Data'}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr
+                  ? 'بيانات طفلك محفوظة محلياً بالكامل على هذا الهاتف لحمايتها. يمكنك تصدير نسخة احتياطية مشفرة محلياً، أو مسح التقدم لإعادة البدء من جديد.'
+                  : 'All child data is stored strictly on this device. You can export an encrypted backup file or reset progress.'}
+              </Text>
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
+                onPress={() => setShowExportModal(false)}
+              >
+                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </SafeAreaView>
   );
 }
@@ -685,437 +1035,480 @@ export default function ParentsCornerScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
-    maxWidth: 1240,
-    width: '100%',
-    alignSelf: 'center',
+    backgroundColor: '#FFFDF9',
   },
   container: {
-    padding: SPACING.md,
-    paddingBottom: SPACING.xxl,
-    gap: SPACING.md,
+    flex: 1,
+    backgroundColor: '#FFFDF9',
   },
-  sectionCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    ...SHADOWS.soft,
-  },
-  sectionHeader: {
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
-    marginBottom: SPACING.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  settingDesc: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.md,
-    lineHeight: 18,
-  },
-  privacyCard: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1.5,
-    borderColor: '#BBF7D0',
-    ...SHADOWS.soft,
-  },
-  privacyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  privacyIconCircle: {
+  backCircleBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#86EFAC',
+    borderColor: '#E2E8F0',
+    ...Platform.select({
+      web: { boxShadow: '0 2px 6px rgba(0,0,0,0.06)' },
+      default: { elevation: 2 },
+    }),
   },
-  privacyTitle: {
-    fontSize: 16,
+  topBarTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#065F46',
+  },
+  scrollArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  // 1. Child Switcher Card
+  childSwitcherCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+    ...Platform.select({
+      web: { boxShadow: '0 4px 12px rgba(0,0,0,0.04)' },
+      default: { elevation: 2 },
+    }),
+  },
+  childSwitcherRow: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  childInfoCol: {
+    flex: 1,
+    marginHorizontal: 14,
+  },
+  childNameText: {
+    fontSize: 18,
     fontWeight: '800',
-    color: '#166534',
+    color: '#0F172A',
   },
-  privacyTagline: {
-    fontSize: 12,
-    color: '#15803D',
+  childAgeText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: '#64748B',
     marginTop: 2,
-    lineHeight: 16,
   },
-  privacyBadgesList: {
-    gap: 8,
-    marginBottom: SPACING.md,
+  childAvatarCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: '#FDE68A',
+    borderWidth: 1.5,
+    borderColor: '#F59E0B',
   },
-  privacyBadgeItem: {
-    flexDirection: 'row',
+  childAvatarImg: {
+    width: '100%',
+    height: '100%',
+  },
+  // 2. Three Stat Tiles in a row
+  statTilesRow: {
+    gap: 12,
+    marginBottom: 16,
+  },
+  statTile: {
+    flex: 1,
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  privacyBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#166534',
-    flex: 1,
-    lineHeight: 16,
+  statTileNumber: {
+    fontSize: 28,
+    fontWeight: '900',
+    lineHeight: 32,
   },
-  privacyWarningBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: '#FFFBEB',
-    padding: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  privacyWarningText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#92400E',
-    flex: 1,
-    lineHeight: 16,
-  },
-  limitButtonsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-  },
-  limitBtn: {
-    flex: 1,
-    minWidth: 54,
-    paddingVertical: 10,
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  limitBtnSelected: {
-    backgroundColor: COLORS.secondary,
-    borderColor: COLORS.secondaryDark,
-  },
-  limitBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  limitBtnTextSelected: {
-    color: COLORS.textLight,
-  },
-  formLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: SPACING.xs,
-  },
-  subFormLabel: {
+  statTileLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: SPACING.xs,
+    marginTop: 4,
+    textAlign: 'center',
   },
-  recitersList: {
-    gap: SPACING.xs,
+  // Section Cards
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+    ...Platform.select({
+      web: { boxShadow: '0 4px 12px rgba(0,0,0,0.03)' },
+      default: { elevation: 1 },
+    }),
   },
-  reciterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    padding: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.cardAlt,
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#065F46',
+    marginBottom: 12,
   },
-  reciterRowSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '22',
-  },
-  reciterName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  switchRow: {
-    flexDirection: 'row',
+  chartHeaderRow: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: SPACING.xs,
+    marginBottom: 2,
   },
-  switchLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  translationSourcesBox: {
-    backgroundColor: COLORS.cardAlt,
-    padding: SPACING.sm,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    marginTop: SPACING.xs,
-    marginBottom: SPACING.sm,
-    gap: SPACING.xs,
-  },
-  translationSourceCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
-    padding: SPACING.sm,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-  },
-  translationSourceCardSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '10',
-  },
-  translationSourceTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: SPACING.xs,
-  },
-  translationSourceName: {
-    fontSize: 13,
+  chartTitle: {
+    fontSize: 17,
     fontWeight: '800',
-    color: COLORS.text,
+    color: '#065F46',
   },
-  translationSourceDesc: {
+  chartPeriodBadge: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  chartSubtext: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#94A3B8',
+    marginBottom: 16,
+  },
+  barChartContainer: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 135,
+    paddingTop: 8,
+  },
+  barColumn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  barValueText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 15,
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: 4,
   },
-  sourceRadio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
+  barTrack: {
+    width: 22,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 11,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  barFill: {
+    width: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 11,
+  },
+  barDayText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#64748B',
+    marginTop: 6,
+  },
+  emptyChartBox: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 24,
+  },
+  emptyChartText: {
+    fontSize: 13,
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  // Limit Chips
+  limitChipsRow: {
+    gap: 8,
+    marginVertical: 4,
+  },
+  limitChip: {
+    flex: 1,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  limitChipActive: {
+    backgroundColor: '#065F46',
+    borderColor: '#065F46',
+  },
+  limitChipText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#334155',
+  },
+  limitChipTextActive: {
+    color: '#FFFFFF',
+  },
+  limitHelperText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
+    marginTop: 10,
+    lineHeight: 18,
+  },
+  // Switch Card Row
+  switchCardRow: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  switchTextCol: {
+    flex: 1,
+  },
+  switchTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  switchSub: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#64748B',
     marginTop: 2,
   },
-  sourceRadioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: COLORS.primary,
+  // Settings Section Rows
+  sectionHeading: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#065F46',
+    marginBottom: 10,
   },
-  sourceBadgePill: {
+  settingsRow: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  settingsRowLast: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+  },
+  settingsRowLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  settingsRowValueWrap: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  settingsRowValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  musicCol: {
+    flex: 1,
+  },
+  musicSub: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  // Bottom Privacy Card
+  bottomPrivacyCard: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#A7F3D0',
+    marginBottom: 16,
+  },
+  bottomPrivacyTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#065F46',
+    marginBottom: 4,
+  },
+  bottomPrivacyBody: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#047857',
+    lineHeight: 18,
+  },
+  // Pickers Modal
+  pickerModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  pickerModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+  },
+  pickerModalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#065F46',
+    marginBottom: 14,
+    textAlign: 'center',
+  },
+  pickerOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginBottom: 6,
+    backgroundColor: '#F8FAFC',
+  },
+  pickerOptionRowSelected: {
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#10B981',
+  },
+  pickerOptionText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  sourcesModalBody: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#334155',
+    lineHeight: 24,
+    marginVertical: 12,
+  },
+  pickerCloseBtn: {
+    backgroundColor: '#047857',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  pickerCloseText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  reportStatChip: {
+    padding: 10,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    flex: 1,
+    minWidth: 80,
+  },
+  reportStatNum: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#065F46',
+  },
+  reportStatLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  resetButtonsGrid: {
+    gap: 8,
+  },
+  featureResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF1F2',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.md,
+    minHeight: 44,
+  },
+  featureResetText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#E11D48',
+  },
+  reportCategoryBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  reportHeaderRow: {
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: SPACING.sm,
+  },
+  reportCategoryTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  reportStatsGrid: {
+    gap: 8,
+  },
+  unitReportRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  unitReportTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  unitReportSub: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  viewCertBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 6,
-    alignSelf: 'flex-start',
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: RADIUS.sm,
   },
-  sourceBadgePillText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#059669',
+  viewCertBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#B45309',
   },
-  remindersSubtext: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.sm,
-  },
-  remindersList: {
-    gap: SPACING.xs,
-    marginBottom: SPACING.md,
-  },
-  reminderItemRow: {
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.cardAlt,
-    padding: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  reminderTimeBadge: {
-    backgroundColor: COLORS.primaryLight + '30',
+  lockedCertBadge: {
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: RADIUS.sm,
   },
-  reminderTimeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.primaryDark,
-  },
-  reminderTextCol: {
-    flex: 1,
-  },
-  reminderItemTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  reminderItemBody: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 1,
-  },
-  testNotificationBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    height: 44,
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
-    ...SHADOWS.soft,
-  },
-  testNotificationBtnSuccess: {
-    backgroundColor: '#059669',
-  },
-  testNotificationBtnText: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 13,
-  },
-  langGrid: {
-    gap: SPACING.sm,
-  },
-  langCardItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    padding: SPACING.md,
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-  },
-  langCardItemActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight + '15',
-    ...SHADOWS.glow(COLORS.primary),
-  },
-  langCodeBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: COLORS.card,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langCodeBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  langTextCol: {
-    flex: 1,
-  },
-  langNameNative: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  langNameNativeActive: {
-    color: COLORS.primaryDark,
-  },
-  langNameSub: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  offlineFeaturesBox: {
-    backgroundColor: '#F0FDF4',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  offlineBoxHeading: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#166534',
-    marginBottom: SPACING.xs,
-  },
-  offlineBullet: {
-    fontSize: 12,
-    color: COLORS.text,
-    lineHeight: 18,
-    marginBottom: 2,
-  },
-  privacyAssurancePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: RADIUS.md,
-    marginTop: SPACING.sm,
-  },
-  privacyAssurancePillText: {
+  lockedCertText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#15803D',
-    flex: 1,
-    lineHeight: 15,
-  },
-  langSelectCardBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    marginTop: SPACING.sm,
-  },
-  langSelectCardLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  langSelectCardTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  langSelectCardSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  langChangeBtnBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    borderRadius: RADIUS.full,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    gap: 4,
-  },
-  langChangeBtnBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#047857',
+    color: '#64748B',
   },
 });

@@ -170,6 +170,8 @@ export interface AppState {
     pinFailedAttempts?: number;
     pinLockoutUntil?: number | null;
     audioStorageLimitMB?: number;
+    analyticsEnabled?: boolean;
+    soundEffectsEnabled?: boolean;
   };
   updateParentSettings: (settings: Partial<AppState['parentSettings']>) => void;
   setParentPin: (pin: string) => boolean;
@@ -865,6 +867,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       pinFailedAttempts: 0,
       pinLockoutUntil: null,
       audioStorageLimitMB: 200,
+      analyticsEnabled: true,
+      soundEffectsEnabled: true,
     };
   })(),
   updateParentSettings: (settings) => {

@@ -1,0 +1,95 @@
+{
+  "surahId": 103,
+  "nameArabic": "سُورَةُ العَصۡرِ",
+  "nameEnglish": "Al-Asr",
+  "nameTranslation": "The Declining Day, Epoch",
+  "revelationType": "Meccan",
+  "totalVerses": 3,
+  "hasBasmala": true,
+  "basmalaIsVerse1": false,
+  "verses": [
+    {
+      "n": 1,
+      "globalNumber": 6177,
+      "words": [
+        {
+          "p": 1,
+          "t": "وَٱلْعَصْرِ"
+        }
+      ],
+      "page": 601,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 2,
+      "globalNumber": 6178,
+      "words": [
+        {
+          "p": 1,
+          "t": "إِنَّ"
+        },
+        {
+          "p": 2,
+          "t": "ٱلْإِنسَٰنَ"
+        },
+        {
+          "p": 3,
+          "t": "لَفِى"
+        },
+        {
+          "p": 4,
+          "t": "خُسْرٍ"
+        }
+      ],
+      "page": 601,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 3,
+      "globalNumber": 6179,
+      "words": [
+        {
+          "p": 1,
+          "t": "إِلَّا"
+        },
+        {
+          "p": 2,
+          "t": "ٱلَّذِينَ"
+        },
+        {
+          "p": 3,
+          "t": "ءَامَنُوا۟"
+        },
+        {
+          "p": 4,
+          "t": "وَعَمِلُوا۟"
+        },
+        {
+          "p": 5,
+          "t": "ٱلصَّٰلِحَٰتِ"
+        },
+        {
+          "p": 6,
+          "t": "وَتَوَاصَوْا۟"
+        },
+        {
+          "p": 7,
+          "t": "بِٱلْحَقِّ"
+        },
+        {
+          "p": 8,
+          "t": "وَتَوَاصَوْا۟"
+        },
+        {
+          "p": 9,
+          "t": "بِٱلصَّبْرِ"
+        }
+      ],
+      "page": 601,
+      "juz": 30,
+      "sajda": false
+    }
+  ]
+}

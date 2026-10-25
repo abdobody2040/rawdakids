@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,6 +33,10 @@ import WordMeaningBubbleModal from '@/components/WordMeaningBubbleModal';
 import ChildVoiceRecorderModal from '@/components/ChildVoiceRecorderModal';
 import AchievementCertificateModal from '@/components/AchievementCertificateModal';
 import TajweedLegendModal from '@/components/TajweedLegendModal';
+import QuranText from '@/components/QuranText';
+import AyahTafsirSheet from '@/components/AyahTafsirSheet';
+import VerseColoringModal, { VerseColor } from '@/components/VerseColoringModal';
+import { hifzFadeService, SurahHifzRecord } from '@/services/hifzFadeService';
 import { quranWordsService } from '@/services/quranWordsService';
 import { WordMeaning } from '@/data/quranWordsData';
 
@@ -51,7 +56,33 @@ export default function SurahDetailScreen() {
     parentSettings,
     downloadedSurahs,
     setSurahDownloaded,
+    profiles,
+    activeProfileId,
   } = useAppStore();
+
+  const currentChild = profiles?.find((p) => p.id === activeProfileId);
+  const isAge4to6 = currentChild?.ageBand === '4-6';
+
+  // Modes & View Formatting (Part A & B1)
+  const [quranMode, setQuranMode] = useState<'listen' | 'fade'>('listen');
+  const [viewFormat, setViewFormat] = useState<'text' | 'cards'>('text');
+  const [fontSize, setFontSize] = useState<number>(26);
+
+  // Hifz Fade state
+  const [hifzRecord, setHifzRecord] = useState<SurahHifzRecord | null>(null);
+  const [wordsPerStep, setWordsPerStep] = useState<number>(3);
+  const [hiddenWordsMap, setHiddenWordsMap] = useState<Record<number, number[]>>({});
+  const [versesColorMap, setVersesColorMap] = useState<Record<number, VerseColor>>({});
+  const [allHiddenSuccess, setAllHiddenSuccess] = useState<boolean>(false);
+  const [showUnreviewedNotice, setShowUnreviewedNotice] = useState<boolean>(false);
+
+  // Tafsir Bottom Sheet (A4)
+  const [tafsirSheetAyahNo, setTafsirSheetAyahNo] = useState<number | null>(null);
+
+  // Verse Coloring Modal (B1)
+  const [coloringVerseNo, setColoringVerseNo] = useState<number | null>(null);
+
+  const isReviewedForFade = hifzFadeService.isSurahReviewed(surahNumber);
 
   const t = TRANSLATIONS[language];
   const [surah, setSurah] = useState(() => quranService.getSurahSync(surahNumber));
@@ -275,6 +306,141 @@ export default function SurahDetailScreen() {
     }
   };
 
+  // Load Hifz Record for Child & Surah
+  useEffect(() => {
+    let isCurrent = true;
+    hifzFadeService.getSurahHifz(activeProfileId || 'default', surahNumber).then((rec) => {
+      if (!isCurrent) return;
+      setHifzRecord(rec);
+      setWordsPerStep(rec.wordsPerStep || 3);
+      const colors: Record<number, VerseColor> = {};
+      const hidden: Record<number, number[]> = {};
+      for (const [vNo, vState] of Object.entries(rec.verses || {})) {
+        colors[Number(vNo)] = vState.color;
+        hidden[Number(vNo)] = vState.hiddenWords || [];
+      }
+      setVersesColorMap(colors);
+      setHiddenWordsMap(hidden);
+    });
+
+    return () => {
+      isCurrent = false;
+      hifzFadeService.clearUndoStack();
+    };
+  }, [activeProfileId, surahNumber]);
+
+  const handleSelectMode = (mode: 'listen' | 'fade') => {
+    if (mode === 'fade') {
+      if (!isReviewedForFade) {
+        setShowUnreviewedNotice(true);
+        return;
+      }
+      setQuranMode('fade');
+      setViewFormat('text');
+    } else {
+      setQuranMode('listen');
+    }
+  };
+
+  const cloneHifzRecord = (rec: SurahHifzRecord): SurahHifzRecord => {
+    const versesCopy: Record<number, any> = {};
+    for (const [vNo, vState] of Object.entries(rec.verses || {})) {
+      versesCopy[Number(vNo)] = {
+        color: vState.color,
+        hiddenWords: [...(vState.hiddenWords || [])],
+        updatedAt: vState.updatedAt,
+      };
+    }
+    return {
+      ...rec,
+      verses: versesCopy,
+    };
+  };
+
+  const handleQuranWordTap = (sId: number, verseNo: number, wordPos: number) => {
+    if (quranMode === 'fade' && hifzRecord) {
+      const copy = cloneHifzRecord(hifzRecord);
+      hifzFadeService.toggleWordHidden(copy, verseNo, wordPos);
+      hifzFadeService.saveSurahHifz(copy);
+      setHifzRecord(copy);
+      setHiddenWordsMap(hifzFadeService.getHiddenWordsMap(copy));
+      setAllHiddenSuccess(false);
+    } else {
+      playAyahAudio(verseNo, 1);
+    }
+  };
+
+  const handleFadeMore = () => {
+    if (!hifzRecord || !surah?.ayahs) return;
+    const verseWordCounts: Record<number, number> = {};
+    surah.ayahs.forEach((a) => {
+      const count = (a.textUthmani || '').trim().split(/\s+/).filter(Boolean).length;
+      verseWordCounts[a.number] = Math.max(1, count);
+    });
+
+    const copy = cloneHifzRecord(hifzRecord);
+    const result = hifzFadeService.fadeMoreWords(copy, verseWordCounts);
+    hifzFadeService.saveSurahHifz(copy);
+    setHifzRecord(copy);
+    setHiddenWordsMap(hifzFadeService.getHiddenWordsMap(copy));
+    if (result.allHidden) {
+      setAllHiddenSuccess(true);
+    }
+  };
+
+  const handleUndo = () => {
+    if (!hifzRecord) return;
+    const copy = cloneHifzRecord(hifzRecord);
+    const restored = hifzFadeService.undoLastAction(copy);
+    if (restored) {
+      hifzFadeService.saveSurahHifz(copy);
+      setHifzRecord(copy);
+      setHiddenWordsMap(hifzFadeService.getHiddenWordsMap(copy));
+      setAllHiddenSuccess(false);
+    }
+  };
+
+  const handleResetHidden = () => {
+    if (!hifzRecord) return;
+    const copy = cloneHifzRecord(hifzRecord);
+    hifzFadeService.resetHiddenWords(copy);
+    hifzFadeService.saveSurahHifz(copy);
+    setHifzRecord(copy);
+    setHiddenWordsMap(hifzFadeService.getHiddenWordsMap(copy));
+    setAllHiddenSuccess(false);
+  };
+
+  const handleChangeWordsPerStep = (delta: number) => {
+    const next = Math.max(1, Math.min(6, wordsPerStep + delta));
+    setWordsPerStep(next);
+    if (hifzRecord) {
+      const copy = { ...hifzRecord, wordsPerStep: next };
+      setHifzRecord(copy);
+      hifzFadeService.saveSurahHifz(copy);
+    }
+  };
+
+  const handleSelectVerseColor = (color: VerseColor) => {
+    if (!hifzRecord || coloringVerseNo === null) return;
+    const copy = cloneHifzRecord(hifzRecord);
+    hifzFadeService.setVerseColor(copy, coloringVerseNo, color);
+    hifzFadeService.saveSurahHifz(copy);
+    setHifzRecord(copy);
+    setVersesColorMap({
+      ...versesColorMap,
+      [coloringVerseNo]: color,
+    });
+    setColoringVerseNo(null);
+  };
+
+  const handleOpenTafsirForVerse = (sId: number, verseNo: number) => {
+    setTafsirSheetAyahNo(verseNo);
+  };
+
+  const hifzProgress = hifzRecord
+    ? hifzFadeService.calculateProgress(hifzRecord, surah?.ayahs?.length || 1)
+    : { memorizedCount: 0, masteredCount: 0, reviewCount: 0, percent: 0 };
+
   const currentSurahProgress = surahProgress[surah.number];
   const isSurahCompleted = !!currentSurahProgress?.isCompleted;
   const memorizedAyahsCount = surah.ayahs.filter(
@@ -398,25 +564,228 @@ export default function SurahDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Mode Switcher: "اسمع وردّد" | "المحو التدريجي" (Hidden in age 4-6) */}
+        {!isAge4to6 && (
+          <View style={styles.modeSwitcherContainer}>
+            <TouchableOpacity
+              style={[styles.modeTab, quranMode === 'listen' && styles.modeTabActive]}
+              onPress={() => handleSelectMode('listen')}
+              activeOpacity={0.85}
+              accessibilityLabel="وضع اسمع وردّد"
+            >
+              <Ionicons
+                name="headset"
+                size={16}
+                color={quranMode === 'listen' ? '#FFFFFF' : COLORS.textSecondary}
+              />
+              <Text
+                style={[
+                  styles.modeTabText,
+                  quranMode === 'listen' && styles.modeTabTextActive,
+                ]}
+              >
+                {language === 'ar' ? 'اسمع وردّد' : 'Listen & Recite'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.modeTab, quranMode === 'fade' && styles.modeTabActiveFade]}
+              onPress={() => handleSelectMode('fade')}
+              activeOpacity={0.85}
+              accessibilityLabel="وضع المحو التدريجي للحفظ"
+            >
+              <Ionicons
+                name="sparkles"
+                size={16}
+                color={quranMode === 'fade' ? '#FFFFFF' : '#047857'}
+              />
+              <Text
+                style={[
+                  styles.modeTabText,
+                  quranMode === 'fade' && styles.modeTabTextActive,
+                ]}
+              >
+                {language === 'ar' ? 'المحو التدريجي 🧠' : 'Fade Memorize 🧠'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Fade Controls Toolbar (Part B1) */}
+        {quranMode === 'fade' && (
+          <View style={styles.fadeToolbarCard}>
+            {/* Progress bar */}
+            <View style={styles.fadeProgressSection}>
+              <View style={[styles.fadeProgressHeader, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.fadeProgressTitle}>
+                  {`حَفِظْتَ ${hifzProgress.memorizedCount + hifzProgress.masteredCount} مِنْ ${surah.ayahs.length} آيَاتٍ`}
+                </Text>
+                <Text style={styles.fadeProgressPercent}>{`${hifzProgress.percent}%`}</Text>
+              </View>
+              <View
+                style={styles.fadeProgressBarTrack}
+                role="img"
+                aria-label={`تقدم حفظ السورة ${hifzProgress.percent} في المئة`}
+              >
+                <View
+                  style={[styles.fadeProgressBarFill, { width: `${hifzProgress.percent}%` }]}
+                />
+              </View>
+            </View>
+
+            {/* Fade Actions */}
+            <View style={[styles.fadeActionsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+              {/* Button: امح المزيد */}
+              <TouchableOpacity
+                style={[styles.fadeMoreBtn, allHiddenSuccess && styles.fadeBtnDisabled]}
+                onPress={handleFadeMore}
+                disabled={allHiddenSuccess}
+                activeOpacity={0.85}
+                accessibilityLabel="امح المزيد من الكلمات"
+              >
+                <Ionicons name="eye-off-outline" size={17} color="#FFFFFF" />
+                <Text style={styles.fadeMoreBtnText}>
+                  {language === 'ar' ? 'امْحُ الْمَزِيدَ' : 'Fade More'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Stepper: Words per step (- / +) */}
+              <View style={styles.wordsStepper}>
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => handleChangeWordsPerStep(-1)}
+                  accessibilityLabel="تقليل عدد الكلمات"
+                >
+                  <Ionicons name="remove" size={14} color="#047857" />
+                </TouchableOpacity>
+                <Text style={styles.stepperValue}>{wordsPerStep}</Text>
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => handleChangeWordsPerStep(1)}
+                  accessibilityLabel="زيادة عدد الكلمات"
+                >
+                  <Ionicons name="add" size={14} color="#047857" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Undo Button */}
+              <TouchableOpacity
+                style={[styles.undoBtn, !hifzFadeService.canUndo && styles.fadeBtnDisabled]}
+                onPress={handleUndo}
+                disabled={!hifzFadeService.canUndo}
+                activeOpacity={0.8}
+                accessibilityLabel="تراجع عن آخر خطوة"
+              >
+                <Ionicons
+                  name="arrow-undo"
+                  size={15}
+                  color={hifzFadeService.canUndo ? '#047857' : '#9CA3AF'}
+                />
+                <Text
+                  style={[
+                    styles.undoBtnText,
+                    !hifzFadeService.canUndo && { color: '#9CA3AF' },
+                  ]}
+                >
+                  {language === 'ar' ? 'تراجع' : 'Undo'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Reset hidden words */}
+              <TouchableOpacity
+                style={styles.resetHiddenBtn}
+                onPress={handleResetHidden}
+                activeOpacity={0.8}
+                accessibilityLabel="إظهار كل الكلمات المخفية"
+              >
+                <Ionicons name="eye-outline" size={15} color="#4B5563" />
+                <Text style={styles.resetHiddenBtnText}>
+                  {language === 'ar' ? 'إِظْهَارُ الْكُلِّ' : 'Show All'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Success Banner when all words are hidden */}
+            {allHiddenSuccess && (
+              <View style={[styles.allHiddenBanner, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="ribbon" size={18} color="#D97706" />
+                <Text style={styles.allHiddenBannerText}>
+                  أَحْسَنْتَ! جَرِّبْ أَنْ تَقُولَهَا مِنْ حِفْظِكَ 🎉
+                </Text>
+              </View>
+            )}
+
+            <View style={[styles.fadeHintRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+              <Ionicons name="information-circle-outline" size={14} color="#6B7280" />
+              <Text style={styles.fadeHintText}>
+                المس أي كلمة لإخفائها/إظهارها • المس رقم الآية لتلوينها (حفظت، متقنة، مراجعة)
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Toggles Row */}
         <View style={styles.togglesRow}>
-          <TouchableOpacity
-            style={[styles.toggleChip, showTafsir && styles.toggleChipActive]}
-            onPress={() => setShowTafsir(!showTafsir)}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={showTafsir ? 'checkmark' : 'add'}
-              size={14}
-              color={showTafsir ? COLORS.primaryDark : COLORS.textSecondary}
-            />
-            <Text
-              style={[styles.toggleChipText, showTafsir && styles.toggleChipTextActive]}
-            >
-              {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
-            </Text>
-          </TouchableOpacity>
+          {quranMode === 'listen' && (
+            <>
+              {/* Text vs Cards Toggle */}
+              <TouchableOpacity
+                style={[styles.toggleChip, viewFormat === 'text' && styles.toggleChipActive]}
+                onPress={() => setViewFormat(viewFormat === 'text' ? 'cards' : 'text')}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={viewFormat === 'text' ? 'document-text' : 'albums'}
+                  size={14}
+                  color={viewFormat === 'text' ? COLORS.primaryDark : COLORS.textSecondary}
+                />
+                <Text style={[styles.toggleChipText, viewFormat === 'text' && styles.toggleChipTextActive]}>
+                  {viewFormat === 'text'
+                    ? (language === 'ar' ? 'نص المصحف 📜' : 'Mushaf Text 📜')
+                    : (language === 'ar' ? 'بطاقات الآيات 🃏' : 'Ayah Cards 🃏')}
+                </Text>
+              </TouchableOpacity>
 
+              {/* Font Size A- / A+ Controls */}
+              {viewFormat === 'text' && (
+                <View style={styles.fontSizeControlsRow}>
+                  <TouchableOpacity
+                    style={styles.fontBtn}
+                    onPress={() => setFontSize((s) => Math.max(20, s - 2))}
+                    accessibilityLabel="تصغير الخط"
+                  >
+                    <Text style={styles.fontBtnText}>A−</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.fontBtn}
+                    onPress={() => setFontSize((s) => Math.min(38, s + 2))}
+                    accessibilityLabel="تكبير الخط"
+                  >
+                    <Text style={styles.fontBtnText}>A+</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <TouchableOpacity
+                style={[styles.toggleChip, showTafsir && styles.toggleChipActive]}
+                onPress={() => setShowTafsir(!showTafsir)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={showTafsir ? 'checkmark' : 'add'}
+                  size={14}
+                  color={showTafsir ? COLORS.primaryDark : COLORS.textSecondary}
+                />
+                <Text
+                  style={[styles.toggleChipText, showTafsir && styles.toggleChipTextActive]}
+                >
+                  {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Mushaf Page Fallback Toggle (A1 / A5: "وضع صفحة المصحف") */}
           <TouchableOpacity
             style={styles.openInMushafChip}
             onPress={() => {
@@ -431,23 +800,7 @@ export default function SurahDetailScreen() {
           >
             <Ionicons name="book" size={13} color="#B45309" />
             <Text style={styles.openInMushafChipText}>
-              {language === 'ar' ? 'المصحف 📄' : 'Mushaf 📄'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.memorizeChip}
-            onPress={() => {
-              router.push({
-                pathname: '/quran/repeat' as any,
-                params: { surahId: surah.number.toString() },
-              });
-            }}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="sparkles" size={13} color="#059669" />
-            <Text style={styles.memorizeChipText}>
-              {language === 'ar' ? 'تحفيظ 🧠' : 'Memorize 🧠'}
+              {language === 'ar' ? 'وضع صفحة المصحف 📄' : 'Mushaf Page 📄'}
             </Text>
           </TouchableOpacity>
 
@@ -500,8 +853,8 @@ export default function SurahDetailScreen() {
           </View>
         )}
 
-        {/* Bismillah Header (except for Surah 9 / At-Tawbah if applicable) */}
-        {surah.number !== 1 && (
+        {/* Bismillah Header for cards mode (except for Surah 9 / At-Tawbah if applicable) */}
+        {viewFormat === 'cards' && quranMode === 'listen' && surah.number !== 1 && (
           <View style={styles.bismillahBanner}>
             <Text style={styles.bismillahText}>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</Text>
           </View>
@@ -516,8 +869,25 @@ export default function SurahDetailScreen() {
           </View>
         )}
 
-        {surah.ayahs.map((ayah) => {
-          const isActive = ayah.number === activeAyahNum;
+        {/* Interactive Real Text Hafs Hafiz Renderer (Part A & B1) */}
+        {(quranMode === 'fade' || viewFormat === 'text') ? (
+          <View style={styles.quranTextCardWrapper}>
+            <QuranText
+              surahId={surahNumber}
+              mode={quranMode}
+              fontSize={fontSize}
+              activeVerseNumber={isPlaying ? activeAyahNum : null}
+              versesColorMap={versesColorMap}
+              hiddenWordsMap={hiddenWordsMap}
+              onWordTap={handleQuranWordTap}
+              onWordLongPress={handleOpenTafsirForVerse}
+              onVerseMarkerTap={handleOpenTafsirForVerse}
+              onVerseNumberTap={(sId, vNo) => setColoringVerseNo(vNo)}
+            />
+          </View>
+        ) : (
+          surah.ayahs.map((ayah) => {
+            const isActive = ayah.number === activeAyahNum;
           const status =
             surahProgress[surah.number]?.ayahsStatus?.[ayah.number] || 'new';
 
@@ -762,7 +1132,8 @@ export default function SurahDetailScreen() {
               )}
             </TouchableOpacity>
           );
-        })}
+        })
+      )}
 
         {/* Surah Memorization Completion Milestone Card */}
         <View style={styles.surahHifzMilestoneCard}>
@@ -982,6 +1353,55 @@ export default function SurahDetailScreen() {
         language={language}
         onClose={() => setShowTajweedModal(false)}
       />
+
+      {/* Tafsir Bottom Sheet (A4) */}
+      <AyahTafsirSheet
+        visible={tafsirSheetAyahNo !== null}
+        surahNumber={surahNumber}
+        surahNameArabic={surah.nameArabic}
+        ayahNumber={tafsirSheetAyahNo || 1}
+        totalAyahs={surah.ayahs.length}
+        ayahText={surah.ayahs.find((a) => a.number === tafsirSheetAyahNo)?.textUthmani}
+        onDismiss={() => setTafsirSheetAyahNo(null)}
+        onSelectAyah={(newAyahNo) => setTafsirSheetAyahNo(newAyahNo)}
+      />
+
+      {/* Verse Coloring Modal (B1) */}
+      <VerseColoringModal
+        visible={coloringVerseNo !== null}
+        surahNumber={surahNumber}
+        verseNumber={coloringVerseNo || 1}
+        currentColor={coloringVerseNo ? versesColorMap[coloringVerseNo] || null : null}
+        onSelectColor={handleSelectVerseColor}
+        onDismiss={() => setColoringVerseNo(null)}
+      />
+
+      {/* Unreviewed Surah Notice Modal */}
+      {showUnreviewedNotice && (
+        <Modal
+          visible={showUnreviewedNotice}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowUnreviewedNotice(false)}
+        >
+          <View style={styles.noticeOverlay}>
+            <View style={styles.noticeModalCard}>
+              <Ionicons name="sparkles" size={36} color="#D97706" />
+              <Text style={styles.noticeModalTitle}>قَرِيبًا إِنْ شَاءَ اللَّهُ ✨</Text>
+              <Text style={styles.noticeModalDesc}>
+                وَضْعُ الْمَحْوِ التَّدْرِيجِيِّ قَادِمٌ لِهَذِهِ السُّورَةِ بَعْدَ اعْتِمَادِ مُرَاجَعَتِهَا الْمُعْتَمَدَةِ.
+                يُمْكِنُكَ حِفْظُهَا الْآنَ عَبْرَ «اسْمَعْ وَرَدِّدْ» أَوْ «وَضْعِ صَفْحَةِ الْمُصْحَفِ».
+              </Text>
+              <TouchableOpacity
+                style={styles.noticeModalCloseBtn}
+                onPress={() => setShowUnreviewedNotice(false)}
+              >
+                <Text style={styles.noticeModalCloseBtnText}>حَسَنًا</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -1684,5 +2104,254 @@ const styles = StyleSheet.create({
     padding: 3,
     borderRadius: RADIUS.full,
     backgroundColor: '#D1FAE5',
+  },
+  modeSwitcherContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
+    borderRadius: RADIUS.lg,
+    padding: 4,
+    marginVertical: SPACING.xs,
+    gap: 4,
+  },
+  modeTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: RADIUS.md,
+    gap: 6,
+  },
+  modeTabActive: {
+    backgroundColor: COLORS.primary,
+    ...SHADOWS.soft,
+  },
+  modeTabActiveFade: {
+    backgroundColor: '#059669',
+    ...SHADOWS.soft,
+  },
+  modeTabText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+  },
+  modeTabTextActive: {
+    color: '#FFFFFF',
+  },
+  fadeToolbarCard: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: '#BBF7D0',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.sm,
+    marginVertical: SPACING.xs,
+    gap: 10,
+    ...SHADOWS.soft,
+  },
+  fadeProgressSection: {
+    gap: 4,
+  },
+  fadeProgressHeader: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  fadeProgressTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  fadeProgressPercent: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#059669',
+  },
+  fadeProgressBarTrack: {
+    height: 8,
+    backgroundColor: '#DCFCE7',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  fadeProgressBarFill: {
+    height: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 4,
+  },
+  fadeActionsRow: {
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  fadeMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#059669',
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.full,
+    minHeight: 44,
+    ...SHADOWS.soft,
+  },
+  fadeMoreBtnText: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  fadeBtnDisabled: {
+    opacity: 0.5,
+  },
+  wordsStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: RADIUS.full,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    gap: 6,
+    minHeight: 44,
+  },
+  stepperBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ECFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperValue: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#065F46',
+    minWidth: 16,
+    textAlign: 'center',
+  },
+  undoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.full,
+    minHeight: 44,
+  },
+  undoBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#047857',
+  },
+  resetHiddenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+    minHeight: 44,
+  },
+  resetHiddenBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#4B5563',
+  },
+  allHiddenBanner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FCD34D',
+    borderRadius: RADIUS.md,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  allHiddenBannerText: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#92400E',
+  },
+  fadeHintRow: {
+    alignItems: 'center',
+    gap: 5,
+  },
+  fadeHintText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6B7280',
+    flex: 1,
+  },
+  fontSizeControlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: RADIUS.full,
+    padding: 2,
+    gap: 2,
+  },
+  fontBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#FFFFFF',
+    minHeight: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fontBtnText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.text,
+  },
+  quranTextCardWrapper: {
+    width: '100%',
+    paddingVertical: SPACING.xs,
+  },
+  noticeOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  noticeModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    width: '100%',
+    maxWidth: 420,
+    alignItems: 'center',
+    gap: 12,
+    ...SHADOWS.medium,
+  },
+  noticeModalTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#92400E',
+    textAlign: 'center',
+  },
+  noticeModalDesc: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  noticeModalCloseBtn: {
+    backgroundColor: '#059669',
+    paddingVertical: 12,
+    paddingHorizontal: 36,
+    borderRadius: RADIUS.full,
+    marginTop: 8,
+  },
+  noticeModalCloseBtnText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
   },
 });

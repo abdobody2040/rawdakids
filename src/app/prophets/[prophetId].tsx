@@ -29,6 +29,7 @@ import { TRANSLATIONS } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
+import { storiesService } from '@/services/storiesService';
 
 const PROPHET_ARTWORKS = {
   caravan: require('../../../assets/images/prophets-caravan.jpg'),
@@ -330,7 +331,9 @@ const getProphetSceneArtwork = (prophetId: string, sceneIdx: number, scene: any)
 export default function ProphetStoryPlayerScreen() {
   const router = useRouter();
   const { prophetId } = useLocalSearchParams();
-  const { language, completeStory, addStars, parentSettings } = useAppStore();
+  const { language, completeStory, addStars, parentSettings, activeProfileId, profiles } = useAppStore();
+  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  const childId = activeProfile?.id || 'child_default';
   const showEnglish = language === 'en' || (language === 'ar' && parentSettings?.showEnglishTranslation === true);
   const t = TRANSLATIONS[language];
 
@@ -834,6 +837,8 @@ export default function ProphetStoryPlayerScreen() {
               onPress={() => {
                 setShowTakeawayModal(false);
                 setShowCelebration(true);
+                completeStory(prophet.id, quizScore || 3);
+                storiesService.markStoryRead(childId, prophet.id).catch(() => {});
               }}
               activeOpacity={0.8}
             >

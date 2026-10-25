@@ -1,0 +1,108 @@
+{
+  "surahId": 112,
+  "nameArabic": "سُورَةُ الإِخۡلَاصِ",
+  "nameEnglish": "Al-Ikhlaas",
+  "nameTranslation": "Sincerity",
+  "revelationType": "Meccan",
+  "totalVerses": 4,
+  "hasBasmala": true,
+  "basmalaIsVerse1": false,
+  "verses": [
+    {
+      "n": 1,
+      "globalNumber": 6222,
+      "words": [
+        {
+          "p": 1,
+          "t": "قُلْ"
+        },
+        {
+          "p": 2,
+          "t": "هُوَ"
+        },
+        {
+          "p": 3,
+          "t": "ٱللَّهُ"
+        },
+        {
+          "p": 4,
+          "t": "أَحَدٌ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 2,
+      "globalNumber": 6223,
+      "words": [
+        {
+          "p": 1,
+          "t": "ٱللَّهُ"
+        },
+        {
+          "p": 2,
+          "t": "ٱلصَّمَدُ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 3,
+      "globalNumber": 6224,
+      "words": [
+        {
+          "p": 1,
+          "t": "لَمْ"
+        },
+        {
+          "p": 2,
+          "t": "يَلِدْ"
+        },
+        {
+          "p": 3,
+          "t": "وَلَمْ"
+        },
+        {
+          "p": 4,
+          "t": "يُولَدْ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 4,
+      "globalNumber": 6225,
+      "words": [
+        {
+          "p": 1,
+          "t": "وَلَمْ"
+        },
+        {
+          "p": 2,
+          "t": "يَكُن"
+        },
+        {
+          "p": 3,
+          "t": "لَّهُۥ"
+        },
+        {
+          "p": 4,
+          "t": "كُفُوًا"
+        },
+        {
+          "p": 5,
+          "t": "أَحَدٌۢ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    }
+  ]
+}

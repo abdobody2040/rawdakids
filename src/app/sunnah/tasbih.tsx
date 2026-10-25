@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Animated,
   Platform,
   Vibration,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ import AppBottomNav from '@/components/AppBottomNav';
 import SunnahHeroHeader from '@/components/SunnahHeroHeader';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { audioService } from '@/services/audioService';
+import { tasbihService } from '@/services/tasbihService';
 
 export interface DhikrItem {
   id: string;
@@ -175,7 +177,7 @@ export const DHIKR_LIST: DhikrItem[] = [
   },
   {
     id: 'lailahaillallah',
-    textArabic: 'لا إِلَهَ إِلا اللَّهُ',
+    textArabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
     transliteration: 'Lā ilāha illā Allāh',
     meaningAr: 'لا مَعْبُودَ بِحَقٍّ فِي الْكَوْنِ إِلا اللَّهُ',
     meaningEn: 'There is none worthy of worship except Allah',
@@ -185,48 +187,15 @@ export const DHIKR_LIST: DhikrItem[] = [
     colorScheme: ['#7C3AED', '#6D28D9'] as const,
   },
   {
-    id: 'salawat',
-    textArabic: 'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ',
-    transliteration: 'Allāhumma ṣalli ʿalā sayyidinā Muḥammad',
-    meaningAr: 'صَلاةٌ وَبَرَكَةٌ عَلَى حَبِيبِنَا وَقُدْوَتِنَا ﷺ',
-    meaningEn: 'Peace, blessings, and honor upon our beloved Prophet ﷺ',
-    defaultTarget: 33,
-    rewardNoteAr: 'مَن صلى عليه صلاة صلى الله عليه بها عشراً 🌸',
-    rewardNoteEn: 'Whoever sends peace upon him, Allah blesses them tenfold 🌸',
-    colorScheme: ['#E11D48', '#BE123C'] as const,
-  },
-  {
     id: 'istighfar',
-    textArabic: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
-    transliteration: 'Astaghfiru Allāh wa-atūbu ilayh',
+    textArabic: 'أَسْتَغْفِرُ اللَّهَ',
+    transliteration: 'Astaghfiru Allāh',
     meaningAr: 'أَطْلُبُ مَغْفِرَةَ رَبِّي وَرَحْمَتَهُ الْوَاسِعَةَ',
     meaningEn: 'I seek Allah’s forgiveness and return to Him in repentance',
     defaultTarget: 33,
     rewardNoteAr: 'تَمْحُو الذُّنُوبَ وَتَجْلِبُ الرِّزْقَ وَالفَرَجَ 🌧️',
     rewardNoteEn: 'Brings forgiveness, ease, and endless blessings 🌧️',
     colorScheme: ['#0D9488', '#0F766E'] as const,
-  },
-  {
-    id: 'subhanallahi_wabihamdih',
-    textArabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
-    transliteration: 'Subḥān Allāhi wa-biḥamdih, Subḥān Allāhi al-ʿAẓīm',
-    meaningAr: 'كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ حَبِيبَتَانِ إِلَى الرَّحْمَٰنِ',
-    meaningEn: 'Two phrases light on the tongue, heavy on the scale',
-    defaultTarget: 33,
-    rewardNoteAr: 'ثَقِيلَتَانِ فِي الْمِيزَانِ حَبِيبَتَانِ لِلرَّحْمَنِ ⭐',
-    rewardNoteEn: 'Beloved to the Most Merciful and heavy on the scale ⭐',
-    colorScheme: ['#4F46E5', '#4338CA'] as const,
-  },
-  {
-    id: 'hawqalah',
-    textArabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
-    transliteration: 'Lā ḥawla wa-lā quwwata illā billāh',
-    meaningAr: 'لَا تَحَوُّلَ مِنْ حَالٍ إِلَى حَالٍ إِلَّا بِقُدْرَةِ اللَّهِ وَعَوْنِهِ',
-    meaningEn: 'There is no power nor strength except through Allah',
-    defaultTarget: 33,
-    rewardNoteAr: 'كَنْزٌ مِنْ كُنُوزِ الْجَنَّةِ 💎',
-    rewardNoteEn: 'A precious treasure from the treasures of Jannah 💎',
-    colorScheme: ['#0284C7', '#0F766E'] as const,
   },
 ];
 
@@ -296,88 +265,155 @@ function playCompletionChimeSound() {
 }
 
 export default function TasbihScreen() {
-  const { language, addStars, addGems } = useAppStore();
+  const { language, activeProfileId, profiles, parentSettings } = useAppStore();
   const isAr = language === 'ar';
-  const t = TRANSLATIONS[language];
+  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  const childId = activeProfile?.id || 'child_default';
+  const ageMode = activeProfile?.ageBand || '7-9';
 
-  const [activeDhikr, setActiveDhikr] = useState<DhikrItem>(DHIKR_LIST[0]);
+  const availableAzkar = tasbihService.getAzkarForAge(ageMode);
+  const availableTargets = tasbihService.getTargetsForAge(ageMode);
+
+  const [activeDhikr, setActiveDhikr] = useState<DhikrItem>(availableAzkar[0] as any);
   const [count, setCount] = useState<number>(0);
-  const [customTarget, setCustomTarget] = useState<number>(33);
+  const [customTarget, setCustomTarget] = useState<number>(availableTargets[2] || 33);
   const [completedRounds, setCompletedRounds] = useState<number>(0);
-  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
+  const [celebrationReward, setCelebrationReward] = useState<{ rewarded: boolean; message: string }>({
+    rewarded: true,
+    message: '',
+  });
+  const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // Animated scale value for tactile button click
+  const lastTapRef = useRef<number>(0);
   const [scaleAnim] = useState(() => new Animated.Value(1));
 
-  // Cleanup audio on unmount
+  // Restore session from localDbService
+  useEffect(() => {
+    tasbihService.getDailyRecord(childId).then((record: any) => {
+      setCompletedRounds(record.completions || 0);
+      if (record.lastSession) {
+        const found = availableAzkar.find((z: any) => z.id === record.lastSession.azkarId);
+        if (found) setActiveDhikr(found as any);
+        if (record.lastSession.target) setCustomTarget(record.lastSession.target);
+        if (typeof record.lastSession.count === 'number') setCount(record.lastSession.count);
+      }
+    }).catch(() => {});
+  }, [childId]);
+
   useEffect(() => {
     return () => {
       audioService.stopDua();
     };
   }, []);
 
-  const handleTapBead = () => {
-    // 1. Audio and Haptic feedback
+  const handleTapBead = async () => {
+    // 1. Rate limiting: ignore taps closer than 80ms apart (B2)
+    const now = Date.now();
+    if (now - lastTapRef.current < 80) return;
+    lastTapRef.current = now;
+
+    // 2. Audio & Haptic feedback (10ms light haptic)
     if (Platform.OS === 'web') {
-      playBeadClickSound();
-    } else {
-      try {
-        Vibration.vibrate(30);
-      } catch {
-        /* vibration not supported */
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(10); } catch {}
       }
+      if (parentSettings?.soundEffectsEnabled ?? false) {
+        playBeadClickSound();
+      }
+    } else {
+      try { Vibration.vibrate(10); } catch {}
     }
 
-    // 2. Button bounce animation
+    // 3. Tactile button bounce
     scaleAnim.setValue(0.92);
     Animated.spring(scaleAnim, {
       toValue: 1,
       friction: 4,
-      tension: 120,
+      tension: 140,
       useNativeDriver: false,
     }).start();
 
-    // 3. Counter logic
+    // 4. Counter logic
     const nextCount = count + 1;
 
     if (customTarget > 0 && nextCount >= customTarget) {
       // Reached Target!
       setCount(0);
-      setCompletedRounds((r) => r + 1);
       playCompletionChimeSound();
-      addStars(1);
-      addGems(2);
+
+      const result = await tasbihService.handleTargetReached(childId, activeDhikr.id, customTarget);
+      setCompletedRounds(result.totalCompletions);
+
+      const message = result.rewarded
+        ? 'مَا شَاءَ اللَّهُ! حَصَلْتَ عَلَى هَدِيَّةِ التَّسْبِيحِ 🌱'
+        : 'أَحْسَنْتَ! عُدْ غَدًا لِلْهَدِيَّةِ (الْحَدُّ الْيَوْمِيُّ: ٣ هَدَايَا)';
+
+      setCelebrationReward({
+        rewarded: result.rewarded,
+        message,
+      });
       setShowCelebration(true);
     } else {
       setCount(nextCount);
+      tasbihService.saveSession(childId, activeDhikr.id, customTarget, nextCount).catch(() => {});
     }
   };
 
-  const handleReset = () => {
-    setCount(0);
+  const handleResetRequest = () => {
+    if (count === 0) {
+      setCount(0);
+      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => {});
+      return;
+    }
+    setPendingAction(() => () => {
+      setCount(0);
+      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => {});
+    });
+    setShowResetConfirm(true);
   };
 
   const handleSelectDhikr = (dhikr: DhikrItem) => {
-    setActiveDhikr(dhikr);
-    setCount(0);
-  };
-
-  const handleToggleAudio = async () => {
-    if (isPlayingAudio) {
-      await audioService.stopDua();
-      setIsPlayingAudio(false);
+    if (count === 0) {
+      setActiveDhikr(dhikr);
       return;
     }
-
-    setIsPlayingAudio(true);
-    await audioService.playDua(activeDhikr.textArabic, (status) => {
-      if (status.didJustFinish || status.error || !status.isPlaying) {
-        setIsPlayingAudio(false);
-      }
+    setPendingAction(() => () => {
+      setActiveDhikr(dhikr);
+      setCount(0);
+      tasbihService.resetSession(childId, dhikr.id, customTarget).catch(() => {});
     });
+    setShowResetConfirm(true);
   };
 
+  const handleSelectTarget = (tVal: number) => {
+    if (count === 0) {
+      setCustomTarget(tVal);
+      return;
+    }
+    setPendingAction(() => () => {
+      setCustomTarget(tVal);
+      setCount(0);
+      tasbihService.resetSession(childId, activeDhikr.id, tVal).catch(() => {});
+    });
+    setShowResetConfirm(true);
+  };
+
+  const confirmResetAction = () => {
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+    setShowResetConfirm(false);
+  };
+
+  const cancelResetAction = () => {
+    setPendingAction(null);
+    setShowResetConfirm(false);
+  };
+
+  const remainingToTarget = Math.max(0, customTarget - count);
   const progressPercent =
     customTarget > 0 ? Math.min(100, Math.round((count / customTarget) * 100)) : 100;
 
@@ -386,8 +422,8 @@ export default function TasbihScreen() {
       <View style={styles.appContainer}>
         <Header
           showBack
-          fallbackRoute="/sunnah"
-          title={t.sunnah}
+          fallbackRoute="/prayer"
+          title={isAr ? 'الْمِسْبَحَةُ' : 'Tasbih'}
         />
 
         {/* Persistent Sunnah Navigation Hub Header */}
@@ -400,7 +436,7 @@ export default function TasbihScreen() {
           {/* Horizontal Dhikr Selector Chips */}
           <View style={styles.dhikrListWrap}>
             <Text style={[styles.sectionLabel, { textAlign: isAr ? 'right' : 'left' }]}>
-              {(t as any).chooseDhikr || (isAr ? 'اختر الذكر المبارك:' : 'Choose Dhikr:')}
+              {isAr ? 'اخْتَرِ الذِّكْرَ الْمُبَارَكَ:' : 'Choose Dhikr:'}
             </Text>
             <ScrollView
               horizontal
@@ -410,7 +446,7 @@ export default function TasbihScreen() {
                 { flexDirection: isAr ? 'row-reverse' : 'row' },
               ]}
             >
-              {DHIKR_LIST.map((d) => {
+              {availableAzkar.map((d: any) => {
                 const isSelected = d.id === activeDhikr.id;
                 return (
                   <TouchableOpacity
@@ -422,8 +458,10 @@ export default function TasbihScreen() {
                         borderColor: d.colorScheme[1],
                       },
                     ]}
-                    onPress={() => handleSelectDhikr(d)}
+                    onPress={() => handleSelectDhikr(d as any)}
                     activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={d.textArabic}
                   >
                     <Text
                       style={[
@@ -439,28 +477,22 @@ export default function TasbihScreen() {
             </ScrollView>
           </View>
 
-          {/* Active Dhikr Card (Text, Audio, Meaning & Reward) */}
+          {/* Active Dhikr Card */}
           <LinearGradient
             colors={activeDhikr.colorScheme}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.activeDhikrCard}
           >
-            {/* Arabic Text & Audio Play Button */}
             <View style={styles.dhikrHeaderRow}>
               <TouchableOpacity
-                style={[
-                  styles.audioSpeakerBtn,
-                  isPlayingAudio && styles.audioSpeakerBtnActive,
-                ]}
-                onPress={handleToggleAudio}
+                style={styles.audioSpeakerBtn}
+                onPress={() => audioService.playDua(activeDhikr.textArabic).catch(() => {})}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="استمع للذكر"
               >
-                <Ionicons
-                  name={isPlayingAudio ? 'pause' : 'volume-high'}
-                  size={20}
-                  color={isPlayingAudio ? activeDhikr.colorScheme[0] : '#FFFFFF'}
-                />
+                <Ionicons name="volume-high" size={20} color="#FFFFFF" />
               </TouchableOpacity>
               <Text style={styles.activeDhikrArabic}>{activeDhikr.textArabic}</Text>
             </View>
@@ -471,10 +503,11 @@ export default function TasbihScreen() {
               {getLocalizedDhikr(activeDhikr, language).meaning}
             </Text>
 
+            {/* Remaining To Target Banner */}
             <View style={styles.rewardPill}>
-              <Ionicons name="gift-outline" size={14} color="#FEF3C7" />
+              <Ionicons name="sparkles" size={14} color="#FEF3C7" />
               <Text style={styles.rewardPillText}>
-                {getLocalizedDhikr(activeDhikr, language).reward}
+                بَقِيَتْ {remainingToTarget} تَسْبِيحَةً لِإِتْمَامِ الْهَدَفِ
               </Text>
             </View>
           </LinearGradient>
@@ -488,18 +521,17 @@ export default function TasbihScreen() {
           >
             {/* Target Selectors */}
             <View style={[styles.targetsBox, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-              {[33, 100, 0].map((tVal) => (
+              {availableTargets.map((tVal: any) => (
                 <TouchableOpacity
                   key={tVal}
                   style={[
                     styles.targetPill,
                     customTarget === tVal && styles.targetPillActive,
                   ]}
-                  onPress={() => {
-                    setCustomTarget(tVal);
-                    setCount(0);
-                  }}
+                  onPress={() => handleSelectTarget(tVal)}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`الهدف ${tVal}`}
                 >
                   <Text
                     style={[
@@ -507,7 +539,7 @@ export default function TasbihScreen() {
                       customTarget === tVal && styles.targetPillTextActive,
                     ]}
                   >
-                    {tVal === 0 ? '∞' : tVal}
+                    {tVal}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -517,37 +549,42 @@ export default function TasbihScreen() {
             <View style={styles.roundsPill}>
               <Ionicons name="refresh-circle" size={16} color="#047857" />
               <Text style={styles.roundsPillText}>
-                {(t as any).roundsLabel ? `${(t as any).roundsLabel} ${completedRounds}` : (isAr ? `الدورات: ${completedRounds}` : `Rounds: ${completedRounds}`)}
+                {isAr ? `الْمَرَّاتُ: ${completedRounds}` : `Rounds: ${completedRounds}`}
               </Text>
             </View>
 
             {/* Reset Button */}
             <TouchableOpacity
               style={styles.resetBtn}
-              onPress={handleReset}
+              onPress={handleResetRequest}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="ابدأ من جديد"
             >
               <Ionicons name="reload" size={15} color="#64748B" />
-              <Text style={styles.resetBtnText}>{(t as any).resetBtn || (isAr ? 'تصفير' : 'Reset')}</Text>
+              <Text style={styles.resetBtnText}>{isAr ? 'ابْدَأْ مِنْ جَدِيدٍ' : 'Reset'}</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Progress Bar */}
-          {customTarget > 0 && (
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${progressPercent}%`,
-                    backgroundColor: activeDhikr.colorScheme[0],
-                  },
-                ]}
-              />
-            </View>
-          )}
+          {/* Progress Bar (role="img" with Arabic label) */}
+          <View
+            style={styles.progressTrack}
+            // @ts-ignore
+            role="img"
+            aria-label={`التسبيح: ${count} من ${customTarget}`}
+          >
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${progressPercent}%`,
+                  backgroundColor: activeDhikr.colorScheme[0],
+                },
+              ]}
+            />
+          </View>
 
-          {/* BIG INTERACTIVE 3D TASBIH BUTTON */}
+          {/* 170PX BIG CIRCULAR TASBIH BUTTON (B2) */}
           <View style={styles.bigButtonContainer}>
             <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <TouchableOpacity
@@ -555,11 +592,13 @@ export default function TasbihScreen() {
                   styles.bigTapButton,
                   {
                     shadowColor: activeDhikr.colorScheme[0],
-                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                    borderColor: 'rgba(255, 255, 255, 0.45)',
                   },
                 ]}
-                onPress={handleTapBead}
-                activeOpacity={0.9}
+                onPressIn={handleTapBead}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel="تسبيح"
               >
                 <LinearGradient
                   colors={activeDhikr.colorScheme}
@@ -569,13 +608,11 @@ export default function TasbihScreen() {
                 >
                   <View style={styles.innerHighlightRing}>
                     <Text style={styles.bigCounterNumber}>{count}</Text>
-                    {customTarget > 0 && (
-                      <Text style={styles.bigCounterTarget}>/ {customTarget}</Text>
-                    )}
+                    <Text style={styles.bigCounterTarget}>/ {customTarget}</Text>
                     <View style={styles.tapPromptBadge}>
-                      <Ionicons name="finger-print" size={20} color="#FFFFFF" />
+                      <Ionicons name="finger-print" size={18} color="#FFFFFF" />
                       <Text style={styles.tapPromptText}>
-                        {(t as any).tapToCount || (isAr ? 'المس للتسبيح 👆' : 'Tap to Count 👆')}
+                        {isAr ? 'اضْغَطْ هُنَا 👆' : 'Tap 👆'}
                       </Text>
                     </View>
                   </View>
@@ -592,7 +629,7 @@ export default function TasbihScreen() {
                 { textAlign: isAr ? 'right' : 'left' },
               ]}
             >
-              {(t as any).tasbihProphetTeaching || (isAr ? '💡 هَدْيُ النَّبِيِّ ﷺ فِي التَّسْبِيحِ:' : '💡 Prophet Muhammad ﷺ taught us:')}
+              {isAr ? '💡 هَدْيُ النَّبِيِّ ﷺ فِي التَّسْبِيحِ:' : '💡 Prophet Muhammad ﷺ taught us:'}
             </Text>
             <Text
               style={[
@@ -600,7 +637,7 @@ export default function TasbihScreen() {
                 { textAlign: isAr ? 'right' : 'left' },
               ]}
             >
-              {TASBIH_PROPHET_BENEFITS[language] || TASBIH_PROPHET_BENEFITS.en}
+              {TASBIH_PROPHET_BENEFITS[language] || TASBIH_PROPHET_BENEFITS.ar}
             </Text>
           </View>
         </ScrollView>
@@ -608,12 +645,49 @@ export default function TasbihScreen() {
         <AppBottomNav />
       </View>
 
+      {/* Confirmation Modal when count > 0 */}
+      <Modal
+        visible={showResetConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={cancelResetAction}
+      >
+        <View style={styles.confirmOverlay}>
+          <View style={styles.confirmCard}>
+            <Ionicons name="help-circle" size={40} color={COLORS.primary} />
+            <Text style={styles.confirmTitle}>هَلْ تُرِيدُ البَدْءَ مِنْ جَدِيدٍ؟</Text>
+            <Text style={styles.confirmSub}>
+              سَيَتِمُّ إِعَادَةُ الْعَدَّادِ إِلَى الصِّفْرِ مَعَ حِفْظِ إِجْمَالِيِّ دَوْرَاتِكَ الْيَوْمِيَّةِ.
+            </Text>
+            <View style={styles.confirmButtonsRow}>
+              <TouchableOpacity
+                style={styles.confirmYesBtn}
+                onPress={confirmResetAction}
+                accessibilityRole="button"
+                accessibilityLabel="نعم ابدأ من جديد"
+              >
+                <Text style={styles.confirmYesText}>نَعَمْ، ابْدَأْ مِنْ جَدِيدٍ</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmCancelBtn}
+                onPress={cancelResetAction}
+                accessibilityRole="button"
+                accessibilityLabel="إلغاء ومتابعة التسبيح"
+              >
+                <Text style={styles.confirmCancelText}>مُتَابَعَةُ التَّسْبِيحِ</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Target Reached Celebration Modal (B2) */}
       <StarRewardCelebration
         visible={showCelebration}
-        starsEarned={1}
-        gemsEarned={2}
-        title={((t as any).tasbihCompletedTitle || (isAr ? 'أتممت {count} تسبيحة مباركة! 🎉' : 'Completed {count} Tasbihs! 🎉')).replace('{count}', String(customTarget))}
-        subtitle={(t as any).tasbihCompletedSubtitle || (isAr ? 'ما شاء الله! نورت قلبك وحفظت لسانك 🌴' : 'Masha’Allah! Light and blessings for your soul 🌴')}
+        starsEarned={celebrationReward.rewarded ? 15 : 0}
+        gemsEarned={celebrationReward.rewarded ? 5 : 0}
+        title={`أَتْمَمْتَ ${customTarget} تَسْبِيحَةً مُبَارَكَةً! 🎉`}
+        subtitle={celebrationReward.message}
         onDismiss={() => setShowCelebration(false)}
       />
     </SafeAreaView>
@@ -805,37 +879,37 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
   },
   bigTapButton: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
     borderWidth: 4,
     ...SHADOWS.medium,
   },
   bigTapGradient: {
     width: '100%',
     height: '100%',
-    borderRadius: 110,
+    borderRadius: 85,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
+    padding: 8,
   },
   innerHighlightRing: {
     width: '100%',
     height: '100%',
-    borderRadius: 98,
-    borderWidth: 2.5,
+    borderRadius: 75,
+    borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bigCounterNumber: {
-    fontSize: 58,
+    fontSize: 46,
     fontWeight: '900',
     color: '#FFFFFF',
-    lineHeight: 64,
+    lineHeight: 50,
   },
   bigCounterTarget: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.75)',
     marginTop: -2,
@@ -843,15 +917,15 @@ const styles = StyleSheet.create({
   tapPromptBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 6,
+    gap: 4,
+    marginTop: 4,
     backgroundColor: 'rgba(0, 0, 0, 0.22)',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
     borderRadius: RADIUS.full,
   },
   tapPromptText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '800',
     color: '#FFFFFF',
   },
@@ -872,5 +946,67 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 20,
     color: '#78350F',
+  },
+  confirmOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.md,
+  },
+  confirmCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    alignItems: 'center',
+    ...SHADOWS.medium,
+  },
+  confirmTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.text,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  confirmSub: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 6,
+    lineHeight: 20,
+  },
+  confirmButtonsRow: {
+    flexDirection: 'column',
+    width: '100%',
+    gap: 8,
+    marginTop: SPACING.md,
+  },
+  confirmYesBtn: {
+    backgroundColor: '#F43F5E',
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  confirmYesText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  confirmCancelBtn: {
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  confirmCancelText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.text,
   },
 });

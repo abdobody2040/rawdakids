@@ -1,0 +1,146 @@
+{
+  "surahId": 114,
+  "nameArabic": "سُورَةُ النَّاسِ",
+  "nameEnglish": "An-Naas",
+  "nameTranslation": "Mankind",
+  "revelationType": "Meccan",
+  "totalVerses": 6,
+  "hasBasmala": true,
+  "basmalaIsVerse1": false,
+  "verses": [
+    {
+      "n": 1,
+      "globalNumber": 6231,
+      "words": [
+        {
+          "p": 1,
+          "t": "قُلْ"
+        },
+        {
+          "p": 2,
+          "t": "أَعُوذُ"
+        },
+        {
+          "p": 3,
+          "t": "بِرَبِّ"
+        },
+        {
+          "p": 4,
+          "t": "ٱلنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 2,
+      "globalNumber": 6232,
+      "words": [
+        {
+          "p": 1,
+          "t": "مَلِكِ"
+        },
+        {
+          "p": 2,
+          "t": "ٱلنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 3,
+      "globalNumber": 6233,
+      "words": [
+        {
+          "p": 1,
+          "t": "إِلَٰهِ"
+        },
+        {
+          "p": 2,
+          "t": "ٱلنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 4,
+      "globalNumber": 6234,
+      "words": [
+        {
+          "p": 1,
+          "t": "مِن"
+        },
+        {
+          "p": 2,
+          "t": "شَرِّ"
+        },
+        {
+          "p": 3,
+          "t": "ٱلْوَسْوَاسِ"
+        },
+        {
+          "p": 4,
+          "t": "ٱلْخَنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 5,
+      "globalNumber": 6235,
+      "words": [
+        {
+          "p": 1,
+          "t": "ٱلَّذِى"
+        },
+        {
+          "p": 2,
+          "t": "يُوَسْوِسُ"
+        },
+        {
+          "p": 3,
+          "t": "فِى"
+        },
+        {
+          "p": 4,
+          "t": "صُدُورِ"
+        },
+        {
+          "p": 5,
+          "t": "ٱلنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 6,
+      "globalNumber": 6236,
+      "words": [
+        {
+          "p": 1,
+          "t": "مِنَ"
+        },
+        {
+          "p": 2,
+          "t": "ٱلْجِنَّةِ"
+        },
+        {
+          "p": 3,
+          "t": "وَٱلنَّاسِ"
+        }
+      ],
+      "page": 604,
+      "juz": 30,
+      "sajda": false
+    }
+  ]
+}

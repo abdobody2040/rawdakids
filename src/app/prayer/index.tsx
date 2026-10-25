@@ -238,7 +238,7 @@ export default function PrayerScreen() {
             {/* Tile 1: Wudu Simulator */}
             <TouchableOpacity
               style={styles.tileCard}
-              onPress={() => router.push('/arkan/salah?mode=wudu')}
+              onPress={() => router.push('/prayer/wudu')}
               activeOpacity={0.88}
             >
               <LinearGradient
@@ -274,7 +274,7 @@ export default function PrayerScreen() {
             {/* Tile 2: Salah Simulator */}
             <TouchableOpacity
               style={styles.tileCard}
-              onPress={() => router.push('/arkan/salah?mode=prayer')}
+              onPress={() => router.push('/prayer/salah')}
               activeOpacity={0.88}
             >
               <LinearGradient

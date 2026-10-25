@@ -1,0 +1,79 @@
+{
+  "surahId": 108,
+  "nameArabic": "سُورَةُ الكَوۡثَرِ",
+  "nameEnglish": "Al-Kawthar",
+  "nameTranslation": "Abundance",
+  "revelationType": "Meccan",
+  "totalVerses": 3,
+  "hasBasmala": true,
+  "basmalaIsVerse1": false,
+  "verses": [
+    {
+      "n": 1,
+      "globalNumber": 6205,
+      "words": [
+        {
+          "p": 1,
+          "t": "إِنَّآ"
+        },
+        {
+          "p": 2,
+          "t": "أَعْطَيْنَٰكَ"
+        },
+        {
+          "p": 3,
+          "t": "ٱلْكَوْثَرَ"
+        }
+      ],
+      "page": 602,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 2,
+      "globalNumber": 6206,
+      "words": [
+        {
+          "p": 1,
+          "t": "فَصَلِّ"
+        },
+        {
+          "p": 2,
+          "t": "لِرَبِّكَ"
+        },
+        {
+          "p": 3,
+          "t": "وَٱنْحَرْ"
+        }
+      ],
+      "page": 602,
+      "juz": 30,
+      "sajda": false
+    },
+    {
+      "n": 3,
+      "globalNumber": 6207,
+      "words": [
+        {
+          "p": 1,
+          "t": "إِنَّ"
+        },
+        {
+          "p": 2,
+          "t": "شَانِئَكَ"
+        },
+        {
+          "p": 3,
+          "t": "هُوَ"
+        },
+        {
+          "p": 4,
+          "t": "ٱلْأَبْتَرُ"
+        }
+      ],
+      "page": 602,
+      "juz": 30,
+      "sajda": false
+    }
+  ]
+}

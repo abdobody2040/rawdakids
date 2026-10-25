@@ -323,10 +323,7 @@ export class SecurityCryptoService {
   public calculateNextLockout(newFailedCount: number): number | null {
     const now = Date.now();
     if (newFailedCount >= 5) {
-      return now + 300 * 1000; // 5 minutes
-    }
-    if (newFailedCount >= 3) {
-      return now + 30 * 1000; // 30 seconds
+      return now + 60 * 1000; // 60 seconds lockout after 5 wrong attempts
     }
     return null;
   }
