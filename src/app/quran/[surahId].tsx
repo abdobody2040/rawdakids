@@ -35,6 +35,7 @@ import AchievementCertificateModal from '@/components/AchievementCertificateModa
 import TajweedLegendModal from '@/components/TajweedLegendModal';
 import QuranText from '@/components/QuranText';
 import AyahTafsirSheet from '@/components/AyahTafsirSheet';
+import SurahFullTafsirModal from '@/components/SurahFullTafsirModal';
 import VerseColoringModal, { VerseColor } from '@/components/VerseColoringModal';
 import { hifzFadeService, SurahHifzRecord } from '@/services/hifzFadeService';
 import { quranWordsService } from '@/services/quranWordsService';
@@ -143,6 +144,7 @@ export default function SurahDetailScreen() {
   const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
   const [selectedTafsirAyah, setSelectedTafsirAyah] = useState<Ayah | null>(null);
   const [playingTafsirAyahNum, setPlayingTafsirAyahNum] = useState<number | null>(null);
+  const [showFullTafsirModal, setShowFullTafsirModal] = useState<boolean>(false);
 
   // Per-user toggles
   const [showTafsir, setShowTafsir] = useState<boolean>(
@@ -767,19 +769,22 @@ export default function SurahDetailScreen() {
               )}
 
               <TouchableOpacity
-                style={[styles.toggleChip, showTafsir && styles.toggleChipActive]}
-                onPress={() => setShowTafsir(!showTafsir)}
+                style={[styles.toggleChip, styles.toggleChipActive]}
+                onPress={() => {
+                  setShowTafsir(true);
+                  setShowFullTafsirModal(true);
+                }}
                 activeOpacity={0.8}
               >
                 <Ionicons
-                  name={showTafsir ? 'checkmark' : 'add'}
+                  name="book"
                   size={14}
-                  color={showTafsir ? COLORS.primaryDark : COLORS.textSecondary}
+                  color={COLORS.primaryDark}
                 />
                 <Text
-                  style={[styles.toggleChipText, showTafsir && styles.toggleChipTextActive]}
+                  style={[styles.toggleChipText, styles.toggleChipTextActive]}
                 >
-                  {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
+                  {language === 'ar' ? 'التفسير الميسر 📖' : 'Meaning & Reflection 📖'}
                 </Text>
               </TouchableOpacity>
             </>
@@ -1364,6 +1369,18 @@ export default function SurahDetailScreen() {
         ayahText={surah.ayahs.find((a) => a.number === tafsirSheetAyahNo)?.textUthmani}
         onDismiss={() => setTafsirSheetAyahNo(null)}
         onSelectAyah={(newAyahNo) => setTafsirSheetAyahNo(newAyahNo)}
+      />
+
+      {/* Full Surah Tafsir Modal */}
+      <SurahFullTafsirModal
+        visible={showFullTafsirModal}
+        surah={surah}
+        language={language}
+        onDismiss={() => setShowFullTafsirModal(false)}
+        onPlayAyah={(ayahNum) => {
+          setShowFullTafsirModal(false);
+          playAyahAudio(ayahNum, 1);
+        }}
       />
 
       {/* Verse Coloring Modal (B1) */}
