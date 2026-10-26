@@ -19,6 +19,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
 import { audioService } from '@/services/audioService';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
+import { getStepMedia } from '@/data/arkanMedia';
 
 const MASCOT_IMG = require('../../../assets/images/mascot-noor.jpg');
 
@@ -311,41 +312,13 @@ export default function WuduStepScreen() {
                 <Ionicons name="sparkles" size={20} color="#F59E0B" />
               </View>
 
-              {/* Water Tap & Crescent Basin Illustration */}
-              <View style={styles.waterSceneWrap}>
-                {/* Metallic Pipe & Tap */}
-                <View style={styles.tapAssembly}>
-                  <View style={styles.pipeHorizontal} />
-                  <View style={styles.tapBody} />
-                  <View style={styles.tapSpout} />
-                  <View style={styles.tapKnobRed} />
-                </View>
-
-                {/* Vertical Stream of Flowing Water */}
-                <LinearGradient
-                  colors={['rgba(2, 132, 199, 0.85)', 'rgba(56, 189, 248, 0.9)']}
-                  style={styles.waterStream}
+              {/* 3D Wudu Step Illustration */}
+              <View style={styles.imageContainer}>
+                <Image
+                  source={getStepMedia('wudu', stepData.step)}
+                  style={styles.stepImage}
+                  resizeMode="contain"
                 />
-
-                {/* Floating Water Drops around the stream */}
-                <View style={[styles.miniDrop, { top: 90, left: '38%' }]} />
-                <View style={[styles.miniDrop, { top: 110, right: '36%' }]} />
-                <View style={[styles.miniDrop, { top: 135, left: '42%' }]} />
-
-                {/* Wooden / Crescent Basin */}
-                <View style={styles.crescentBasin}>
-                  <LinearGradient
-                    colors={['#D97706', '#92400E']}
-                    style={styles.basinWoodOuter}
-                  >
-                    <View style={styles.basinWaterInner}>
-                      <LinearGradient
-                        colors={['#38BDF8', '#0284C7']}
-                        style={styles.basinWaterGradient}
-                      />
-                    </View>
-                  </LinearGradient>
-                </View>
               </View>
 
               {/* Mascot Noor perched on the left */}
@@ -625,10 +598,16 @@ const styles = StyleSheet.create({
     top: 28,
     left: '42%',
   },
-  waterSceneWrap: {
+  imageContainer: {
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -10,
+    padding: 10,
+  },
+  stepImage: {
+    width: '92%',
+    height: '92%',
   },
   tapAssembly: {
     alignItems: 'center',

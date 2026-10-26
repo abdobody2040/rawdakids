@@ -16,7 +16,7 @@ export const ARKAN_IMAGES = {
   salahStanding: require('../../assets/images/salah-standing-3d.jpg'),
   salahRukoo: require('../../assets/images/salah-rukoo-3d.jpg'),
   salahSujood: require('../../assets/images/salah-sujood-3d.jpg'),
-  salahSitting: require('../../assets/images/salah-tasleem-3d.jpg'),
+  salahSitting: require('../../assets/images/salah-sitting-3d.jpg'),
   salahTasleem: require('../../assets/images/salah-tasleem-3d.jpg'),
 
   // 5 Pillars of Islam (3D Illustrated Icons & Scenes)

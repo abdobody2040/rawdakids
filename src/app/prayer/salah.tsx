@@ -1,5 +1,6 @@
 // src/app/prayer/salah.tsx
-// Interactive Salah Step Screen (Mockup Page 4: Dhuhr, Rak'ah 1 of 4, Position 3 of 5 - السُّجُودُ)
+// Comprehensive 10-Step Interactive Salah Simulator with 3D Visual Assets
+// Built according to authentic Sunnah instructions, 10 clear positions, audio recitation, and rich feedback.
 
 import React, { useState } from 'react';
 import {
@@ -9,123 +10,237 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
+import { SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { audioService } from '@/services/audioService';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
+import { getStepMedia } from '@/data/arkanMedia';
 
-const MASCOT_IMG = require('../../../assets/images/mascot-noor.jpg');
-
-interface SalahPositionData {
-  positionNum: number;
-  totalPositions: number;
-  nameAr: string;
-  nameEn: string;
+export interface SalahStepData {
+  step: number;
+  titleAr: string;
+  titleEn: string;
+  subtitleAr: string;
+  subtitleEn: string;
   instructionAr: string;
   instructionEn: string;
   dhikrLabelAr: string;
   dhikrLabelEn: string;
   dhikrAr: string;
   dhikrEn: string;
-  dhikrRepsAr: string;
-  dhikrRepsEn: string;
+  repsAr: string;
+  repsEn: string;
+  reflectionAr: string;
+  reflectionEn: string;
 }
 
-const SALAH_POSITIONS: SalahPositionData[] = [
+export const SALAH_10_STEPS: SalahStepData[] = [
   {
-    positionNum: 1,
-    totalPositions: 5,
-    nameAr: 'تَكْبِيرَةُ الْإِحْرَامِ وَالْقِيَامُ',
-    nameEn: 'Opening Takbir & Standing',
-    instructionAr: 'اسْتَقْبِلِ الْقِبْلَةَ، وَارْفَعْ يَدَيْكَ حَذْوَ أُذُنَيْكَ أَوْ مَنْكِبَيْكَ وَقُلْ: «اللَّهُ أَكْبَرُ»، ثُمَّ اقْرَأِ الْفَاتِحَةَ.',
-    instructionEn: 'Face Qiblah, raise hands to ears/shoulders saying Allahu Akbar, then recite Al-Fatihah.',
-    dhikrLabelAr: 'قُلْ فِي قِيَامِكَ',
-    dhikrLabelEn: 'Say in standing',
+    step: 1,
+    titleAr: 'تَكْبِيرَةُ الْإِحْرَامِ وَالْقِيَامُ',
+    titleEn: 'Opening Takbir & Standing',
+    subtitleAr: 'اسْتِقْبَالُ الْقِبْلَةِ وَبَدْءُ الصَّلَاةِ',
+    subtitleEn: 'Facing the Qiblah & Beginning Salah',
+    instructionAr: 'أَقِفُ مُسْتَقْبِلًا الْكَعْبَةَ الْمُشَرَّفَةَ بِهُدُوءٍ وَخُشُوعٍ، وَأَرْفَعُ يَدَيَّ حَذْوَ مَنْكِبَيَّ أَوْ أُذُنَيَّ قَائِلًا: «اللَّهُ أَكْبَرُ».',
+    instructionEn: 'Stand calmly facing the Holy Kaaba with focused heart, raise both hands to shoulders or ears and say: "Allahu Akbar".',
+    dhikrLabelAr: 'قُلْ عِنْدَ بَدْءِ الصَّلَاةِ',
+    dhikrLabelEn: 'Say at the beginning',
     dhikrAr: 'اللَّهُ أَكْبَرُ',
-    dhikrEn: 'Allahu Akbar',
-    dhikrRepsAr: 'مَرَّةٌ وَاحِدَةٌ',
-    dhikrRepsEn: '1 Time',
+    dhikrEn: 'Allahu Akbar (Allah is the Greatest)',
+    repsAr: 'مَرَّةٌ وَاحِدَةٌ',
+    repsEn: '1 Time',
+    reflectionAr: 'نبدأ صلاتنا بتعظيم الله، فالله أكبر من كل شيء في حياتنا.',
+    reflectionEn: 'We begin prayer by exalting Allah above everything in our lives.',
   },
   {
-    positionNum: 2,
-    totalPositions: 5,
-    nameAr: 'الرُّكُوعُ',
-    nameEn: 'Bowing (Rukoo)',
-    instructionAr: 'انْحَنِ وَضَعْ كَفَّيْكَ عَلَى رُكْبَتَيْكَ مَعَ اسْتِوَاءِ ظَهْرِكَ، وَعَظِّمِ الرَّبَّ سُبْحَانَهُ بِطُمَأْنِينَةٍ.',
-    instructionEn: 'Bow with a flat back, placing hands on knees, glorifying Allah peacefully.',
+    step: 2,
+    titleAr: 'وَضْعُ الْيَدَيْنِ وَقِرَاءَةُ الْفَاتِحَةِ',
+    titleEn: 'Folding Hands & Reciting Al-Fatihah',
+    subtitleAr: 'الْقِيَامُ مَعَ تِلَاوَةِ أُمِّ الْقُرْآنِ',
+    subtitleEn: 'Standing with Recitation of the Mother of the Book',
+    instructionAr: 'أَضَعُ كَفَّ يَدِي الْيُمْنَى فَوْقَ الْيُسْرَى عَلَى صَدْرِي، وَأَسْتَعِيذُ بِاللَّهِ، ثُمَّ أَقْرَأُ سُورَةَ الْفَاتِحَةِ بِتَرْتِيلٍ وَطُمَأْنِينَةٍ مَعَ سُورَةٍ قَصِيرَةٍ.',
+    instructionEn: 'Place your right hand over your left hand upon your chest, seek refuge in Allah, and recite Surah Al-Fatihah followed by a short surah.',
+    dhikrLabelAr: 'تِلَاوَةُ الْفَاتِحَةِ الْوَاجِبَةِ',
+    dhikrLabelEn: 'Reciting Surah Al-Fatihah',
+    dhikrAr: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ • الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ • الرَّحْمَنِ الرَّحِيمِ • مَالِكِ يَوْمِ الدِّينِ • إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ • اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ • صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
+    dhikrEn: 'In the name of Allah, Most Gracious, Most Merciful. Praise be to Allah, Lord of the worlds...',
+    repsAr: 'فِي كُلِّ رَكْعَةٍ',
+    repsEn: 'Every Rak’ah',
+    reflectionAr: 'الفاتحة هي أعظم سورة نناجي بها ربنا ونسأله الهداية إلى الصراط المستقيم.',
+    reflectionEn: 'Al-Fatihah is our direct heartfelt conversation with Allah asking for His guidance.',
+  },
+  {
+    step: 3,
+    titleAr: 'الرُّكُوعُ وَتَعْظِيمُ الرَّبِّ سُبْحَانَهُ',
+    titleEn: 'Bowing (Rukoo) & Glorification',
+    subtitleAr: 'الانْحِنَاءُ تَعْظِيمًا لِلَّهِ الْعَظِيمِ',
+    subtitleEn: 'Bowing with flat back in reverence to Allah',
+    instructionAr: 'أُكَبِّرُ وَأَرْكَعُ حَانِيًا ظَهْرِي مُسْتَوِيًا، وَأَضَعُ كَفَّيَّ عَلَى رُكْبَتَيَّ كَالْقَابِضِ عَلَيْهِمَا بِهُدُوءٍ، وَأُعَظِّمُ رَبِّي ثَلَاثَ مَرَّاتٍ.',
+    instructionEn: 'Say Allahu Akbar and bow with a flat, level back, resting your palms on your knees calmly, glorifying Allah 3 times.',
     dhikrLabelAr: 'قُلْ فِي رُكُوعِكَ',
-    dhikrLabelEn: 'Say in bowing',
+    dhikrLabelEn: 'Say during bowing',
     dhikrAr: 'سُبْحَانَ رَبِّيَ الْعَظِيمِ',
-    dhikrEn: 'Subhana Rabbiyal Azeem',
-    dhikrRepsAr: '٣ مَرَّاتٍ',
-    dhikrRepsEn: '3 Times',
+    dhikrEn: 'Subhana Rabbiyal Azeem (Glory be to my Lord the Almighty)',
+    repsAr: '٣ مَرَّاتٍ',
+    repsEn: '3 Times',
+    reflectionAr: 'نحني ظهورنا تواضعاً لله وحده الذي خلقنا ورزقنا كل الخير.',
+    reflectionEn: 'We bow in humility to Allah alone, our Creator and Provider of all goodness.',
   },
   {
-    positionNum: 3,
-    totalPositions: 5,
-    nameAr: 'السُّجُودُ',
-    nameEn: 'Prostration (Sujud)',
-    instructionAr: 'ضَعْ جَبْهَتَكَ وَأَنْفَكَ وَكَفَّيْكَ وَرُكْبَتَيْكَ وَأَصَابِعَ قَدَمَيْكَ عَلَى الْأَرْضِ.',
-    instructionEn: 'Place your forehead, nose, two palms, knees, and toes firmly upon the ground.',
+    step: 4,
+    titleAr: 'الرَّفْعُ مِنَ الرُّكُوعِ وَالاعْتِدَالُ',
+    titleEn: 'Rising from Bowing & Standing Straight',
+    subtitleAr: 'حَمْدُ اللَّهِ وَالشُّكْرُ عَلَى نِعَمِهِ',
+    subtitleEn: 'Praising Allah and giving thanks',
+    instructionAr: 'أَرْفَعُ رَأْسِي وَظَهْرِي قَائِلًا: «سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ»، ثُمَّ أَقِفُ مُعْتَدِلًا مُطْمَئِنًّا وَأَحْمَدُ رَبِّي:',
+    instructionEn: 'Rise straight saying "Sami’ Allahu liman hamidah", standing completely still and praising Allah.',
+    dhikrLabelAr: 'قُلْ عِنْدَ الاعْتِدَالِ',
+    dhikrLabelEn: 'Say when standing upright',
+    dhikrAr: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ • رَبَّنَا وَلَكَ الْحَمْدُ',
+    dhikrEn: 'Sami’ Allahu liman hamidah • Rabbana wa lakal hamd',
+    repsAr: 'مَرَّةٌ وَاحِدَةٌ',
+    repsEn: '1 Time',
+    reflectionAr: 'الله يسمع دعاء من يحمده، فالحمد لله دائماً وأبداً ملء السماوات والأرض.',
+    reflectionEn: 'Allah hears whoever praises Him; praise belongs to Him filling heavens and earth.',
+  },
+  {
+    step: 5,
+    titleAr: 'السُّجُودُ الْأَوَّلُ عَلَى ٧ أَعْضَاءٍ',
+    titleEn: 'First Sujood (Prostration) on 7 Limbs',
+    subtitleAr: 'أَقْرَبُ مَا يَكُونُ الْعَبْدُ مِنْ رَبِّهِ',
+    subtitleEn: 'Nearest a servant is to their Lord',
+    instructionAr: 'أُكَبِّرُ وَأَسْجُدُ عَلَى الْأَرْضِ مُسْتَقِرًّا عَلَى أَعْضَائِي السَّبْعَةِ: (الْجَبْهَةُ مَعَ الْأَنْفِ، وَالْكَفَّانِ، وَالرُّكْبَتَانِ، وَأَطْرَافُ الْقَدَمَيْنِ)، وَأُسَبِّحُ رَبِّي ثَلَاثًا.',
+    instructionEn: 'Say Allahu Akbar and prostrate placing all 7 limbs firmly on the ground: forehead with nose, two palms, two knees, and toes, praising Allah 3 times.',
     dhikrLabelAr: 'قُلْ فِي سُجُودِكَ',
-    dhikrLabelEn: 'Say in your sujud',
+    dhikrLabelEn: 'Say in Sujood',
     dhikrAr: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
-    dhikrEn: 'Subhana Rabbiyal A’la',
-    dhikrRepsAr: '٣ مَرَّاتٍ',
-    dhikrRepsEn: '3 Times',
+    dhikrEn: 'Subhana Rabbiyal A’la (Glory be to my Lord the Most High)',
+    repsAr: '٣ مَرَّاتٍ',
+    repsEn: '3 Times',
+    reflectionAr: 'السجود موضع استجابة الدعاء، اطلب من الله ما تحب في سجودك برفق.',
+    reflectionEn: 'Sujood is the most blessed place for answered prayers; ask Allah for goodness.',
   },
   {
-    positionNum: 4,
-    totalPositions: 5,
-    nameAr: 'الْجُلُوسُ بَيْنَ السَّجْدَتَيْنِ',
-    nameEn: 'Sitting Between Prostrations',
-    instructionAr: 'ارْفَعْ رَأْسَكَ مُكَبِّرًا وَاجْلِسْ بَيْنَ السَّجْدَتَيْنِ مُطْمَئِنًّا، وَاسْأَلِ اللَّهَ الْمَغْفِرَةَ وَالرَّحْمَةَ.',
-    instructionEn: 'Rise saying Allahu Akbar, sit calmly between two prostrations, asking for forgiveness.',
+    step: 6,
+    titleAr: 'الْجُلُوسُ بَيْنَ السَّجْدَتَيْنِ',
+    titleEn: 'Sitting Between the Two Prostrations',
+    subtitleAr: 'الدُّعَاءُ بِالْمَغْفِرَةِ وَالرَّحْمَةِ وَالرِّزْقِ',
+    subtitleEn: 'Praying for forgiveness and divine mercy',
+    instructionAr: 'أَرْفَعُ رَأْسِي مُكَبِّرًا وَأَجْلِسُ بَيْنَ السَّجْدَتَيْنِ مُطْمَئِنًّا عَلَى رِجْلِي الْيُسْرَى مَعَ نَصْبِ الْيُمْنَى، وَأَسْأَلُ اللَّهَ الْمَغْفِرَةَ.',
+    instructionEn: 'Rise saying Allahu Akbar, sit calmly between the two prostrations resting hands on thighs, and ask Allah for forgiveness.',
     dhikrLabelAr: 'قُلْ بَيْنَ السَّجْدَتَيْنِ',
     dhikrLabelEn: 'Say between prostrations',
     dhikrAr: 'رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي',
-    dhikrEn: 'Rabbigh-fir lee, Rabbigh-fir lee',
-    dhikrRepsAr: 'مَرَّتَيْنِ',
-    dhikrRepsEn: '2 Times',
+    dhikrEn: 'Rabbigh-fir lee, Rabbigh-fir lee (My Lord forgive me)',
+    repsAr: 'مَرَّتَيْنِ',
+    repsEn: '2 Times',
+    reflectionAr: 'جلسة هدوء وطمأنينة نستغفر فيها الله الرحيم ونطلب عفوه ورضوانه.',
+    reflectionEn: 'A tranquil sitting where we seek Allah’s boundless mercy and forgiveness.',
   },
   {
-    positionNum: 5,
-    totalPositions: 5,
-    nameAr: 'التَّشَهُّدُ وَالتَّسْلِيمُ',
-    nameEn: 'Tashahhud & Tasleem',
-    instructionAr: 'اجْلِسْ فِي خِتَامِ الصَّلَاةِ، وَاقْرَأِ التَّحِيَّاتِ وَالصَّلَاةَ الْإِبْرَاهِيمِيَّةَ، ثُمَّ سَلِّمْ عَنْ يَمِينِكَ وَيَسَارِكَ.',
-    instructionEn: 'Sit at the end of prayer, recite Tashahhud and blessings, then give Salam to right and left.',
-    dhikrLabelAr: 'قُلْ فِي التَّشَهُّدِ',
-    dhikrLabelEn: 'Say in Tashahhud',
-    dhikrAr: 'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ...',
-    dhikrEn: 'At-tahiyyatu lillahi was-salawat...',
-    dhikrRepsAr: 'مَرَّةٌ وَاحِدَةٌ',
-    dhikrRepsEn: '1 Time',
+    step: 7,
+    titleAr: 'السُّجُودُ الثَّانِي وَإِتْمَامُ الرَّكْعَةِ',
+    titleEn: 'Second Sujood & Completing the Rak’ah',
+    subtitleAr: 'السَّجْدَةُ الثَّانِيَةُ بِخُشُوعٍ وَسَكِينَةٍ',
+    subtitleEn: 'Second prostration completing the unit',
+    instructionAr: 'أُكَبِّرُ وَأَسْجُدُ السَّجْدَةَ الثَّانِيَةَ تَمَامًا مِثْلَ السَّجْدَةِ الْأُولَى عَلَى الْأَعْضَاءِ السَّبْعَةِ، وَأُسَبِّحُ اللَّهَ ثَلَاثًا، وَبِذَلِكَ تَتِمُّ الرَّكْعَةُ الْمُبَارَكَةُ!',
+    instructionEn: 'Say Allahu Akbar and prostrate a second time just like the first on all 7 contact points, praising Allah 3 times to complete the Rak’ah.',
+    dhikrLabelAr: 'قُلْ فِي السَّجْدَةِ الثَّانِيَةِ',
+    dhikrLabelEn: 'Say in second Sujood',
+    dhikrAr: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
+    dhikrEn: 'Subhana Rabbiyal A’la (Glory be to my Lord the Most High)',
+    repsAr: '٣ مَرَّاتٍ',
+    repsEn: '3 Times',
+    reflectionAr: 'تمت ركعتك بحمد الله! في الصلوات المتعددة نقوم للركعة التالية بنفس الخطوات الجميلة.',
+    reflectionEn: 'Your Rak’ah is complete! In multiple rak’ahs we rise and repeat the same steps.',
+  },
+  {
+    step: 8,
+    titleAr: 'التَّشَهُّدُ الْأَوَّلُ وَرَفْعُ السَّبَّابَةِ',
+    titleEn: 'At-Tashahhud (Praising Allah & Shahada)',
+    subtitleAr: 'التَّحِيَّاتُ لِلَّهِ وَالصَّلَاةُ عَلَى النَّبِيِّ ﷺ',
+    subtitleEn: 'Greetings of peace and testimony of faith',
+    instructionAr: 'أَجْلِسُ فِي نِهَايَةِ الرَّكْعَةِ الثَّانِيَةِ أَوْ الْأَخِيرَةِ، وَأَضَعُ كَفَّيَّ عَلَى فَخِذَيَّ، وَأَضُمُّ أَصَابِعَ يَدِي الْيُمْنَى مَعَ رَفْعِ السَّبَّابَةِ مُشِيرًا إِلَى التَّوْحِيدِ.',
+    instructionEn: 'Sit at the end of the second or final rak’ah with hands on thighs, lifting the right index finger in testimony of Allah’s oneness.',
+    dhikrLabelAr: 'قِرَاءَةُ التَّشَهُّدِ الْمُبَارَكِ',
+    dhikrLabelEn: 'Reciting At-Tashahhud',
+    dhikrAr: 'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.',
+    dhikrEn: 'All compliments, prayers, and pure words are due to Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings...',
+    repsAr: 'مَرَّةٌ وَاحِدَةٌ',
+    repsEn: '1 Time',
+    reflectionAr: 'نلقي السلام والمحبة على نبينا الحبيب محمد ﷺ وعلى عباد الله الصالحين في كل مكان.',
+    reflectionEn: 'We send peace upon Prophet Muhammad ﷺ and all righteous servants of Allah.',
+  },
+  {
+    step: 9,
+    titleAr: 'الصَّلَاةُ الْإِبْرَاهِيمِيَّةُ فِي الْخِتَامِ',
+    titleEn: 'As-Salat Al-Ibrahimiyyah',
+    subtitleAr: 'الصَّلَاةُ وَالْبَرَكَةُ عَلَى النَّبِيِّ وَآلِهِ',
+    subtitleEn: 'Blessings upon Prophet Muhammad & Prophet Ibrahim',
+    instructionAr: 'فِي الْجَلْسَةِ الْأَخِيرَةِ مِنَ الصَّلَاةِ، أَتْبَعُ التَّشَهُّدَ بِالصَّلَاةِ الْإِبْرَاهِيمِيَّةِ الْمُبَارَكَةِ كَمَا عَلَّمَنَا رَسُولُ اللَّهِ ﷺ.',
+    instructionEn: 'In the final sitting of prayer, follow the Tashahhud with the blessed Ibrahimic prayer sending blessings upon our Prophet.',
+    dhikrLabelAr: 'الصَّلَاةُ الْإِبْرَاهِيمِيَّةُ',
+    dhikrLabelEn: 'The Ibrahimic Prayer',
+    dhikrAr: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ.',
+    dhikrEn: 'O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and the family of Ibrahim...',
+    repsAr: 'فِي التَّشَهُّدِ الْأَخِيرِ',
+    repsEn: 'In Final Tashahhud',
+    reflectionAr: 'من صلى على النبي ﷺ صلاةً واحدةً صلى الله عليه بها عشراً ورُفعت درجاته.',
+    reflectionEn: 'Whoever sends one prayer upon the Prophet, Allah sends ten blessings upon them.',
+  },
+  {
+    step: 10,
+    titleAr: 'التَّسْلِيمُ وَخِتَامُ الصَّلَاةِ بِسَلَامٍ',
+    titleEn: 'Tasleem (Concluding Prayer in Peace)',
+    subtitleAr: 'الالْتِفَاتُ يَمِينًا وَيَسَارًا بِالسَّلَامِ',
+    subtitleEn: 'Turning right and left with greetings of peace',
+    instructionAr: 'أَلْتَفِتُ بِرَأْسِي عَنْ يَمِينِي قَائِلًا: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ»، ثُمَّ عَنْ يَسَارِي قَائِلًا: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ»، وَبِذَلِكَ تَكْتَمِلُ صَلَاتِي بِنُورٍ وَبَرَكَةٍ!',
+    instructionEn: 'Turn your head to the right saying "As-Salamu Alaykum wa Rahmatullah", then to the left saying the same. Your prayer is now complete with light and peace!',
+    dhikrLabelAr: 'قُلْ عِنْدَ التَّسْلِيمِ',
+    dhikrLabelEn: 'Say in Tasleem',
+    dhikrAr: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ',
+    dhikrEn: 'As-Salamu Alaykum wa Rahmatullah (May peace and Allah’s mercy be upon you)',
+    repsAr: 'يَمِينًا وَيَسَارًا',
+    repsEn: 'Right & Left',
+    reflectionAr: 'نختم صلاتنا بنشر السلام والرحمة للجميع، صلاتك مقبولة بإذن الله يا بطل!',
+    reflectionEn: 'We end our prayer spreading peace to all; may Allah accept your prayer!',
   },
 ];
 
-export default function SalahStepScreen() {
+const PRAYERS_LIST = [
+  { id: 'fajr', nameAr: 'صَلَاةُ الْفَجْرِ', nameEn: 'Fajr', rakahs: 2 },
+  { id: 'dhuhr', nameAr: 'صَلَاةُ الظُّهْرِ', nameEn: 'Dhuhr', rakahs: 4 },
+  { id: 'asr', nameAr: 'صَلَاةُ الْعَصْرِ', nameEn: 'Asr', rakahs: 4 },
+  { id: 'maghrib', nameAr: 'صَلَاةُ الْمَغْرِبِ', nameEn: 'Maghrib', rakahs: 3 },
+  { id: 'isha', nameAr: 'صَلَاةُ الْعِشَاءِ', nameEn: 'Isha', rakahs: 4 },
+];
+
+export default function SalahScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ step?: string; prayer?: string }>();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
-  // Default to Position 3 (index 2: "السُّجُودُ") in Dhuhr, Rak'ah 1 of 4
-  const [currentPosIdx, setCurrentPosIdx] = useState<number>(2);
-  const [currentRakah] = useState<number>(1);
-  const [totalRakahs] = useState<number>(4);
+  const initialStepParam = params.step ? parseInt(params.step, 10) - 1 : 0;
+  const safeInitialStep = Math.max(0, Math.min(9, isNaN(initialStepParam) ? 0 : initialStepParam));
+
+  const [currentStepIdx, setCurrentStepIdx] = useState<number>(safeInitialStep);
+  const [selectedPrayerId, setSelectedPrayerId] = useState<string>(params.prayer || 'dhuhr');
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
 
-  const posData = SALAH_POSITIONS[currentPosIdx] || SALAH_POSITIONS[2];
 
-  // Play Dhikr / Instruction audio
+
+  const stepData = SALAH_10_STEPS[currentStepIdx] || SALAH_10_STEPS[0];
+  const selectedPrayer = PRAYERS_LIST.find((p) => p.id === selectedPrayerId) || PRAYERS_LIST[1];
+
   const handlePlayAudio = () => {
     if (isPlayingAudio) {
       audioService.stopDua();
@@ -133,7 +248,7 @@ export default function SalahStepScreen() {
       return;
     }
 
-    const textToSpeak = `${posData.dhikrAr}. ${posData.nameAr}. ${posData.instructionAr}`;
+    const textToSpeak = `${stepData.dhikrAr}. ${stepData.titleAr}. ${stepData.instructionAr}`;
 
     setIsPlayingAudio(true);
     audioService.playDua(textToSpeak, (status) => {
@@ -143,30 +258,29 @@ export default function SalahStepScreen() {
     });
   };
 
-  // Main coral button: "أَنَا فَعَلْتُهَا!"
-  const handleCompleted = () => {
+  const handleNext = () => {
     audioService.stopDua();
     setIsPlayingAudio(false);
-    audioService.playCelebrationFanfare();
-    addStars(5);
-    addGems(2);
-    setShowCelebration(true);
 
-    setTimeout(() => {
-      setShowCelebration(false);
-      if (currentPosIdx < SALAH_POSITIONS.length - 1) {
-        setCurrentPosIdx((prev) => prev + 1);
-      } else {
+    if (currentStepIdx < SALAH_10_STEPS.length - 1) {
+      setCurrentStepIdx((prev) => prev + 1);
+    } else {
+      audioService.playCelebrationFanfare();
+      addStars(10);
+      addGems(3);
+      setShowCelebration(true);
+      setTimeout(() => {
+        setShowCelebration(false);
         router.back();
-      }
-    }, 2200);
+      }, 2500);
+    }
   };
 
   const handlePrev = () => {
     audioService.stopDua();
     setIsPlayingAudio(false);
-    if (currentPosIdx > 0) {
-      setCurrentPosIdx((prev) => prev - 1);
+    if (currentStepIdx > 0) {
+      setCurrentStepIdx((prev) => prev - 1);
     } else {
       router.back();
     }
@@ -176,7 +290,7 @@ export default function SalahStepScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.container}>
         {/* TOP BAR */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
           <TouchableOpacity
             style={styles.circleIconButton}
             onPress={() => router.back()}
@@ -191,9 +305,14 @@ export default function SalahStepScreen() {
             />
           </TouchableOpacity>
 
-          <Text style={styles.topBarTitle}>
-            {isAr ? 'الصَّلَاةُ' : 'Salah'}
-          </Text>
+          <View style={styles.topBarTitleCol}>
+            <Text style={styles.topBarTitle}>
+              {isAr ? 'مُحَاكِي تَعَلُّمِ الصَّلَاةِ' : 'Prayer Learning Simulator'}
+            </Text>
+            <Text style={styles.topBarSub}>
+              {isAr ? `${selectedPrayer.nameAr} (${selectedPrayer.rakahs} رَكَعَاتٍ)` : `${selectedPrayer.nameEn} (${selectedPrayer.rakahs} Rak’ahs)`}
+            </Text>
+          </View>
 
           <TouchableOpacity
             style={[styles.circleIconButton, isPlayingAudio && styles.circleIconButtonActive]}
@@ -210,17 +329,45 @@ export default function SalahStepScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* 5-DOT PROGRESS UNDER TOP BAR */}
-        {/* Done = green dot, Current = long sky pill, Next = light dot */}
+        {/* PRAYER SELECTOR CHIPS */}
+        <View style={styles.prayerChipsWrap}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.prayerChipsScroll, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+          >
+            {PRAYERS_LIST.map((p) => {
+              const isSelected = p.id === selectedPrayerId;
+              return (
+                <TouchableOpacity
+                  key={p.id}
+                  style={[styles.prayerChip, isSelected && styles.prayerChipActive]}
+                  onPress={() => setSelectedPrayerId(p.id)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.prayerChipText, isSelected && styles.prayerChipTextActive]}>
+                    {isAr ? p.nameAr : p.nameEn} ({isAr ? (p.rakahs === 2 ? '٢' : p.rakahs === 3 ? '٣' : '٤') : p.rakahs})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* 10-STEP PROGRESS BAR WITH INTERACTIVE DOTS */}
         <View style={[styles.progressDotsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-          {SALAH_POSITIONS.map((_, idx) => {
-            const isDone = idx < currentPosIdx;
-            const isCurrent = idx === currentPosIdx;
+          {SALAH_10_STEPS.map((_, idx) => {
+            const isDone = idx < currentStepIdx;
+            const isCurrent = idx === currentStepIdx;
             return (
               <TouchableOpacity
                 key={idx}
-                onPress={() => setCurrentPosIdx(idx)}
-                accessibilityLabel={`Position ${idx + 1}`}
+                onPress={() => {
+                  audioService.stopDua();
+                  setIsPlayingAudio(false);
+                  setCurrentStepIdx(idx);
+                }}
+                accessibilityLabel={`Step ${idx + 1}`}
                 activeOpacity={0.7}
                 style={styles.dotTouchable}
               >
@@ -237,222 +384,186 @@ export default function SalahStepScreen() {
           })}
         </View>
 
-        {/* SCROLLABLE MAIN CONTENT */}
+        {/* MAIN SCROLLABLE CONTENT */}
         <ScrollView
           style={styles.scrollArea}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* 300px SCENE CARD: SUJUD WITH 7 GOLD CONTACT POINTS */}
-          <View style={styles.sceneCard}>
+          {/* HERO CARD: 3D CHARACTER IMAGE ILLUSTRATION */}
+          <View style={styles.heroSceneCard}>
             <LinearGradient
-              colors={['#E0F2FE', '#BAE6FD', '#E0F7FA']}
-              style={styles.sceneGradient}
+              colors={['#E0F2FE', '#BAE6FD', '#F0F9FF']}
+              style={styles.heroGradient}
             >
-              {/* Sky background clouds and sparkling star */}
+              {/* Soft sky clouds decoration */}
               <View style={styles.cloudLeft} />
               <View style={styles.cloudRight} />
               <View style={styles.sparkleStar}>
-                <Ionicons name="sparkles" size={22} color="#F59E0B" />
+                <Ionicons name="sparkles" size={20} color="#F59E0B" />
               </View>
 
-              {/* Mascot Noor perched top right */}
-              <View style={styles.mascotAnchor}>
+              {/* 3D Character Illustration */}
+              <View style={styles.imageContainer}>
                 <Image
-                  source={MASCOT_IMG}
-                  style={styles.mascotImage}
+                  source={getStepMedia('prayer', stepData.step)}
+                  style={styles.stepImage}
                   resizeMode="contain"
                 />
               </View>
 
-              {/* Floor prayer area */}
-              <View style={styles.floorArea}>
-                {/* Green Prayer Mat */}
-                <View style={styles.prayerMatOuter}>
-                  <View style={styles.prayerMatInner}>
-                    <View style={styles.prayerMatArch} />
-                  </View>
-                </View>
+              {/* Repetitions Pill Badge */}
+              <View style={[styles.repsPill, { [isRtl ? 'right' : 'left']: 14 }]}>
+                <Ionicons name="repeat" size={13} color="#FFFFFF" />
+                <Text style={styles.repsPillText}>
+                  {isAr ? stepData.repsAr : stepData.repsEn}
+                </Text>
+              </View>
 
-                {/* Child Figure in Prostration (Sujud) */}
-                <View style={styles.sujudFigureWrap}>
-                  {/* Head with brown prayer cap */}
-                  <View style={styles.sujudHead}>
-                    <View style={styles.prayerCap} />
-                    <View style={styles.faceTouch} />
-                  </View>
-
-                  {/* Hands / Palms touching mat */}
-                  <View style={styles.sujudPalms} />
-
-                  {/* Torso / Upper body (green robe) */}
-                  <View style={styles.sujudTorso} />
-
-                  {/* Legs / Lower garment (white) */}
-                  <View style={styles.sujudLegs} />
-
-                  {/* Feet / Toes bent forward */}
-                  <View style={styles.sujudFeet} />
-
-                  {/* GOLD DOTS ON THE 7 CONTACT POINTS */}
-                  {/* Point 1: Forehead and nose */}
-                  <View style={[styles.goldPointWrap, { left: 40, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-
-                  {/* Points 2 & 3: Two palms / hands */}
-                  <View style={[styles.goldPointWrap, { left: 66, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-                  <View style={[styles.goldPointWrap, { left: 82, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-
-                  {/* Points 4 & 5: Two knees */}
-                  <View style={[styles.goldPointWrap, { left: 160, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-                  <View style={[styles.goldPointWrap, { left: 178, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-
-                  {/* Points 6 & 7: Two feet / toes */}
-                  <View style={[styles.goldPointWrap, { left: 202, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-                  <View style={[styles.goldPointWrap, { left: 218, bottom: 22 }]}>
-                    <View style={styles.goldPointRing} />
-                    <View style={styles.goldPointCore} />
-                  </View>
-                </View>
+              {/* Step Counter Pill Badge */}
+              <View style={[styles.stepCountPill, { [isRtl ? 'left' : 'right']: 14 }]}>
+                <Text style={styles.stepCountPillText}>
+                  {isAr
+                    ? `الْخُطْوَةُ ${stepData.step} مِنْ ١٠`
+                    : `Step ${stepData.step} of 10`}
+                </Text>
               </View>
             </LinearGradient>
           </View>
 
-          {/* CHIPS ROW: Prayer name, Rak'ah number, Position number */}
-          <View style={[styles.chipsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-            {/* Prayer Name Chip */}
-            <View style={[styles.chipPill, styles.chipPrayer]}>
-              <Text style={styles.chipTextPrayer}>
-                {isAr ? 'الظُّهْرُ' : 'Dhuhr'}
-              </Text>
-            </View>
-
-            {/* Rak'ah Number Chip */}
-            <View style={[styles.chipPill, styles.chipRakah]}>
-              <Text style={styles.chipTextRakah}>
-                {isAr ? `الرَّكْعَةُ ${currentRakah} مِنْ ${totalRakahs}` : `Rak'ah ${currentRakah} of ${totalRakahs}`}
-              </Text>
-            </View>
-
-            {/* Position Number Chip */}
-            <View style={[styles.chipPill, styles.chipPosition]}>
-              <Text style={styles.chipTextPosition}>
-                {isAr ? `الْوَضْعُ ${posData.positionNum} مِنْ ${posData.totalPositions}` : `Position ${posData.positionNum} of ${posData.totalPositions}`}
-              </Text>
-            </View>
+          {/* STEP HEADER TITLES */}
+          <View style={styles.titlesWrap}>
+            <Text style={styles.stepMainTitle}>
+              {isAr ? stepData.titleAr : stepData.titleEn}
+            </Text>
+            <Text style={styles.stepSubtitle}>
+              {isAr ? stepData.subtitleAr : stepData.subtitleEn}
+            </Text>
           </View>
 
-          {/* TITLE (30px) */}
-          <Text style={styles.salahTitle}>
-            {isAr ? posData.nameAr : posData.nameEn}
-          </Text>
+          {/* INSTRUCTION CARD */}
+          <View style={styles.instructionCard}>
+            <View style={[styles.cardHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <View style={styles.iconCircleBlue}>
+                <Ionicons name="body-outline" size={18} color="#0284C7" />
+              </View>
+              <Text style={[styles.cardHeaderTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr ? 'كَيْفَ تُؤَدِّي هَذِهِ الْخُطْوَةَ؟' : 'How to Perform This Step'}
+              </Text>
+            </View>
+            <Text style={[styles.instructionText, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {isAr ? stepData.instructionAr : stepData.instructionEn}
+            </Text>
+          </View>
 
-          {/* ONE SENTENCE INSTRUCTION (17px) */}
-          <Text style={styles.salahInstruction}>
-            {isAr ? posData.instructionAr : posData.instructionEn}
-          </Text>
-
-          {/* DHIKR CARD */}
+          {/* DHIKR RECITATION CARD */}
           <View style={styles.dhikrCard}>
-            <View style={[styles.dhikrCardRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-              {/* Play Button */}
-              <TouchableOpacity
-                style={[styles.dhikrPlayBtn, isPlayingAudio && styles.dhikrPlayBtnActive]}
-                onPress={handlePlayAudio}
-                accessibilityLabel={isAr ? 'تشغيل الذكر' : 'Play Dhikr'}
-                accessibilityRole="button"
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name={isPlayingAudio ? 'pause' : 'volume-high'}
-                  size={24}
-                  color="#FFFFFF"
-                />
-              </TouchableOpacity>
+            <LinearGradient
+              colors={['#047857', '#065F46']}
+              style={styles.dhikrGradient}
+            >
+              <View style={[styles.dhikrHeaderRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={styles.dhikrBadge}>
+                  <Ionicons name="musical-notes" size={14} color="#FDE047" />
+                  <Text style={styles.dhikrBadgeText}>
+                    {isAr ? stepData.dhikrLabelAr : stepData.dhikrLabelEn}
+                  </Text>
+                </View>
 
-              {/* Dhikr text + Small Label */}
-              <View style={styles.dhikrTextCol}>
-                <Text style={styles.dhikrSmallLabel}>
-                  {isAr ? posData.dhikrLabelAr : posData.dhikrLabelEn}
-                </Text>
-                <Text style={styles.dhikrArabicPhrase}>
-                  {posData.dhikrAr}
-                </Text>
+                <TouchableOpacity
+                  style={[styles.audioPlayBtn, isPlayingAudio && styles.audioPlayBtnActive]}
+                  onPress={handlePlayAudio}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons
+                    name={isPlayingAudio ? 'stop-circle' : 'play-circle'}
+                    size={26}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.audioPlayBtnText}>
+                    {isPlayingAudio ? (isAr ? 'إيقاف' : 'Stop') : (isAr ? 'استمع' : 'Listen')}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
-              {/* "٣ مَرَّاتٍ" Chip */}
-              <View style={styles.dhikrRepsChip}>
-                <Text style={styles.dhikrRepsText}>
-                  {isAr ? posData.dhikrRepsAr : posData.dhikrRepsEn}
+              <Text style={styles.dhikrMainText}>
+                {stepData.dhikrAr}
+              </Text>
+
+              {language !== 'ar' && (
+                <Text style={styles.dhikrTransText}>
+                  {stepData.dhikrEn}
                 </Text>
-              </View>
+              )}
+            </LinearGradient>
+          </View>
+
+          {/* SPIRITUAL REFLECTION */}
+          <View style={styles.reflectionCard}>
+            <View style={[styles.reflectionRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <Ionicons name="sparkles" size={18} color="#D97706" />
+              <Text style={[styles.reflectionText, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr ? stepData.reflectionAr : stepData.reflectionEn}
+              </Text>
             </View>
           </View>
+
+          <View style={{ height: 100 }} />
         </ScrollView>
 
-        {/* FIXED BOTTOM: BACK BUTTON + CORAL MAIN BUTTON */}
-        <View style={styles.bottomBarContainer}>
-          <View style={[styles.bottomBarRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-            {/* 60px Back button */}
+        {/* BOTTOM NAVIGATION FOOTER */}
+        <View style={styles.bottomBar}>
+          <View style={[styles.bottomBarInner, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+            {/* PREV BUTTON */}
             <TouchableOpacity
-              style={styles.bottomBackBtn}
+              style={styles.prevBtn}
               onPress={handlePrev}
-              accessibilityLabel={isAr ? 'السابق' : 'Previous'}
-              accessibilityRole="button"
-              activeOpacity={0.85}
+              activeOpacity={0.8}
             >
               <Ionicons
-                name={isRtl ? 'chevron-forward' : 'chevron-back'}
-                size={26}
-                color="#475569"
+                name={isRtl ? 'arrow-forward' : 'arrow-back'}
+                size={20}
+                color="#64748B"
               />
+              <Text style={styles.prevBtnText}>
+                {currentStepIdx === 0 ? (isAr ? 'رجوع' : 'Back') : (isAr ? 'السابق' : 'Previous')}
+              </Text>
             </TouchableOpacity>
 
-            {/* 60px Coral Main Button: "أَنَا فَعَلْتُهَا!" */}
+            {/* NEXT / COMPLETED BUTTON */}
             <TouchableOpacity
-              style={styles.coralMainBtn}
-              onPress={handleCompleted}
-              accessibilityLabel={isAr ? 'أنا فعلتها!' : 'I did it!'}
-              accessibilityRole="button"
+              style={styles.nextBtn}
+              onPress={handleNext}
               activeOpacity={0.88}
             >
               <LinearGradient
-                colors={['#E03E2D', '#C53020']}
+                colors={['#0284C7', '#0369A1']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={styles.coralGradient}
+                style={[styles.nextBtnGradient, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
               >
-                <Text style={styles.coralBtnText}>
-                  {isAr ? 'أَنَا فَعَلْتُهَا!' : 'I Did It!'}
+                <Text style={styles.nextBtnText}>
+                  {currentStepIdx === SALAH_10_STEPS.length - 1
+                    ? (isAr ? 'أَتْمَمْتُ الصَّلَاةَ! 🌟' : 'I Completed Prayer! 🌟')
+                    : (isAr ? 'أَنَا فَعَلْتُهَا! ⭐' : 'I Did It! ⭐')}
                 </Text>
-                <Ionicons name="checkmark" size={24} color="#FFFFFF" style={{ marginHorizontal: 8 }} />
+                <Ionicons
+                  name={isRtl ? 'arrow-back' : 'arrow-forward'}
+                  size={20}
+                  color="#FFFFFF"
+                />
               </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* CELEBRATION MODAL */}
+        {/* STAR CELEBRATION MODAL */}
         <StarRewardCelebration
           visible={showCelebration}
-          starsEarned={5}
-          gemsEarned={2}
+          starsEarned={10}
+          gemsEarned={3}
+          title={isAr ? 'مَا شَاءَ اللَّهُ! بَارَكَ اللَّهُ فِيكَ' : 'Masha’Allah! Wonderful Prayer!'}
+          subtitle={isAr ? 'أتممت خطوات الصلاة المباركة بنجاح!' : 'You mastered all 10 steps of prayer!'}
           onDismiss={() => setShowCelebration(false)}
         />
       </View>
@@ -463,411 +574,369 @@ export default function SalahStepScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: '#F8FAFC',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: '#F8FAFC',
   },
   topBar: {
-    flexDirection: 'row',
+    height: 60,
+    paddingHorizontal: SPACING.md,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
   circleIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    ...Platform.select({
-      web: { boxShadow: '0 2px 6px rgba(0,0,0,0.06)' },
-      default: { elevation: 2 },
-    }),
   },
   circleIconButtonActive: {
     backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
+  },
+  topBarTitleCol: {
+    alignItems: 'center',
   },
   topBarTitle: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: '800',
+    color: '#0F172A',
+  },
+  topBarSub: {
+    fontSize: 12,
+    fontWeight: '600',
     color: '#0284C7',
+    marginTop: 2,
+  },
+  prayerChipsWrap: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    paddingVertical: 8,
+  },
+  prayerChipsScroll: {
+    paddingHorizontal: SPACING.md,
+    gap: 8,
+  },
+  prayerChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  prayerChipActive: {
+    backgroundColor: '#E0F2FE',
+    borderColor: '#0284C7',
+  },
+  prayerChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  prayerChipTextActive: {
+    color: '#0284C7',
+    fontWeight: '800',
   },
   progressDotsRow: {
-    flexDirection: 'row',
+    height: 28,
+    paddingHorizontal: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    backgroundColor: '#FFFFFF',
     gap: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
   dotTouchable: {
-    paddingVertical: 4,
+    padding: 3,
   },
   baseDot: {
-    height: 8,
+    height: 7,
     borderRadius: 4,
+    backgroundColor: '#CBD5E1',
+    width: 7,
   },
   dotDone: {
-    width: 8,
-    backgroundColor: '#10B981', // green for done
+    backgroundColor: '#10B981',
+    width: 9,
   },
   dotCurrentPill: {
-    width: 32, // long sky pill for current
     backgroundColor: '#0284C7',
+    width: 24,
   },
   dotNext: {
-    width: 8,
-    backgroundColor: '#BAE6FD', // light blue for next
+    backgroundColor: '#E2E8F0',
   },
   scrollArea: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    padding: SPACING.md,
   },
-  // 300px Scene Card
-  sceneCard: {
-    height: 300,
-    borderRadius: 28,
+  heroSceneCard: {
+    borderRadius: RADIUS.xxl,
     overflow: 'hidden',
-    marginTop: 4,
-    marginBottom: 16,
     borderWidth: 1.5,
     borderColor: '#BAE6FD',
-    ...Platform.select({
-      web: { boxShadow: '0 8px 24px rgba(2, 132, 199, 0.12)' },
-      default: { elevation: 3 },
-    }),
+    ...SHADOWS.medium,
+    marginBottom: SPACING.md,
   },
-  sceneGradient: {
-    flex: 1,
-    position: 'relative',
+  heroGradient: {
+    height: 270,
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    position: 'relative',
   },
   cloudLeft: {
     position: 'absolute',
-    top: 24,
+    top: 20,
     left: 20,
-    width: 65,
-    height: 24,
-    borderRadius: 12,
+    width: 70,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   cloudRight: {
     position: 'absolute',
-    top: 45,
-    left: '36%',
-    width: 50,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    top: 36,
+    right: 25,
+    width: 60,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   sparkleStar: {
     position: 'absolute',
-    top: 26,
-    left: '48%',
+    top: 22,
+    right: 100,
   },
-  mascotAnchor: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    backgroundColor: '#FEF08A',
-  },
-  mascotImage: {
+  imageContainer: {
     width: '100%',
     height: '100%',
-  },
-  floorArea: {
-    width: '100%',
-    height: 190,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    position: 'relative',
-  },
-  prayerMatOuter: {
-    width: '88%',
-    height: 82,
-    backgroundColor: '#047857',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderWidth: 3,
-    borderColor: '#F59E0B',
-    padding: 5,
-    position: 'absolute',
-    bottom: 12,
-  },
-  prayerMatInner: {
-    flex: 1,
-    backgroundColor: '#064E3B',
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: 'rgba(245, 158, 11, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 10,
   },
-  prayerMatArch: {
-    width: '60%',
-    height: '70%',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1.5,
-    borderColor: '#F59E0B',
+  stepImage: {
+    width: '90%',
+    height: '92%',
   },
-  sujudFigureWrap: {
-    width: 260,
-    height: 120,
+  repsPill: {
     position: 'absolute',
-    bottom: 20,
-  },
-  sujudHead: {
-    position: 'absolute',
-    left: 36,
-    bottom: 24,
-    width: 40,
-    height: 34,
-  },
-  prayerCap: {
-    width: 32,
-    height: 22,
-    backgroundColor: '#78350F',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  faceTouch: {
-    width: 28,
-    height: 16,
-    backgroundColor: '#FED7AA',
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    marginTop: -4,
-  },
-  sujudPalms: {
-    position: 'absolute',
-    left: 68,
-    bottom: 24,
-    width: 26,
-    height: 12,
-    backgroundColor: '#FED7AA',
-    borderRadius: 6,
-  },
-  sujudTorso: {
-    position: 'absolute',
-    left: 62,
-    bottom: 34,
-    width: 104,
-    height: 52,
-    backgroundColor: '#10B981',
-    borderRadius: 24,
-    transform: [{ rotate: '-15deg' }],
-  },
-  sujudLegs: {
-    position: 'absolute',
-    left: 142,
-    bottom: 24,
-    width: 68,
-    height: 38,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  sujudFeet: {
-    position: 'absolute',
-    left: 204,
-    bottom: 24,
-    width: 24,
-    height: 18,
-    backgroundColor: '#FED7AA',
-    borderRadius: 6,
-  },
-  // Gold Dots for 7 Contact Points
-  goldPointWrap: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  goldPointRing: {
-    position: 'absolute',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: '#F59E0B',
-    backgroundColor: 'rgba(254, 240, 138, 0.45)',
-  },
-  goldPointCore: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#F59E0B',
-  },
-  // Chips Row
-  chipsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  chipPill: {
+    top: 14,
+    backgroundColor: 'rgba(2, 132, 199, 0.92)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    ...SHADOWS.soft,
   },
-  chipPrayer: {
-    backgroundColor: '#DCFCE7',
-  },
-  chipTextPrayer: {
-    color: '#15803D',
-    fontSize: 13,
+  repsPillText: {
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '800',
   },
-  chipRakah: {
-    backgroundColor: '#E0F2FE',
-  },
-  chipTextRakah: {
-    color: '#0369A1',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  chipPosition: {
-    backgroundColor: '#F0F9FF',
+  stepCountPill: {
+    position: 'absolute',
+    top: 14,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
     borderColor: '#BAE6FD',
+    ...SHADOWS.soft,
   },
-  chipTextPosition: {
-    color: '#0284C7',
-    fontSize: 13,
+  stepCountPillText: {
+    color: '#0369A1',
+    fontSize: 12,
     fontWeight: '800',
   },
-  salahTitle: {
-    fontSize: 30,
-    fontWeight: '900',
-    color: '#1E293B',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  salahInstruction: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#475569',
-    textAlign: 'center',
-    lineHeight: 27,
-    marginBottom: 16,
-  },
-  // Dhikr Card
-  dhikrCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    marginTop: 6,
-    ...Platform.select({
-      web: { boxShadow: '0 4px 14px rgba(0,0,0,0.06)' },
-      default: { elevation: 2 },
-    }),
-  },
-  dhikrCardRow: {
-    flexDirection: 'row',
+  titlesWrap: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
+    marginBottom: SPACING.md,
   },
-  dhikrPlayBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#0284C7',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dhikrPlayBtnActive: {
-    backgroundColor: '#0369A1',
-  },
-  dhikrTextCol: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  dhikrSmallLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748B',
-    marginBottom: 2,
-  },
-  dhikrArabicPhrase: {
-    fontSize: 24,
+  stepMainTitle: {
+    fontSize: 22,
     fontWeight: '900',
     color: '#0F172A',
     textAlign: 'center',
+    marginBottom: 4,
   },
-  dhikrRepsChip: {
+  stepSubtitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
+    textAlign: 'center',
+  },
+  instructionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: SPACING.md,
+    ...SHADOWS.soft,
+  },
+  cardHeaderRow: {
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
+  iconCircleBlue: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#E0F2FE',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dhikrRepsText: {
-    fontSize: 13,
+  cardHeaderTitle: {
+    fontSize: 14,
     fontWeight: '800',
     color: '#0284C7',
   },
-  // Fixed Bottom Bar
-  bottomBarContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#FFFDF9',
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+  instructionText: {
+    fontSize: 15,
+    lineHeight: 25,
+    color: '#334155',
+    fontWeight: '500',
   },
-  bottomBarRow: {
+  dhikrCard: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    marginBottom: SPACING.md,
+    ...SHADOWS.medium,
+  },
+  dhikrGradient: {
+    padding: SPACING.md,
+  },
+  dhikrHeaderRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dhikrBadge: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  dhikrBadgeText: {
+    color: '#FDE047',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  audioPlayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+  },
+  audioPlayBtnActive: {
+    backgroundColor: '#EF4444',
+  },
+  audioPlayBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  dhikrMainText: {
+    fontSize: 20,
+    lineHeight: 36,
+    color: '#FFFFFF',
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  dhikrTransText: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#D1FAE5',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  reflectionCard: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  reflectionRow: {
+    alignItems: 'center',
+    gap: 10,
+  },
+  reflectionText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 21,
+    color: '#92400E',
+    fontWeight: '600',
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 12,
+    ...SHADOWS.strong,
+  },
+  bottomBarInner: {
     alignItems: 'center',
     gap: 12,
   },
-  bottomBackBtn: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  coralMainBtn: {
-    flex: 1,
-    height: 60,
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...Platform.select({
-      web: { boxShadow: '0 6px 16px rgba(224, 62, 45, 0.35)' },
-      default: { elevation: 4 },
-    }),
-  },
-  coralGradient: {
-    flex: 1,
+  prevBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    height: 48,
+    borderRadius: RADIUS.xl,
+    backgroundColor: '#F1F5F9',
   },
-  coralBtnText: {
-    fontSize: 22,
-    fontWeight: '900',
+  prevBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  nextBtn: {
+    flex: 1,
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    ...SHADOWS.soft,
+  },
+  nextBtnGradient: {
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+  },
+  nextBtnText: {
+    fontSize: 15,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
 });

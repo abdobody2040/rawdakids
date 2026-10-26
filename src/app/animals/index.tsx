@@ -36,10 +36,53 @@ import {
 
 const ANIMALS_WORLD_COVER = require('../../../assets/images/animals-world.jpg');
 const STORY_IMAGES: Record<string, any> = {
+  'sulayman-ant': require('../../../assets/images/scene-ant-sulayman.jpg'),
+  'sulayman-hoopoe': require('../../../assets/images/scene-hoopoe-message.jpg'),
+  'salih-camel': require('../../../assets/images/scene-she-camel-rock.jpg'),
+  'yunus-whale': require('../../../assets/images/scene-whale-sea.jpg'),
+  'kahf-dog': require('../../../assets/images/scene-cave-dog.jpg'),
+  'ibrahim-birds': require('../../../assets/images/scene-ibrahim-birds.jpg'),
+  'bani-israel-cow': require('../../../assets/images/scene-yellow-cow.jpg'),
+  'fil-ababil': require('../../../assets/images/scene-ababil-elephant.jpg'),
   'isa-bird': require('../../../assets/images/scene-isa-bird.jpg'),
   'musa-staff': require('../../../assets/images/scene-musa-staff.jpg'),
   'ismail-ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
   'qabil-crow': require('../../../assets/images/scene-qabil-crow.jpg'),
+};
+
+const ANIMAL_CATALOG_IMAGES: Record<string, any> = {
+  'ant': require('../../../assets/images/scene-ant-sulayman.jpg'),
+  'hoopoe': require('../../../assets/images/scene-hoopoe-message.jpg'),
+  'she-camel': require('../../../assets/images/scene-she-camel-rock.jpg'),
+  'whale': require('../../../assets/images/scene-whale-sea.jpg'),
+  'dog': require('../../../assets/images/scene-cave-dog.jpg'),
+  'cow': require('../../../assets/images/scene-yellow-cow.jpg'),
+  'elephant': require('../../../assets/images/scene-ababil-elephant.jpg'),
+  'bee': require('../../../assets/images/animal-bee-3d.jpg'),
+  'crow': require('../../../assets/images/scene-qabil-crow.jpg'),
+  'four-birds': require('../../../assets/images/scene-ibrahim-birds.jpg'),
+  'isa-bird': require('../../../assets/images/scene-isa-bird.jpg'),
+  'serpent': require('../../../assets/images/scene-musa-staff.jpg'),
+  'ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
+  'wolf': require('../../../assets/images/animal-wolf-3d.jpg'),
+  'spider': require('../../../assets/images/scene-thawr-cave.jpg'),
+  'camel': require('../../../assets/images/sticker-camel.jpg'),
+  'horse': require('../../../assets/images/avatar-horse.jpg'),
+  'mule': require('../../../assets/images/prophets-caravan.jpg'),
+  'donkey': require('../../../assets/images/hero-oasis.jpg'),
+  'lion': require('../../../assets/images/avatar-falcon.jpg'),
+  'fly': require('../../../assets/images/story-gentle-nature.jpg'),
+  'mosquito': require('../../../assets/images/manner-cleanliness.jpg'),
+  'sheep': require('../../../assets/images/seerah-sheep.jpg'),
+  'goat': require('../../../assets/images/seerah-sheep.jpg'),
+  'locust': require('../../../assets/images/nation-garden.jpg'),
+  'lice': require('../../../assets/images/hero-oasis.jpg'),
+  'frog': require('../../../assets/images/quran-garden.jpg'),
+  'quail': require('../../../assets/images/comp-nughayr-bird.jpg'),
+  'ababil': require('../../../assets/images/scene-ababil-elephant.jpg'),
+  'termite': require('../../../assets/images/scene-sulayman-crystal.jpg'),
+  'calf': require('../../../assets/images/scene-yellow-cow.jpg'),
+  'monkey': require('../../../assets/images/animals-badge-3d.jpg'),
 };
 
 type AnimalHubTab = 'miracles' | 'sunnah' | 'cards' | 'game';
@@ -436,6 +479,7 @@ export default function AnimalsHubScreen() {
               <View style={styles.cardsGrid}>
                 {QURAN_ANIMALS_CATALOG.map((item) => {
                   const isStickerUnlocked = unlockedStickers.includes(item.stickerId);
+                  const animalImg = ANIMAL_CATALOG_IMAGES[item.id] || STORY_IMAGES['isa-bird'];
 
                   return (
                     <TouchableOpacity
@@ -444,8 +488,16 @@ export default function AnimalsHubScreen() {
                       onPress={() => setSelectedCard(item)}
                       activeOpacity={0.85}
                     >
-                      <View style={styles.catalogTopRow}>
-                        <Text style={{ fontSize: 36 }}>{item.emoji}</Text>
+                      {/* Animal 3D Image Thumbnail */}
+                      <View style={styles.catalogCardImgWrap}>
+                        <Image
+                          source={animalImg}
+                          style={styles.catalogCardImg}
+                          resizeMode="cover"
+                        />
+                        <View style={styles.catalogEmojiBadge}>
+                          <Text style={{ fontSize: 16 }}>{item.emoji}</Text>
+                        </View>
                         {isStickerUnlocked && (
                           <View style={styles.stickerBadgePill}>
                             <Ionicons name="sparkles" size={10} color="#D97706" />
@@ -455,6 +507,7 @@ export default function AnimalsHubScreen() {
                           </View>
                         )}
                       </View>
+
                       <Text style={[styles.catalogName, { textAlign: isRtl ? 'right' : 'left' }]}>
                         {isAr ? item.nameAr : item.nameEn}
                       </Text>
@@ -476,8 +529,17 @@ export default function AnimalsHubScreen() {
               {selectedCard && (
                 <View style={styles.detailCardOverlay}>
                   <View style={styles.detailCardBox}>
-                    <View style={styles.detailCardHeader}>
-                      <Text style={{ fontSize: 44 }}>{selectedCard.emoji}</Text>
+                    {/* Header Image with close button */}
+                    <View style={styles.detailCardImgWrap}>
+                      <Image
+                        source={ANIMAL_CATALOG_IMAGES[selectedCard.id] || STORY_IMAGES['isa-bird']}
+                        style={styles.detailCardImg}
+                        resizeMode="cover"
+                      />
+                      <LinearGradient
+                        colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.4)']}
+                        style={styles.detailCardGradient}
+                      />
                       <TouchableOpacity
                         style={styles.closeCardBtn}
                         onPress={() => {
@@ -486,8 +548,11 @@ export default function AnimalsHubScreen() {
                           setSelectedCard(null);
                         }}
                       >
-                        <Ionicons name="close-circle" size={26} color="#6B7280" />
+                        <Ionicons name="close-circle" size={28} color="#FFFFFF" />
                       </TouchableOpacity>
+                      <View style={styles.detailCardEmojiBadge}>
+                        <Text style={{ fontSize: 24 }}>{selectedCard.emoji}</Text>
+                      </View>
                     </View>
 
                     <Text style={styles.detailCardTitle}>
@@ -1006,16 +1071,35 @@ const styles = StyleSheet.create({
     width: '48%',
     backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.lg,
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     ...SHADOWS.soft,
-    marginBottom: 6,
+    marginBottom: 10,
   },
-  catalogTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
+  catalogCardImgWrap: {
+    width: '100%',
+    height: 95,
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+    marginBottom: 8,
+    position: 'relative',
+    backgroundColor: '#E2E8F0',
+  },
+  catalogCardImg: {
+    width: '100%',
+    height: '100%',
+  },
+  catalogEmojiBadge: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: RADIUS.full,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.soft,
   },
   stickerBadgePill: {
     flexDirection: 'row',
@@ -1062,18 +1146,45 @@ const styles = StyleSheet.create({
   detailCardBox: {
     backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.xxl,
-    padding: SPACING.lg,
+    overflow: 'hidden',
+    paddingBottom: SPACING.lg,
     width: '100%',
     maxWidth: 440,
     ...SHADOWS.strong,
   },
-  detailCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  detailCardImgWrap: {
+    width: '100%',
+    height: 160,
+    position: 'relative',
+    marginBottom: SPACING.md,
+    backgroundColor: '#CBD5E1',
+  },
+  detailCardImg: {
+    width: '100%',
+    height: '100%',
+  },
+  detailCardGradient: {
+    ...StyleSheet.absoluteFill,
+  },
+  detailCardEmojiBadge: {
+    position: 'absolute',
+    bottom: -16,
+    left: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'center',
+    ...SHADOWS.md,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
   },
   closeCardBtn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 10,
     padding: 4,
   },
   detailCardTitle: {

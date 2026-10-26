@@ -46,7 +46,9 @@ export default function SurahFullTafsirModal({
   useEffect(() => {
     if (!visible) {
       audioService.stopDua();
-      setPlayingAyahNum(null);
+      queueMicrotask(() => {
+        setPlayingAyahNum(null);
+      });
     }
   }, [visible]);
 
@@ -63,7 +65,11 @@ export default function SurahFullTafsirModal({
         initialMap[a.number] = a.simpleTafsir;
       }
     });
-    setTafsirMap(initialMap);
+    queueMicrotask(() => {
+      if (isCurrent) {
+        setTafsirMap(initialMap);
+      }
+    });
 
     // Fetch official Tafsir text for all verses asynchronously
     surah.ayahs.forEach(async (ayah) => {

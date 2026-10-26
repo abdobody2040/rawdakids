@@ -28,6 +28,14 @@ import {
 } from '@/services/multilingualAnimalsService';
 
 const STORY_IMAGES: Record<string, any> = {
+  'sulayman-ant': require('../../../assets/images/scene-ant-sulayman.jpg'),
+  'sulayman-hoopoe': require('../../../assets/images/scene-hoopoe-message.jpg'),
+  'salih-camel': require('../../../assets/images/scene-she-camel-rock.jpg'),
+  'yunus-whale': require('../../../assets/images/scene-whale-sea.jpg'),
+  'kahf-dog': require('../../../assets/images/scene-cave-dog.jpg'),
+  'ibrahim-birds': require('../../../assets/images/scene-ibrahim-birds.jpg'),
+  'bani-israel-cow': require('../../../assets/images/scene-yellow-cow.jpg'),
+  'fil-ababil': require('../../../assets/images/scene-ababil-elephant.jpg'),
   'isa-bird': require('../../../assets/images/scene-isa-bird.jpg'),
   'musa-staff': require('../../../assets/images/scene-musa-staff.jpg'),
   'ismail-ram': require('../../../assets/images/scene-ram-sacrifice.jpg'),
