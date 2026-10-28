@@ -18,6 +18,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { isRTL } from '@/constants/i18n';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 // 3D Pixar-style visual assets for Discover Worlds
 const PROPHETS_IMG = require('../../../assets/images/prophets-caravan.jpg');
@@ -220,6 +221,8 @@ export default function DiscoverScreen() {
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
+  useDocumentTitle(isAr ? 'اكتشف عوالم روضة' : 'Discover Rawda Worlds');
+
   // Active profile age filter
   const profile = profiles.find((p) => p.id === activeProfileId);
   const isUnder9 = profile?.ageBand === '4-6' || profile?.ageBand === '7-9';
@@ -248,6 +251,7 @@ export default function DiscoverScreen() {
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          role="main"
         >
           {/* INTRO HERO BANNER */}
           <View style={styles.heroBanner}>

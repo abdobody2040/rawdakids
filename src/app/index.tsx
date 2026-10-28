@@ -1,6 +1,6 @@
 // Home Screen — Rawda Kids Redesign (PRD §7.2)
 // 7-block layout: Header · Bismillah · Continue · Daily 3 Steps · Hadith · Six Worlds Grid · Prayer Strip
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense, lazy } from "react";
 import {
   View,
   Text,
@@ -22,12 +22,14 @@ import StarRewardCelebration from '@/components/StarRewardCelebration';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar from '@/components/KidAvatar';
 import ParentGateModal from '@/components/ParentGateModal';
-import SmartSearchModal from '@/components/SmartSearchModal';
+
+const SmartSearchModal = lazy(() => import('@/components/SmartSearchModal'));
 import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
 import LanguageSelectModal from '@/components/LanguageSelectModal';
 import { AVAILABLE_LANGUAGES, TRANSLATIONS } from '@/constants/i18n';
 import { getLocalizedHadith, formatLocalizedTodayDate } from "@/services/multilingualContentService";
 import { isBedtimeActive, getPrayerTimesForCity } from '@/services/prayerTimeService';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 // ── World images ──────────────────────────────────────────────────────────
 
@@ -176,10 +178,17 @@ export default function HomeScreen() {
     addGems,
     lastReadMushafPage,
     parentSettings,
+    getChildProgress,
   } = useAppStore();
+
+  const childProgress = getChildProgress ? getChildProgress(activeProfileId) : null;
+  const totalStars = childProgress?.stars || 6;
+  const resumePercent = 29;
 
   const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
+
+  useDocumentTitle(isAr ? 'الرئيسية' : 'Home');
 
   const isBedtimeNow = Boolean(
     parentSettings.bedtimeLockEnabled &&
@@ -339,10 +348,11 @@ export default function HomeScreen() {
           style={styles.mainCanvas}
           contentContainerStyle={styles.mainCanvasContent}
           showsVerticalScrollIndicator={false}
+          role="main"
         >
 
           {/* ── BLOCK 1: HEADER (64 dp) ────────────────────────────────── */}
-          <View style={styles.headerContainer}>
+          <View style={styles.headerContainer} role="banner">
             {/* Row 1: Avatar + Greeting + Streak + Actions */}
             <View
               style={[
@@ -355,6 +365,8 @@ export default function HomeScreen() {
                 style={[styles.headerLeft, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
                 onPress={() => router.push('/progress')}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'ملف الطفل والتقدم' : 'Profile & Progress'}
               >
                 <View style={styles.avatarWrapper}>
                   <KidAvatar avatar={activeProfile.avatar} size={44} />
@@ -363,7 +375,11 @@ export default function HomeScreen() {
                   <Text style={[styles.greetingSub, { textAlign: isAr ? 'right' : 'left' }]}>
                     {isAr ? 'السَّلَامُ عَلَيْكُمْ' : 'As-salamu alaykum 🌿'}
                   </Text>
-                  <Text style={[styles.greetingMain, { textAlign: isAr ? 'right' : 'left' }]}>
+                  <Text
+                    style={[styles.greetingMain, { textAlign: isAr ? 'right' : 'left' }]}
+                    role="heading"
+                    aria-level={1}
+                  >
                     {isAr
                       ? (isValidNickname(activeProfile.name) ? `أَهْلًا ${activeProfile.name}` : `أَهْلًا ${displayName}`)
                       : `Welcome, ${displayName}`}
@@ -373,37 +389,42 @@ export default function HomeScreen() {
 
               {/* Right actions: Streak sprout + Search + Parent */}
               <View style={[styles.headerActions, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                {/* Sprout Streak: "٣ 🌱" per PDF Page 1 & 2 */}
+                {/* Labeled Sprout Streak: "3 أيام متتالية" */}
                 <TouchableOpacity
-                  style={styles.streakChip}
+                  style={styles.streakChipLabeled}
                   onPress={() => router.push('/progress')}
                   activeOpacity={0.8}
-                  accessibilityLabel={isAr ? `أيام متتالية: ${streakCount}` : `Streak: ${streakCount}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? `مسيرة الاستمرار: ${streakCount} أيام متتالية` : `Streak: ${streakCount} consecutive days`}
                 >
-                  <Text style={styles.streakText}>
-                    {isAr ? `${toEasternArabic(streakCount)} 🌱` : `${streakCount} 🌱`}
-                  </Text>
+                  <View style={styles.streakTopRow}>
+                    <Ionicons name="leaf" size={13} color="#0F6E56" />
+                    <Text style={styles.streakCountNumber}>{streakCount}</Text>
+                  </View>
+                  <Text style={styles.streakSubLabel}>{isAr ? 'أيام متتالية' : 'Streak'}</Text>
                 </TouchableOpacity>
 
-                {/* Search icon (hidden for 4-6 per PRD §7.2 & Finding 1) */}
+                {/* Search icon */}
                 {ageBand !== '4-6' && (
                   <TouchableOpacity
                     style={styles.iconBtn}
                     onPress={() => setShowSmartSearch(true)}
                     activeOpacity={0.8}
-                    accessibilityLabel={isAr ? 'بحث' : 'Search'}
+                    accessibilityRole="button"
+                    accessibilityLabel={isAr ? 'البحث الذكي' : 'Smart search'}
                   >
                     <Ionicons name="search" size={18} color="#064E3B" />
                   </TouchableOpacity>
                 )}
 
-                {/* Language (hidden for 4-6 mode per PRD §18 Finding 1) */}
+                {/* Language */}
                 {ageBand !== '4-6' && (
                   <TouchableOpacity
                     style={styles.iconBtn}
                     onPress={() => setShowLanguageModal(true)}
                     activeOpacity={0.8}
-                    accessibilityLabel={isAr ? 'اللغة' : 'Language'}
+                    accessibilityRole="button"
+                    accessibilityLabel={isAr ? 'تغيير اللغة' : 'Change language'}
                   >
                     <Text style={styles.flagText}>
                       {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
@@ -411,14 +432,16 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 )}
 
-                {/* Parent zone (lock icon) */}
+                {/* Labeled Parent zone (lock icon) */}
                 <TouchableOpacity
-                  style={[styles.iconBtn, styles.lockBtn]}
+                  style={styles.parentLockLabeled}
                   onPress={() => setParentGateVisible(true)}
                   activeOpacity={0.8}
-                  accessibilityLabel={isAr ? 'منطقة الأهل' : 'Parent zone'}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? 'منطقة أولياء الأمور' : 'Parents Area'}
                 >
-                  <Ionicons name="lock-closed" size={16} color="#064E3B" />
+                  <Ionicons name="lock-closed" size={14} color="#5F5E5A" />
+                  <Text style={styles.parentLockSubLabel}>{isAr ? 'الأهل' : 'Parents'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -430,11 +453,13 @@ export default function HomeScreen() {
                   <Ionicons name="calendar-outline" size={12} color="#16A34A" />
                   <Text style={styles.dateText}>{todayDateStr}</Text>
                 </View>
-                {/* Profile switch */}
+                {/* Profile switch with visible label */}
                 <TouchableOpacity
                   style={styles.switchBtn}
                   onPress={() => setShowProfileSwitcher(true)}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? 'تبديل ملف الطفل' : 'Switch child profile'}
                 >
                   <Ionicons name="swap-horizontal" size={13} color="#064E3B" />
                   <Text style={styles.switchBtnText}>{t.switchProfile}</Text>
@@ -531,143 +556,217 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* ── BLOCK 3: CONTINUE CARD (Primary CTA — coral, full width) ─ */}
+          {/* ── BLOCK 3: RESUME CARD IS THE HERO (Mockup: Green, Progress Bar, Star Count) ─ */}
           <TouchableOpacity
-            style={styles.continueCard}
+            style={styles.heroResumeCard}
             onPress={() => router.push(lastReadMushafPage ? `/quran/mushaf` as any : '/quran')}
-            activeOpacity={0.88}
+            activeOpacity={0.9}
           >
             <LinearGradient
-              colors={['#F26B4F', '#E85535']}
+              colors={['#0F9D6B', '#0B7A53']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.continueCardInner}
+              style={styles.heroResumeInner}
             >
-              {/* Left: thumbnail */}
-              <View style={styles.continueThumbnail}>
-                <Ionicons name="book" size={28} color="#FFFFFF" />
+              <View style={[styles.heroResumeTopRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={styles.heroResumeIconBox}>
+                  <Ionicons name="book" size={24} color="#FFFFFF" />
+                </View>
+                <View style={[styles.heroResumeTextCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+                  <Text style={[styles.heroResumeTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                    {isAr ? 'كمّل من حيث توقفت' : 'Continue learning'}
+                  </Text>
+                  <Text style={[styles.heroResumeSubtitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                    {isAr
+                      ? (lastReadMushafPage ? `المصحف الشريف، صفحة ${lastReadMushafPage}` : 'سورة الفاتحة، الآية 2')
+                      : (lastReadMushafPage ? `Holy Mushaf, page ${lastReadMushafPage}` : 'Surah Al-Fatihah, Ayah 2')}
+                  </Text>
+                </View>
+                <Ionicons
+                  name={isAr ? 'chevron-back' : 'chevron-forward'}
+                  size={20}
+                  color="#FFFFFF"
+                />
               </View>
 
-              {/* Center: label */}
-              <View style={[styles.continueMid, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
-                <Text style={[styles.continueLabel, { textAlign: isAr ? 'right' : 'left' }]}>
-                  {isAr ? 'كَمِّلْ مِنْ حَيْثُ تَوَقَّفْتَ' : 'Continue where you left off'}
-                </Text>
-                <Text style={[styles.continueSub, { textAlign: isAr ? 'right' : 'left' }]}>
-                  {isAr
-                    ? `الْمُصْحَفُ — صَفْحَةُ ${toEasternArabic(lastReadMushafPage || 1)}`
-                    : `Mushaf — page ${lastReadMushafPage || 1}`}
-                </Text>
+              {/* Progress Bar (Mockup: white bar on translucent track) */}
+              <View style={styles.heroResumeBarTrack}>
+                <View style={[styles.heroResumeBarFill, { width: `${resumePercent}%` }]} />
               </View>
 
-              {/* Right: arrow */}
-              <Ionicons
-                name={isAr ? 'chevron-back' : 'chevron-forward'}
-                size={20}
-                color="#FFFFFF"
-              />
+              {/* Bottom Info: Progress % + Stars */}
+              <View style={[styles.heroResumeBottomRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Text style={styles.heroResumePercentText}>
+                  {isAr ? `${resumePercent}% مكتمل` : `${resumePercent}% complete`}
+                </Text>
+                <View style={styles.heroResumeStarsBox}>
+                  <Ionicons name="star" size={13} color="#F5B83D" />
+                  <Text style={styles.heroResumeStarsText}>
+                    {isAr ? `${totalStars} نجوم` : `${totalStars} stars`}
+                  </Text>
+                </View>
+              </View>
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* ── AGES 4–6: THREE HUGE TILES (PDF Page 1) vs AGES 7–12 (PDF Page 2) ── */}
-          {ageBand === '4-6' ? (
-            <View style={styles.seedlingSection}>
-              {/* Mascot voice prompt card (PDF Page 1) */}
-              <View style={[styles.mascotVoiceCard, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                <View style={styles.mascotVoiceAvatar}>
-                  <Image source={MASCOT_NOOR_IMG} style={styles.mascotVoiceImg} resizeMode="cover" />
-                </View>
-                <View style={[styles.mascotVoiceTexts, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
-                  <Text style={styles.mascotVoiceTitle}>
-                    {isAr ? 'هَيَّا نَتَعَلَّمْ مَعًا!' : 'Let’s learn together!'}
-                  </Text>
-                  <Text style={[styles.mascotVoiceSpeech, { textAlign: isAr ? 'right' : 'left' }]}>
-                    {isAr
-                      ? 'أَهْلًا يَا صَدِيقِي! اخْتَرْ زِرًّا لِنَبْدَأَ رِحْلَتَنَا 🌸'
-                      : 'Welcome little friend! Tap a big tile to begin our journey 🌸'}
-                  </Text>
-                </View>
-                {/* Audio speaker button (PDF Page 1) */}
-                <TouchableOpacity
-                  style={[styles.mascotSpeakerBtn, isPlayingMascot && styles.mascotSpeakerBtnActive]}
-                  onPress={handlePlayMascotGreeting}
-                  activeOpacity={0.8}
-                  accessibilityLabel={isAr ? 'استمع إلى نور' : 'Listen to Noor'}
-                >
-                  <Ionicons
-                    name={isPlayingMascot ? 'stop-circle' : 'volume-high'}
-                    size={22}
-                    color={isPlayingMascot ? '#DC2626' : '#16A34A'}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* 3 Huge Action Tiles (PDF Page 1: no emoji in titles, high contrast) */}
-              <View style={styles.seedlingTilesRow}>
-                {/* Tile 1: Listen & Repeat */}
-                <TouchableOpacity
-                  style={styles.seedlingTile}
-                  onPress={() => router.push('/quran' as any)}
-                  activeOpacity={0.88}
-                >
-                  <LinearGradient
-                    colors={['#059669', '#10B981']}
-                    style={styles.seedlingTileGradient}
-                  >
-                    <Ionicons name="headset" size={44} color="#FFFFFF" />
-                    <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'اِسْتَمِعْ وَرَدِّدْ' : 'Listen & Repeat'}
-                    </Text>
-                    <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'قِصَارُ السُّوَرِ بِصَوْتِ الشَّيْخِ' : 'Short Surahs with joyful recitation'}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-
-                {/* Tile 2: Pray & Wudu */}
-                <TouchableOpacity
-                  style={styles.seedlingTile}
-                  onPress={() => router.push('/arkan/salah?mode=wudu' as any)}
-                  activeOpacity={0.88}
-                >
-                  <LinearGradient
-                    colors={['#0284C7', '#38BDF8']}
-                    style={styles.seedlingTileGradient}
-                  >
-                    <Ionicons name="water" size={44} color="#FFFFFF" />
-                    <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'صَلَاتِي وَوُضُوئِي' : 'My Prayer & Wudu'}
-                    </Text>
-                    <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'تَعَلَّمِ الْوُضُوءَ وَالصَّلَاةَ خُطْوَةً خُطْوَةً' : 'Learn Wudu & Prayer step by step'}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-
-                {/* Tile 3: Stories & Wonders (PRD §18 Finding 6 & PDF Page 1) */}
-                <TouchableOpacity
-                  style={styles.seedlingTile}
-                  onPress={() => router.push('/discover' as any)}
-                  activeOpacity={0.88}
-                >
-                  <LinearGradient
-                    colors={['#D97706', '#F59E0B']}
-                    style={styles.seedlingTileGradient}
-                  >
-                    <Ionicons name="sparkles" size={44} color="#FFFFFF" />
-                    <Text style={styles.seedlingTileTitle}>
-                      {isAr ? 'قِصَصٌ وَعَجَائِبُ' : 'Stories & Wonders'}
-                    </Text>
-                    <Text style={styles.seedlingTileSub}>
-                      {isAr ? 'قِصَصُ الْأَنْبِيَاءِ وَحَيَوَانَاتِ الْقُرْآنِ' : 'Prophets stories & Quran animals'}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
+          {/* ── CONTEXTUAL MASCOT CARD (Mockup: Lighter style, contextual suggestion) ── */}
+          <TouchableOpacity
+            style={[styles.mascotContextCard, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
+            onPress={() => router.push('/quran/112' as any)}
+            activeOpacity={0.88}
+          >
+            <View style={styles.mascotContextAvatarBox}>
+              <Ionicons name="bulb-outline" size={20} color="#854F0B" />
             </View>
-          ) : (
-            <>
-              {/* ── BLOCK 4: TODAY'S 3 STEPS (PDF Page 2) ───────────────────── */}
+            <View style={[styles.mascotContextTextCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+              <Text style={[styles.mascotContextQuestion, { textAlign: isAr ? 'right' : 'left' }]}>
+                {isAr ? 'هل نتعلم سورة الإخلاص اليوم؟' : 'Ready for Surah Al-Ikhlas today?'}
+              </Text>
+              <Text style={[styles.mascotContextAction, { textAlign: isAr ? 'right' : 'left' }]}>
+                {isAr ? 'اضغط للبدء' : 'Tap to begin'}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.mascotSpeakerCircle, isPlayingMascot && styles.mascotSpeakerCircleActive]}
+              onPress={(e) => {
+                e.stopPropagation?.();
+                handlePlayMascotGreeting();
+              }}
+              activeOpacity={0.8}
+              accessibilityLabel={isAr ? 'استمع إلى نور' : 'Listen to Noor'}
+            >
+              <Ionicons
+                name={isPlayingMascot ? 'stop-circle' : 'volume-high'}
+                size={20}
+                color="#0F9D6B"
+              />
+            </TouchableOpacity>
+          </TouchableOpacity>
+
+          {/* ── 2-COLUMN GRID: 4 VIBRANT GRADIENT CARDS ── */}
+          <View style={styles.quickGridContainer}>
+            <View style={styles.quickGridRow}>
+              {/* Card 1: استمع وردد */}
+              <TouchableOpacity
+                style={styles.quickGridCardTouchable}
+                onPress={() => router.push('/quran/repeat' as any)}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'استمع وردد قصار السور' : 'Listen and repeat short surahs'}
+              >
+                <LinearGradient
+                  colors={['#0F9D6B', '#076943']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.quickGridCardGradient}
+                >
+                  <View style={styles.decorativeBubble} />
+                  <View style={styles.cardIconBadge}>
+                    <Ionicons name="headset" size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.quickGridCardTitle}>
+                    {isAr ? 'استمع وردد' : 'Listen & Repeat'}
+                  </Text>
+                  <View style={styles.quickGridSubBadge}>
+                    <Text style={styles.quickGridCardSub}>
+                      {isAr ? 'قصار السور' : 'Short Surahs'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Card 2: الوضوء */}
+              <TouchableOpacity
+                style={styles.quickGridCardTouchable}
+                onPress={() => router.push('/prayer/wudu' as any)}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'تعلم الوضوء 10 خطوات' : 'Learn Wudu 10 steps'}
+              >
+                <LinearGradient
+                  colors={['#0284C7', '#0369A1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.quickGridCardGradient}
+                >
+                  <View style={styles.decorativeBubble} />
+                  <View style={styles.cardIconBadge}>
+                    <Ionicons name="water" size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.quickGridCardTitle}>
+                    {isAr ? 'الوضوء' : 'Wudu'}
+                  </Text>
+                  <View style={styles.quickGridSubBadge}>
+                    <Text style={styles.quickGridCardSub}>
+                      {isAr ? '١٠ خطوات مصورة' : '10 steps'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.quickGridRow}>
+              {/* Card 3: الصلاة */}
+              <TouchableOpacity
+                style={styles.quickGridCardTouchable}
+                onPress={() => router.push('/prayer/salah' as any)}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'تعلم الصلاة خطوة بخطوة' : 'Learn prayer step by step'}
+              >
+                <LinearGradient
+                  colors={['#D97706', '#92400E']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.quickGridCardGradient}
+                >
+                  <View style={styles.decorativeBubble} />
+                  <View style={styles.cardIconBadge}>
+                    <Ionicons name="moon" size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.quickGridCardTitle}>
+                    {isAr ? 'الصلاة' : 'Prayer'}
+                  </Text>
+                  <View style={styles.quickGridSubBadge}>
+                    <Text style={styles.quickGridCardSub}>
+                      {isAr ? 'تعلم خطوة بخطوة' : 'Step by step'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Card 4: اكتشف */}
+              <TouchableOpacity
+                style={styles.quickGridCardTouchable}
+                onPress={() => router.push('/discover' as any)}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'اكتشف قصص وأخلاق' : 'Discover stories and manners'}
+              >
+                <LinearGradient
+                  colors={['#7C3AED', '#5B21B6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.quickGridCardGradient}
+                >
+                  <View style={styles.decorativeBubble} />
+                  <View style={styles.cardIconBadge}>
+                    <Ionicons name="compass" size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.quickGridCardTitle}>
+                    {isAr ? 'اكتشف' : 'Discover'}
+                  </Text>
+                  <View style={styles.quickGridSubBadge}>
+                    <Text style={styles.quickGridCardSub}>
+                      {isAr ? 'قصص وأخلاق' : 'Stories & Manners'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* ── BLOCK 4: TODAY'S 3 STEPS (PDF Page 2) ───────────────────── */}
               <View style={styles.stepsSection}>
                 <View style={[styles.stepsSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
                   {/* Progress ring summary */}
@@ -858,8 +957,6 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-            </>
-          )}
 
           {/* ── BLOCK 7: PRAYER-TIME STRIP (PRD §7.2 - HOME-1 & PRY-4) ──────── */}
           {!isPrayerStripDismissed && (
@@ -942,10 +1039,14 @@ export default function HomeScreen() {
         }}
       />
 
-      <SmartSearchModal
-        visible={showSmartSearch}
-        onDismiss={() => setShowSmartSearch(false)}
-      />
+      {showSmartSearch && (
+        <Suspense fallback={null}>
+          <SmartSearchModal
+            visible={showSmartSearch}
+            onDismiss={() => setShowSmartSearch(false)}
+          />
+        </Suspense>
+      )}
 
       <ChildProfileSwitchModal
         visible={showProfileSwitcher}
@@ -1045,6 +1146,52 @@ const styles = StyleSheet.create({
     gap: 6,
     flexShrink: 0,
   },
+  streakChipLabeled: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E1F5EE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    minWidth: 48,
+    minHeight: 48,
+  },
+  streakTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  streakCountNumber: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#0F6E56',
+  },
+  streakSubLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#0F6E56',
+    marginTop: 1,
+  },
+  parentLockLabeled: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F4EE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E8D9BF',
+    minWidth: 48,
+    minHeight: 48,
+  },
+  parentLockSubLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#5F5E5A',
+    marginTop: 1,
+  },
   streakChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1062,9 +1209,9 @@ const styles = StyleSheet.create({
     color: COLORS.gardenGreen,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1175,43 +1322,188 @@ const styles = StyleSheet.create({
     color: '#065F46',
   },
 
-  // ── BLOCK 3: CONTINUE CARD ───────────────────────────────────────────
-  continueCard: {
-    borderRadius: RADIUS.lg,
+  // ── BLOCK 3: HERO RESUME CARD & QUICK 2-COL GRID ────────────────────
+  heroResumeCard: {
+    borderRadius: 16,
     overflow: 'hidden',
-    minHeight: 72,
     ...SHADOWS.medium,
   },
-  continueCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 18,
-    gap: 14,
-    minHeight: 72,
+  heroResumeInner: {
+    padding: 16,
+    borderRadius: 16,
   },
-  continueThumbnail: {
+  heroResumeTopRow: {
+    alignItems: 'center',
+    gap: 12,
+  },
+  heroResumeIconBox: {
     width: 48,
     height: 48,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
   },
-  continueMid: {
+  heroResumeTextCol: {
     flex: 1,
-    gap: 3,
   },
-  continueLabel: {
-    fontSize: 16,
-    fontWeight: '900',
+  heroResumeTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  heroResumeSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  heroResumeBarTrack: {
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 3,
+    marginTop: 14,
+    overflow: 'hidden',
+  },
+  heroResumeBarFill: {
+    height: 6,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 3,
+  },
+  heroResumeBottomRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  heroResumePercentText: {
+    fontSize: 12,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
-  continueSub: {
+  heroResumeStarsBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  heroResumeStarsText: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.82)',
-    fontWeight: '600',
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+
+  // ── CONTEXTUAL MASCOT CARD ──────────────────────────────────────────
+  mascotContextCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    padding: 10,
+    alignItems: 'center',
+    gap: 10,
+    ...SHADOWS.soft,
+  },
+  mascotContextAvatarBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FAEEDA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotContextTextCol: {
+    flex: 1,
+  },
+  mascotContextQuestion: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  mascotContextAction: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F9D6B',
+    marginTop: 2,
+  },
+  mascotSpeakerCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E1F5EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotSpeakerCircleActive: {
+    backgroundColor: '#DCFCE7',
+  },
+
+  // ── 2-COLUMN QUICK GRID (4 options showing without scrolling) ───────
+  quickGridContainer: {
+    gap: 12,
+  },
+  quickGridRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickGridCardTouchable: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    ...SHADOWS.md,
+  },
+  quickGridCardGradient: {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 110,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  decorativeBubble: {
+    position: 'absolute',
+    top: -16,
+    right: -16,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+  },
+  cardIconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    ...SHADOWS.soft,
+  },
+  quickGridCardTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  quickGridSubBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.16)',
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: RADIUS.full,
+    marginTop: 4,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  quickGridCardSub: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'center',
   },
 
   // ── BLOCK 4: DAILY STEPS ─────────────────────────────────────────────

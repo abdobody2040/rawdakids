@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
@@ -17,6 +17,8 @@ interface AudioPlayerBarProps {
   onPrevAyah: () => void;
   onSpeedChange: (speed: number) => void;
   onRepeatChange: (repeat: number) => void;
+  reciterName?: string;
+  onRecordRepeat?: () => void;
 }
 
 export default function AudioPlayerBar({
@@ -31,16 +33,19 @@ export default function AudioPlayerBar({
   onPrevAyah,
   onSpeedChange,
   onRepeatChange,
+  onRecordRepeat,
 }: AudioPlayerBarProps) {
   const { language, parentSettings, updateParentSettings } = useAppStore();
   const [reciterModalOpen, setReciterModalOpen] = useState(false);
+  const isAr = language === 'ar';
 
   const currentReciter =
     RECITERS.find((r) => r.id === parentSettings.reciterId) || RECITERS[0];
 
   const toggleSpeed = () => {
     if (speed === 1.0) onSpeedChange(1.25);
-    else if (speed === 1.25) onSpeedChange(0.75);
+    else if (speed === 1.25) onSpeedChange(1.5);
+    else if (speed === 1.5) onSpeedChange(0.75);
     else onSpeedChange(1.0);
   };
 
@@ -52,99 +57,100 @@ export default function AudioPlayerBar({
 
   return (
     <View style={styles.container}>
-      {/* Top micro info: Ayah counter & Reciter name */}
-      <View style={styles.infoRow}>
-        <View style={styles.ayahBadge}>
-          <Text style={styles.ayahBadgeText}>
-            {language === 'ar' ? 'الآية' : 'Ayah'} {activeAyahNumber} / {totalAyahs}
-          </Text>
-        </View>
-
+      {/* Top Bar: Reciter Name on left, Speed Chip on right */}
+      <View style={[styles.infoRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
         <TouchableOpacity
           style={styles.reciterPickerBtn}
           onPress={() => setReciterModalOpen(true)}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
         >
-          <Ionicons name="mic" size={14} color={COLORS.primary} />
+          <Ionicons name="mic-outline" size={15} color="#4B5563" />
           <Text style={styles.reciterPickerText}>
-            {language === 'ar' ? currentReciter.nameArabic : currentReciter.nameEnglish}
+            {isAr ? currentReciter.nameArabic : currentReciter.nameEnglish}
           </Text>
-          <Ionicons name="chevron-down" size={12} color={COLORS.textSecondary} />
+          <Ionicons name="chevron-down" size={12} color="#6B7280" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.speedChip, speed !== 1.0 && styles.speedChipActive]}
+          onPress={toggleSpeed}
+          activeOpacity={0.75}
+        >
+          <Text style={[styles.speedChipText, speed !== 1.0 && styles.speedChipTextActive]}>
+            {isAr ? `السرعة ${speed}x` : `Speed ${speed}x`}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Main player controls row */}
-      <View style={styles.controlsRow}>
-        {/* Speed button */}
+      {/* Main Controls Row (Mockup: Repeat | Skip Prev | Big Green Play | Skip Next | Repeat After Me) */}
+      <View style={[styles.controlsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+        {/* Labeled Repeat Button */}
         <TouchableOpacity
-          style={[styles.smallBtn, speed !== 1.0 && styles.activeSmallBtn]}
-          onPress={toggleSpeed}
-          activeOpacity={0.7}
+          style={styles.actionColumnBtn}
+          onPress={toggleRepeat}
+          activeOpacity={0.75}
         >
-          <Text style={[styles.smallBtnText, speed !== 1.0 && styles.activeSmallBtnText]}>
-            {speed}x
+          <Ionicons
+            name="repeat"
+            size={22}
+            color={repeatCount > 1 ? '#0F9D6B' : '#5F5E5A'}
+          />
+          <Text style={[styles.actionColumnText, repeatCount > 1 && { color: '#0F9D6B', fontWeight: '800' }]}>
+            {repeatCount > 1
+              ? `${repeatCount}x ${isAr ? 'تكرار' : 'Repeat'}`
+              : (isAr ? 'تكرار' : 'Repeat')}
           </Text>
         </TouchableOpacity>
 
-        {/* Previous Ayah */}
+        {/* Previous Ayah Button (Clear, never looks disabled) */}
         <TouchableOpacity
-          style={styles.navBtn}
+          style={styles.skipBtn}
           onPress={onPrevAyah}
-          disabled={activeAyahNumber <= 1}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
         >
           <Ionicons
-            name={language === 'ar' ? 'play-skip-forward' : 'play-skip-back'}
-            size={22}
-            color={activeAyahNumber <= 1 ? COLORS.border : COLORS.text}
+            name={isAr ? 'play-skip-forward' : 'play-skip-back'}
+            size={26}
+            color="#475569"
           />
         </TouchableOpacity>
 
-        {/* Big Play / Pause Button */}
+        {/* Big Green Play / Pause Button (64x64, #0F9D6B) */}
         <TouchableOpacity
-          style={styles.playPauseBtn}
+          style={styles.heroPlayBtn}
           onPress={onPlayPause}
-          activeOpacity={0.8}
+          activeOpacity={0.88}
         >
           <Ionicons
             name={isPlaying ? 'pause' : 'play'}
             size={30}
-            color={COLORS.textLight}
+            color="#FFFFFF"
             style={{ marginLeft: isPlaying ? 0 : 3 }}
           />
         </TouchableOpacity>
 
-        {/* Next Ayah */}
+        {/* Next Ayah Button (Clear, never looks disabled) */}
         <TouchableOpacity
-          style={styles.navBtn}
+          style={styles.skipBtn}
           onPress={onNextAyah}
-          disabled={activeAyahNumber >= totalAyahs}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
         >
           <Ionicons
-            name={language === 'ar' ? 'play-skip-back' : 'play-skip-forward'}
-            size={22}
-            color={activeAyahNumber >= totalAyahs ? COLORS.border : COLORS.text}
+            name={isAr ? 'play-skip-back' : 'play-skip-forward'}
+            size={26}
+            color="#475569"
           />
         </TouchableOpacity>
 
-        {/* Repeat Mode */}
+        {/* Labeled "رددها" (Repeat after me mic button) */}
         <TouchableOpacity
-          style={[styles.smallBtn, repeatCount > 1 && styles.activeSmallBtn]}
-          onPress={toggleRepeat}
-          activeOpacity={0.7}
+          style={styles.actionColumnBtn}
+          onPress={onRecordRepeat}
+          activeOpacity={0.75}
         >
-          <Ionicons
-            name="repeat"
-            size={14}
-            color={repeatCount > 1 ? COLORS.primaryDark : COLORS.textSecondary}
-          />
-          <Text
-            style={[styles.smallBtnText, repeatCount > 1 && styles.activeSmallBtnText]}
-          >
-            {repeatCount > 1 && isPlaying
-              ? `${currentRepeatCycle}/${repeatCount}x`
-              : `${repeatCount}x`}
+          <Ionicons name="mic-circle-outline" size={24} color="#0F9D6B" />
+          <Text style={[styles.actionColumnText, { color: '#0F9D6B', fontWeight: '800' }]}>
+            {isAr ? 'رددها' : 'Repeat'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -160,9 +166,9 @@ export default function AudioPlayerBar({
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {language === 'ar' ? 'اختر القارئ المفضل' : 'Choose Reciter'}
+                {isAr ? 'اختر القارئ المفضل' : 'Choose Reciter'}
               </Text>
-              <TouchableOpacity onPress={() => setReciterModalOpen(false)}>
+              <TouchableOpacity onPress={() => setReciterModalOpen(false)} style={{ padding: 4 }}>
                 <Ionicons name="close" size={24} color={COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -191,11 +197,11 @@ export default function AudioPlayerBar({
                       <Ionicons
                         name="mic-circle"
                         size={28}
-                        color={isSelected ? COLORS.primary : COLORS.textSecondary}
+                        color={isSelected ? '#0F9D6B' : COLORS.textSecondary}
                       />
                       <View style={{ flex: 1 }}>
                         <Text style={styles.reciterItemName}>
-                          {language === 'ar' ? r.nameArabic : r.nameEnglish}
+                          {isAr ? r.nameArabic : r.nameEnglish}
                         </Text>
                         <Text style={styles.reciterItemStyle}>{r.style}</Text>
                       </View>
@@ -203,8 +209,8 @@ export default function AudioPlayerBar({
                     {isSelected && (
                       <Ionicons
                         name="checkmark-circle"
-                        size={24}
-                        color={COLORS.primary}
+                        size={22}
+                        color="#0F9D6B"
                       />
                     )}
                   </TouchableOpacity>
@@ -220,89 +226,87 @@ export default function AudioPlayerBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    borderTopColor: 'rgba(0,0,0,0.12)',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 14,
     width: '100%',
     maxWidth: 1240,
     alignSelf: 'center',
     ...SHADOWS.medium,
   },
   infoRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  ayahBadge: {
-    backgroundColor: COLORS.quranGarden.light,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-  },
-  ayahBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.quranGarden.dark,
+    marginBottom: 10,
   },
   reciterPickerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.cardAlt,
-    paddingHorizontal: SPACING.sm,
+    gap: 6,
     paddingVertical: 4,
-    borderRadius: RADIUS.full,
+    paddingHorizontal: 8,
   },
   reciterPickerText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4B5563',
+  },
+  speedChip: {
+    backgroundColor: '#F5F4EE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E8D9BF',
+  },
+  speedChipActive: {
+    backgroundColor: '#E1F5EE',
+    borderColor: '#5DCAA5',
+  },
+  speedChipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.text,
+    color: '#4B5563',
+  },
+  speedChipTextActive: {
+    color: '#0F6E56',
   },
   controlsRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 2,
+    paddingHorizontal: 4,
   },
-  smallBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    backgroundColor: COLORS.cardAlt,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-  },
-  activeSmallBtn: {
-    backgroundColor: COLORS.primaryLight + '44',
-  },
-  smallBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.textSecondary,
-  },
-  activeSmallBtnText: {
-    color: COLORS.primaryDark,
-  },
-  navBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: RADIUS.full,
+  actionColumnBtn: {
+    width: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.cardAlt,
+    minHeight: 48,
   },
-  playPauseBtn: {
-    width: 60,
-    height: 60,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primary,
+  actionColumnText: {
+    fontSize: 11,
+    color: '#5F5E5A',
+    marginTop: 2,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  skipBtn: {
+    width: 48,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    ...SHADOWS.glow(COLORS.primary),
+  },
+  heroPlayBtn: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#0F9D6B',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.medium,
   },
   modalOverlay: {
     flex: 1,
@@ -310,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: RADIUS.xl,
     borderTopRightRadius: RADIUS.xl,
     padding: SPACING.lg,
@@ -334,12 +338,12 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     borderRadius: RADIUS.md,
     marginBottom: SPACING.sm,
-    backgroundColor: COLORS.cardAlt,
+    backgroundColor: '#F8FAFC',
   },
   reciterItemSelected: {
-    backgroundColor: COLORS.primaryLight + '22',
+    backgroundColor: '#E1F5EE',
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: '#0F9D6B',
   },
   reciterItemLeft: {
     flexDirection: 'row',

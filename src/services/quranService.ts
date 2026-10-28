@@ -235,6 +235,42 @@ export const quranService = {
       }
     };
 
+    // 3.5 Check local static JSON file on web (instant network cost, zero external API dependency)
+    if (language === 'ar' && typeof window !== 'undefined' && typeof window.fetch === 'function') {
+      try {
+        const localStaticJson = await tryFetchJson(`/data/quran/v1/${surahNumber}.json`, 3000);
+        if (localStaticJson && Array.isArray(localStaticJson.verses) && localStaticJson.verses.length > 0) {
+          const ayahs: Ayah[] = localStaticJson.verses.map((v: any) => ({
+            number: v.n,
+            globalNumber: v.globalNumber || v.n,
+            textUthmani: (v.words || []).map((w: any) => w.t).join(' '),
+            simpleTafsir: `آية مباركة من سورة ${meta.nameArabic}`,
+            translationEn: `Verse ${v.n} of Surah ${meta.nameTransliteration}`,
+          }));
+          const fullSurah: Surah = {
+            ...meta,
+            storyIntroAr: `سورة ${meta.nameArabic} المباركة من كتاب الله العزيز، عدد آياتها ${meta.ayahCount} آية.`,
+            storyIntroEn: `Surah ${meta.nameTransliteration} (${meta.nameEnglish}) of the Holy Quran, containing ${meta.ayahCount} verses.`,
+            coreLessonsAr: [
+              `تدبر آيات سورة ${meta.nameArabic} المباركة`,
+              'العمل بما جاء في القرآن الكريم',
+              'طلب الأجر والبركة من تلاوة كتاب الله',
+            ],
+            coreLessonsEn: [
+              `Contemplating the verses of Surah ${meta.nameTransliteration}`,
+              'Living by the guidance of the Holy Quran',
+              'Seeking blessings through recitation',
+            ],
+            ayahs,
+          };
+          quranService._cache.set(cacheKey, fullSurah);
+          return fullSurah;
+        }
+      } catch {
+        // Fall through to API
+      }
+    }
+
     // 4. Dynamic fetch with Tafsir Al-Muyassar for non-bundled surahs
     try {
       const json = await tryFetchJson(

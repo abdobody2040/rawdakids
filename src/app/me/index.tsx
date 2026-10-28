@@ -21,6 +21,7 @@ import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
 import { ASMA_ALLAH_DATA } from '@/data/asmaAllahData';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export default function MeScreen() {
   const router = useRouter();
@@ -36,9 +37,39 @@ export default function MeScreen() {
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
+  useDocumentTitle(isAr ? 'أنا وحديقتي' : 'Me & My Garden');
+
+  const [showSampleData, setShowSampleData] = useState<boolean>(false);
+
   // Active child profile
-  const profile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
-  const progress = getChildProgress(profile?.id || 'default-child');
+  const realProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0] || null;
+  const isSample = !realProfile && showSampleData;
+  const profile = realProfile || (isSample ? {
+    id: 'sample-profile',
+    name: isAr ? 'طارق (نموذج تجريبي)' : 'Tariq (Sample Data)',
+    ageBand: '7-9' as const,
+    avatar: 'av-boy1',
+  } : null);
+
+  const rawProgress = realProfile ? getChildProgress(realProfile.id) : null;
+  const sampleProgress = {
+    stars: 25,
+    gems: 10,
+    streakCount: 3,
+    surahProgress: {},
+    hadithProgress: {},
+    storyProgress: {},
+    scenarioProgress: {},
+    dailyHabitsDone: {},
+    lastActiveDate: '',
+    unlockedStickers: ['⭐ حافظ الفاتحة', '💧 بطل الوضوء'],
+    unlockedBadges: [],
+    selectedAvatarId: 'av-boy1',
+    gratitudeEntries: [],
+    lastReadMushafPage: 1,
+    mushafBookmarks: [1],
+  };
+  const progress = realProfile ? rawProgress : (isSample ? sampleProgress : null);
 
   const isGirl =
     profile?.avatar?.includes('girl') ||
@@ -92,50 +123,127 @@ export default function MeScreen() {
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          role="main"
         >
-          {/* PROFILE & AVATAR CARD */}
-          <View style={styles.profileCard}>
-            <LinearGradient
-              colors={['#065F46', '#047857']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.profileGradient}
-            >
-              <View style={[styles.profileRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-                <TouchableOpacity
-                  style={styles.avatarWrap}
-                  onPress={() => setShowAvatarModal(true)}
-                  activeOpacity={0.85}
-                >
-                  <KidAvatar
-                    avatar={profile?.avatar || 'av-boy1'}
-                    size={72}
-                    borderWidth={2}
-                    borderColor="#34D399"
-                  />
-                  <View style={styles.avatarEditBadge}>
-                    <Ionicons name="pencil" size={12} color="#FFFFFF" />
-                  </View>
-                </TouchableOpacity>
+          {/* EMPTY PROFILE STATE (when user has no profile and sample data is not active) */}
+          {!profile && (
+            <View style={styles.emptyProfileCard}>
+              <View style={styles.emptyProfileIconBox}>
+                <Ionicons name="person-circle-outline" size={54} color={COLORS.primary} />
+              </View>
+              <Text style={styles.emptyProfileTitle}>
+                {isAr ? 'لم تُنشئ ملفاً لطفلك بعد 🌿' : 'No child profile yet 🌿'}
+              </Text>
+              <Text style={styles.emptyProfileDesc}>
+                {isAr
+                  ? 'أنشئ ملفاً شخصياً لحفظ إنجازات طفلك ومتابعة حفظه للقرآن ورعاية حديقته الإيمانية بالأوسمة والنجوم.'
+                  : 'Create a profile to track memorization, prayer habits, and watch their faith garden flourish.'}
+              </Text>
 
-                <View style={[styles.profileTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
-                  <View style={styles.roleChip}>
-                    <Text style={styles.roleChipText}>
-                      {isAr
-                        ? (profile?.ageBand === '4-6' ? 'البذرة (٤–٦ سنوات)' : profile?.ageBand === '10-13' ? 'المستكشف (١٠–١٢ سنة)' : 'الناشئ (٧–٩ سنوات)')
-                        : `Age Band: ${profile?.ageBand || '7-9'}`}
-                    </Text>
-                  </View>
-                  <Text style={styles.profileGreeting}>
-                    {isAr ? `أهلاً بك يا ${displayName} 🌟` : `Welcome, ${displayName} 🌟`}
-                  </Text>
-                  <Text style={styles.profileSproutStreak}>
-                    {isAr ? `🌱 مسيرة الاستمرار: ${progress?.streakCount || 1} أيام متتالية` : `🌱 Consistent streak: ${progress?.streakCount || 1} days`}
+              <TouchableOpacity
+                style={styles.emptyProfileCreateBtn}
+                onPress={() => router.push('/onboarding' as any)}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'إنشاء ملف طفل جديد' : 'Create new child profile'}
+              >
+                <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+                <Text style={styles.emptyProfileCreateBtnText}>
+                  {isAr ? 'إنشاء ملف طفل جديد' : 'Create Child Profile'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.emptyProfileSampleBtn}
+                onPress={() => setShowSampleData(true)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? 'معاينة نموذج بيانات توضيحية' : 'Preview demonstration sample data'}
+              >
+                <Text style={styles.emptyProfileSampleBtnText}>
+                  {isAr ? 'معاينة بيانات توضيحية (نموذج) 🔍' : 'Preview Sample Demo Data 🔍'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* SAMPLE DATA BANNER */}
+          {isSample && (
+            <View style={styles.sampleDataBanner}>
+              <View style={[styles.sampleDataHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={styles.sampleDataBadge}>
+                  <Text style={styles.sampleDataBadgeText}>
+                    {isAr ? 'بيانات تجريبية (Sample Data)' : 'Sample Demo Data'}
                   </Text>
                 </View>
+                <TouchableOpacity
+                  style={styles.sampleResetBtn}
+                  onPress={() => setShowSampleData(false)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? 'إعادة ضبط وإخفاء النموذج' : 'Reset and hide sample data'}
+                >
+                  <Ionicons name="close-circle-outline" size={16} color="#B45309" />
+                  <Text style={styles.sampleResetBtnText}>
+                    {isAr ? 'إعادة ضبط / إخفاء' : 'Reset / Hide'}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </LinearGradient>
-          </View>
+              <Text style={[styles.sampleDataDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr
+                  ? 'هذا نموذج توضيحي لمعاينة كيف تبدو حديقة الطفل بعد التعلم وإنجاز المهام.'
+                  : 'Demonstration preview showing how a child’s progress and garden appear.'}
+              </Text>
+            </View>
+          )}
+
+          {/* PROFILE & AVATAR CARD (Only when profile or sample exists) */}
+          {profile && (
+            <View style={styles.profileCard}>
+              <LinearGradient
+                colors={['#065F46', '#047857']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.profileGradient}
+              >
+                <View style={[styles.profileRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                  <TouchableOpacity
+                    style={styles.avatarWrap}
+                    onPress={() => setShowAvatarModal(true)}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                    accessibilityLabel={isAr ? 'تغيير الصورة الرمزية' : 'Change avatar'}
+                  >
+                    <KidAvatar
+                      avatar={profile?.avatar || 'av-boy1'}
+                      size={72}
+                      borderWidth={2}
+                      borderColor="#34D399"
+                    />
+                    <View style={styles.avatarEditBadge}>
+                      <Ionicons name="pencil" size={12} color="#FFFFFF" />
+                    </View>
+                  </TouchableOpacity>
+
+                  <View style={[styles.profileTextCol, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                    <View style={styles.roleChip}>
+                      <Text style={styles.roleChipText}>
+                        {isAr
+                          ? (profile?.ageBand === '4-6' ? 'البذرة (٤–٦ سنوات)' : profile?.ageBand === '10-13' ? 'المستكشف (١٠–١٢ سنة)' : 'الناشئ (٧–٩ سنوات)')
+                          : `Age Band: ${profile?.ageBand || '7-9'}`}
+                      </Text>
+                    </View>
+                    <Text style={styles.profileGreeting}>
+                      {isAr ? `أهلاً بك يا ${displayName} 🌟` : `Welcome, ${displayName} 🌟`}
+                    </Text>
+                    <Text style={styles.profileSproutStreak}>
+                      {isAr ? `🌱 مسيرة الاستمرار: ${progress?.streakCount || 0} أيام متتالية` : `🌱 Consistent streak: ${progress?.streakCount || 0} days`}
+                    </Text>
+                  </View>
+                </View>
+              </LinearGradient>
+            </View>
+          )}
 
           {/* MY GROWING GARDEN (PRD §7.6.1 & §10) */}
           <View style={styles.gardenCard}>
@@ -377,7 +485,11 @@ export default function MeScreen() {
             <View style={[styles.settingRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View style={[styles.settingLeft, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="volume-medium" size={22} color="#059669" />
-                <Text style={styles.settingLabel}>
+                <Text
+                  id="label-sound-effects"
+                  nativeID="label-sound-effects"
+                  style={styles.settingLabel}
+                >
                   {isAr ? 'أصوات التفاعل والتشجيع' : 'Sound Effects'}
                 </Text>
               </View>
@@ -386,6 +498,10 @@ export default function MeScreen() {
                 onValueChange={setSoundEffects}
                 trackColor={{ false: '#CBD5E1', true: '#10B981' }}
                 thumbColor="#FFFFFF"
+                accessibilityRole="switch"
+                accessibilityLabel={isAr ? 'أصوات التفاعل والتشجيع' : 'Sound Effects'}
+                accessibilityState={{ checked: soundEffects }}
+                aria-labelledby="label-sound-effects"
               />
             </View>
 
@@ -393,7 +509,11 @@ export default function MeScreen() {
             <View style={[styles.settingRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View style={[styles.settingLeft, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="musical-notes" size={22} color="#0284C7" />
-                <Text style={styles.settingLabel}>
+                <Text
+                  id="label-calm-audio"
+                  nativeID="label-calm-audio"
+                  style={styles.settingLabel}
+                >
                   {isAr ? 'أناشيد هادئة بدون إيقاع' : 'Calm Nasheeds (Vocal)'}
                 </Text>
               </View>
@@ -402,6 +522,10 @@ export default function MeScreen() {
                 onValueChange={setCalmAudio}
                 trackColor={{ false: '#CBD5E1', true: '#0284C7' }}
                 thumbColor="#FFFFFF"
+                accessibilityRole="switch"
+                accessibilityLabel={isAr ? 'أناشيد هادئة بدون إيقاع' : 'Calm Nasheeds (Vocal)'}
+                accessibilityState={{ checked: calmAudio }}
+                aria-labelledby="label-calm-audio"
               />
             </View>
 
@@ -409,7 +533,11 @@ export default function MeScreen() {
             <View style={[styles.settingRow, { borderBottomWidth: 0, flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View style={[styles.settingLeft, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 <Ionicons name="moon" size={22} color="#7C3AED" />
-                <Text style={styles.settingLabel}>
+                <Text
+                  id="label-night-mode"
+                  nativeID="label-night-mode"
+                  style={styles.settingLabel}
+                >
                   {isAr ? 'وضع ما قبل النوم الهادئ' : 'Bedtime Night Mode'}
                 </Text>
               </View>
@@ -418,6 +546,10 @@ export default function MeScreen() {
                 onValueChange={setNightMode}
                 trackColor={{ false: '#CBD5E1', true: '#7C3AED' }}
                 thumbColor="#FFFFFF"
+                accessibilityRole="switch"
+                accessibilityLabel={isAr ? 'وضع ما قبل النوم الهادئ' : 'Bedtime Night Mode'}
+                accessibilityState={{ checked: nightMode }}
+                aria-labelledby="label-night-mode"
               />
             </View>
           </View>
@@ -526,6 +658,109 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingTop: SPACING.sm,
     paddingBottom: 110,
+  },
+
+  // Empty Profile Card
+  emptyProfileCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    ...SHADOWS.md,
+  },
+  emptyProfileIconBox: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#ECFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.sm,
+  },
+  emptyProfileTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.text,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  emptyProfileDesc: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: SPACING.md,
+  },
+  emptyProfileCreateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: RADIUS.lg,
+    width: '100%',
+    ...SHADOWS.glow(COLORS.primary),
+  },
+  emptyProfileCreateBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  emptyProfileSampleBtn: {
+    marginTop: 10,
+    paddingVertical: 8,
+  },
+  emptyProfileSampleBtnText: {
+    color: COLORS.primaryDark,
+    fontSize: 13,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+
+  // Sample Data Banner
+  sampleDataBanner: {
+    backgroundColor: '#FEF3C7',
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    padding: SPACING.sm + 2,
+    marginBottom: SPACING.sm,
+  },
+  sampleDataHeader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  sampleDataBadge: {
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+  },
+  sampleDataBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  sampleResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  sampleResetBtnText: {
+    color: '#B45309',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sampleDataDesc: {
+    fontSize: 12,
+    color: '#78350F',
+    lineHeight: 16,
   },
 
   // Profile Card

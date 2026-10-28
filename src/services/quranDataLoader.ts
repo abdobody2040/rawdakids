@@ -1,116 +1,13 @@
 /**
- * Instant 0ms Local Quran Data Loader
- * Statically maps all 114 Surahs for instant offline access without network lag.
+ * Optimized Local Quran Data Loader
+ * Preloads essential starter Surahs for kids offline and provides lazy loading for full 114 Surahs.
  */
 
-const SURAH_LOADERS: Record<number, () => any> = {
+const surahCache: Record<number, any> = {};
+
+// Preloaded starter surahs frequently used in kids onboarding & daily recitation
+const STARTER_SURAH_LOADERS: Record<number, () => any> = {
   1: () => require('@/data/quran/v1/1.json'),
-  2: () => require('@/data/quran/v1/2.json'),
-  3: () => require('@/data/quran/v1/3.json'),
-  4: () => require('@/data/quran/v1/4.json'),
-  5: () => require('@/data/quran/v1/5.json'),
-  6: () => require('@/data/quran/v1/6.json'),
-  7: () => require('@/data/quran/v1/7.json'),
-  8: () => require('@/data/quran/v1/8.json'),
-  9: () => require('@/data/quran/v1/9.json'),
-  10: () => require('@/data/quran/v1/10.json'),
-  11: () => require('@/data/quran/v1/11.json'),
-  12: () => require('@/data/quran/v1/12.json'),
-  13: () => require('@/data/quran/v1/13.json'),
-  14: () => require('@/data/quran/v1/14.json'),
-  15: () => require('@/data/quran/v1/15.json'),
-  16: () => require('@/data/quran/v1/16.json'),
-  17: () => require('@/data/quran/v1/17.json'),
-  18: () => require('@/data/quran/v1/18.json'),
-  19: () => require('@/data/quran/v1/19.json'),
-  20: () => require('@/data/quran/v1/20.json'),
-  21: () => require('@/data/quran/v1/21.json'),
-  22: () => require('@/data/quran/v1/22.json'),
-  23: () => require('@/data/quran/v1/23.json'),
-  24: () => require('@/data/quran/v1/24.json'),
-  25: () => require('@/data/quran/v1/25.json'),
-  26: () => require('@/data/quran/v1/26.json'),
-  27: () => require('@/data/quran/v1/27.json'),
-  28: () => require('@/data/quran/v1/28.json'),
-  29: () => require('@/data/quran/v1/29.json'),
-  30: () => require('@/data/quran/v1/30.json'),
-  31: () => require('@/data/quran/v1/31.json'),
-  32: () => require('@/data/quran/v1/32.json'),
-  33: () => require('@/data/quran/v1/33.json'),
-  34: () => require('@/data/quran/v1/34.json'),
-  35: () => require('@/data/quran/v1/35.json'),
-  36: () => require('@/data/quran/v1/36.json'),
-  37: () => require('@/data/quran/v1/37.json'),
-  38: () => require('@/data/quran/v1/38.json'),
-  39: () => require('@/data/quran/v1/39.json'),
-  40: () => require('@/data/quran/v1/40.json'),
-  41: () => require('@/data/quran/v1/41.json'),
-  42: () => require('@/data/quran/v1/42.json'),
-  43: () => require('@/data/quran/v1/43.json'),
-  44: () => require('@/data/quran/v1/44.json'),
-  45: () => require('@/data/quran/v1/45.json'),
-  46: () => require('@/data/quran/v1/46.json'),
-  47: () => require('@/data/quran/v1/47.json'),
-  48: () => require('@/data/quran/v1/48.json'),
-  49: () => require('@/data/quran/v1/49.json'),
-  50: () => require('@/data/quran/v1/50.json'),
-  51: () => require('@/data/quran/v1/51.json'),
-  52: () => require('@/data/quran/v1/52.json'),
-  53: () => require('@/data/quran/v1/53.json'),
-  54: () => require('@/data/quran/v1/54.json'),
-  55: () => require('@/data/quran/v1/55.json'),
-  56: () => require('@/data/quran/v1/56.json'),
-  57: () => require('@/data/quran/v1/57.json'),
-  58: () => require('@/data/quran/v1/58.json'),
-  59: () => require('@/data/quran/v1/59.json'),
-  60: () => require('@/data/quran/v1/60.json'),
-  61: () => require('@/data/quran/v1/61.json'),
-  62: () => require('@/data/quran/v1/62.json'),
-  63: () => require('@/data/quran/v1/63.json'),
-  64: () => require('@/data/quran/v1/64.json'),
-  65: () => require('@/data/quran/v1/65.json'),
-  66: () => require('@/data/quran/v1/66.json'),
-  67: () => require('@/data/quran/v1/67.json'),
-  68: () => require('@/data/quran/v1/68.json'),
-  69: () => require('@/data/quran/v1/69.json'),
-  70: () => require('@/data/quran/v1/70.json'),
-  71: () => require('@/data/quran/v1/71.json'),
-  72: () => require('@/data/quran/v1/72.json'),
-  73: () => require('@/data/quran/v1/73.json'),
-  74: () => require('@/data/quran/v1/74.json'),
-  75: () => require('@/data/quran/v1/75.json'),
-  76: () => require('@/data/quran/v1/76.json'),
-  77: () => require('@/data/quran/v1/77.json'),
-  78: () => require('@/data/quran/v1/78.json'),
-  79: () => require('@/data/quran/v1/79.json'),
-  80: () => require('@/data/quran/v1/80.json'),
-  81: () => require('@/data/quran/v1/81.json'),
-  82: () => require('@/data/quran/v1/82.json'),
-  83: () => require('@/data/quran/v1/83.json'),
-  84: () => require('@/data/quran/v1/84.json'),
-  85: () => require('@/data/quran/v1/85.json'),
-  86: () => require('@/data/quran/v1/86.json'),
-  87: () => require('@/data/quran/v1/87.json'),
-  88: () => require('@/data/quran/v1/88.json'),
-  89: () => require('@/data/quran/v1/89.json'),
-  90: () => require('@/data/quran/v1/90.json'),
-  91: () => require('@/data/quran/v1/91.json'),
-  92: () => require('@/data/quran/v1/92.json'),
-  93: () => require('@/data/quran/v1/93.json'),
-  94: () => require('@/data/quran/v1/94.json'),
-  95: () => require('@/data/quran/v1/95.json'),
-  96: () => require('@/data/quran/v1/96.json'),
-  97: () => require('@/data/quran/v1/97.json'),
-  98: () => require('@/data/quran/v1/98.json'),
-  99: () => require('@/data/quran/v1/99.json'),
-  100: () => require('@/data/quran/v1/100.json'),
-  101: () => require('@/data/quran/v1/101.json'),
-  102: () => require('@/data/quran/v1/102.json'),
-  103: () => require('@/data/quran/v1/103.json'),
-  104: () => require('@/data/quran/v1/104.json'),
-  105: () => require('@/data/quran/v1/105.json'),
-  106: () => require('@/data/quran/v1/106.json'),
-  107: () => require('@/data/quran/v1/107.json'),
   108: () => require('@/data/quran/v1/108.json'),
   109: () => require('@/data/quran/v1/109.json'),
   110: () => require('@/data/quran/v1/110.json'),
@@ -120,14 +17,48 @@ const SURAH_LOADERS: Record<number, () => any> = {
   114: () => require('@/data/quran/v1/114.json'),
 };
 
+export function cacheSurahWordData(surahId: number, data: any): void {
+  if (data) {
+    surahCache[surahId] = data;
+  }
+}
+
 export function getLocalSurahWordData(surahId: number): any {
-  const loader = SURAH_LOADERS[surahId];
+  if (surahCache[surahId]) {
+    return surahCache[surahId];
+  }
+  const loader = STARTER_SURAH_LOADERS[surahId];
   if (!loader) return null;
   try {
     const mod = loader();
-    return mod && mod.default ? mod.default : mod;
+    const data = mod && mod.default ? mod.default : mod;
+    if (data) {
+      surahCache[surahId] = data;
+    }
+    return data;
   } catch (e) {
     console.warn('Error loading local surah ' + surahId, e);
     return null;
   }
+}
+
+export async function fetchSurahWordData(surahId: number): Promise<any> {
+  const cached = getLocalSurahWordData(surahId);
+  if (cached) return cached;
+
+  try {
+    if (typeof window !== 'undefined' && typeof window.fetch === 'function') {
+      const res = await fetch(`/data/quran/v1/${surahId}.json`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.verses) {
+          cacheSurahWordData(surahId, json);
+          return json;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn(`Failed to fetch surah ${surahId} word data`, e);
+  }
+  return null;
 }

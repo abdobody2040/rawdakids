@@ -14,17 +14,20 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore, AgeBand } from '@/store/useAppStore';
-import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES } from '@/constants/i18n';
+import { TRANSLATIONS, AVAILABLE_LANGUAGES, LANGUAGE_LOCALIZED_NAMES, isRTL } from '@/constants/i18n';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import MascotNoor from '@/components/MascotNoor';
 import KidAvatar, { PRESET_AVATARS, getAvatarDisplayName } from '@/components/KidAvatar';
 import { getLocalizedAgeTone } from '@/services/ageAdaptiveService';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 
 const QURAN_GARDEN_IMG = require('../../assets/images/quran-garden.jpg');
+const PRAYER_WORLD_IMG = require('../../assets/images/wudu-garden.jpg');
 const SUNNAH_PATH_IMG = require('../../assets/images/sunnah-path.jpg');
 const PROPHETS_CARAVAN_IMG = require('../../assets/images/prophets-caravan.jpg');
-const MANNERS_TOWN_IMG = require('../../assets/images/manners-town.jpg');
+const ASMA_ALLAH_IMG = require('../../assets/images/asma-allah-world.jpg');
+const TAFAKKUR_WORLD_IMG = require('../../assets/images/tafakkur-world.jpg');
 const AGE_SPROUT_IMG = require('../../assets/images/age-sprout-3d.jpg');
 const AGE_ROCKET_IMG = require('../../assets/images/age-rocket-3d.jpg');
 const AGE_SCHOLAR_IMG = require('../../assets/images/age-scholar-3d.jpg');
@@ -34,49 +37,89 @@ export default function OnboardingScreen() {
   const { language, setLanguage, profiles, addProfile, deleteProfile, completeOnboarding } = useAppStore();
   const t = TRANSLATIONS[language];
 
+  const isAr = language === 'ar';
+  const isRightToLeft = isRTL(language);
+  useDocumentTitle(isAr ? 'البداية – تخصيص التجربة' : 'Welcome – Setup');
+
   const [step, setStep] = useState<number>(1);
   const [childName, setChildName] = useState<string>('');
   const [selectedAgeBand, setSelectedAgeBand] = useState<AgeBand>('7-9');
   const [selectedAvatar, setSelectedAvatar] = useState<string>('av-boy1');
   const [selectedDestination, setSelectedDestination] = useState<string>('/quran');
   const [customPhotoUri, setCustomPhotoUri] = useState<string | null>(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState<boolean>(false);
+
+  const handleGuestPreview = () => {
+    completeOnboarding(true);
+    router.replace('/');
+  };
 
   const worlds = [
     {
       id: 'quran',
       route: '/quran',
-      title: t.quran,
-      desc: t.quranDesc,
-      icon: '📖',
-      themeColor: COLORS.quranGarden.primary,
+      title: isAr ? 'حَدِيقَةُ الْقُرْآنِ' : t.quran,
+      desc: isAr ? '١١٤ سُورَةً مُبَارَكَةً — تِلَاوَةٌ وَحِفْظٌ وَتَفْسِيرٌ مُيَسَّرٌ' : t.quranDesc,
+      badge: isAr ? '١١٤ سُورَةً' : '114 Surahs',
+      icon: 'book-outline',
+      themeColor: '#059669',
+      bgSelected: '#ECFDF5',
       image: QURAN_GARDEN_IMG,
     },
     {
-      id: 'sunnah',
-      route: '/sunnah',
-      title: t.sunnah,
-      desc: t.sunnahDesc,
-      icon: '🌙',
-      themeColor: COLORS.sunnahPath.primary,
-      image: SUNNAH_PATH_IMG,
+      id: 'worship',
+      route: '/prayer',
+      title: isAr ? 'صَلَاتِي وَوُضُوئِي' : (language === 'en' ? 'My Prayer & Wudu' : (t.learnWuduSalah || 'Prayer & Wudu')),
+      desc: isAr ? 'تَعَلَّمِ الْوُضُوءَ وَالصَّلَاةَ الْمُبَارَكَةَ خُطْوَةً بِخُطْوَةٍ مَعَ الْأَذْكَارِ' : (language === 'en' ? 'Interactive Wudu & Salah simulator with daily adhkar' : (t.learnWuduSalah || 'Learn Wudu & Prayer')),
+      badge: isAr ? 'تَفَاعُلِيٌّ' : 'Interactive',
+      icon: 'water-outline',
+      themeColor: '#0284C7',
+      bgSelected: '#E0F2FE',
+      image: PRAYER_WORLD_IMG,
     },
     {
-      id: 'prophets',
+      id: 'stories',
       route: '/prophets',
-      title: t.prophets,
-      desc: t.prophetsDesc,
-      icon: '🕌',
-      themeColor: COLORS.prophetsCaravan.primary,
+      title: isAr ? 'قِصَصُ الْأَنْبِيَاءِ وَالسِّيرَةُ' : (language === 'en' ? 'Prophets & Seerah Stories' : t.prophets),
+      desc: isAr ? '٢٥ نَبِيًّا وَرَسُولًا وَسِيرَةُ الْحَبِيبِ ﷺ وَصِحَابَتِهِ الْأَبْطَالِ' : t.prophetsDesc,
+      badge: isAr ? '٢٥ نَبِيًّا' : (t.prophetsCount || '25 Prophets'),
+      icon: 'trail-sign-outline',
+      themeColor: '#7C3AED',
+      bgSelected: '#EDE9FE',
       image: PROPHETS_CARAVAN_IMG,
     },
     {
-      id: 'manners',
+      id: 'akhlaq',
       route: '/manners',
-      title: t.manners,
-      desc: t.mannersDesc,
-      icon: '🌟',
-      themeColor: COLORS.mannersTown.primary,
-      image: MANNERS_TOWN_IMG,
+      title: isAr ? 'الْأَخْلَاقُ وَالسُّنَّةُ' : (language === 'en' ? 'Character & Sunnah' : t.manners),
+      desc: isAr ? '١٠٠ حَدِيثٍ نَبَوِيٍّ شَرِيفٍ وَمَوَاقِفُ تَرْبَوِيَّةٌ فِي حُسْنِ الْخُلُقِ' : t.mannersDesc,
+      badge: isAr ? '١٠٠ حَدِيثٍ' : (language === 'en' ? '100 Hadiths' : (t.mannersCount || '100 Hadiths')),
+      icon: 'heart-outline',
+      themeColor: '#D97706',
+      bgSelected: '#FEF3C7',
+      image: SUNNAH_PATH_IMG,
+    },
+    {
+      id: 'asmaAllah',
+      route: '/asma-allah',
+      title: isAr ? 'أَسْمَاءُ اللَّهِ الْحُسْنَى' : (t.asmaAllahWorld || 'Names of Allah'),
+      desc: isAr ? '٩٩ اسْمًا مُبَارَكًا نَتَعَلَّمُ مَعَانِيهَا الْجَمِيلَةَ وَنَعِيشُهَا كُلَّ يَوْمٍ' : (t.asmaAllahWorldDesc || 'Discover the 99 Names of Allah and live their virtues'),
+      badge: isAr ? '٩٩ اسْمًا' : (t.asmaAllahWorldCount || '99 Names'),
+      icon: 'sparkles-outline',
+      themeColor: '#5B21B6',
+      bgSelected: '#F5F3FF',
+      image: ASMA_ALLAH_IMG,
+    },
+    {
+      id: 'wonder',
+      route: '/tafakkur',
+      title: isAr ? 'عَالَمُ التَّفَكُّرِ فِي الْكَوْنِ' : (t.tafakkurWorld || 'Wonder & Creation'),
+      desc: isAr ? 'آيَاتُ اللَّهِ وَبَدَائِعُ صُنْعِهِ فِي السَّمَاوَاتِ وَالْأَرْضِ وَالْكَائِنَاتِ' : (t.tafakkurWorldDesc || 'Contemplate Allah\'s signs in nature, skies and creation'),
+      badge: isAr ? 'تَأَمُّلٌ' : (t.tafakkurWorldCount || 'Wonder'),
+      icon: 'planet-outline',
+      themeColor: '#0369A1',
+      bgSelected: '#E0F2FE',
+      image: TAFAKKUR_WORLD_IMG,
     },
   ];
 
@@ -105,28 +148,18 @@ export default function OnboardingScreen() {
 
   const handleFinish = () => {
     const chosenName = childName.trim();
-    // ONB-2: store empty string when no nickname — home renders يا بطل / يا بطلة
-    if (profiles.length === 1 && profiles[0].id === 'default-child') {
-      addProfile({
-        name: chosenName, // empty string → home shows يا بطل
-        ageBand: selectedAgeBand,
-        avatar: selectedAvatar,
-      });
-      deleteProfile('default-child');
-    } else {
-      addProfile({
-        name: chosenName, // empty string → home shows يا بطل
-        ageBand: selectedAgeBand,
-        avatar: selectedAvatar,
-      });
-    }
-    completeOnboarding();
+    addProfile({
+      name: chosenName, // empty string → home shows يا بطل
+      ageBand: selectedAgeBand,
+      avatar: selectedAvatar,
+    });
+    completeOnboarding(false);
     router.replace(selectedDestination as any);
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} role="main">
         {/* Step Indicator */}
         <View style={styles.stepIndicatorRow}>
           {[1, 2, 3].map((s) => (
@@ -150,12 +183,12 @@ export default function OnboardingScreen() {
 
             <MascotNoor customMessage={t.mascotGreeting} size="lg" />
 
-            <Text style={styles.heading}>{t.appName}</Text>
+            <Text style={styles.heading} role="heading" aria-level={1}>{t.appName}</Text>
             <Text style={styles.subheading}>{t.tagline}</Text>
 
             <View style={styles.langSelectorArea}>
               <Text style={styles.fieldLabel}>{t.chooseLanguage}</Text>
-              <View style={styles.langButtonsRow}>
+              <View style={styles.langButtonsRow} role="radiogroup" aria-label={t.chooseLanguage}>
                 {AVAILABLE_LANGUAGES.map((lang) => {
                   const isSelected = language === lang.code;
                   return (
@@ -167,6 +200,9 @@ export default function OnboardingScreen() {
                       ]}
                       onPress={() => setLanguage(lang.code)}
                       activeOpacity={0.8}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isSelected }}
+                      accessibilityLabel={`${lang.nameNative} (${lang.nameEnglish})`}
                     >
                       <View style={styles.langImageContainer}>
                         <View style={styles.langEmojiWrapper}>
@@ -194,10 +230,24 @@ export default function OnboardingScreen() {
               style={styles.primaryButton}
               onPress={() => setStep(2)}
               activeOpacity={0.8}
+              accessibilityRole="button"
             >
               <Text style={styles.primaryButtonText}>{t.continue}</Text>
               <Text style={styles.buttonArrowText}>
                 {language === 'ar' ? '←' : '→'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.guestPreviewButton}
+              onPress={handleGuestPreview}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={language === 'ar' ? 'تصفّح التطبيق كضيف دون إدخال بيانات' : 'Preview the app without entering data'}
+            >
+              <Ionicons name="compass-outline" size={18} color={COLORS.primaryDark} />
+              <Text style={styles.guestPreviewButtonText}>
+                {language === 'ar' ? 'تصفّح التطبيق كضيف' : 'Preview the app'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -206,7 +256,7 @@ export default function OnboardingScreen() {
         {/* STEP 2: Child Profile */}
         {step === 2 && (
           <View style={styles.stepContent}>
-            <Text style={styles.heading}>{t.addChild}</Text>
+            <Text style={styles.heading} role="heading" aria-level={1}>{t.addChild}</Text>
             <Text style={styles.subheading}>
               {language === 'ar'
                 ? 'خصص تجربة رائعة تناسب عمر البطل'
@@ -215,20 +265,34 @@ export default function OnboardingScreen() {
 
             {/* Child Name */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>{t.childName}</Text>
+              <Text style={styles.fieldLabel}>
+                {language === 'ar' ? 'اسم الطفل أو اللقب (اختياري)' : 'Child’s Name or Nickname (Optional)'}
+              </Text>
+              <Text style={styles.fieldExplanation}>
+                {language === 'ar'
+                  ? 'نستخدمه لتشجيع طفلك ومناداته باسمه أو لقبه المفضل أثناء التلاوة والإنجازات.'
+                  : 'Used to cheer on your child and personalize their learning achievements.'}
+              </Text>
               <TextInput
                 style={styles.textInput}
-                placeholder={language === 'ar' ? 'مثال: طارق أو مريم' : 'e.g., Tariq or Maryam'}
+                placeholder={language === 'ar' ? 'مثال: طارق أو مريم (يمكنك تركه فارغاً)' : 'e.g., Tariq or Maryam (can be left blank)'}
                 placeholderTextColor={COLORS.textMuted}
                 value={childName}
                 onChangeText={setChildName}
+                autoComplete="off"
+                accessibilityLabel={language === 'ar' ? 'اسم الطفل أو اللقب اختياري' : 'Child name or nickname optional'}
               />
             </View>
 
             {/* Age Band */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>{t.ageBand}</Text>
-              <View style={styles.ageBandList}>
+              <Text style={styles.fieldExplanation}>
+                {language === 'ar'
+                  ? 'نحدد به حجم الخط ومستوى التفسير وصعوبة الأنشطة لتناسب مرحلة طفلك بدقة.'
+                  : 'Customizes font sizes, explanation depth, and activity pacing for your child’s age.'}
+              </Text>
+              <View style={styles.ageBandList} role="radiogroup" aria-label={t.ageBand}>
                 <TouchableOpacity
                   style={[
                     styles.ageBandCard,
@@ -236,6 +300,9 @@ export default function OnboardingScreen() {
                   ]}
                   onPress={() => setSelectedAgeBand('4-6')}
                   activeOpacity={0.8}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: selectedAgeBand === '4-6' }}
+                  accessibilityLabel={`${t.ageBandExplorers}: ${language === 'ar' ? 'أزرار كبيرة وإرشاد صوتي' : 'Large buttons & voice guided'}`}
                 >
                   <View style={styles.ageBandImgContainer}>
                     <Image
@@ -260,6 +327,9 @@ export default function OnboardingScreen() {
                   ]}
                   onPress={() => setSelectedAgeBand('7-9')}
                   activeOpacity={0.8}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: selectedAgeBand === '7-9' }}
+                  accessibilityLabel={`${t.ageBandLearners}: ${language === 'ar' ? 'ألعاب تفاعلية ومسابقات خفيفة' : 'Games, quizzes & light reading'}`}
                 >
                   <View style={styles.ageBandImgContainer}>
                     <Image
@@ -284,6 +354,9 @@ export default function OnboardingScreen() {
                   ]}
                   onPress={() => setSelectedAgeBand('10-13')}
                   activeOpacity={0.8}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: selectedAgeBand === '10-13' }}
+                  accessibilityLabel={`${t.ageBandMinds}: ${language === 'ar' ? 'معانٍ عميقة وتحديات حفظ' : 'Deeper meanings & memory tests'}`}
                 >
                   <View style={styles.ageBandImgContainer}>
                     <Image
@@ -316,86 +389,121 @@ export default function OnboardingScreen() {
               </View>
             </View>
 
-            {/* Avatar Choices (3D Pixar Images + Custom Photo Upload) */}
+            {/* Avatar Choices (Deferred / Optional Step) */}
             <View style={styles.fieldGroup}>
-              <View style={styles.avatarLabelRow}>
-                <Text style={styles.fieldLabel}>{t.avatars}</Text>
-                <TouchableOpacity
-                  style={styles.uploadPhotoBtn}
-                  onPress={handleUploadClick}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="camera" size={16} color={COLORS.primaryDark} />
-                  <Text style={styles.uploadPhotoBtnText}>
-                    {language === 'ar' ? 'رفع صورتي 📷' : 'Upload Photo 📷'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.avatarScrollRow}
+              <TouchableOpacity
+                style={styles.avatarToggleHeader}
+                onPress={() => setShowAvatarPicker((prev) => !prev)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={language === 'ar' ? 'تخصيص الرمز التعبيري والصورة، اختياري' : 'Customize avatar and photo, optional'}
               >
-                {/* Uploaded Custom Photo Card if present */}
-                {customPhotoUri && (
-                  <TouchableOpacity
-                    style={[
-                      styles.avatarCard3D,
-                      selectedAvatar === customPhotoUri && styles.avatarCard3DSelected,
-                    ]}
-                    onPress={() => setSelectedAvatar(customPhotoUri)}
-                    activeOpacity={0.85}
-                  >
-                    <KidAvatar avatar={customPhotoUri} size={62} />
-                    <Text style={styles.avatarCardName}>
-                      {language === 'ar' ? 'صورتي' : 'My Photo'}
-                    </Text>
-                    {selectedAvatar === customPhotoUri && (
-                      <View style={styles.avatarSelectedBadgeCircle}>
-                        <Text style={styles.avatarSelectedBadgeText}>✓</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.fieldLabel}>
+                    {language === 'ar' ? 'الصورة الرمزية (اختياري)' : 'Avatar & Photo (Optional)'}
+                  </Text>
+                  <Text style={styles.fieldExplanation}>
+                    {language === 'ar'
+                      ? 'اختر شخصية كرتونية مبهجة تمثل طفلك، أو يمكنك اختيارها لاحقاً.'
+                      : 'Pick a joyful character for your child, or customize it anytime.'}
+                  </Text>
+                </View>
+                <View style={styles.avatarToggleBadge}>
+                  <KidAvatar avatar={selectedAvatar} size={36} />
+                  <Ionicons
+                    name={showAvatarPicker ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={COLORS.primary}
+                  />
+                </View>
+              </TouchableOpacity>
 
-                {/* 3D Pixar Preset Avatars */}
-                {PRESET_AVATARS.map((av) => {
-                  const isSelected = selectedAvatar === av.id;
-                  return (
+              {showAvatarPicker && (
+                <View style={styles.avatarPickerExpandable}>
+                  <View style={styles.avatarLabelRow}>
+                    <Text style={styles.avatarSubLabel}>
+                      {language === 'ar' ? 'اختر شخصية أو ارفع صورة:' : 'Choose a character or upload photo:'}
+                    </Text>
                     <TouchableOpacity
-                      key={av.id}
-                      style={[
-                        styles.avatarCard3D,
-                        isSelected && styles.avatarCard3DSelected,
-                      ]}
-                      onPress={() => setSelectedAvatar(av.id)}
-                      activeOpacity={0.85}
+                      style={styles.uploadPhotoBtn}
+                      onPress={handleUploadClick}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
                     >
-                      <KidAvatar avatar={av.id} size={62} />
-                      <Text
-                        style={[
-                          styles.avatarCardName,
-                          isSelected && styles.avatarCardNameSelected,
-                        ]}
-                      >
-                        {getAvatarDisplayName(av.id, childName, language)}
+                      <Ionicons name="camera" size={16} color={COLORS.primaryDark} />
+                      <Text style={styles.uploadPhotoBtnText}>
+                        {language === 'ar' ? 'رفع صورتي 📷' : 'Upload Photo 📷'}
                       </Text>
-                      {isSelected && (
-                        <View style={styles.avatarSelectedBadgeCircle}>
-                          <Text style={styles.avatarSelectedBadgeText}>✓</Text>
-                        </View>
-                      )}
                     </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
+                  </View>
+
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.avatarScrollRow}
+                  >
+                    {/* Uploaded Custom Photo Card if present */}
+                    {customPhotoUri && (
+                      <TouchableOpacity
+                        style={[
+                          styles.avatarCard3D,
+                          selectedAvatar === customPhotoUri && styles.avatarCard3DSelected,
+                        ]}
+                        onPress={() => setSelectedAvatar(customPhotoUri)}
+                        activeOpacity={0.85}
+                      >
+                        <KidAvatar avatar={customPhotoUri} size={62} />
+                        <Text style={styles.avatarCardName}>
+                          {language === 'ar' ? 'صورتي' : 'My Photo'}
+                        </Text>
+                        {selectedAvatar === customPhotoUri && (
+                          <View style={styles.avatarSelectedBadgeCircle}>
+                            <Text style={styles.avatarSelectedBadgeText}>✓</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    )}
+
+                    {/* 3D Pixar Preset Avatars */}
+                    {PRESET_AVATARS.map((av) => {
+                      const isSelected = selectedAvatar === av.id;
+                      return (
+                        <TouchableOpacity
+                          key={av.id}
+                          style={[
+                            styles.avatarCard3D,
+                            isSelected && styles.avatarCard3DSelected,
+                          ]}
+                          onPress={() => setSelectedAvatar(av.id)}
+                          activeOpacity={0.85}
+                        >
+                          <KidAvatar avatar={av.id} size={62} />
+                          <Text
+                            style={[
+                              styles.avatarCardName,
+                              isSelected && styles.avatarCardNameSelected,
+                            ]}
+                          >
+                            {getAvatarDisplayName(av.id, childName, language)}
+                          </Text>
+                          {isSelected && (
+                            <View style={styles.avatarSelectedBadgeCircle}>
+                              <Text style={styles.avatarSelectedBadgeText}>✓</Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              )}
             </View>
 
             <View style={styles.navRow}>
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={() => setStep(1)}
+                accessibilityRole="button"
               >
                 <Text style={styles.secondaryButtonText}>{t.back}</Text>
               </TouchableOpacity>
@@ -404,6 +512,7 @@ export default function OnboardingScreen() {
                 style={[styles.primaryButton, { flex: 2 }]}
                 onPress={() => setStep(3)}
                 activeOpacity={0.8}
+                accessibilityRole="button"
               >
                 <Text style={styles.primaryButtonText}>{t.continue}</Text>
               </TouchableOpacity>
@@ -414,16 +523,20 @@ export default function OnboardingScreen() {
         {/* STEP 3: Choose First World & Start */}
         {step === 3 && (
           <View style={styles.stepContent}>
-            <Text style={styles.heading}>
-              {language === 'ar' ? 'اختر وجهتك الأولى يا بطل!' : 'Choose your first journey!'}
+            <Text style={styles.heading} role="heading" aria-level={1}>
+              {language === 'ar' ? 'اخْتَرْ وِجْهَتَكَ الْأُولَى يَا بَطَلُ! 🚀' : 'Choose your first journey, hero! 🚀'}
             </Text>
             <Text style={styles.subheading}>
               {language === 'ar'
-                ? 'انقر على العالم الذي تود البدء فيه، ويمكنك التبديل بين العوالم الأربعة في أي وقت'
-                : 'Select the world you want to start with. You can explore all worlds anytime!'}
+                ? 'انْقُرْ عَلَى الْعَالَمِ الَّذِي تَوَدُّ الْبَدْءَ فِيهِ، وَيُمْكِنُكَ التَّنَقُّلُ بَيْنَ جَمِيعِ الْعَوَالِمِ فِي أَيِّ وَقْتٍ'
+                : 'Select the world you want to start with. You can explore and switch between all worlds anytime!'}
             </Text>
 
-            <View style={styles.worldsPreviewList}>
+            <View
+              style={styles.worldsPreviewList}
+              role="radiogroup"
+              aria-label={language === 'ar' ? 'اختر وجهتك الأولى' : 'Choose your first journey'}
+            >
               {worlds.map((w) => {
                 const isSelected = selectedDestination === w.route;
 
@@ -432,33 +545,60 @@ export default function OnboardingScreen() {
                     key={w.id}
                     style={[
                       styles.worldPreviewCard,
-                      { borderColor: isSelected ? w.themeColor : '#E2E8F0' },
+                      {
+                        flexDirection: isRightToLeft ? 'row-reverse' : 'row',
+                        borderColor: isSelected ? w.themeColor : '#E2E8F0',
+                      },
                       isSelected && {
-                        backgroundColor:
-                          w.id === 'quran'
-                            ? '#ECFDF5'
-                            : w.id === 'sunnah'
-                            ? '#FEF3C7'
-                            : w.id === 'prophets'
-                            ? '#EEF2FF'
-                            : '#F0F9FF',
-                        borderWidth: 2,
+                        backgroundColor: w.bgSelected,
+                        borderWidth: 2.5,
+                        borderColor: w.themeColor,
+                        shadowColor: w.themeColor,
+                        shadowOpacity: 0.15,
+                        shadowRadius: 12,
+                        elevation: 4,
                       },
                     ]}
                     onPress={() => setSelectedDestination(w.route)}
                     activeOpacity={0.85}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                    accessibilityLabel={`${w.title}: ${w.desc}`}
                   >
-                    <Image source={w.image} style={styles.worldThumb} contentFit="cover" transition={150} />
-                    <View style={{ flex: 1 }}>
+                    <Image
+                      source={w.image}
+                      style={[
+                        styles.worldThumb,
+                        isSelected && { borderColor: w.themeColor, borderWidth: 2 },
+                      ]}
+                      contentFit="cover"
+                      transition={150}
+                    />
+                    <View style={[styles.worldContentCol, { alignItems: isRightToLeft ? 'flex-end' : 'flex-start' }]}>
+                      <View style={[styles.worldTitleRow, { flexDirection: isRightToLeft ? 'row-reverse' : 'row' }]}>
+                        <Text
+                          style={[
+                            styles.worldTitle,
+                            { textAlign: isRightToLeft ? 'right' : 'left' },
+                            isSelected && { color: w.themeColor, fontWeight: '900' },
+                          ]}
+                        >
+                          {w.title}
+                        </Text>
+                        <View style={[styles.worldBadgeChip, { backgroundColor: w.themeColor + '18' }]}>
+                          <Text style={[styles.worldBadgeText, { color: w.themeColor }]}>
+                            {w.badge}
+                          </Text>
+                        </View>
+                      </View>
                       <Text
                         style={[
-                          styles.worldTitle,
-                          isSelected && { color: w.themeColor, fontWeight: '900' },
+                          styles.worldDesc,
+                          { textAlign: isRightToLeft ? 'right' : 'left' },
                         ]}
                       >
-                        {w.title}
+                        {w.desc}
                       </Text>
-                      <Text style={styles.worldDesc}>{w.desc}</Text>
                     </View>
                     <View
                       style={[
@@ -469,8 +609,10 @@ export default function OnboardingScreen() {
                         },
                       ]}
                     >
-                      {isSelected && (
+                      {isSelected ? (
                         <Text style={styles.worldRadioCheckText}>✓</Text>
+                      ) : (
+                        <View style={styles.worldRadioInnerEmpty} />
                       )}
                     </View>
                   </TouchableOpacity>
@@ -478,14 +620,27 @@ export default function OnboardingScreen() {
               })}
             </View>
 
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handleFinish}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.primaryButtonText}>{t.start}</Text>
-              <Text style={styles.buttonSparkleText}>✨</Text>
-            </TouchableOpacity>
+            <View style={styles.navRow}>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => setStep(2)}
+                accessibilityRole="button"
+                accessibilityLabel={t.back}
+              >
+                <Text style={styles.secondaryButtonText}>{t.back}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.primaryButton, { flex: 2 }]}
+                onPress={handleFinish}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={t.start}
+              >
+                <Text style={styles.primaryButtonText}>{t.start}</Text>
+                <Text style={styles.buttonSparkleText}>✨</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -826,55 +981,79 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     textAlign: 'center',
   },
-  worldRadioCheckText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '900',
-    lineHeight: 14,
-    textAlign: 'center',
-  },
   buttonSparkleText: {
     fontSize: 18,
     marginLeft: 6,
   },
   worldsPreviewList: {
-    gap: SPACING.sm,
+    gap: SPACING.md - 2,
     marginBottom: SPACING.lg,
   },
   worldPreviewCard: {
-    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     padding: SPACING.md,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     borderWidth: 1.5,
-    gap: SPACING.sm + 4,
+    gap: SPACING.md,
     overflow: 'hidden',
+    ...SHADOWS.soft,
   },
   worldThumb: {
-    width: 52,
-    height: 52,
-    borderRadius: RADIUS.md,
+    width: 62,
+    height: 62,
+    borderRadius: RADIUS.lg,
+    backgroundColor: '#F1F5F9',
+  },
+  worldContentCol: {
+    flex: 1,
+    gap: 4,
+  },
+  worldTitleRow: {
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
   },
   worldTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.text,
   },
+  worldBadgeChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+  },
+  worldBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
   worldDesc: {
-    fontSize: 12,
+    fontSize: 12.5,
     color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 16,
+    lineHeight: 18,
   },
   worldSelectRadio: {
-    width: 22,
-    height: 22,
+    width: 24,
+    height: 24,
     borderRadius: RADIUS.full,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  worldRadioInnerEmpty: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'transparent',
+  },
+  worldRadioCheckText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '900',
+    lineHeight: 15,
   },
   navRow: {
     flexDirection: 'row',
@@ -909,6 +1088,56 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     fontSize: 15,
     fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  guestPreviewButton: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    marginTop: SPACING.xs,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
+    borderColor: '#A7F3D0',
+    backgroundColor: '#F0FDF4',
+  },
+  guestPreviewButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.primaryDark,
+  },
+  fieldExplanation: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+    lineHeight: 18,
+  },
+  avatarToggleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.sm + 4,
+  },
+  avatarToggleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginLeft: SPACING.sm,
+  },
+  avatarPickerExpandable: {
+    marginTop: SPACING.sm,
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  avatarSubLabel: {
+    fontSize: 12,
+    fontWeight: '600',
     color: COLORS.textSecondary,
   },
 });

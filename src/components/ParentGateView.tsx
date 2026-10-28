@@ -204,7 +204,13 @@ export default function ParentGateView({
       </View>
 
       {/* Title: "منطقة الأهل" */}
-      <Text style={styles.gateTitle}>
+      <Text
+        id="parent-gate-title"
+        nativeID="parent-gate-title"
+        style={styles.gateTitle}
+        role="heading"
+        aria-level={2}
+      >
         {isAr ? 'منطقة الأهل' : "Parents' Corner"}
       </Text>
 
@@ -575,10 +581,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 4,
   },
-  // Keypad Grid: 3 columns, direction: 'ltr'
   keypadGrid: {
     width: 270,
-    direction: 'ltr', // strict LTR ordering for digits
     gap: 12,
     marginVertical: 4,
   },

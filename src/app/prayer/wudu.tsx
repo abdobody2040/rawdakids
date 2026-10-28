@@ -1,7 +1,7 @@
 // src/app/prayer/wudu.tsx
 // Interactive Wudu Step Screen (Mockup Page 3: Step 6 of 10 - غَسْلُ الْوَجْهِ)
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Image,
   Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +21,9 @@ import { isRTL } from '@/constants/i18n';
 import { audioService } from '@/services/audioService';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import { getStepMedia } from '@/data/arkanMedia';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
+const WUDU_SAVED_STEP_KEY = '@rawda_wudu_last_step';
 const MASCOT_IMG = require('../../../assets/images/mascot-noor.jpg');
 
 interface WuduStepData {
@@ -143,11 +146,35 @@ export default function WuduStepScreen() {
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
-  // Default to Step 6 (index 5) as requested in PRD & Mockup Page 3
-  const [currentStepIdx, setCurrentStepIdx] = useState<number>(5);
-  const [filledDrops, setFilledDrops] = useState<number[]>([1]); // step 6 has 1st filled in mockup, user taps next
+  useDocumentTitle(isAr ? 'الوضوء' : 'Wudu');
+
+  // New users start at Step 1 (index 0). Mid-lesson users can resume.
+  const [currentStepIdx, setCurrentStepIdx] = useState<number>(0);
+  const [filledDrops, setFilledDrops] = useState<number[]>([]);
+  const [resumeBannerStep, setResumeBannerStep] = useState<number | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const saved = await AsyncStorage.getItem(WUDU_SAVED_STEP_KEY);
+        if (saved !== null) {
+          const stepNum = parseInt(saved, 10);
+          if (!isNaN(stepNum) && stepNum > 0 && stepNum < WUDU_STEPS.length) {
+            setResumeBannerStep(stepNum);
+            setCurrentStepIdx(stepNum);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(WUDU_SAVED_STEP_KEY, String(currentStepIdx)).catch(() => {});
+  }, [currentStepIdx]);
 
   const stepData = WUDU_STEPS[currentStepIdx] || WUDU_STEPS[5];
   const maxDrops = stepData.reps;
@@ -229,7 +256,7 @@ export default function WuduStepScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.container}>
         {/* TOP BAR */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { flexDirection: isRtl ? 'row-reverse' : 'row' }]} role="banner">
           <TouchableOpacity
             style={styles.circleIconButton}
             onPress={() => router.back()}
@@ -239,7 +266,7 @@ export default function WuduStepScreen() {
           >
             <Ionicons
               name={isRtl ? 'chevron-forward' : 'chevron-back'}
-              size={24}
+              size={22}
               color="#334155"
             />
           </TouchableOpacity>
@@ -258,13 +285,12 @@ export default function WuduStepScreen() {
             <Ionicons
               name={isPlayingAudio ? 'volume-high' : 'volume-medium-outline'}
               size={22}
-              color={isPlayingAudio ? '#FFFFFF' : '#0284C7'}
+              color={isPlayingAudio ? '#FFFFFF' : '#5F5E5A'}
             />
           </TouchableOpacity>
         </View>
 
-        {/* 10 PROGRESS DOTS UNDER TOP BAR */}
-        {/* Done = green dot, Current = long sky pill, Next = light dot */}
+        {/* 10 PROGRESS DOTS (Mockup line 14-16) */}
         <View style={[styles.progressDotsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
           {WUDU_STEPS.map((_, idx) => {
             const isDone = idx < currentStepIdx;
@@ -276,18 +302,22 @@ export default function WuduStepScreen() {
                   setCurrentStepIdx(idx);
                   setFilledDrops([]);
                 }}
-                accessibilityLabel={`Step ${idx + 1}`}
+                accessibilityRole="button"
+                accessibilityLabel={isAr ? `الخطوة ${idx + 1}` : `Step ${idx + 1}`}
                 activeOpacity={0.7}
                 style={styles.dotTouchable}
               >
-                <View
-                  style={[
-                    styles.baseDot,
-                    isDone && styles.dotDone,
-                    isCurrent && styles.dotCurrentPill,
-                    !isDone && !isCurrent && styles.dotNext,
-                  ]}
-                />
+                {isDone ? (
+                  <View style={styles.dotDoneCirc}>
+                    <Ionicons name="checkmark" size={11} color="#FFFFFF" />
+                  </View>
+                ) : isCurrent ? (
+                  <View style={styles.dotCurrentCirc}>
+                    <Text style={styles.dotCurrentText}>{idx + 1}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.dotTodoCirc} />
+                )}
               </TouchableOpacity>
             );
           })}
@@ -298,52 +328,69 @@ export default function WuduStepScreen() {
           style={styles.scrollArea}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          role="main"
         >
-          {/* 300px SCENE CARD */}
+          {/* RESUME BANNER IF OPENED MID-LESSON */}
+          {resumeBannerStep !== null && (
+            <View style={styles.resumeCard}>
+              <View style={[styles.resumeCardHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="time-outline" size={20} color="#0D9488" />
+                <Text style={styles.resumeCardTitle}>
+                  {isAr
+                    ? `متابعة من الخطوة ${currentStepIdx + 1}`
+                    : `Continue from step ${currentStepIdx + 1}`}
+                </Text>
+              </View>
+              <Text style={[styles.resumeCardDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
+                {isAr
+                  ? `أنت حالياً عند خطوة "${stepData.titleAr}". يمكنك المتابعة أو البدء من الخطوة الأولى.`
+                  : `You were at "${stepData.titleEn}". You can continue or start fresh.`}
+              </Text>
+              <View style={[styles.resumeButtonsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <TouchableOpacity
+                  style={styles.resumeStartOverBtn}
+                  onPress={() => {
+                    setCurrentStepIdx(0);
+                    setFilledDrops([]);
+                    setResumeBannerStep(null);
+                    AsyncStorage.setItem(WUDU_SAVED_STEP_KEY, '0').catch(() => {});
+                  }}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? 'البدء من جديد من الخطوة الأولى' : 'Start over from step 1'}
+                >
+                  <Ionicons name="reload" size={14} color="#DC2626" />
+                  <Text style={styles.resumeStartOverText}>
+                    {isAr ? 'البدء من جديد' : 'Start over'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.resumeContinueBtn}
+                  onPress={() => setResumeBannerStep(null)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? `متابعة من الخطوة ${currentStepIdx + 1}` : `Continue from step ${currentStepIdx + 1}`}
+                >
+                  <Text style={styles.resumeContinueText}>
+                    {isAr ? 'متابعة الخطوة' : 'Continue'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Scene Illustration Card (Clean, no floating badges on top) */}
           <View style={styles.sceneCard}>
-            <LinearGradient
-              colors={['#E0F2FE', '#BAE6FD', '#E0F2FE']}
-              style={styles.sceneGradient}
-            >
-              {/* Soft clouds & sparkles in sky */}
-              <View style={styles.cloudLeft} />
-              <View style={styles.cloudRight} />
-              <View style={styles.sparkleStar}>
-                <Ionicons name="sparkles" size={20} color="#F59E0B" />
-              </View>
-
-              {/* 3D Wudu Step Illustration */}
-              <View style={styles.imageContainer}>
-                <Image
-                  source={getStepMedia('wudu', stepData.step)}
-                  style={styles.stepImage}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/* Mascot Noor perched on the left */}
-              <View style={styles.mascotAnchor}>
-                <Image
-                  source={MASCOT_IMG}
-                  style={styles.mascotImage}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/* 3 Reps Badge at bottom right: "٣ مَرَّاتٍ" */}
-              <View style={styles.repsBadge}>
-                <Text style={styles.repsBadgeNumber}>
-                  {stepData.reps === 1 ? '١' : '٣'}
-                </Text>
-                <Text style={styles.repsBadgeLabel}>
-                  {stepData.reps === 1 ? (isAr ? 'مَرَّة' : 'Time') : (isAr ? 'مَرَّاتٍ' : 'Times')}
-                </Text>
-              </View>
-            </LinearGradient>
+            <Image
+              source={getStepMedia('wudu', stepData.step)}
+              style={styles.stepImage}
+              resizeMode="contain"
+            />
           </View>
 
-          {/* STEP BADGE */}
-          <View style={styles.stepBadgeWrap}>
+          {/* STEP BADGE & TITLE */}
+          <View style={styles.stepInfoBlock}>
             <View style={styles.stepBadgePill}>
               <Text style={styles.stepBadgeText}>
                 {isAr
@@ -351,121 +398,96 @@ export default function WuduStepScreen() {
                   : `Step ${stepData.step} of ${WUDU_STEPS.length}`}
               </Text>
             </View>
-          </View>
 
-          {/* STEP TITLE (30px) */}
-          <Text style={styles.stepTitle}>
-            {isAr ? stepData.titleAr : stepData.titleEn}
-          </Text>
-
-          {/* ONE SENTENCE INSTRUCTION (17px) */}
-          <Text style={styles.stepInstruction}>
-            {isAr ? stepData.descAr : stepData.descEn}
-          </Text>
-
-          {/* COUNTER WITH 3 WATER DROPS (Tapped by child to fill - Matching Mockup Page 3 Row) */}
-          <View style={[styles.counterRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-            <Text style={styles.counterPrompt}>
-              {isAr ? 'اِضْغَطْ بَعْدَ كُلِّ مَرَّةٍ' : 'Tap after each time'}
+            <Text style={styles.stepTitle} role="heading" aria-level={1}>
+              {isAr ? stepData.titleAr : stepData.titleEn}
             </Text>
 
-            <View style={[styles.dropsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-              {Array.from({ length: maxDrops }).map((_, index) => {
-                const dropNum = index + 1;
-                const isFilled = filledDrops.includes(dropNum);
-                return (
-                  <TouchableOpacity
-                    key={dropNum}
-                    style={[styles.waterDropBtn, isFilled && styles.waterDropBtnFilled]}
-                    onPress={() => handleToggleDrop(dropNum)}
-                    accessibilityLabel={isAr ? `تكرار ${dropNum}` : `Repetition ${dropNum}`}
-                    accessibilityRole="button"
-                    activeOpacity={0.8}
-                  >
-                    {isFilled ? (
-                      <Ionicons name="checkmark" size={26} color="#FFFFFF" />
-                    ) : (
-                      <Ionicons name="water-outline" size={26} color="#0284C7" />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+            {/* 3 WATER DROPS ROW (Mockup line 19) */}
+            <View style={[styles.mockupDropsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.mockupRepsLabel}>
+                {stepData.reps === 1
+                  ? (isAr ? 'مرة واحدة' : '1 Time')
+                  : (isAr ? '3 مرات' : '3 Times')}
+              </Text>
+              <View style={[styles.dropsIconsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                {Array.from({ length: maxDrops }).map((_, index) => {
+                  const dropNum = index + 1;
+                  const isFilled = filledDrops.includes(dropNum);
+                  return (
+                    <TouchableOpacity
+                      key={dropNum}
+                      onPress={() => handleToggleDrop(dropNum)}
+                      activeOpacity={0.8}
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                    >
+                      <Ionicons
+                        name={isFilled ? 'water' : 'water-outline'}
+                        size={28}
+                        color={isFilled ? '#185FA5' : 'rgba(0,0,0,0.22)'}
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
 
-          {/* LISTEN & REPEAT BUTTONS */}
-          <View style={[styles.actionButtonsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-            {/* Listen Button */}
+            {/* ONE SENTENCE INSTRUCTION (Mockup line 20) */}
+            <Text style={styles.stepInstruction}>
+              {isAr ? stepData.descAr : stepData.descEn}
+            </Text>
+
+            {/* REPEAT AUDIO BUTTON (Mockup line 20: "اسمعها مرة أخرى") */}
             <TouchableOpacity
-              style={[styles.actionBtn, isPlayingAudio && styles.actionBtnActive]}
+              style={[styles.repeatAudioPill, isPlayingAudio && styles.repeatAudioPillPlaying]}
               onPress={handlePlayAudio}
-              accessibilityLabel={isAr ? 'استمع' : 'Listen'}
-              accessibilityRole="button"
-              activeOpacity={0.85}
+              activeOpacity={0.8}
             >
               <Ionicons
-                name="volume-high"
-                size={20}
-                color={isPlayingAudio ? '#FFFFFF' : '#0284C7'}
+                name={isPlayingAudio ? 'volume-high' : 'volume-medium-outline'}
+                size={16}
+                color={isPlayingAudio ? '#FFFFFF' : '#0F6E56'}
               />
-              <Text style={[styles.actionBtnText, isPlayingAudio && styles.actionBtnTextActive]}>
-                {isAr ? 'اِسْتَمِعْ' : 'Listen'}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Repeat Step Button */}
-            <TouchableOpacity
-              style={styles.actionBtn}
-              onPress={handleRepeatStep}
-              accessibilityLabel={isAr ? 'أعد الخطوة' : 'Repeat step'}
-              accessibilityRole="button"
-              activeOpacity={0.85}
-            >
-              <Ionicons name="reload" size={18} color="#0284C7" />
-              <Text style={styles.actionBtnText}>
-                {isAr ? 'أَعِدِ الْخُطْوَةَ' : 'Repeat Step'}
+              <Text style={[styles.repeatAudioPillText, isPlayingAudio && styles.repeatAudioPillTextPlaying]}>
+                {isAr ? 'اسمعها مرة أخرى' : 'Listen Again'}
               </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
 
-        {/* FIXED BOTTOM MAIN BUTTON + BACK BUTTON */}
+        {/* FIXED BOTTOM ACTION BAR (Mockup line 21) */}
         <View style={styles.bottomBarContainer}>
           <View style={[styles.bottomBarRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
-            {/* 60px Back button */}
+            {/* Primary Action Button: "أنا فعلتها" in Action Green #0F9D6B */}
             <TouchableOpacity
-              style={styles.bottomBackBtn}
-              onPress={handlePrevStep}
-              accessibilityLabel={isAr ? 'السابق' : 'Previous'}
-              accessibilityRole="button"
-              activeOpacity={0.85}
-            >
-              <Ionicons
-                name={isRtl ? 'chevron-forward' : 'chevron-back'}
-                size={26}
-                color="#475569"
-              />
-            </TouchableOpacity>
-
-            {/* 60px Coral Main Button: "أَنَا فَعَلْتُهَا!" */}
-            <TouchableOpacity
-              style={styles.coralMainBtn}
+              style={styles.greenMainBtn}
               onPress={handleCompleted}
-              accessibilityLabel={isAr ? 'أنا فعلتها!' : 'I did it!'}
+              accessibilityLabel={isAr ? 'أنا فعلتها' : 'I did it'}
               accessibilityRole="button"
               activeOpacity={0.88}
             >
-              <LinearGradient
-                colors={['#E03E2D', '#C53020']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.coralGradient}
-              >
-                <Text style={styles.coralBtnText}>
-                  {isAr ? 'أَنَا فَعَلْتُهَا!' : 'I Did It!'}
-                </Text>
-                <Ionicons name="checkmark" size={24} color="#FFFFFF" style={{ marginHorizontal: 8 }} />
-              </LinearGradient>
+              <Ionicons name="checkmark" size={22} color="#FFFFFF" />
+              <Text style={styles.greenMainBtnText}>
+                {isAr ? 'أَنَا فَعَلْتُهَا' : 'I Did It'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Nav back/prev chevron arrow */}
+            <TouchableOpacity
+              style={[
+                styles.bottomNavBtn,
+                currentStepIdx === 0 && styles.bottomNavBtnDisabled,
+              ]}
+              onPress={handlePrevStep}
+              accessibilityLabel={isAr ? 'السابق' : 'Previous'}
+              accessibilityRole="button"
+              activeOpacity={0.8}
+            >
+              <Ionicons
+                name={isRtl ? 'chevron-forward' : 'chevron-back'}
+                size={22}
+                color="#888780"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -519,348 +541,237 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#0284C7',
+    color: '#185FA5',
   },
   progressDotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingBottom: 12,
     gap: 6,
   },
   dotTouchable: {
-    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  baseDot: {
-    height: 8,
-    borderRadius: 4,
+  dotDoneCirc: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#0F6E56',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dotDone: {
-    width: 8,
-    backgroundColor: '#10B981', // green for done
+  dotCurrentCirc: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#185FA5',
+    backgroundColor: '#E6F1FB',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dotCurrentPill: {
-    width: 32, // long sky pill for current
-    backgroundColor: '#0284C7',
+  dotCurrentText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#185FA5',
   },
-  dotNext: {
-    width: 8,
-    backgroundColor: '#BAE6FD', // light blue for next
+  dotTodoCirc: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#F5F4EE',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.28)',
   },
   scrollArea: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingHorizontal: 14,
+    paddingBottom: 24,
   },
-  // 300px Scene Card
   sceneCard: {
-    height: 300,
-    borderRadius: 28,
+    height: 200,
+    borderRadius: 16,
+    backgroundColor: '#F5F4EE',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.12)',
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
     marginTop: 4,
-    marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: '#BAE6FD',
-    ...Platform.select({
-      web: { boxShadow: '0 8px 24px rgba(2, 132, 199, 0.12)' },
-      default: { elevation: 3 },
-    }),
-  },
-  sceneGradient: {
-    flex: 1,
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cloudLeft: {
-    position: 'absolute',
-    top: 24,
-    left: 20,
-    width: 70,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
-  },
-  cloudRight: {
-    position: 'absolute',
-    top: 40,
-    right: 28,
-    width: 55,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-  },
-  sparkleStar: {
-    position: 'absolute',
-    top: 28,
-    left: '42%',
-  },
-  imageContainer: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
+    marginBottom: 14,
   },
   stepImage: {
-    width: '92%',
-    height: '92%',
-  },
-  tapAssembly: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  pipeHorizontal: {
-    width: 140,
-    height: 16,
-    backgroundColor: '#94A3B8',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#64748B',
-  },
-  tapBody: {
-    width: 22,
-    height: 34,
-    backgroundColor: '#CBD5E1',
-    borderWidth: 2,
-    borderColor: '#64748B',
-    marginTop: -2,
-    borderRadius: 4,
-  },
-  tapSpout: {
-    width: 14,
-    height: 12,
-    backgroundColor: '#94A3B8',
-    borderBottomLeftRadius: 6,
-    borderBottomRightRadius: 6,
-  },
-  tapKnobRed: {
-    position: 'absolute',
-    top: -14,
-    right: 18,
-    width: 24,
-    height: 14,
-    backgroundColor: '#EF4444',
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: '#991B1B',
-  },
-  waterStream: {
-    width: 10,
-    height: 70,
-    borderRadius: 5,
-    marginVertical: 2,
-  },
-  miniDrop: {
-    position: 'absolute',
-    width: 8,
-    height: 12,
-    borderRadius: 4,
-    backgroundColor: '#38BDF8',
-  },
-  crescentBasin: {
-    width: 160,
-    height: 70,
-    marginTop: 2,
-  },
-  basinWoodOuter: {
-    flex: 1,
-    borderBottomLeftRadius: 80,
-    borderBottomRightRadius: 80,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 6,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  basinWaterInner: {
     width: '90%',
-    height: 38,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    overflow: 'hidden',
+    height: '90%',
   },
-  basinWaterGradient: {
-    flex: 1,
-  },
-  mascotAnchor: {
-    position: 'absolute',
-    bottom: 18,
-    left: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    backgroundColor: '#FEF08A',
-  },
-  mascotImage: {
-    width: '100%',
-    height: '100%',
-  },
-  repsBadge: {
-    position: 'absolute',
-    bottom: 18,
-    right: 20,
-    backgroundColor: '#0284C7',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  stepInfoBlock: {
     alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 64,
-  },
-  repsBadgeNumber: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 22,
-  },
-  repsBadgeLabel: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  stepBadgeWrap: {
-    alignItems: 'center',
-    marginBottom: 6,
+    paddingHorizontal: 10,
   },
   stepBadgePill: {
-    backgroundColor: '#E0F2FE',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  stepBadgeText: {
-    color: '#0369A1',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  stepTitle: {
-    fontSize: 30,
-    fontWeight: '900',
-    color: '#1E293B',
-    textAlign: 'center',
+    backgroundColor: '#E6F1FB',
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 20,
     marginBottom: 8,
   },
-  stepInstruction: {
-    fontSize: 17,
+  stepBadgeText: {
+    color: '#185FA5',
+    fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+  },
+  stepTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#222222',
     textAlign: 'center',
-    lineHeight: 27,
-    marginBottom: 16,
+    marginBottom: 6,
   },
-  counterRow: {
+  mockupDropsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 14,
-    paddingHorizontal: 8,
-  },
-  counterPrompt: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#475569',
-  },
-  dropsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    alignItems: 'center',
-  },
-  waterDropBtn: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2.5,
-    borderColor: '#0284C7',
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    ...Platform.select({
-      web: { boxShadow: '0 4px 10px rgba(2, 132, 199, 0.15)' },
-      default: { elevation: 2 },
-    }),
+    gap: 10,
+    marginVertical: 10,
   },
-  waterDropBtnFilled: {
-    backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
+  mockupRepsLabel: {
+    fontSize: 13,
+    color: '#5F5E5A',
+    fontWeight: '600',
   },
-  actionButtonsRow: {
+  dropsIconsRow: {
     flexDirection: 'row',
-    gap: 14,
-    marginTop: 12,
+    alignItems: 'center',
+    gap: 8,
   },
-  actionBtn: {
+  stepInstruction: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#5F5E5A',
+    textAlign: 'center',
+    lineHeight: 28,
+    marginBottom: 12,
+  },
+  repeatAudioPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#E1F5EE',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+  },
+  repeatAudioPillPlaying: {
+    backgroundColor: '#0F6E56',
+  },
+  repeatAudioPillText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0F6E56',
+  },
+  repeatAudioPillTextPlaying: {
+    color: '#FFFFFF',
+  },
+  bottomBarContainer: {
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.08)',
+  },
+  bottomBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  greenMainBtn: {
     flex: 1,
-    height: 50,
+    height: 56,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#BAE6FD',
-    backgroundColor: '#F0F9FF',
+    backgroundColor: '#0F9D6B',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  actionBtnActive: {
-    backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
-  },
-  actionBtnText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0284C7',
-  },
-  actionBtnTextActive: {
+  greenMainBtnText: {
+    fontSize: 18,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
-  // Fixed Bottom Bar
-  bottomBarContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#FFFDF9',
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-  },
-  bottomBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  bottomBackBtn: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: '#F1F5F9',
+  bottomNavBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#F5F4EE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  coralMainBtn: {
-    flex: 1,
-    height: 60,
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...Platform.select({
-      web: { boxShadow: '0 6px 16px rgba(224, 62, 45, 0.35)' },
-      default: { elevation: 4 },
-    }),
+  bottomNavBtnDisabled: {
+    opacity: 0.35,
   },
-  coralGradient: {
-    flex: 1,
+
+  // Resume mid-lesson card
+  resumeCard: {
+    backgroundColor: '#F0FDFA',
+    borderWidth: 1.5,
+    borderColor: '#99F6E4',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 14,
+  },
+  resumeCardHeader: {
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  resumeCardTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F766E',
+  },
+  resumeCardDesc: {
+    fontSize: 12,
+    color: '#134E4A',
+    lineHeight: 18,
+    marginBottom: 10,
+  },
+  resumeButtonsRow: {
+    alignItems: 'center',
+    gap: 10,
+  },
+  resumeStartOverBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 10,
   },
-  coralBtnText: {
-    fontSize: 22,
-    fontWeight: '900',
+  resumeStartOverText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  resumeContinueBtn: {
+    backgroundColor: '#0F766E',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  resumeContinueText: {
+    fontSize: 13,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
 });

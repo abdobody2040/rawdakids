@@ -18,6 +18,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { isRTL } from '@/constants/i18n';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 import { getPrayerTimesForCity } from '@/services/prayerTimeService';
 
@@ -53,6 +54,8 @@ export default function PrayerScreen() {
   const { language, profiles, activeProfileId, parentSettings, updateParentSettings } = useAppStore();
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
+
+  useDocumentTitle(isAr ? 'صلاتي' : 'My Prayer');
 
   // Active child profile
   const profile = profiles.find((p) => p.id === activeProfileId);
@@ -108,6 +111,7 @@ export default function PrayerScreen() {
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          role="main"
         >
           {/* FRIDAY SPECIAL BANNER */}
           {isFriday && (

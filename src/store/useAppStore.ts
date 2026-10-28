@@ -84,7 +84,9 @@ export interface AppState {
 
   // Onboarding
   hasCompletedOnboarding: boolean;
-  completeOnboarding: () => void;
+  completeOnboarding: (asGuest?: boolean) => void;
+  isGuestMode: boolean;
+  setGuestMode: (isGuest: boolean) => void;
 
   // Profiles (Local on-device only)
   profiles: ChildProfile[];
@@ -236,14 +238,17 @@ const executeSave = async (state: AppState) => {
       lastReadMushafPage: state.lastReadMushafPage,
       mushafBookmarks: state.mushafBookmarks,
     };
-    const updatedProfilesProgress = {
-      ...state.profilesProgress,
-      [state.activeProfileId]: currentActiveProgress,
-    };
+    const updatedProfilesProgress = state.activeProfileId
+      ? {
+          ...state.profilesProgress,
+          [state.activeProfileId]: currentActiveProgress,
+        }
+      : state.profilesProgress;
 
     const stateToSave = {
       language: state.language,
       hasCompletedOnboarding: state.hasCompletedOnboarding,
+      isGuestMode: state.isGuestMode,
       profiles: state.profiles,
       activeProfileId: state.activeProfileId,
       profilesProgress: updatedProfilesProgress,
@@ -294,43 +299,23 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   hasCompletedOnboarding: false,
-  completeOnboarding: () => {
-    set({ hasCompletedOnboarding: true });
+  isGuestMode: false,
+  setGuestMode: (isGuestMode) => {
+    set({ isGuestMode });
+    persistState(get());
+  },
+  completeOnboarding: (asGuest = false) => {
+    set({ hasCompletedOnboarding: true, isGuestMode: asGuest });
     persistState(get());
   },
 
-  profiles: [
-    {
-      id: 'default-child',
-      name: 'طارق',
-      ageBand: '7-9',
-      avatar: 'av-boy1',
-    },
-  ],
-  activeProfileId: 'default-child',
-  profilesProgress: {
-    'default-child': {
-      surahProgress: {},
-      hadithProgress: {},
-      storyProgress: {},
-      scenarioProgress: {},
-      dailyHabitsDone: {},
-      stars: 0,
-      gems: 0,
-      streakCount: 0,
-      lastActiveDate: '',
-      unlockedStickers: [],
-      unlockedBadges: [],
-      selectedAvatarId: 'av-boy1',
-      gratitudeEntries: [],
-      lastReadMushafPage: 1,
-      mushafBookmarks: [1],
-    },
-  },
+  profiles: [],
+  activeProfileId: '',
+  profilesProgress: {},
 
   getChildProgress: (id) => {
     const state = get();
-    if (state.activeProfileId === id) {
+    if (id && state.activeProfileId === id) {
       return {
         surahProgress: state.surahProgress,
         hadithProgress: state.hadithProgress,
@@ -433,7 +418,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const updatedProgressMap = {
       ...state.profilesProgress,
-      [state.activeProfileId]: currentSnapshot,
+      ...(state.activeProfileId ? { [state.activeProfileId]: currentSnapshot } : {}),
       [id]: newChildProgress,
     };
 
@@ -988,9 +973,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       const data = await AsyncStorage.getItem(STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data);
-        const activeId = parsed.activeProfileId || 'default-child';
+        const activeId = parsed.activeProfileId || (parsed.profiles?.[0]?.id ?? '');
         let profilesProgress = parsed.profilesProgress || {};
-        if (!profilesProgress[activeId]) {
+        if (activeId && !profilesProgress[activeId]) {
           profilesProgress[activeId] = {
             surahProgress: parsed.surahProgress || {},
             hadithProgress: parsed.hadithProgress || {},

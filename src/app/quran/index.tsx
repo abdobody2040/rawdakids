@@ -21,6 +21,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import Header from '@/components/Header';
 import AppBottomNav from '@/components/AppBottomNav';
 import { SurahMeta } from '@/data/quranData';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const QURAN_GARDEN_IMG = require('../../../assets/images/quran-garden.jpg');
 const NAV_QURAN_IMG = require('../../../assets/images/nav-quran-3d.jpg');
@@ -29,6 +30,8 @@ export default function QuranGardenScreen() {
   const router = useRouter();
   const { language, surahProgress, lastReadMushafPage } = useAppStore();
   const t = TRANSLATIONS[language];
+
+  useDocumentTitle(t.quran);
 
   const [selectedTab, setSelectedTab] = useState<'juz_amma' | 'all' | 'favorites'>('juz_amma');
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,12 +56,29 @@ export default function QuranGardenScreen() {
     const progress = surahProgress[item.number];
     const isCompleted = progress?.isCompleted;
     const starsEarned = progress?.stars || 0;
+    const hasStarted = isCompleted || starsEarned > 0 || (progress?.ayahsStatus && Object.keys(progress.ayahsStatus).length > 0);
+
+    // Status: not started / listened / memorized
+    const statusLabel = isCompleted
+      ? (language === 'ar' ? 'حفظت' : 'Memorized')
+      : hasStarted
+      ? (language === 'ar' ? 'استمعت' : 'Listened')
+      : (language === 'ar' ? 'لم تبدأ' : 'Not started');
+
+    const statusBg = isCompleted ? '#E1F5EE' : hasStarted ? '#E6F1FB' : '#F1F5F9';
+    const statusColor = isCompleted ? '#0F6E56' : hasStarted ? '#185FA5' : '#64748B';
 
     return (
       <TouchableOpacity
         style={styles.surahCard}
         onPress={() => router.push(`/quran/${item.number}`)}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={
+          language === 'ar'
+            ? `سورة ${item.nameArabic}، رقم ${item.number}، ${item.ayahCount} آيات، الحالة: ${statusLabel}`
+            : `Surah ${item.nameTransliteration}, number ${item.number}, ${item.ayahCount} verses, status: ${statusLabel}`
+        }
       >
         <View style={styles.surahNumberCircle}>
           <Text style={styles.surahNumberText}>{item.number}</Text>
@@ -69,50 +89,41 @@ export default function QuranGardenScreen() {
             <Text style={styles.surahArabicName}>
               {language === 'ar' ? `سورة ${item.nameArabic}` : `Surah ${item.nameTransliteration}`}
             </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              {language === 'en' && (
-                <Text style={styles.surahArabicSideName}>{item.nameArabic}</Text>
-              )}
-              {isCompleted && (
-                <View style={styles.completedBadge}>
-                  <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-                  <Text style={styles.completedBadgeText}>{t.statusMemorized}</Text>
-                </View>
-              )}
+            {/* State badge: not started / listened / memorized */}
+            <View style={[styles.surahStateBadge, { backgroundColor: statusBg }]}>
+              <Ionicons
+                name={isCompleted ? 'checkmark-circle' : hasStarted ? 'headset' : 'ellipse-outline'}
+                size={12}
+                color={statusColor}
+              />
+              <Text style={[styles.surahStateBadgeText, { color: statusColor }]}>
+                {statusLabel}
+              </Text>
             </View>
           </View>
 
           <View style={styles.surahMetaRow}>
             <Text style={styles.surahMetaText}>
-              {language === 'en' ? `${item.nameEnglish} • ` : ''}
-              {item.ayahCount} {t.ayahs} •{' '}
-              {item.revelationType === 'Meccan'
-                ? language === 'ar'
-                  ? 'مكية'
-                  : 'Meccan'
-                : language === 'ar'
-                ? 'مدنية'
-                : 'Medinan'}
+              {item.ayahCount} {t.ayahs} • {item.revelationType === 'Meccan' ? (language === 'ar' ? 'مكية' : 'Meccan') : (language === 'ar' ? 'مدنية' : 'Medinan')}
             </Text>
 
-            {starsEarned > 0 && (
-              <View style={styles.starsRow}>
-                {[1, 2, 3].map((star) => (
-                  <Ionicons
-                    key={star}
-                    name={star <= starsEarned ? 'star' : 'star-outline'}
-                    size={14}
-                    color={COLORS.starActive}
-                  />
-                ))}
-              </View>
-            )}
+            {/* Stars row */}
+            <View style={styles.starsRow}>
+              {[1, 2, 3].map((star) => (
+                <Ionicons
+                  key={star}
+                  name={star <= starsEarned ? 'star' : 'star-outline'}
+                  size={13}
+                  color={star <= starsEarned ? '#F5B83D' : '#CBD5E1'}
+                />
+              ))}
+            </View>
           </View>
         </View>
 
         <Ionicons
           name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
-          size={20}
+          size={18}
           color={COLORS.textMuted}
         />
       </TouchableOpacity>
@@ -122,9 +133,10 @@ export default function QuranGardenScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.appContainer}>
+        {/* Header without duplicate title */}
         <Header showBack title={t.quran} />
 
-        {/* Hero Header with 3D Generated Image Background */}
+        {/* Hero Header Banner */}
         <View style={styles.heroBannerContainer}>
           <ImageBackground
             source={QURAN_GARDEN_IMG}
@@ -133,13 +145,14 @@ export default function QuranGardenScreen() {
             resizeMode="cover"
           >
             <LinearGradient
-              colors={['rgba(5, 150, 105, 0.88)', 'rgba(16, 185, 129, 0.94)']}
+              colors={['rgba(15, 157, 107, 0.92)', 'rgba(11, 122, 83, 0.96)']}
               style={styles.heroBannerOverlay}
             >
               <View style={styles.heroRow}>
                 <View style={styles.heroTextCol}>
-                  <Text style={styles.heroTitle}>{t.quran}</Text>
-                  <Text style={styles.heroDesc}>{t.quranDesc}</Text>
+                  <Text style={styles.heroDesc}>
+                    {language === 'ar' ? 'بستان القرآن العظيم • استمع واحفظ وتدبر' : 'Listen, memorize & reflect on the noble Quran'}
+                  </Text>
                 </View>
                 <View style={styles.hero3dBadgeBox}>
                   <Image
@@ -149,15 +162,18 @@ export default function QuranGardenScreen() {
                   />
                 </View>
               </View>
-              {/* Action Buttons: Repeat Player & Mushaf 604 Pages */}
+
+              {/* Action Buttons: 1 Repeat Button + 1 Mushaf Button (Single entry, 1 line each) */}
               <View style={[styles.heroActionsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
                 <TouchableOpacity
                   style={styles.memorizeHeroBtn}
                   onPress={() => router.push('/quran/repeat')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="headset" size={17} color={COLORS.primaryDark} />
-                  <Text style={styles.memorizeHeroBtnText}>{t.memorizationMode}</Text>
+                  <Ionicons name="headset" size={16} color="#0F6E56" />
+                  <Text style={styles.memorizeHeroBtnText}>
+                    {language === 'ar' ? 'استمع وردد' : 'Listen & Repeat'}
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -165,7 +181,7 @@ export default function QuranGardenScreen() {
                   onPress={() => router.push('/quran/mushaf')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="book" size={17} color="#92400E" />
+                  <Ionicons name="book" size={16} color="#92400E" />
                   <Text style={styles.mushafHeroBtnText}>
                     {language === 'ar' ? `المصحف (ص ${lastReadMushafPage || 1}) 📖` : `Mushaf (p. ${lastReadMushafPage || 1}) 📖`}
                   </Text>
@@ -175,129 +191,120 @@ export default function QuranGardenScreen() {
           </ImageBackground>
         </View>
 
-      {/* Featured Mushaf Page Reader Banner */}
-      <TouchableOpacity
-        style={styles.mushafFeatureCard}
-        onPress={() => router.push('/quran/mushaf')}
-        activeOpacity={0.85}
-      >
-        <LinearGradient
-          colors={['#FFFDF7', '#FEF3C7']}
-          style={[styles.mushafFeatureCardGradient, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}
-        >
-          <View style={styles.mushafIconBadge}>
-            <Ionicons name="book" size={24} color="#B45309" />
-          </View>
-          <View style={[styles.mushafFeatureInfo, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
-            <Text style={styles.mushafFeatureTitle}>
-              {language === 'ar' ? 'المصحف الشريف الإلكتروني (٦٠٤ صفحة) 📖' : 'Read Madinah Mushaf (604 Pages) 📖'}
-            </Text>
-            <Text style={styles.mushafFeatureSub}>
-              {language === 'ar'
-                ? `طبعة مجمع الملك فهد الأصلية • واصل من صفحة ${lastReadMushafPage || 1} 🔖`
-                : `Authentic Madinah Mushaf • Resume page ${lastReadMushafPage || 1} 🔖`}
-            </Text>
-          </View>
-          <Ionicons
-            name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
-            size={20}
-            color="#B45309"
+        {/* Search Input (Single clean search bar) */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={18} color={COLORS.textMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={language === 'ar' ? 'ابحث عن سورة...' : 'Search surah...'}
+            placeholderTextColor={COLORS.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
-        </LinearGradient>
-      </TouchableOpacity>
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
 
-      {/* Search Input */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={COLORS.textMuted} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={language === 'ar' ? 'ابحث عن سورة...' : 'Search surah...'}
-          placeholderTextColor={COLORS.textMuted}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+        {/* Short Filter Labels: الكل / جزء عمّ / المفضلة */}
+        <View
+          style={[styles.tabsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}
+          role="tablist"
+          aria-label={language === 'ar' ? 'تبويبات تصفية السور' : 'Surah filters'}
+        >
+          <TouchableOpacity
+            style={[styles.filterTab, selectedTab === 'all' && styles.filterTabActive]}
+            onPress={() => setSelectedTab('all')}
+            activeOpacity={0.75}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: selectedTab === 'all' }}
+            accessibilityLabel={language === 'ar' ? 'كل السور' : 'All surahs'}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                selectedTab === 'all' && styles.filterTabTextActive,
+              ]}
+            >
+              {language === 'ar' ? 'الكل' : 'All'}
+            </Text>
           </TouchableOpacity>
-        )}
-      </View>
 
-      {/* Category Tabs */}
-      <View style={[styles.tabsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-        <TouchableOpacity
-          style={[styles.filterTab, selectedTab === 'juz_amma' && styles.filterTabActive]}
-          onPress={() => setSelectedTab('juz_amma')}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name="book"
-            size={15}
-            color={selectedTab === 'juz_amma' ? '#FFFFFF' : COLORS.text}
-          />
-          <Text
-            style={[
-              styles.filterTabText,
-              selectedTab === 'juz_amma' && styles.filterTabTextActive,
-            ]}
-            numberOfLines={1}
+          <TouchableOpacity
+            style={[styles.filterTab, selectedTab === 'juz_amma' && styles.filterTabActive]}
+            onPress={() => setSelectedTab('juz_amma')}
+            activeOpacity={0.75}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: selectedTab === 'juz_amma' }}
+            accessibilityLabel={language === 'ar' ? 'جزء عمّ' : 'Juz Amma'}
           >
-            {language === 'ar' ? 'جزء عمَّ' : 'Juz Amma'}
-          </Text>
-          <View style={[styles.quranCountPill, selectedTab === 'juz_amma' && styles.quranCountPillActive]}>
-            <Text style={[styles.quranCountPillText, selectedTab === 'juz_amma' && styles.quranCountPillTextActive]}>
-              38
+            <Text
+              style={[
+                styles.filterTabText,
+                selectedTab === 'juz_amma' && styles.filterTabTextActive,
+              ]}
+            >
+              {language === 'ar' ? 'جزء عمّ' : 'Juz Amma'}
             </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.filterTab, selectedTab === 'favorites' && styles.filterTabActive]}
+            onPress={() => setSelectedTab('favorites')}
+            activeOpacity={0.75}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: selectedTab === 'favorites' }}
+            accessibilityLabel={language === 'ar' ? 'السور المفضلة' : 'Favorite surahs'}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                selectedTab === 'favorites' && styles.filterTabTextActive,
+              ]}
+            >
+              {language === 'ar' ? 'المفضلة' : 'Favorites'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Today's Suggested Surah Card */}
+        <TouchableOpacity
+          style={styles.suggestedSurahCard}
+          onPress={() => router.push('/quran/112')}
+          activeOpacity={0.88}
+          accessibilityRole="button"
+          accessibilityLabel={
+            language === 'ar'
+              ? 'سورة اليوم المقترحة: سورة الإخلاص، 4 آيات'
+              : "Today's suggested surah: Surah Al-Ikhlas, 4 verses"
+          }
+        >
+          <View style={[styles.suggestedSurahInner, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
+            <View style={styles.suggestedIconBox}>
+              <Ionicons name="sparkles" size={20} color="#D97706" />
+            </View>
+            <View style={[styles.suggestedTextCol, { alignItems: language === 'ar' ? 'flex-end' : 'flex-start' }]}>
+              <Text style={styles.suggestedBadgeTitle}>
+                {language === 'ar' ? 'سورة اليوم المقترحة' : "Today's suggested surah"}
+              </Text>
+              <Text style={styles.suggestedSurahName}>
+                {language === 'ar' ? 'سورة الإخلاص (4 آيات)' : 'Surah Al-Ikhlas (4 verses)'}
+              </Text>
+            </View>
+            <View style={styles.suggestedStartBtn}>
+              <Text style={styles.suggestedStartBtnText}>
+                {language === 'ar' ? 'ابدأ' : 'Start'}
+              </Text>
+              <Ionicons
+                name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
+                size={14}
+                color="#0F6E56"
+              />
+            </View>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.filterTab, selectedTab === 'all' && styles.filterTabActive]}
-          onPress={() => setSelectedTab('all')}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name="library"
-            size={15}
-            color={selectedTab === 'all' ? '#FFFFFF' : COLORS.text}
-          />
-          <Text
-            style={[
-              styles.filterTabText,
-              selectedTab === 'all' && styles.filterTabTextActive,
-            ]}
-            numberOfLines={1}
-          >
-            {language === 'ar' ? 'كل القرآن' : 'All Quran'}
-          </Text>
-          <View style={[styles.quranCountPill, selectedTab === 'all' && styles.quranCountPillActive]}>
-            <Text style={[styles.quranCountPillText, selectedTab === 'all' && styles.quranCountPillTextActive]}>
-              114
-            </Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.filterTab, selectedTab === 'favorites' && styles.filterTabActive]}
-          onPress={() => setSelectedTab('favorites')}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name="heart"
-            size={15}
-            color={selectedTab === 'favorites' ? '#FFFFFF' : COLORS.text}
-          />
-          <Text
-            style={[
-              styles.filterTabText,
-              selectedTab === 'favorites' && styles.filterTabTextActive,
-            ]}
-            numberOfLines={1}
-          >
-            {language === 'ar' ? 'المختارة' : 'Featured'}
-          </Text>
-        </TouchableOpacity>
-      </View>
 
         <FlatList
           data={filteredSurahs}
@@ -305,6 +312,8 @@ export default function QuranGardenScreen() {
           renderItem={renderSurahCard}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          role="main"
+          aria-label={t.quran}
         />
 
         <AppBottomNav />
@@ -533,10 +542,69 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.success,
   },
-  surahArabicSideName: {
-    fontSize: 18,
+  surahStateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
+    gap: 4,
+  },
+  surahStateBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  suggestedSurahCard: {
+    marginHorizontal: SPACING.md,
+    marginBottom: SPACING.md,
+    backgroundColor: '#FFFDF7',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    padding: 12,
+    ...SHADOWS.soft,
+  },
+  suggestedSurahInner: {
+    alignItems: 'center',
+    gap: 10,
+  },
+  suggestedIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggestedTextCol: {
+    flex: 1,
+  },
+  suggestedBadgeTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  suggestedSurahName: {
+    fontSize: 15,
     fontWeight: '800',
-    color: COLORS.primaryDark,
+    color: '#78350F',
+    marginTop: 2,
+  },
+  suggestedStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#E1F5EE',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  suggestedStartBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F6E56',
   },
   surahMetaRow: {
     flexDirection: 'row',

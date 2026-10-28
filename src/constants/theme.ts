@@ -4,29 +4,34 @@ import { Platform } from 'react-native';
 
 export const COLORS = {
   // ── PRD Design Tokens ────────────────────────────────────────────
+  /** Primary Action Color (Global unified action green) */
+  actionGreen: '#0F9D6B',
+  actionGreenLight: '#E1F5EE',
+  actionGreenBorder: '#5DCAA5',
+  actionGreenDark: '#0B7A53',
   /** App bar, tab bar, headings — the brand anchor */
   brandEmerald: '#064E3B',
   /** Success, growth, progress rings */
-  gardenGreen: '#16A34A',
+  gardenGreen: '#0F9D6B',
   /** Default screen background — warm sand */
   sand50: '#FFF8EB',
   /** Cards, grouped sections */
   sand100: '#FBEFD5',
   /** Calm accent, Quran and wonder worlds */
   sky300: '#7DD3FC',
-  /** Rewards, stars, highlights (never behind Quran text) */
+  /** Rewards, stars, highlights (only orange/gold for rewards) */
   gold400: '#F5B83D',
-  /** Primary call-to-action buttons */
-  coral500: '#F26B4F',
+  /** Primary call-to-action buttons (unified to actionGreen) */
+  coral500: '#0F9D6B',
   /** Body text on light backgrounds */
   ink900: '#1F2937',
   /** Dark mode background (bedtime mode) */
   night900: '#0B2A24',
 
   // ── Brand & Foundation (legacy aliases kept for compatibility) ───
-  primary: '#064E3B',
+  primary: '#0F9D6B',
   primaryLight: '#16A34A',
-  primaryDark: '#042F24',
+  primaryDark: '#064E3B',
   secondary: '#F5B83D',
   secondaryLight: '#FEE99E',
   secondaryDark: '#B88820',

@@ -1713,6 +1713,23 @@
   - GitHub: Pushed to `main` at `https://github.com/abdobody2040/rawdakids.git`.
   - Vercel: Live and responding at `https://rawdakids.vercel.app` (HTTP 200).
 
+### Milestone 33: Onboarding First Journey Upgrade to Current 6 Canonical Worlds
+- **Upgraded Onboarding Step 3 (`src/app/onboarding.tsx` — "اختر وجهتك الأولى يا بطل!"):**
+  - Replaced legacy 4-world list with the 6 current canonical worlds:
+    1. **حَدِيقَةُ الْقُرْآنِ** (`/quran`) — 114 Surahs, recitation, memorization & child-friendly tafsir.
+    2. **صَلَاتِي وَوُضُوئِي** (`/prayer`) — Interactive Wudu & Salah simulator with daily adhkar.
+    3. **قِصَصُ الْأَنْبِيَاءِ وَالسِّيرَةُ** (`/prophets`) — 25 Prophets, Seerah of Prophet Muhammad ﷺ & young companions.
+    4. **الْأَخْلَاقُ وَالسُّنَّةُ** (`/manners`) — 100 authentic hadiths & interactive character scenarios.
+    5. **أَسْمَاءُ اللَّهِ الْحُسْنَى** (`/asma-allah`) — 99 Beautiful Names & living their virtues.
+    6. **عَالَمُ التَّفَكُّرِ فِي الْكَوْنِ** (`/tafakkur`) — Cosmic wonder & signs of Allah in creation.
+  - Subtitle updated to reflect the full curriculum: "انْقُرْ عَلَى الْعَالَمِ الَّذِي تَوَدُّ الْبَدْءَ فِيهِ، وَيُمْكِنُكَ التَّنَقُّلُ بَيْنَ جَمِيعِ الْعَوَالِمِ فِي أَيِّ وَقْتٍ".
+  - Upgraded card UI with 3D Pixar artwork (62x62 thumbnails), theme badge chips (e.g. `١١٤ سُورَةً`, `تَفَاعُلِيٌّ`, `٢٥ نَبِيًّا`, `١٠٠ حَدِيثٍ`, `٩٩ اسْمًا`, `تَأَمُّلٌ`), glowing tint selection, RTL/LTR layout, and added a secondary "الرجوع" navigation button.
+- **Verification:**
+  - TypeScript: `npx tsc --noEmit` exited code 0 (zero errors).
+  - ESLint: `npx expo lint` exited code 0 (zero errors).
+  - Web Build: `npx expo export --platform web` built all 37 routes cleanly to `dist/`.
+  - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
+
 ## 3. Strict Rules & Constraints for Future AI Agents
 
 1. **Theological Integrity & Respect:**

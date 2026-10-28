@@ -1,7 +1,4 @@
-// src/components/ParentGateModal.tsx
-// Modal wrapper for ParentGateView matching Mockup Page 5
-
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Modal, View, StyleSheet, Platform } from 'react-native';
 import ParentGateView from './ParentGateView';
 
@@ -16,6 +13,63 @@ export default function ParentGateModal({
   onClose,
   onSuccess,
 }: ParentGateModalProps) {
+  const previousActiveElement = useRef<any>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      previousActiveElement.current = document.activeElement;
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onClose();
+        } else if (e.key === 'Tab') {
+          const dialogEl = document.getElementById('parent-gate-dialog');
+          if (!dialogEl) return;
+          const focusable = dialogEl.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="button"]'
+          );
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+
+      const timer = setTimeout(() => {
+        const dialogEl = document.getElementById('parent-gate-dialog');
+        const first = dialogEl?.querySelector<HTMLElement>(
+          'button, [role="button"], input'
+        );
+        first?.focus();
+      }, 50);
+
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('keydown', handleKeyDown);
+        if (
+          previousActiveElement.current &&
+          typeof previousActiveElement.current.focus === 'function'
+        ) {
+          previousActiveElement.current.focus();
+        }
+      };
+    }
+  }, [visible, onClose]);
+
   return (
     <Modal
       visible={visible}
@@ -24,7 +78,14 @@ export default function ParentGateModal({
       onRequestClose={onClose}
     >
       <View style={styles.modalBackdrop}>
-        <View style={styles.sheetCard}>
+        <View
+          id="parent-gate-dialog"
+          nativeID="parent-gate-dialog"
+          role="dialog"
+          aria-modal={true}
+          aria-labelledby="parent-gate-title"
+          style={styles.sheetCard}
+        >
           <ParentGateView
             onSuccess={onSuccess}
             onClose={onClose}

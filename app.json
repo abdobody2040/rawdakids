@@ -34,10 +34,21 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "themeColor": "#0F9D6B",
+      "backgroundColor": "#0F9D6B",
+      "display": "standalone",
+      "orientation": "portrait",
+      "dir": "rtl",
+      "lang": "ar"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "asyncRoutes": true
+        }
+      ],
       [
         "expo-splash-screen",
         {

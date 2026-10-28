@@ -40,6 +40,52 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     `;
     document.head.appendChild(style);
   }
+
+  // Accessibility focus rings style
+  const FOCUS_STYLE_ID = 'rawda-a11y-focus-styles';
+  if (!document.getElementById(FOCUS_STYLE_ID)) {
+    const focusStyle = document.createElement('style');
+    focusStyle.id = FOCUS_STYLE_ID;
+    focusStyle.textContent = `
+      :focus-visible {
+        outline: 3px solid #0F9D6B !important;
+        outline-offset: 2px !important;
+      }
+      button:focus-visible,
+      [role="button"]:focus-visible,
+      [role="radio"]:focus-visible,
+      [role="switch"]:focus-visible,
+      input:focus-visible,
+      a:focus-visible {
+        outline: 3px solid #0F9D6B !important;
+        outline-offset: 2px !important;
+      }
+    `;
+    document.head.appendChild(focusStyle);
+  }
+
+  // Ensure PWA manifest and mobile app tags are linked in browser
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = '/manifest.json';
+    document.head.appendChild(manifestLink);
+
+    const metaTheme = document.createElement('meta');
+    metaTheme.name = 'theme-color';
+    metaTheme.content = '#0F9D6B';
+    document.head.appendChild(metaTheme);
+
+    const metaCapable = document.createElement('meta');
+    metaCapable.name = 'apple-mobile-web-app-capable';
+    metaCapable.content = 'yes';
+    document.head.appendChild(metaCapable);
+
+    const metaTitle = document.createElement('meta');
+    metaTitle.name = 'apple-mobile-web-app-title';
+    metaTitle.content = 'روضة كيدز';
+    document.head.appendChild(metaTitle);
+  }
 }
 
 // Prevent native splash screen from autohiding until app is ready
@@ -69,6 +115,16 @@ export default function RootLayout() {
   const hydrate = useAppStore((s) => s.hydrate);
   const isHydrated = useAppStore((s) => s.isHydrated);
   const incrementTimeSpent = useAppStore((s) => s.incrementTimeSpent);
+  const language = useAppStore((s) => s.language);
+
+  // Live update html lang and dir when active locale changes (A11y Audit Phase 2, Item 6)
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const isArabic = language === 'ar';
+      document.documentElement.lang = isArabic ? 'ar' : language || 'en';
+      document.documentElement.dir = isArabic || language === 'ur' ? 'rtl' : 'ltr';
+    }
+  }, [language]);
 
   const [splashVisible, setSplashVisible] = useState(true);
 

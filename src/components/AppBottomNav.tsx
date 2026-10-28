@@ -151,12 +151,14 @@ export default function AppBottomNav() {
   ];
 
   return (
-    <View style={styles.navWrapper}>
+    <View
+      style={styles.navWrapper}
+      role="navigation"
+      aria-label={language === 'ar' ? 'شريط التنقل الرئيسي' : 'Main Navigation'}
+    >
       <View
-        style={[
-          styles.container,
-          { flexDirection: isRTL(language) ? 'row-reverse' : 'row' },
-        ]}
+        style={styles.container}
+        role="tablist"
       >
         {tabs.map((tab) => {
           const color = TAB_COLORS[tab.id] || COLORS.gardenGreen;
@@ -231,6 +233,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   container: {
+    flexDirection: 'row',
     width: '100%',
     maxWidth: 1240,
     alignSelf: 'center',
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
   },
   tabLabel: {
-    fontSize: 11.5,
+    fontSize: 13,
     fontWeight: '700',
     color: '#6B7280',
     textAlign: 'center',

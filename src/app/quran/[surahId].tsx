@@ -40,6 +40,9 @@ import VerseColoringModal, { VerseColor } from '@/components/VerseColoringModal'
 import { hifzFadeService, SurahHifzRecord } from '@/services/hifzFadeService';
 import { quranWordsService } from '@/services/quranWordsService';
 import { WordMeaning } from '@/data/quranWordsData';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+
+let hasShownPurityTipSession = false;
 
 export default function SurahDetailScreen() {
   const router = useRouter();
@@ -66,8 +69,10 @@ export default function SurahDetailScreen() {
 
   // Modes & View Formatting (Part A & B1)
   const [quranMode, setQuranMode] = useState<'listen' | 'fade'>('listen');
-  const [viewFormat, setViewFormat] = useState<'text' | 'cards'>('text');
-  const [fontSize, setFontSize] = useState<number>(26);
+  const [viewFormat, setViewFormat] = useState<'text' | 'cards'>('cards');
+  const [fontSize, setFontSize] = useState<number>(24);
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const ayahLayouts = useRef<Record<number, number>>({});
 
   // Hifz Fade state
   const [hifzRecord, setHifzRecord] = useState<SurahHifzRecord | null>(null);
@@ -87,6 +92,8 @@ export default function SurahDetailScreen() {
 
   const t = TRANSLATIONS[language];
   const [surah, setSurah] = useState(() => quranService.getSurahSync(surahNumber));
+
+  useDocumentTitle(language === 'ar' ? `سورة ${surah?.nameArabic || ''}` : `Surah ${surah?.nameEnglish || ''}`);
   const [isLoadingSurah, setIsLoadingSurah] = useState(() => {
     const initial = quranService.getSurahSync(surahNumber);
     return initial.ayahs[0]?.textUthmani?.startsWith('آية رقم') ?? false;
@@ -152,7 +159,19 @@ export default function SurahDetailScreen() {
   );
   const [tajweedEnabled, setTajweedEnabled] = useState<boolean>(false);
   const [showTajweedModal, setShowTajweedModal] = useState<boolean>(false);
-  const [showEtiquetteHint, setShowEtiquetteHint] = useState<boolean>(true);
+  const [showEtiquetteHint, setShowEtiquetteHint] = useState<boolean>(() => {
+    if (hasShownPurityTipSession) return false;
+    hasShownPurityTipSession = true;
+    return true;
+  });
+
+  // Auto-scroll to active ayah
+  useEffect(() => {
+    const y = ayahLayouts.current[activeAyahNum];
+    if (y !== undefined) {
+      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 50), animated: true });
+    }
+  }, [activeAyahNum]);
 
   // Word-by-word tap meaning
   const [selectedWordMeaning, setSelectedWordMeaning] = useState<WordMeaning | null>(null);
@@ -471,362 +490,94 @@ export default function SurahDetailScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <Header
         showBack
+        showStats={false}
         fallbackRoute="/quran"
         title={language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
+        rightElement={
+          <TouchableOpacity
+            style={styles.headerSettingsBtn}
+            onPress={() => setShowSettingsModal(true)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel={language === 'ar' ? 'إعدادات القراءة' : 'Reading settings'}
+          >
+            <Ionicons name="settings-outline" size={20} color="#5F5E5A" />
+          </TouchableOpacity>
+        }
       />
 
-      {/* Surah Header Card with Rich Story & Tadabbur */}
-      <View style={styles.topCard}>
-        {/* Row 1: Surah Title + Revelation Type + Compact Offline Download */}
-        <View style={styles.topCardRow}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <Text style={styles.surahTitleArabic}>
-                {language === 'ar' ? `سورة ${surah.nameArabic}` : `Surah ${surah.nameTransliteration}`}
-              </Text>
-              <View style={styles.revelationTypeBadge}>
-                <Text style={styles.revelationTypeText}>
-                  {surah.revelationType === 'Meccan'
-                    ? t.meccan
-                    : t.medinan}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Compact Download Button */}
-          <TouchableOpacity
-            style={[styles.downloadBtn, isDownloaded && styles.downloadBtnActive]}
-            onPress={handleToggleDownload}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
-              size={13}
-              color={isDownloaded ? '#047857' : '#0d9488'}
-            />
-            <Text style={[styles.downloadBtnText, isDownloaded && { color: '#047857' }]}>
-              {isDownloading
-                ? `${downloadProgress}%`
-                : isDownloaded
-                ? getQuranSaveBtnLabel(true, language)
-                : getQuranSaveBtnLabel(false, language)}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Row 2: Rich Surah Story & Tadabbur Showcase Card */}
-        <View style={styles.storyShowcaseCard}>
-          <View style={[styles.storyShowcaseHead, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="sparkles" size={15} color="#d97706" />
-              <Text style={styles.storyShowcaseTitle}>
-                {getQuranStoryShowcaseTitle(language)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Story Intro Text */}
-          <Text
-            style={[styles.storyShowcaseText, language === 'ar' && { textAlign: 'right' }]}
-            numberOfLines={2}
-          >
-            {language === 'ar' ? surah.storyIntroAr : surah.storyIntroEn}
+      {/* Mockup Chips Row: قصة السورة | التفسير | مكية */}
+      <View style={[styles.mockupChipsRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+        <TouchableOpacity
+          style={styles.mockupPillWn}
+          onPress={() => setShowStoryModal(true)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="book-outline" size={14} color="#854F0B" />
+          <Text style={styles.mockupPillWnText}>
+            {language === 'ar' ? 'قصة السورة' : 'Surah Story'}
           </Text>
+        </TouchableOpacity>
 
-          {/* Golden Lesson Pill */}
-          {((language === 'ar' ? surah.coreLessonsAr : surah.coreLessonsEn) || []).length > 0 && (
-            <View style={[styles.goldenLessonRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-              <Text style={styles.goldenLessonTag}>
-                {getQuranGoldenLessonTag(language)}
-              </Text>
-              <Text style={styles.goldenLessonText} numberOfLines={1}>
-                {language === 'ar' ? surah.coreLessonsAr[0] : surah.coreLessonsEn[0]}
-              </Text>
-            </View>
-          )}
+        <TouchableOpacity
+          style={[styles.mockupPillChip, showTafsir && styles.mockupPillChipActive]}
+          onPress={() => setShowFullTafsirModal(true)}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.mockupPillChipText, showTafsir && styles.mockupPillChipTextActive]}>
+            {language === 'ar' ? 'التفسير' : 'Tafsir'}
+          </Text>
+        </TouchableOpacity>
 
-          {/* Button to open complete interactive Story Modal */}
-          <TouchableOpacity
-            style={styles.storyCardBtn}
-            onPress={() => setShowStoryModal(true)}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="book-outline" size={15} color="#b45309" />
-            <Text style={styles.storyCardBtnText}>
-              {language === 'ar'
-                ? 'اقرأ القصة وتدبّر عِبرها كاملة مع نور 📖✨'
-                : 'Read Full Story & Reflections with Noor 📖✨'}
-            </Text>
-            <Ionicons
-              name={language === 'ar' ? 'chevron-back' : 'chevron-forward'}
-              size={13}
-              color="#b45309"
-            />
-          </TouchableOpacity>
+        <View style={styles.mockupPillChip}>
+          <Text style={styles.mockupPillChipText}>
+            {surah.revelationType === 'Meccan' ? t.meccan : t.medinan}
+          </Text>
         </View>
 
-        {/* Mode Switcher: "اسمع وردّد" | "المحو التدريجي" (Hidden in age 4-6) */}
-        {!isAge4to6 && (
-          <View style={styles.modeSwitcherContainer}>
-            <TouchableOpacity
-              style={[styles.modeTab, quranMode === 'listen' && styles.modeTabActive]}
-              onPress={() => handleSelectMode('listen')}
-              activeOpacity={0.85}
-              accessibilityLabel="وضع اسمع وردّد"
-            >
-              <Ionicons
-                name="headset"
-                size={16}
-                color={quranMode === 'listen' ? '#FFFFFF' : COLORS.textSecondary}
-              />
-              <Text
-                style={[
-                  styles.modeTabText,
-                  quranMode === 'listen' && styles.modeTabTextActive,
-                ]}
-              >
-                {language === 'ar' ? 'اسمع وردّد' : 'Listen & Recite'}
-              </Text>
-            </TouchableOpacity>
+        {/* Offline Download Chip */}
+        <TouchableOpacity
+          style={[styles.mockupPillChip, isDownloaded && styles.mockupPillOk]}
+          onPress={handleToggleDownload}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
+            size={13}
+            color={isDownloaded ? '#0F6E56' : '#5F5E5A'}
+          />
+          <Text style={[styles.mockupPillChipText, isDownloaded && styles.mockupPillOkText]}>
+            {isDownloading
+              ? `${downloadProgress}%`
+              : isDownloaded
+              ? (language === 'ar' ? 'محفوظ' : 'Saved')
+              : (language === 'ar' ? 'تحميل' : 'Download')}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-            <TouchableOpacity
-              style={[styles.modeTab, quranMode === 'fade' && styles.modeTabActiveFade]}
-              onPress={() => handleSelectMode('fade')}
-              activeOpacity={0.85}
-              accessibilityLabel="وضع المحو التدريجي للحفظ"
-            >
-              <Ionicons
-                name="sparkles"
-                size={16}
-                color={quranMode === 'fade' ? '#FFFFFF' : '#047857'}
-              />
-              <Text
-                style={[
-                  styles.modeTabText,
-                  quranMode === 'fade' && styles.modeTabTextActive,
-                ]}
-              >
-                {language === 'ar' ? 'المحو التدريجي 🧠' : 'Fade Memorize 🧠'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Fade Controls Toolbar (Part B1) */}
-        {quranMode === 'fade' && (
-          <View style={styles.fadeToolbarCard}>
-            {/* Progress bar */}
-            <View style={styles.fadeProgressSection}>
-              <View style={[styles.fadeProgressHeader, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-                <Text style={styles.fadeProgressTitle}>
-                  {`حَفِظْتَ ${hifzProgress.memorizedCount + hifzProgress.masteredCount} مِنْ ${surah.ayahs.length} آيَاتٍ`}
-                </Text>
-                <Text style={styles.fadeProgressPercent}>{`${hifzProgress.percent}%`}</Text>
-              </View>
-              <View
-                style={styles.fadeProgressBarTrack}
-                role="img"
-                aria-label={`تقدم حفظ السورة ${hifzProgress.percent} في المئة`}
-              >
-                <View
-                  style={[styles.fadeProgressBarFill, { width: `${hifzProgress.percent}%` }]}
-                />
-              </View>
-            </View>
-
-            {/* Fade Actions */}
-            <View style={[styles.fadeActionsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-              {/* Button: امح المزيد */}
-              <TouchableOpacity
-                style={[styles.fadeMoreBtn, allHiddenSuccess && styles.fadeBtnDisabled]}
-                onPress={handleFadeMore}
-                disabled={allHiddenSuccess}
-                activeOpacity={0.85}
-                accessibilityLabel="امح المزيد من الكلمات"
-              >
-                <Ionicons name="eye-off-outline" size={17} color="#FFFFFF" />
-                <Text style={styles.fadeMoreBtnText}>
-                  {language === 'ar' ? 'امْحُ الْمَزِيدَ' : 'Fade More'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Stepper: Words per step (- / +) */}
-              <View style={styles.wordsStepper}>
-                <TouchableOpacity
-                  style={styles.stepperBtn}
-                  onPress={() => handleChangeWordsPerStep(-1)}
-                  accessibilityLabel="تقليل عدد الكلمات"
-                >
-                  <Ionicons name="remove" size={14} color="#047857" />
-                </TouchableOpacity>
-                <Text style={styles.stepperValue}>{wordsPerStep}</Text>
-                <TouchableOpacity
-                  style={styles.stepperBtn}
-                  onPress={() => handleChangeWordsPerStep(1)}
-                  accessibilityLabel="زيادة عدد الكلمات"
-                >
-                  <Ionicons name="add" size={14} color="#047857" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Undo Button */}
-              <TouchableOpacity
-                style={[styles.undoBtn, !hifzFadeService.canUndo && styles.fadeBtnDisabled]}
-                onPress={handleUndo}
-                disabled={!hifzFadeService.canUndo}
-                activeOpacity={0.8}
-                accessibilityLabel="تراجع عن آخر خطوة"
-              >
-                <Ionicons
-                  name="arrow-undo"
-                  size={15}
-                  color={hifzFadeService.canUndo ? '#047857' : '#9CA3AF'}
-                />
-                <Text
-                  style={[
-                    styles.undoBtnText,
-                    !hifzFadeService.canUndo && { color: '#9CA3AF' },
-                  ]}
-                >
-                  {language === 'ar' ? 'تراجع' : 'Undo'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Reset hidden words */}
-              <TouchableOpacity
-                style={styles.resetHiddenBtn}
-                onPress={handleResetHidden}
-                activeOpacity={0.8}
-                accessibilityLabel="إظهار كل الكلمات المخفية"
-              >
-                <Ionicons name="eye-outline" size={15} color="#4B5563" />
-                <Text style={styles.resetHiddenBtnText}>
-                  {language === 'ar' ? 'إِظْهَارُ الْكُلِّ' : 'Show All'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Success Banner when all words are hidden */}
-            {allHiddenSuccess && (
-              <View style={[styles.allHiddenBanner, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-                <Ionicons name="ribbon" size={18} color="#D97706" />
-                <Text style={styles.allHiddenBannerText}>
-                  أَحْسَنْتَ! جَرِّبْ أَنْ تَقُولَهَا مِنْ حِفْظِكَ 🎉
-                </Text>
-              </View>
-            )}
-
-            <View style={[styles.fadeHintRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
-              <Ionicons name="information-circle-outline" size={14} color="#6B7280" />
-              <Text style={styles.fadeHintText}>
-                المس أي كلمة لإخفائها/إظهارها • المس رقم الآية لتلوينها (حفظت، متقنة، مراجعة)
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {/* Toggles Row */}
-        <View style={styles.togglesRow}>
-          {quranMode === 'listen' && (
-            <>
-              {/* Text vs Cards Toggle */}
-              <TouchableOpacity
-                style={[styles.toggleChip, viewFormat === 'text' && styles.toggleChipActive]}
-                onPress={() => setViewFormat(viewFormat === 'text' ? 'cards' : 'text')}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name={viewFormat === 'text' ? 'document-text' : 'albums'}
-                  size={14}
-                  color={viewFormat === 'text' ? COLORS.primaryDark : COLORS.textSecondary}
-                />
-                <Text style={[styles.toggleChipText, viewFormat === 'text' && styles.toggleChipTextActive]}>
-                  {viewFormat === 'text'
-                    ? (language === 'ar' ? 'نص المصحف 📜' : 'Mushaf Text 📜')
-                    : (language === 'ar' ? 'بطاقات الآيات 🃏' : 'Ayah Cards 🃏')}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Font Size A- / A+ Controls */}
-              {viewFormat === 'text' && (
-                <View style={styles.fontSizeControlsRow}>
-                  <TouchableOpacity
-                    style={styles.fontBtn}
-                    onPress={() => setFontSize((s) => Math.max(20, s - 2))}
-                    accessibilityLabel="تصغير الخط"
-                  >
-                    <Text style={styles.fontBtnText}>A−</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.fontBtn}
-                    onPress={() => setFontSize((s) => Math.min(38, s + 2))}
-                    accessibilityLabel="تكبير الخط"
-                  >
-                    <Text style={styles.fontBtnText}>A+</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={[styles.toggleChip, styles.toggleChipActive]}
-                onPress={() => {
-                  setShowTafsir(true);
-                  setShowFullTafsirModal(true);
-                }}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="book"
-                  size={14}
-                  color={COLORS.primaryDark}
-                />
-                <Text
-                  style={[styles.toggleChipText, styles.toggleChipTextActive]}
-                >
-                  {language === 'ar' ? 'التفسير الميسر 📖' : 'Meaning & Reflection 📖'}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-
-          {/* Mushaf Page Fallback Toggle (A1 / A5: "وضع صفحة المصحف") */}
-          <TouchableOpacity
-            style={styles.openInMushafChip}
-            onPress={() => {
-              const surahMeta = MUSHAF_SURAHS.find((s) => s.number === surah.number);
-              const startPage = surahMeta?.startPage || 1;
-              router.push({
-                pathname: '/quran/mushaf' as any,
-                params: { page: startPage.toString() },
-              });
-            }}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="book" size={13} color="#B45309" />
-            <Text style={styles.openInMushafChipText}>
-              {language === 'ar' ? 'وضع صفحة المصحف 📄' : 'Mushaf Page 📄'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Tajweed Colors & Guide Chip (QUR-4) */}
-          <TouchableOpacity
-            style={[styles.tajweedChip, tajweedEnabled && styles.tajweedChipActive]}
-            onPress={() => {
-              setTajweedEnabled(!tajweedEnabled);
-              setShowTajweedModal(true);
-            }}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name="color-palette"
-              size={13}
-              color={tajweedEnabled ? '#FFFFFF' : '#7C3AED'}
-            />
-            <Text style={[styles.tajweedChipText, tajweedEnabled && styles.tajweedChipTextActive]}>
-              {language === 'ar' ? 'تجويد 🎨' : 'Tajweed 🎨'}
-            </Text>
-          </TouchableOpacity>
+      {/* Mockup Progress Bar: الآية 2 من 7 | 29% */}
+      <View style={styles.mockupProgressSection}>
+        <View style={[styles.mockupProgressHeader, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+          <Text style={styles.mockupProgressAyahText}>
+            {language === 'ar'
+              ? `الآية ${activeAyahNum} من ${surah.ayahs.length}`
+              : `Ayah ${activeAyahNum} of ${surah.ayahs.length}`}
+          </Text>
+          <Text style={styles.mockupProgressPercentText}>
+            {`${Math.round((activeAyahNum / Math.max(1, surah.ayahs.length)) * 100)}%`}
+          </Text>
+        </View>
+        <View style={styles.mockupProgressBarTrack}>
+          <View
+            style={[
+              styles.mockupProgressBarFill,
+              {
+                width: `${Math.round(
+                  (activeAyahNum / Math.max(1, surah.ayahs.length)) * 100
+                )}%`,
+              },
+            ]}
+          />
         </View>
       </View>
 
@@ -835,6 +586,8 @@ export default function SurahDetailScreen() {
         ref={scrollViewRef}
         contentContainerStyle={styles.ayahsContainer}
         showsVerticalScrollIndicator={false}
+        role="main"
+        aria-label={language === 'ar' ? `آيات سورة ${surah.nameArabic}` : `Ayahs of Surah ${surah.nameEnglish}`}
       >
         {/* Etiquette Hint (PRD §7.3 Item 7: "تأكد من طهارتك وانتبه" as guidance, never a blocker) */}
         {showEtiquetteHint && (
@@ -899,6 +652,9 @@ export default function SurahDetailScreen() {
           return (
             <TouchableOpacity
               key={ayah.number}
+              onLayout={(e) => {
+                ayahLayouts.current[ayah.number] = e.nativeEvent.layout.y;
+              }}
               style={[styles.ayahCard, isActive && styles.ayahCardActive]}
               onPress={() => {
                 if (isActive && isPlaying) {
@@ -912,8 +668,10 @@ export default function SurahDetailScreen() {
               {/* Ayah Header Row */}
               <View style={[styles.ayahHeaderRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <View style={styles.ayahNumberBadge}>
-                    <Text style={styles.ayahNumberText}>{ayah.number}</Text>
+                  <View style={[styles.ayahNumberBadge, isActive && styles.ayahNumberBadgeActive]}>
+                    <Text style={[styles.ayahNumberText, isActive && styles.ayahNumberTextActive]}>
+                      {ayah.number}
+                    </Text>
                   </View>
 
                   {/* Dedicated 1-Tap Play / Pause Button */}
@@ -1054,7 +812,14 @@ export default function SurahDetailScreen() {
                 activeOpacity={0.8}
                 style={{ width: '100%' }}
               >
-                <Text style={styles.uthmaniText}>
+                <Text
+                  style={[
+                    styles.uthmaniText,
+                    { fontSize: isActive ? fontSize + 2 : fontSize },
+                    isActive && styles.uthmaniTextActive,
+                    !isActive && isPlaying && styles.uthmaniTextDimmed,
+                  ]}
+                >
                   {ayah.textUthmani}
                 </Text>
               </TouchableOpacity>
@@ -1248,6 +1013,16 @@ export default function SurahDetailScreen() {
         </View>
       </ScrollView>
 
+      {/* Noor Encouragement Row (Mockup line 20) */}
+      <View style={[styles.mockupNoorBanner, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+        <View style={styles.mockupNoorCircWn}>
+          <Ionicons name="sparkles" size={18} color="#854F0B" />
+        </View>
+        <Text style={styles.mockupNoorText}>
+          {language === 'ar' ? 'أحسنت! كرر الآية مع نور ✨' : 'Well done! Repeat the verse with Noor ✨'}
+        </Text>
+      </View>
+
       {/* Floating Audio Player Bar */}
       <AudioPlayerBar
         isPlaying={isPlaying}
@@ -1256,6 +1031,7 @@ export default function SurahDetailScreen() {
         speed={speed}
         repeatCount={repeatCount}
         currentRepeatCycle={currentRepeatCycle}
+        reciterName={parentSettings.reciterId}
         onPlayPause={handlePlayPause}
         onNextAyah={handleNextAyah}
         onPrevAyah={handlePrevAyah}
@@ -1263,6 +1039,10 @@ export default function SurahDetailScreen() {
         onRepeatChange={(newRepeat) => {
           setRepeatCount(newRepeat);
           repeatCountRef.current = newRepeat;
+        }}
+        onRecordRepeat={() => {
+          const curr = surah.ayahs.find((a) => a.number === activeAyahNum);
+          if (curr) setRecordingAyah(curr);
         }}
       />
 
@@ -1419,6 +1199,127 @@ export default function SurahDetailScreen() {
           </View>
         </Modal>
       )}
+
+      {/* Reader Settings Modal (A-/A+, View mode, Tajweed) */}
+      <Modal
+        visible={showSettingsModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSettingsModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.settingsModalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSettingsModal(false)}
+        >
+          <View style={styles.settingsModalCard} onStartShouldSetResponder={() => true}>
+            <View style={[styles.settingsModalHeader, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.settingsModalTitle}>
+                {language === 'ar' ? 'إعدادات القراءة والمصحف' : 'Reading Settings'}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowSettingsModal(false)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Ionicons name="close" size={22} color="#5F5E5A" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Font Size A- / A+ */}
+            <View style={[styles.settingRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.settingLabel}>{language === 'ar' ? 'حجم الخط' : 'Font Size'}</Text>
+              <View style={styles.fontStepper}>
+                <TouchableOpacity
+                  style={styles.fontStepperBtn}
+                  onPress={() => setFontSize((s) => Math.max(18, s - 2))}
+                  accessibilityLabel="تصغير الخط"
+                >
+                  <Text style={styles.fontStepperBtnText}>A−</Text>
+                </TouchableOpacity>
+                <Text style={styles.fontStepperValue}>{fontSize}</Text>
+                <TouchableOpacity
+                  style={styles.fontStepperBtn}
+                  onPress={() => setFontSize((s) => Math.min(36, s + 2))}
+                  accessibilityLabel="تكبير الخط"
+                >
+                  <Text style={styles.fontStepperBtnText}>A+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* View Format: Cards vs Mushaf Text */}
+            <View style={[styles.settingRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.settingLabel}>{language === 'ar' ? 'طريقة العرض' : 'View Mode'}</Text>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity
+                  style={[styles.settingChip, viewFormat === 'cards' && styles.settingChipActive]}
+                  onPress={() => setViewFormat('cards')}
+                >
+                  <Text style={[styles.settingChipText, viewFormat === 'cards' && styles.settingChipTextActive]}>
+                    {language === 'ar' ? 'بطاقات الآيات' : 'Cards'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.settingChip, viewFormat === 'text' && styles.settingChipActive]}
+                  onPress={() => setViewFormat('text')}
+                >
+                  <Text style={[styles.settingChipText, viewFormat === 'text' && styles.settingChipTextActive]}>
+                    {language === 'ar' ? 'نص المصحف' : 'Text'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Tajweed Toggle */}
+            <View style={[styles.settingRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.settingLabel}>{language === 'ar' ? 'ألوان التجويد' : 'Tajweed Colors'}</Text>
+              <TouchableOpacity
+                style={[styles.settingChip, tajweedEnabled && styles.settingChipActive]}
+                onPress={() => {
+                  setTajweedEnabled(!tajweedEnabled);
+                  setShowTajweedModal(true);
+                }}
+              >
+                <Text style={[styles.settingChipText, tajweedEnabled && styles.settingChipTextActive]}>
+                  {tajweedEnabled ? (language === 'ar' ? 'مفعل 🎨' : 'On 🎨') : (language === 'ar' ? 'معطل' : 'Off')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Simple Tafsir Toggle */}
+            <View style={[styles.settingRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <Text style={styles.settingLabel}>{language === 'ar' ? 'التفسير الميسر' : 'Tafsir'}</Text>
+              <TouchableOpacity
+                style={[styles.settingChip, showTafsir && styles.settingChipActive]}
+                onPress={() => setShowTafsir(!showTafsir)}
+              >
+                <Text style={[styles.settingChipText, showTafsir && styles.settingChipTextActive]}>
+                  {showTafsir ? (language === 'ar' ? 'ظاهر' : 'Shown') : (language === 'ar' ? 'مخفي' : 'Hidden')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Open In Mushaf Page */}
+            <TouchableOpacity
+              style={styles.settingMushafLink}
+              onPress={() => {
+                setShowSettingsModal(false);
+                const surahMeta = MUSHAF_SURAHS.find((s) => s.number === surah.number);
+                const startPage = surahMeta?.startPage || 1;
+                router.push({
+                  pathname: '/quran/mushaf' as any,
+                  params: { page: startPage.toString() },
+                });
+              }}
+            >
+              <Ionicons name="book" size={16} color="#0F6E56" />
+              <Text style={styles.settingMushafLinkText}>
+                {language === 'ar' ? 'عرض المصحف الورقي الكامل 📄' : 'Open Full Mushaf Page 📄'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1430,6 +1331,224 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 1240,
     alignSelf: 'center',
+  },
+  headerSettingsBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F5F4EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mockupChipsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.06)',
+  },
+  mockupPillWn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FAEEDA',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  mockupPillWnText: {
+    fontSize: 13,
+    color: '#854F0B',
+    fontWeight: '600',
+  },
+  mockupPillChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F5F4EE',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  mockupPillChipActive: {
+    backgroundColor: '#E1F5EE',
+  },
+  mockupPillChipText: {
+    fontSize: 13,
+    color: '#5F5E5A',
+    fontWeight: '500',
+  },
+  mockupPillChipTextActive: {
+    color: '#0F6E56',
+    fontWeight: '700',
+  },
+  mockupPillOk: {
+    backgroundColor: '#E1F5EE',
+  },
+  mockupPillOkText: {
+    color: '#0F6E56',
+    fontWeight: '600',
+  },
+  mockupProgressSection: {
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.06)',
+  },
+  mockupProgressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  mockupProgressAyahText: {
+    fontSize: 12,
+    color: '#5F5E5A',
+    fontWeight: '600',
+  },
+  mockupProgressPercentText: {
+    fontSize: 12,
+    color: '#5F5E5A',
+    fontWeight: '600',
+  },
+  mockupProgressBarTrack: {
+    height: 6,
+    backgroundColor: '#F5F4EE',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  mockupProgressBarFill: {
+    height: 6,
+    backgroundColor: '#0F9D6B',
+    borderRadius: 3,
+  },
+  mockupNoorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginHorizontal: 14,
+    marginBottom: 8,
+    backgroundColor: '#F5F4EE',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  mockupNoorCircWn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FAEEDA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mockupNoorText: {
+    fontSize: 14,
+    color: '#222222',
+    fontWeight: '600',
+    flex: 1,
+  },
+  settingsModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  settingsModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 18,
+    gap: 16,
+  },
+  settingsModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.08)',
+    paddingBottom: 10,
+  },
+  settingsModalTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#222222',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  settingLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#444444',
+  },
+  fontStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F4EE',
+    borderRadius: 20,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    gap: 10,
+  },
+  fontStepperBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  fontStepperBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F9D6B',
+  },
+  fontStepperValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#333333',
+    minWidth: 24,
+    textAlign: 'center',
+  },
+  settingChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: '#F5F4EE',
+  },
+  settingChipActive: {
+    backgroundColor: '#E1F5EE',
+    borderWidth: 1,
+    borderColor: '#5DCAA5',
+  },
+  settingChipText: {
+    fontSize: 13,
+    color: '#5F5E5A',
+    fontWeight: '500',
+  },
+  settingChipTextActive: {
+    color: '#0F6E56',
+    fontWeight: '700',
+  },
+  settingMushafLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#E1F5EE',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  settingMushafLinkText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F6E56',
   },
   topCard: {
     backgroundColor: COLORS.card,
@@ -1659,36 +1778,46 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
   },
   ayahCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.borderLight,
-    ...SHADOWS.soft,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+    marginBottom: 8,
   },
   ayahCardActive: {
-    borderColor: COLORS.quranBorderActive,
-    backgroundColor: COLORS.quranActiveAyah,
-    ...SHADOWS.glow(COLORS.quranBorderActive),
+    borderColor: '#5DCAA5',
+    borderWidth: 2,
+    backgroundColor: '#E1F5EE',
   },
   ayahHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
   ayahNumberBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.quranGarden.light,
+    minWidth: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  ayahNumberBadgeActive: {
+    backgroundColor: '#0F9D6B',
+    borderColor: '#0F9D6B',
   },
   ayahNumberText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.quranGarden.dark,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#5F5E5A',
+  },
+  ayahNumberTextActive: {
+    color: '#FFFFFF',
   },
   ayahPlayBtn: {
     flexDirection: 'row',
@@ -1766,13 +1895,17 @@ const styles = StyleSheet.create({
     color: '#065F46',
   },
   uthmaniText: {
-    fontSize: TYPOGRAPHY.quranSize,
-    lineHeight: TYPOGRAPHY.quranLineHeight,
-    color: COLORS.quranText,
-    textAlign: 'center',
-    marginVertical: SPACING.xs,
     fontFamily: 'System',
-    fontWeight: '600',
+    lineHeight: 46,
+    textAlign: 'center',
+    color: '#222222',
+  },
+  uthmaniTextActive: {
+    color: '#0F6E56',
+    fontWeight: '700',
+  },
+  uthmaniTextDimmed: {
+    color: '#888780',
   },
   ayahTafsirBtn: {
     flexDirection: 'row',

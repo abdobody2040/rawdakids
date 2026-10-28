@@ -10,6 +10,8 @@ import {
   Modal,
   FlatList,
   TextInput,
+  Platform,
+  I18nManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -1237,7 +1239,7 @@ const styles = StyleSheet.create({
   // STRICT RTL WORDS CONTAINER (Fix for words written backwards!)
   // -------------------------------------------------------------
   wordsContainerRTL: {
-    flexDirection: 'row-reverse', // CRITICAL: Places Word 0 on the RIGHT and flows to the LEFT
+    flexDirection: Platform.OS === 'web' ? 'row' : (I18nManager.isRTL ? 'row' : 'row-reverse'),
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',

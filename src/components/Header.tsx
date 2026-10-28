@@ -21,6 +21,8 @@ interface HeaderProps {
   fallbackRoute?: string;
   onBack?: () => void;
   showSearch?: boolean;
+  showStats?: boolean;
+  rightElement?: React.ReactNode;
 }
 
 export default function Header({
@@ -29,6 +31,8 @@ export default function Header({
   fallbackRoute,
   onBack,
   showSearch = true,
+  showStats = true,
+  rightElement,
 }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -84,13 +88,15 @@ export default function Header({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} role="banner">
       <View style={styles.leftRow}>
         {showBack ? (
           <TouchableOpacity
             style={styles.backButton}
             onPress={handleBack}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={language === 'ar' ? 'الرجوع' : 'Back'}
           >
             <Ionicons
               name={language === 'ar' ? 'chevron-forward' : 'chevron-back'}
@@ -103,6 +109,8 @@ export default function Header({
             style={styles.profileBadge}
             onPress={() => setProfileSwitcherVisible(true)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={language === 'ar' ? 'تبديل ملف الطفل' : 'Switch profile'}
           >
             <View style={styles.headerMascotBox}>
               <Image source={MASCOT_NOOR_IMG} style={styles.headerMascotBadge} contentFit="cover" transition={150} />
@@ -115,43 +123,49 @@ export default function Header({
         )}
 
         {title ? (
-          <Text style={styles.screenTitle} numberOfLines={1}>
+          <Text style={styles.screenTitle} numberOfLines={1} role="heading" aria-level={1}>
             {title}
           </Text>
         ) : null}
       </View>
 
       <View style={styles.rightRow}>
-        {/* Streak (Sprout per PRD §7.2 block 1 & RWD-2, tap opens Me > Progress) */}
-        <TouchableOpacity
-          style={styles.statChip}
-          onPress={() => router.push('/progress')}
-          activeOpacity={0.7}
-          accessibilityLabel={language === 'ar' ? 'مسيرة الاستمرار' : 'Streak'}
-        >
-          <Ionicons name="leaf" size={15} color="#16A34A" />
-          <Text style={[styles.statText, { color: '#16A34A' }]}>{streakCount}</Text>
-        </TouchableOpacity>
+        {showStats && (
+          <>
+            {/* Streak */}
+            <TouchableOpacity
+              style={styles.statChip}
+              onPress={() => router.push('/progress')}
+              activeOpacity={0.7}
+              accessibilityLabel={language === 'ar' ? 'مسيرة الاستمرار' : 'Streak'}
+            >
+              <Ionicons name="leaf" size={15} color="#16A34A" />
+              <Text style={[styles.statText, { color: '#16A34A' }]}>{streakCount}</Text>
+            </TouchableOpacity>
 
-        {/* Stars */}
-        <TouchableOpacity
-          style={styles.statChip}
-          onPress={() => router.push('/rewards')}
-          activeOpacity={0.7}
-        >
-          <Image source={ICON_STAR_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
-          <Text style={styles.statText}>{stars}</Text>
-        </TouchableOpacity>
+            {/* Stars */}
+            <TouchableOpacity
+              style={styles.statChip}
+              onPress={() => router.push('/rewards')}
+              activeOpacity={0.7}
+            >
+              <Image source={ICON_STAR_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
+              <Text style={styles.statText}>{stars}</Text>
+            </TouchableOpacity>
 
-        {/* Gems */}
-        <TouchableOpacity
-          style={styles.statChip}
-          onPress={() => router.push('/rewards')}
-          activeOpacity={0.7}
-        >
-          <Image source={ICON_GEM_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
-          <Text style={styles.statText}>{gems}</Text>
-        </TouchableOpacity>
+            {/* Gems */}
+            <TouchableOpacity
+              style={styles.statChip}
+              onPress={() => router.push('/rewards')}
+              activeOpacity={0.7}
+            >
+              <Image source={ICON_GEM_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
+              <Text style={styles.statText}>{gems}</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {rightElement}
 
         {/* Quick Smart Search Button & Voice Mic (PRD NAV-2) */}
         {showSearch && (
@@ -184,6 +198,8 @@ export default function Header({
               style={styles.langSelectorBtn}
               onPress={() => setLanguageModalVisible(true)}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={language === 'ar' ? 'تغيير لغة التطبيق' : 'Change application language'}
             >
               <Text style={styles.langSelectorFlag}>
                 {AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}
@@ -198,6 +214,8 @@ export default function Header({
               style={styles.parentLockButton}
               onPress={() => setParentGateVisible(true)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={language === 'ar' ? 'منطقة أولياء الأمور' : 'Parent zone'}
             >
               <Ionicons name="lock-closed" size={16} color={COLORS.primary} />
             </TouchableOpacity>

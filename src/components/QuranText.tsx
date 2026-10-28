@@ -18,7 +18,7 @@ import {
 import { VerseColor } from './VerseColoringModal';
 import { COLORS } from '@/constants/theme';
 import { quranService } from '@/services/quranService';
-import { getLocalSurahWordData } from '@/services/quranDataLoader';
+import { getLocalSurahWordData, cacheSurahWordData } from '@/services/quranDataLoader';
 
 export interface QuranWord {
   p: number; // 1-based word position
@@ -104,6 +104,7 @@ export default function QuranText({
           if (res.ok) {
             const json = await res.json();
             if (isCurrent && json && json.verses) {
+              cacheSurahWordData(surahId, json);
               setSurahData(json);
               setIsLoading(false);
               return;
