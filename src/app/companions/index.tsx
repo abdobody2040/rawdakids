@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Young Companions Hub (صغار الصحابة: كانوا مثلك)
 import { useState } from 'react';
 import {
@@ -43,6 +44,7 @@ const COMPANION_IMAGES: Record<string, any> = {
 };
 
 export default function CompanionsHubScreen() {
+  useDocumentTitle('صحابة رسول الله', 'Companions of the Prophet');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';

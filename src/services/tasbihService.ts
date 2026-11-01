@@ -12,48 +12,66 @@ export interface TasbihZikr {
   meaningAr: string;
   meaningEn: string;
   defaultTarget: number;
+  rewardNoteAr?: string;
+  rewardNoteEn?: string;
+  colorScheme?: readonly [string, string];
 }
 
 export const VERIFIED_AZKAR: TasbihZikr[] = [
   {
     id: 'subhanallah',
     textArabic: 'سُبْحَانَ اللَّهِ',
-    transliteration: 'Subhan Allah',
+    transliteration: 'Subḥān Allāh',
     meaningAr: 'تنزيه الله تعالى عن كل عيب ونقص',
     meaningEn: 'Glory be to Allah, above all imperfection',
     defaultTarget: 33,
+    rewardNoteAr: 'شجرة طيبة تُغرس لك في الجنة 🌴',
+    rewardNoteEn: 'A blessed palm tree planted in Jannah 🌴',
+    colorScheme: ['#047857', '#065F46'] as const,
   },
   {
     id: 'alhamdulillah',
     textArabic: 'الْحَمْدُ لِلَّهِ',
-    transliteration: 'Alhamdulillah',
+    transliteration: 'Al-ḥamdu lillāh',
     meaningAr: 'الثناء والشكر كله لله رب العالمين',
     meaningEn: 'All praise and gratitude belong to Allah',
     defaultTarget: 33,
+    rewardNoteAr: 'تملأ ميزان الحسنات بالخير العظيم ⚖️',
+    rewardNoteEn: 'Fills the scale of good deeds with light ⚖️',
+    colorScheme: ['#0284C7', '#0369A1'] as const,
   },
   {
     id: 'allahuakbar',
     textArabic: 'اللَّهُ أَكْبَرُ',
-    transliteration: 'Allahu Akbar',
+    transliteration: 'Allāhu Akbar',
     meaningAr: 'الله أعظم وأجل من كل شيء',
     meaningEn: 'Allah is the Greatest above all things',
     defaultTarget: 33,
+    rewardNoteAr: 'تزيد القلب سكينة وعزة وقوة 🛡️',
+    rewardNoteEn: 'Fills the young heart with courage and tranquility 🛡️',
+    colorScheme: ['#D97706', '#B45309'] as const,
   },
   {
-    id: 'la_ilaha_illa_allah',
+    id: 'lailahaillallah',
     textArabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
-    transliteration: 'La Ilaha Illa Allah',
+    transliteration: 'Lā ilāha illā Allāh',
     meaningAr: 'لا معبود بحق إلا الله وحده لا شريك له',
     meaningEn: 'There is no deity worthy of worship except Allah',
     defaultTarget: 33,
+    rewardNoteAr: 'أفضل الذكر ومفتاح أبواب الجنة 🗝️',
+    rewardNoteEn: 'The best remembrance and key to Jannah 🗝️',
+    colorScheme: ['#7C3AED', '#6D28D9'] as const,
   },
   {
-    id: 'astaghfirullah',
+    id: 'istighfar',
     textArabic: 'أَسْتَغْفِرُ اللَّهَ',
-    transliteration: 'Astaghfirullah',
+    transliteration: 'Astaghfiru Allāh',
     meaningAr: 'طلب المغفرة والرحمة من الله الغفور الرحيم',
     meaningEn: 'I seek forgiveness from Allah the Most Forgiving',
     defaultTarget: 33,
+    rewardNoteAr: 'تَمْحُو الذُّنُوبَ وَتَجْلِبُ الرِّزْقَ وَالفَرَجَ 🌧️',
+    rewardNoteEn: 'Brings forgiveness, ease, and endless blessings 🌧️',
+    colorScheme: ['#0D9488', '#0F766E'] as const,
   },
 ];
 

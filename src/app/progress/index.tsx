@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useState } from "react";
 import {
   View,
@@ -26,31 +27,31 @@ const METRIC_IMAGES = {
 };
 
 export default function MyProgressScreen() {
+  useDocumentTitle('سجل إنجازاتي', 'My Progress');
   const {
     language,
     profiles,
     activeProfileId,
-    surahProgress,
-    hadithProgress,
-    storyProgress,
-    streakCount,
+    getChildProgress,
     timeSpentTodaySec,
     parentSettings,
   } = useAppStore();
 
   const t = TRANSLATIONS[language];
-  const profile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  const profile = profiles.find((p) => p.id === activeProfileId) || profiles[0] || null;
+  const activeProg = profile ? getChildProgress(profile.id) : null;
 
   // Stats calculation
-  const completedSurahs = Object.values(surahProgress).filter(
+  const completedSurahs = Object.values(activeProg?.surahProgress || {}).filter(
     (s) => s.isCompleted
   ).length;
-  const completedHadiths = Object.values(hadithProgress).filter(
+  const completedHadiths = Object.values(activeProg?.hadithProgress || {}).filter(
     (h) => h.completed
   ).length;
-  const completedStories = Object.values(storyProgress).filter(
+  const completedStories = Object.values(activeProg?.storyProgress || {}).filter(
     (st) => st.completed
   ).length;
+  const streak = activeProg?.streakCount ?? 0;
 
   const timeSpentMin = Math.round(timeSpentTodaySec / 60);
   const timeProgressPercent =
@@ -67,7 +68,7 @@ export default function MyProgressScreen() {
     language === 'ar' ? 'إتمام ومثابرة في حفظ كتاب الله والأخلاق' : 'Perseverance in Quran & Good Character'
   );
 
-  const completedSurahsList = Object.entries(surahProgress)
+  const completedSurahsList = Object.entries(activeProg?.surahProgress || {})
     .filter(([_, p]) => p.isCompleted)
     .map(([numStr]) => {
       const num = parseInt(numStr, 10);
@@ -90,13 +91,13 @@ export default function MyProgressScreen() {
       >
         {/* Child Profile Highlight Banner */}
         <View style={styles.profileBanner}>
-          <KidAvatar avatar={profile.avatar} size={56} />
+          <KidAvatar avatar={profile?.avatar || 'av-boy1'} size={56} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.profileName}>{profile.name}</Text>
+            <Text style={styles.profileName}>{profile?.name || (language === 'ar' ? 'البطل' : 'Champion')}</Text>
             <Text style={styles.ageBandBadge}>
-              {profile.ageBand === '4-6'
+              {profile?.ageBand === '4-6'
                 ? t.ageBandExplorers
-                : profile.ageBand === '7-9'
+                : profile?.ageBand === '7-9'
                 ? t.ageBandLearners
                 : t.ageBandMinds}
             </Text>
@@ -163,7 +164,7 @@ export default function MyProgressScreen() {
                 resizeMode="cover"
               />
             </View>
-            <Text style={styles.achieveNum}>{streakCount}</Text>
+            <Text style={styles.achieveNum}>{streak}</Text>
             <Text style={styles.achieveLabel}>{t.streakDays}</Text>
           </View>
         </View>
@@ -212,8 +213,8 @@ export default function MyProgressScreen() {
             <View style={styles.hifzItem}>
               <View style={[styles.hifzDot, { backgroundColor: COLORS.warning }]} />
               <Text style={styles.hifzCount}>
-                {Object.keys(surahProgress).length - completedSurahs > 0
-                  ? Object.keys(surahProgress).length - completedSurahs
+                {Object.keys(activeProg?.surahProgress || {}).length - completedSurahs > 0
+                  ? Object.keys(activeProg?.surahProgress || {}).length - completedSurahs
                   : 0}
               </Text>
               <Text style={styles.hifzLabel}>{t.statusLearning}</Text>
@@ -246,8 +247,8 @@ export default function MyProgressScreen() {
               setCertTitle(language === 'ar' ? 'رحلة الإيمان والقرآن' : 'Journey of Faith & Quran');
               setCertSub(
                 language === 'ar'
-                  ? `إتمام رائع ومثابرة بـ ${completedSurahs} سور محفوظة و ${streakCount} أيام مستمرة`
-                  : `Mastery of ${completedSurahs} Surahs & ${streakCount} day streak`
+                  ? `إتمام رائع ومثابرة بـ ${completedSurahs} سور محفوظة و ${streak} أيام مستمرة`
+                  : `Mastery of ${completedSurahs} Surahs & ${streak} day streak`
               );
               setShowCertModal(true);
             }}

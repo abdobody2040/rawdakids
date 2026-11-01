@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Unit Path Screen for Wudu & Salah (B3)
 // Visual path progression: Done (green check), Current (blue play), Locked (gray lock)
 // Progress ring: role="img" aria-label="أَنْجَزْتَ N دُرُوسٍ مِنْ M"
@@ -27,6 +28,7 @@ import {
 } from '@/services/unitsService';
 
 export default function UnitPathScreen() {
+  useDocumentTitle('مسار ركعات الصلاة', 'Prayer Units');
   const router = useRouter();
   const params = useLocalSearchParams<{ unit?: string }>();
   const [selectedUnitId, setSelectedUnitId] = useState<string>(

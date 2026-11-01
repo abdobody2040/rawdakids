@@ -17,7 +17,7 @@ interface ParentPinCardProps {
     pinHash?: string;
     pinSalt?: string;
   };
-  setParentPin: (newPin: string) => boolean;
+  setParentPin: (newPin: string) => boolean | { success: boolean; recoveryCode?: string; errorAr?: string; errorEn?: string };
 }
 
 export default function ParentPinCard({
@@ -28,7 +28,7 @@ export default function ParentPinCard({
 }: ParentPinCardProps) {
   const [pinInput, setPinInput] = useState('');
   const [pinErrorMessage, setPinErrorMessage] = useState('');
-  const [pinSuccessMessage, setPinSuccessMessage] = useState(false);
+  const [newRecoveryCode, setNewRecoveryCode] = useState<string | null>(null);
 
   const handleSavePin = () => {
     const validation = securityCryptoService.validatePinFormat(pinInput);
@@ -38,23 +38,22 @@ export default function ParentPinCard({
           ? (validation.errorAr || 'رمز PIN يجب أن يتكون من ٤ إلى ٦ أرقام فقط.')
           : (validation.errorEn || 'PIN must be between 4 and 6 numeric digits.')
       );
-      setPinSuccessMessage(false);
+      setNewRecoveryCode(null);
       return;
     }
 
-    const success = setParentPin(pinInput);
+    const result = setParentPin(pinInput);
+    const success = typeof result === 'boolean' ? result : result.success;
+    const code = typeof result === 'object' && result.recoveryCode ? result.recoveryCode : null;
+
     if (success) {
       setPinErrorMessage('');
-      setPinSuccessMessage(true);
+      setNewRecoveryCode(code);
       setPinInput('');
-      setTimeout(() => setPinSuccessMessage(false), 4000);
     } else {
-      setPinErrorMessage(
-        language === 'ar'
-          ? 'فشل حفظ الرمز.'
-          : 'Failed to save PIN.'
-      );
-      setPinSuccessMessage(false);
+      const err = typeof result === 'object' ? (language === 'ar' ? result.errorAr : result.errorEn) : null;
+      setPinErrorMessage(err || (language === 'ar' ? 'فشل حفظ الرمز.' : 'Failed to save PIN.'));
+      setNewRecoveryCode(null);
     }
   };
 
@@ -75,8 +74,8 @@ export default function ParentPinCard({
         <Ionicons name="shield-checkmark" size={16} color="#059669" />
         <Text style={styles.pinStatusText}>
           {language === 'ar'
-            ? `الحماية الحالية: ${parentSettings.pinHash ? 'مشفر ومحمي بنجاح ✓' : 'الرمز الافتراضي (1234)'}`
-            : `Status: ${parentSettings.pinHash ? 'Encrypted & Active ✓' : 'Default PIN Active'}`}
+            ? `الحماية الحالية: ${parentSettings.pinHash ? 'مشفر ومحمي بنجاح ✓' : 'لم يتم تعيين رمز أمان بعد'}`
+            : `Status: ${parentSettings.pinHash ? 'Encrypted & Active ✓' : 'No PIN Configured'}`}
         </Text>
       </View>
 
@@ -104,12 +103,22 @@ export default function ParentPinCard({
         <Text style={styles.pinErrorText}>{pinErrorMessage}</Text>
       ) : null}
 
-      {pinSuccessMessage ? (
-        <View style={styles.pinSuccessBadge}>
-          <Ionicons name="checkmark-circle" size={15} color="#065F46" />
-          <Text style={styles.pinSuccessBadgeText}>
-            {language === 'ar' ? '✓ تم تشفير وحفظ رمز PIN الجديد بنجاح!' : '✓ PIN updated and encrypted!'}
+      {newRecoveryCode ? (
+        <View style={styles.recoveryNoticeCard}>
+          <View style={styles.recoveryNoticeHeader}>
+            <Ionicons name="checkmark-circle" size={18} color="#059669" />
+            <Text style={styles.recoveryNoticeTitle}>
+              {language === 'ar' ? 'تم تحديث الرمز السري بنجاح!' : 'PIN successfully updated!'}
+            </Text>
+          </View>
+          <Text style={styles.recoveryNoticeText}>
+            {language === 'ar'
+              ? 'احفظ كود الاستعادة الجديد الخاص بك في مكان آمن لاستخدامه عند نسيان الرمز:'
+              : 'Save your new recovery code safely to use in case you forget your PIN:'}
           </Text>
+          <View style={styles.recoveryCodeBadge}>
+            <Text style={styles.recoveryCodeBadgeText}>{newRecoveryCode}</Text>
+          </View>
         </View>
       ) : null}
     </View>
@@ -148,46 +157,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#ECFDF5',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
+    alignSelf: 'flex-start',
   },
   pinStatusText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#065F46',
   },
   pinRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
     alignItems: 'center',
+    gap: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
   pinInput: {
     flex: 1,
     height: 48,
-    backgroundColor: COLORS.cardAlt,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
     paddingHorizontal: SPACING.md,
     fontSize: 16,
     color: COLORS.text,
-    textAlign: 'center',
-    letterSpacing: 4,
+    backgroundColor: '#FFFFFF',
     fontWeight: '700',
+    textAlign: 'center',
   },
   pinSaveBtn: {
+    height: 48,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.primary,
-    height: 48,
-    paddingHorizontal: SPACING.lg,
-    borderRadius: RADIUS.md,
-    justifyContent: 'center',
     ...SHADOWS.soft,
   },
   pinSaveBtnText: {
@@ -196,26 +202,49 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   pinErrorText: {
-    color: '#EF4444',
+    color: COLORS.error,
     fontSize: 12,
-    marginTop: 6,
-    fontWeight: '600',
+    fontWeight: '700',
+    marginTop: 4,
   },
-  pinSuccessBadge: {
+  recoveryNoticeCard: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: '#86EFAC',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginTop: SPACING.md,
+    gap: 8,
+  },
+  recoveryNoticeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: RADIUS.sm,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
-  pinSuccessBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
+  recoveryNoticeTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#065F46',
+  },
+  recoveryNoticeText: {
+    fontSize: 12.5,
+    color: '#166534',
+    lineHeight: 18,
+  },
+  recoveryCodeBadge: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#059669',
+    borderRadius: RADIUS.md,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'center',
+    marginTop: 4,
+  },
+  recoveryCodeBadgeText: {
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: 2,
     color: '#065F46',
   },
 });

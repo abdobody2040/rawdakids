@@ -142,7 +142,7 @@ const WUDU_STEPS: WuduStepData[] = [
 
 export default function WuduStepScreen() {
   const router = useRouter();
-  const { language, addStars, addGems } = useAppStore();
+  const { language, addStars, addGems, activeProfileId, markDailyStepDone } = useAppStore();
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
@@ -236,6 +236,7 @@ export default function WuduStepScreen() {
         setCurrentStepIdx((prev) => prev + 1);
         setFilledDrops([]);
       } else {
+        markDailyStepDone(activeProfileId, 'practice');
         router.back();
       }
     }, 2200);

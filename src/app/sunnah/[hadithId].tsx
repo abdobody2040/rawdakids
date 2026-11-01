@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,7 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
+import { Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
@@ -153,6 +155,7 @@ const getSceneImage = (hadith: any, sceneIndex: number) => {
 };
 
 export default function HadithDetailScreen() {
+  useDocumentTitle('حديث شريف وقصة', 'Noble Hadith & Story');
   const { hadithId } = useLocalSearchParams();
   const { language, completeHadith } = useAppStore();
   const t = TRANSLATIONS[language];
@@ -164,7 +167,9 @@ export default function HadithDetailScreen() {
   const [activeStoryScene, setActiveStoryScene] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
+  const [imageError, setImageError] = useState<boolean>(false);
 
+  
   const currentScene = localized.miniStory[activeStoryScene];
   const sceneImg = getSceneImage(hadith, activeStoryScene);
   const selectedChoice = localized.scenario.choices.find((c) => c.id === selectedChoiceId);
@@ -256,7 +261,7 @@ export default function HadithDetailScreen() {
                   activeStoryScene === 0 && { opacity: 0.4 },
                 ]}
                 disabled={activeStoryScene === 0}
-                onPress={() => setActiveStoryScene(activeStoryScene - 1)}
+                onPress={() => { setActiveStoryScene(activeStoryScene - 1); setImageError(false); }}
               >
                 <Ionicons
                   name={language === 'ar' ? 'arrow-forward' : 'arrow-back'}
@@ -274,7 +279,7 @@ export default function HadithDetailScreen() {
                   },
                 ]}
                 disabled={activeStoryScene >= hadith.miniStory.length - 1}
-                onPress={() => setActiveStoryScene(activeStoryScene + 1)}
+                onPress={() => { setActiveStoryScene(activeStoryScene + 1); setImageError(false); }}
               >
                 <Text style={styles.navMiniBtnText}>{t.nextScene}</Text>
                 <Ionicons

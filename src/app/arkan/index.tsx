@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Pillars Academy Hub (أكاديمية الأركان - أركان الإسلام وأركان الإيمان للأطفال)
 import { useState } from "react";
 import {
@@ -28,6 +29,7 @@ import { arkanService, PillarItem } from '@/data/arkanData';
 import { getPillarMedia } from '@/data/arkanMedia';
 
 export default function ArkanAcademyScreen() {
+  useDocumentTitle('أركان الإسلام والإيمان', 'Pillars of Islam');
   const router = useRouter();
   const { language } = useAppStore();
   const t = TRANSLATIONS[language];

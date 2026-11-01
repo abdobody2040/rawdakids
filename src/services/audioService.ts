@@ -1,5 +1,5 @@
 // Unified Audio Service for Noor Kids
-import { Platform } from 'react-native';
+import { Platform, ToastAndroid } from 'react-native';
 
 // Safe dynamic resolution of modern Expo Audio (SDK 53+)
 let ModernExpoAudio: any = null;
@@ -272,6 +272,41 @@ class AudioService {
     }
   }
 
+  private showToast(message: string = 'الصوت غير متاح الآن') {
+    try {
+      if (Platform.OS === 'web' && typeof document !== 'undefined') {
+        let container = document.getElementById('audio-toast-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'audio-toast-container';
+          container.style.cssText =
+            'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;pointer-events:none;display:flex;flex-direction:column;align-items:center;';
+          document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText =
+          'background:rgba(30,41,59,0.92);color:#fff;padding:10px 20px;border-radius:9999px;font-family:sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-top:8px;opacity:0;transition:opacity 0.25s ease;direction:rtl;';
+        container.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = '1';
+        });
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => {
+            try {
+              toast.remove();
+            } catch {}
+          }, 300);
+        }, 2500);
+      } else if (Platform.OS === 'android' && ToastAndroid) {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+      }
+    } catch {
+      // safe fallback
+    }
+  }
+
   public async playDua(
     arabicText: string,
     onStatusUpdate?: (status: {
@@ -286,92 +321,111 @@ class AudioService {
       this.isPlaying = true;
       onStatusUpdate?.({ isPlaying: true, didJustFinish: false });
 
-      // Determine TTS audio URLs
       const targetLang = langCode || 'ar';
-      const encodedText = encodeURIComponent(arabicText.trim());
-      const proxyUrl =
-        Platform.OS === 'web' && typeof window !== 'undefined'
-          ? `/api/tts?text=${encodedText}&tl=${targetLang}`
-          : `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
-      const googleFallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
-
-      // 1. Try Web Audio element with proxyUrl or googleFallbackUrl
-      if (Platform.OS === 'web' && typeof window !== 'undefined') {
-        const tryPlayHtmlAudio = (srcUrl: string, onFail: () => void) => {
-          if (this.duaAudio) {
-            try {
-              this.duaAudio.pause();
-              this.duaAudio.currentTime = 0;
-            } catch {
-              // Ignore pause error on uninitialized audio
-            }
-          }
-          const audio = new (window as any).Audio(srcUrl);
-          this.duaAudio = audio;
-          audio.playbackRate = 0.95;
-
-          audio.onplay = () => {
-            this.isPlaying = true;
-            onStatusUpdate?.({ isPlaying: true, didJustFinish: false });
-          };
-          audio.onended = () => {
-            this.isPlaying = false;
-            this.duaAudio = null;
-            onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
-          };
-          audio.onerror = (e: any) => {
-            console.warn('[AudioService] HTML Audio load error for:', srcUrl, e);
-            onFail();
-          };
-
-          try {
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-              playPromise.catch((err: any) => {
-                console.warn('[AudioService] HTML Audio play promise rejected:', err);
-                onFail();
-              });
-            }
-          } catch (syncErr) {
-            console.warn('[AudioService] HTML Audio play sync error:', syncErr);
-            onFail();
-          }
-        };
-
-        // Attempt 1: proxy URL (avoids CORS / Referer restrictions)
-        tryPlayHtmlAudio(proxyUrl, () => {
-          // Attempt 2: direct Google TTS
-          tryPlayHtmlAudio(googleFallbackUrl, () => {
-            // Attempt 3: SpeechSynthesis fallback
-            this.playSpeechSynthesisFallback(arabicText, onStatusUpdate, targetLang);
-          });
-        });
+      const cleanText = (arabicText || '').trim();
+      if (!cleanText) {
+        this.isPlaying = false;
+        onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
         return;
       }
 
-      // 2. Native Modern Expo Audio playback
-      if (ModernExpoAudio?.createAudioPlayer) {
+      // 1. Web Platform: fetch /api/tts proxy, check Content-Type starts with "audio/"
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        const encodedText = encodeURIComponent(cleanText);
+        const proxyUrl = `/api/tts?text=${encodedText}&tl=${targetLang}`;
+
+        const fallbackToSpeechSynthesis = () => {
+          this.playSpeechSynthesisFallback(
+            cleanText,
+            (status) => {
+              if (status.error) {
+                this.showToast('الصوت غير متاح الآن');
+              }
+              onStatusUpdate?.(status);
+            },
+            targetLang
+          );
+        };
+
         try {
-          const player = ModernExpoAudio.createAudioPlayer(googleFallbackUrl);
-          this.modernPlayer = player;
-          this.modernSubscription = player.addListener?.('playbackStatusUpdate', (status: any) => {
-            if (status.didJustFinish) {
-              this.isPlaying = false;
-              onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+          const resp = await fetch(proxyUrl);
+          const contentType = resp.headers.get('content-type') || '';
+          if (resp.ok && contentType.startsWith('audio/')) {
+            const blob = await resp.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            if (this.duaAudio) {
+              try {
+                this.duaAudio.pause();
+                this.duaAudio.currentTime = 0;
+              } catch {
+                // Ignore pause error on uninitialized audio
+              }
             }
-          });
-          player.play();
-          this.isPlaying = true;
+
+            const audio = new (window as any).Audio(blobUrl);
+            this.duaAudio = audio;
+            audio.playbackRate = 0.95;
+
+            audio.onplay = () => {
+              this.isPlaying = true;
+              onStatusUpdate?.({ isPlaying: true, didJustFinish: false });
+            };
+            audio.onended = () => {
+              this.isPlaying = false;
+              this.duaAudio = null;
+              URL.revokeObjectURL(blobUrl);
+              onStatusUpdate?.({ isPlaying: false, didJustFinish: true });
+            };
+            audio.onerror = (e: any) => {
+              console.warn('[AudioService] Audio playback error on blob URL:', e);
+              URL.revokeObjectURL(blobUrl);
+              this.duaAudio = null;
+              fallbackToSpeechSynthesis();
+            };
+
+            try {
+              const playPromise = audio.play();
+              if (playPromise !== undefined) {
+                playPromise.catch((err: any) => {
+                  console.warn('[AudioService] audio.play() rejected:', err);
+                  URL.revokeObjectURL(blobUrl);
+                  this.duaAudio = null;
+                  fallbackToSpeechSynthesis();
+                });
+              }
+            } catch {
+              URL.revokeObjectURL(blobUrl);
+              this.duaAudio = null;
+              fallbackToSpeechSynthesis();
+            }
+            return;
+          } else {
+            console.warn('[AudioService] /api/tts returned non-audio Content-Type:', contentType, resp.status);
+            fallbackToSpeechSynthesis();
+            return;
+          }
+        } catch (fetchErr) {
+          console.warn('[AudioService] Failed to fetch /api/tts:', fetchErr);
+          fallbackToSpeechSynthesis();
           return;
-        } catch {
-          // Fall through to expo-speech
         }
       }
 
-      // Fallback to Native expo-speech
+      // 2. Native Platform: Fallback directly to ExpoSpeech (avoid direct google TTS)
       if (ExpoSpeech?.speak) {
-        const nativeLang = targetLang === 'ar' ? 'ar-SA' : targetLang === 'fr' ? 'fr-FR' : targetLang === 'de' ? 'de-DE' : targetLang === 'es' ? 'es-ES' : 'en-US';
-        ExpoSpeech.speak(arabicText, {
+        const nativeLang =
+          targetLang === 'ar' ? 'ar-SA' :
+          targetLang === 'fr' ? 'fr-FR' :
+          targetLang === 'de' ? 'de-DE' :
+          targetLang === 'es' ? 'es-ES' :
+          targetLang === 'id' ? 'id-ID' :
+          targetLang === 'tr' ? 'tr-TR' :
+          targetLang === 'ru' ? 'ru-RU' :
+          targetLang === 'bn' ? 'bn-BD' :
+          targetLang === 'ur' ? 'ur-PK' : 'en-US';
+
+        ExpoSpeech.speak(cleanText, {
           language: nativeLang,
           rate: 0.85,
           onDone: () => {
@@ -380,15 +434,18 @@ class AudioService {
           },
           onError: () => {
             this.isPlaying = false;
+            this.showToast('الصوت غير متاح الآن');
             onStatusUpdate?.({ isPlaying: false, error: true });
           },
         });
       } else {
         this.isPlaying = false;
+        this.showToast('الصوت غير متاح الآن');
         onStatusUpdate?.({ isPlaying: false, error: true });
       }
     } catch {
       this.isPlaying = false;
+      this.showToast('الصوت غير متاح الآن');
       onStatusUpdate?.({ isPlaying: false, error: true });
     }
   }
@@ -420,9 +477,20 @@ class AudioService {
         utterance.rate = 0.88;
 
         const voices = window.speechSynthesis.getVoices();
-        const matchedVoice = voices.find((v) =>
-          v.lang.toLowerCase().replace('_', '-').startsWith(langCode.toLowerCase())
-        );
+        let matchedVoice = null;
+        if (langCode === 'ar') {
+          matchedVoice =
+            voices.find((v) => {
+              const l = v.lang.toLowerCase().replace('_', '-');
+              return l === 'ar-sa' || l === 'ar-eg';
+            }) ||
+            voices.find((v) => v.lang.toLowerCase().startsWith('ar'));
+        } else {
+          matchedVoice = voices.find((v) =>
+            v.lang.toLowerCase().replace('_', '-').startsWith(langCode.toLowerCase())
+          );
+        }
+
         if (matchedVoice) {
           utterance.voice = matchedVoice;
         }
@@ -438,6 +506,7 @@ class AudioService {
         utterance.onerror = (e) => {
           console.warn('[AudioService] SpeechSynthesis error:', e);
           this.isPlaying = false;
+          this.showToast('الصوت غير متاح الآن');
           onStatusUpdate?.({ isPlaying: false, error: true });
         };
         window.speechSynthesis.speak(utterance);
@@ -445,10 +514,12 @@ class AudioService {
       } catch (err) {
         console.warn('[AudioService] SpeechSynthesis exception:', err);
         this.isPlaying = false;
+        this.showToast('الصوت غير متاح الآن');
         onStatusUpdate?.({ isPlaying: false, error: true });
       }
     } else {
       this.isPlaying = false;
+      this.showToast('الصوت غير متاح الآن');
       onStatusUpdate?.({ isPlaying: false, error: true });
     }
   }

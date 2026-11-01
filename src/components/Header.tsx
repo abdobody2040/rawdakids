@@ -137,7 +137,9 @@ export default function Header({
               style={styles.statChip}
               onPress={() => router.push('/progress')}
               activeOpacity={0.7}
+              accessibilityRole="button"
               accessibilityLabel={language === 'ar' ? 'مسيرة الاستمرار' : 'Streak'}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
             >
               <Ionicons name="leaf" size={15} color="#16A34A" />
               <Text style={[styles.statText, { color: '#16A34A' }]}>{streakCount}</Text>
@@ -148,6 +150,9 @@ export default function Header({
               style={styles.statChip}
               onPress={() => router.push('/rewards')}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={language === 'ar' ? 'النجوم' : 'Stars'}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
             >
               <Image source={ICON_STAR_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
               <Text style={styles.statText}>{stars}</Text>
@@ -158,6 +163,9 @@ export default function Header({
               style={styles.statChip}
               onPress={() => router.push('/rewards')}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={language === 'ar' ? 'الجواهر' : 'Gems'}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
             >
               <Image source={ICON_GEM_IMG} style={styles.headerChipImg} contentFit="contain" transition={150} />
               <Text style={styles.statText}>{gems}</Text>
@@ -174,7 +182,9 @@ export default function Header({
               style={styles.searchHeaderBtn}
               onPress={() => setSearchModalVisible(true)}
               activeOpacity={0.7}
+              accessibilityRole="button"
               accessibilityLabel={language === 'ar' ? 'بحث' : 'Search'}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="search" size={16} color="#059669" />
             </TouchableOpacity>
@@ -183,7 +193,9 @@ export default function Header({
                 style={[styles.searchHeaderBtn, { backgroundColor: '#ECFDF5' }]}
                 onPress={() => setSearchModalVisible(true)}
                 activeOpacity={0.7}
+                accessibilityRole="button"
                 accessibilityLabel={language === 'ar' ? 'بحث صوتي' : 'Voice search'}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons name="mic" size={16} color="#059669" />
               </TouchableOpacity>
@@ -272,8 +284,10 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   backButton: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
+    minWidth: 48,
+    minHeight: 48,
     borderRadius: RADIUS.full,
     backgroundColor: COLORS.cardAlt,
     alignItems: 'center',
@@ -309,10 +323,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   profileName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: COLORS.text,
-    maxWidth: 70,
+    maxWidth: 75,
   },
   screenTitle: {
     fontSize: 15,
@@ -331,13 +345,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.cardAlt,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    minHeight: 48,
     borderRadius: RADIUS.full,
-    gap: 3,
+    gap: 4,
   },
   statText: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
     color: COLORS.text,
   },
@@ -356,21 +371,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   langSelectorCode: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
     color: '#0F172A',
   },
   parentLockButton: {
-    width: 30,
-    height: 30,
+    width: 38,
+    height: 38,
+    minWidth: 48,
+    minHeight: 48,
     borderRadius: RADIUS.full,
     backgroundColor: COLORS.primaryLight + '22',
     alignItems: 'center',
     justifyContent: 'center',
   },
   searchHeaderBtn: {
-    width: 30,
-    height: 30,
+    width: 38,
+    height: 38,
+    minWidth: 48,
+    minHeight: 48,
     borderRadius: RADIUS.full,
     backgroundColor: '#ECFDF5',
     borderWidth: 1,

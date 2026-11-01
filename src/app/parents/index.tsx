@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -57,6 +58,7 @@ const toArabicIndic = (num: number): string => {
 };
 
 export default function ParentsScreen() {
+  useDocumentTitle('بوابة أولياء الأمور', 'Parents Area');
   const router = useRouter();
   const {
     language,

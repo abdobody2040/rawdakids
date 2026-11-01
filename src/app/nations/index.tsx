@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Lessons of Past Nations in the Quran (عبر الأمم والقصص القرآني: 9+ سنوات)
 import { useState } from 'react';
 import {
@@ -38,6 +39,7 @@ const NATION_IMAGES: Record<string, any> = {
 };
 
 export default function NationsHubScreen() {
+  useDocumentTitle('أقوام وقرى القرآن', 'Nations of the Quran');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';

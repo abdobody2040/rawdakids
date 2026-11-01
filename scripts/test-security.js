@@ -369,14 +369,35 @@ async function runSecuritySuite() {
   assert(isMatch === true, 'Constant-time verification authenticates correct PIN');
   assert(isWrong === false, 'Constant-time verification rejects incorrect PIN');
 
-  // 8.4 Stepped brute-force lockout
+  // 8.4 Stepped brute-force lockout (doubling from 30s at 3 failures)
+  const lockout2 = securityCryptoService.calculateNextLockout(2);
+  assert(lockout2 === null, '2 failed attempts do not trigger lockout');
+
   const lockout3 = securityCryptoService.calculateNextLockout(3);
   const status3 = securityCryptoService.checkLockout(3, lockout3);
   assert(status3.isLocked === true && status3.remainingSeconds <= 30 && status3.remainingSeconds >= 29, '3 failed attempts trigger 30-second security cooldown');
 
+  const lockout4 = securityCryptoService.calculateNextLockout(4);
+  const status4 = securityCryptoService.checkLockout(4, lockout4);
+  assert(status4.isLocked === true && status4.remainingSeconds <= 60 && status4.remainingSeconds >= 59, '4 failed attempts double cooldown to 60 seconds');
+
   const lockout5 = securityCryptoService.calculateNextLockout(5);
   const status5 = securityCryptoService.checkLockout(5, lockout5);
-  assert(status5.isLocked === true && status5.remainingSeconds <= 300 && status5.remainingSeconds >= 298, '5 failed attempts trigger 300-second (5 min) security cooldown\n');
+  assert(status5.isLocked === true && status5.remainingSeconds <= 120 && status5.remainingSeconds >= 118, '5 failed attempts double cooldown to 120 seconds');
+
+  // 8.5 Recovery Code Generation & Verification
+  const recoveryCode = securityCryptoService.generateRecoveryCode();
+  assert(typeof recoveryCode === 'string' && recoveryCode.length === 8, 'Recovery code is an 8-character string');
+  assert(/^[2-9A-HJ-NP-Z]{8}$/.test(recoveryCode), 'Recovery code contains only unambiguous uppercase alphanumeric characters');
+
+  const recHash = securityCryptoService.hashRecoveryCode(recoveryCode);
+  assert(recHash.hash.length === 64, 'Recovery code is securely hashed with SHA-256');
+  assert(recHash.hash !== recoveryCode, 'Recovery code is never stored in plaintext');
+
+  const recMatch = securityCryptoService.verifyRecoveryCode(recoveryCode, recHash.hash, recHash.salt);
+  const recWrong = securityCryptoService.verifyRecoveryCode('WRONG123', recHash.hash, recHash.salt);
+  assert(recMatch === true, 'Valid recovery code authenticates successfully');
+  assert(recWrong === false, 'Invalid recovery code is rejected');
 
   // --------------------------------------------------------------------------
   // TEST 9: ENCRYPTED BACKUP & AUTHENTICATED INTEGRITY (OWASP ASVS V8.2 / V8.3)
@@ -477,7 +498,7 @@ async function runSecuritySuite() {
     profiles: [{ id: 'child_alice_1', name: 'Maryam', ageBand: '7-9', avatar: 'av-girl1' }],
     activeProfileId: 'child_alice_1',
     profilesProgress: { child_alice_1: { stars: 120, gems: 45 } },
-    parentSettings: { dailyLimitMin: 30, quietHoursEnabled: true, reciterId: 'alafasy', showEnglishTranslation: true, showSimpleTafsir: true, translationSource: 'clearquran', pin: '1234' },
+    parentSettings: { dailyLimitMin: 30, quietHoursEnabled: true, reciterId: 'alafasy', showEnglishTranslation: true, showSimpleTafsir: true, translationSource: 'clearquran', pin: '••••' },
     gratitudeEntries: [],
   };
 

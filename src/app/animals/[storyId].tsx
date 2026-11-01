@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Animal Miracle Story Interactive Learning Player (شاشة قصة معجزة الحيوان التفاعلية)
 import { useState } from 'react';
 import {
@@ -59,6 +60,7 @@ function getLocalizedAgeBadge(minAge: number, lang: string): string {
 }
 
 export default function AnimalStoryScreen() {
+  useDocumentTitle('قصة من القرآن', 'Quran Story');
   const router = useRouter();
   const { storyId } = useLocalSearchParams();
   const { language, addStars, addGems, unlockSticker } = useAppStore();

@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Dedicated Madinah Mushaf Page Reader (/quran/mushaf)
 // Authentic 604 Pages of the Holy Quran with Bookmarking, Audio, and Surah/Juz Index
 import { useState, useEffect, useRef } from 'react';
@@ -32,6 +33,7 @@ import { audioService } from '@/services/audioService';
 import { quranService } from '@/services/quranService';
 
 export default function MushafReaderScreen() {
+  useDocumentTitle('المصحف الشريف', 'Holy Quran Mushaf');
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const params = useLocalSearchParams<{ page?: string }>();
   const {

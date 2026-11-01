@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useState, useEffect } from "react";
 import {
   View,
@@ -36,6 +37,7 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
 ];
 
 export default function DuaLibraryScreen() {
+  useDocumentTitle('أدعية اليوم والليلة', 'Daily Duas');
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const duas = contentService.getDuas();
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: SPACING.lg,
-    paddingBottom: 60,
+    paddingBottom: 110,
     gap: SPACING.md,
     maxWidth: 1240,
     width: '100%',

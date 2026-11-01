@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Hadith Flashcards Screen (بطاقات استذكار الأحاديث النبوية للأطفال)
 import { useState } from "react";
 import {
@@ -224,6 +225,7 @@ const CARDS_I18N: Record<
 };
 
 export default function HadithFlashcardsScreen() {
+  useDocumentTitle('بطاقات السنن والأحاديث', 'Sunnah Cards');
   const { language, addStars, addGems } = useAppStore();
   const t = TRANSLATIONS[language];
   const { width } = useWindowDimensions();
@@ -395,6 +397,8 @@ export default function HadithFlashcardsScreen() {
                     handlePlayAudio();
                   }}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isPlayingAudio ? c.playingAudio : c.listenAudio}
                 >
                   <Ionicons
                     name={isPlayingAudio ? 'pause' : 'volume-high'}
@@ -542,7 +546,7 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     gap: 20,
-    paddingBottom: 48,
+    paddingBottom: 110,
   },
   containerDesktop: {
     maxWidth: 1240,

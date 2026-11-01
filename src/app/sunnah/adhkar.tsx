@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // adhkar.tsx — Interactive Morning & Evening Adhkar for Kids (أذكار الصباح والمساء التفاعلية)
 import { useState, useEffect } from 'react';
 import {
@@ -24,6 +25,7 @@ import SunnahHeroHeader from '@/components/SunnahHeroHeader';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 
 export default function AdhkarScreen() {
+  useDocumentTitle('أذكار المسلم الصغير', 'Daily Adhkar');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';

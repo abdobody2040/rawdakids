@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useState } from "react";
 import {
   View,
@@ -124,6 +125,7 @@ const CATEGORIES: GratitudeCategory[] = [
 ];
 
 export default function GratitudeJournalScreen() {
+  useDocumentTitle('يوميات الخير والامتنان', 'Gratitude Journal');
   const { language, gratitudeEntries, addGratitudeEntry } = useAppStore();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 800;

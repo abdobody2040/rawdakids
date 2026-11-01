@@ -22,6 +22,7 @@ import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
 import { ASMA_ALLAH_DATA } from '@/data/asmaAllahData';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { formatStreakDays } from '@/utils/arabicCount';
 
 export default function MeScreen() {
   const router = useRouter();
@@ -237,7 +238,7 @@ export default function MeScreen() {
                       {isAr ? `أهلاً بك يا ${displayName} 🌟` : `Welcome, ${displayName} 🌟`}
                     </Text>
                     <Text style={styles.profileSproutStreak}>
-                      {isAr ? `🌱 مسيرة الاستمرار: ${progress?.streakCount || 0} أيام متتالية` : `🌱 Consistent streak: ${progress?.streakCount || 0} days`}
+                      {isAr ? `🌱 مسيرة الاستمرار: ${formatStreakDays(progress?.streakCount || 0, true)}` : `🌱 Consistent streak: ${formatStreakDays(progress?.streakCount || 0, false)}`}
                     </Text>
                   </View>
                 </View>

@@ -3,16 +3,21 @@
 
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { useAppStore } from '@/store/useAppStore';
 
-export function useDocumentTitle(title: string) {
+export function useDocumentTitle(titleArOrCombined: string, titleEn?: string) {
+  const language = useAppStore((s) => s.language);
+
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const fullTitle = title
-        ? `${title} – روضة كيدز`
+      const isAr = language === 'ar';
+      const chosenTitle = isAr ? titleArOrCombined : (titleEn || titleArOrCombined);
+      const fullTitle = chosenTitle
+        ? `${chosenTitle} – روضة كيدز`
         : 'روضة كيدز – تطبيق تعليم القرآن والسنّة للأطفال';
       document.title = fullTitle;
     }
-  }, [title]);
+  }, [titleArOrCombined, titleEn, language]);
 }
 
 export default useDocumentTitle;

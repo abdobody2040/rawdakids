@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Good Manners Town: Town Map (مدينة الأخلاق - E1)
 import {
   View,
@@ -66,6 +67,7 @@ const getBuildingImage = (buildingId: string, index: number) => {
 };
 
 export default function MannersTownScreen() {
+  useDocumentTitle('الأخلاق الإسلامية', 'Islamic Manners');
   const router = useRouter();
   const { language, scenarioProgress, weeklyChallenges, completeWeeklyChallenge } = useAppStore();
   const t = TRANSLATIONS[language];
@@ -331,7 +333,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: SPACING.md,
-    paddingBottom: 84,
+    paddingBottom: 110,
   },
   heroBannerContainer: {
     borderRadius: RADIUS.xl,

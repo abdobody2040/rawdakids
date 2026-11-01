@@ -1,4 +1,6 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -132,13 +134,16 @@ const TASBIH_PROPHET_BENEFITS: Record<string, string> = {
   es: 'Decir SubhanAllah (33), Alhamdülillah (33) y Allahu Akbar (33) tras la oración trae paz al corazón y perdón de faltas.',
 };
 
-function getLocalizedDhikr(dhikr: DhikrItem, lang: string): { meaning: string; reward: string } {
+function getLocalizedDhikr(dhikr?: DhikrItem, lang: string = 'ar'): { meaning: string; reward: string } {
+  if (!dhikr) {
+    return { meaning: 'تنزيه الله تعالى عن كل عيب ونقص', reward: 'شجرة طيبة تُغرس لك في الجنة 🌴' };
+  }
   if (lang === 'ar') {
-    return { meaning: dhikr.meaningAr, reward: dhikr.rewardNoteAr };
+    return { meaning: dhikr.meaningAr || '', reward: dhikr.rewardNoteAr || '' };
   }
   const custom = DHIKR_LOCALIZATIONS[dhikr.id]?.[lang];
   if (custom) return custom;
-  return { meaning: dhikr.meaningEn, reward: dhikr.rewardNoteEn };
+  return { meaning: dhikr.meaningEn || '', reward: dhikr.rewardNoteEn || '' };
 }
 
 export const DHIKR_LIST: DhikrItem[] = [
@@ -265,18 +270,32 @@ function playCompletionChimeSound() {
 }
 
 export default function TasbihScreen() {
+  useDocumentTitle('المسبحة الإلكترونية', 'Digital Tasbih');
   const { language, activeProfileId, profiles, parentSettings } = useAppStore();
   const isAr = language === 'ar';
-  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  const activeProfile =
+    (profiles && profiles.find((p) => p.id === activeProfileId)) ||
+    profiles?.[0] || { id: 'child_default', ageBand: '7-9' };
   const childId = activeProfile?.id || 'child_default';
   const ageMode = activeProfile?.ageBand || '7-9';
 
-  const availableAzkar = tasbihService.getAzkarForAge(ageMode);
-  const availableTargets = tasbihService.getTargetsForAge(ageMode);
+  const rawAzkar = tasbihService.getAzkarForAge(ageMode);
+  const availableAzkar: DhikrItem[] = (
+    rawAzkar && rawAzkar.length > 0 ? rawAzkar : DHIKR_LIST
+  ).map((d: any) => ({
+    ...d,
+    colorScheme: (d.colorScheme && d.colorScheme.length >= 2) ? d.colorScheme : (['#047857', '#065F46'] as const),
+    rewardNoteAr: d.rewardNoteAr || 'شجرة طيبة تُغرس لك في الجنة 🌴',
+    rewardNoteEn: d.rewardNoteEn || 'A blessed palm tree planted in Jannah 🌴',
+  }));
 
-  const [activeDhikr, setActiveDhikr] = useState<DhikrItem>(availableAzkar[0] as any);
+  const rawTargets = tasbihService.getTargetsForAge(ageMode);
+  const availableTargets = (rawTargets && rawTargets.length > 0) ? rawTargets : [3, 7, 33, 100];
+
+  const defaultDhikr = availableAzkar[0] || DHIKR_LIST[0];
+  const [activeDhikr, setActiveDhikr] = useState<DhikrItem>(defaultDhikr as any);
   const [count, setCount] = useState<number>(0);
-  const [customTarget, setCustomTarget] = useState<number>(availableTargets[2] || 33);
+  const [customTarget, setCustomTarget] = useState<number>(availableTargets[2] ?? availableTargets[0] ?? 33);
   const [completedRounds, setCompletedRounds] = useState<number>(0);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
   const [celebrationReward, setCelebrationReward] = useState<{ rewarded: boolean; message: string }>({
@@ -289,15 +308,25 @@ export default function TasbihScreen() {
   const lastTapRef = useRef<number>(0);
   const [scaleAnim] = useState(() => new Animated.Value(1));
 
+  // Guaranteed safe colors for gradients and styling
+  const activeColors: readonly [string, string] =
+    (activeDhikr?.colorScheme && activeDhikr.colorScheme.length >= 2)
+      ? activeDhikr.colorScheme
+      : (['#047857', '#065F46'] as const);
+  const activePrimaryColor = activeColors[0];
+  const activeSecondaryColor = activeColors[1];
+
   // Restore session from localDbService
   useEffect(() => {
     tasbihService.getDailyRecord(childId).then((record: any) => {
-      setCompletedRounds(record.completions || 0);
-      if (record.lastSession) {
-        const found = availableAzkar.find((z: any) => z.id === record.lastSession.azkarId);
-        if (found) setActiveDhikr(found as any);
-        if (record.lastSession.target) setCustomTarget(record.lastSession.target);
-        if (typeof record.lastSession.count === 'number') setCount(record.lastSession.count);
+      if (record) {
+        setCompletedRounds(record.completions || 0);
+        if (record.lastSession) {
+          const found = availableAzkar.find((z: any) => z.id === record.lastSession.azkarId);
+          if (found) setActiveDhikr(found as any);
+          if (record.lastSession.target) setCustomTarget(record.lastSession.target);
+          if (typeof record.lastSession.count === 'number') setCount(record.lastSession.count);
+        }
       }
     }).catch(() => {});
   }, [childId]);
@@ -454,8 +483,8 @@ export default function TasbihScreen() {
                     style={[
                       styles.dhikrChip,
                       isSelected && {
-                        backgroundColor: d.colorScheme[0],
-                        borderColor: d.colorScheme[1],
+                        backgroundColor: d.colorScheme?.[0] || '#047857',
+                        borderColor: d.colorScheme?.[1] || '#065F46',
                       },
                     ]}
                     onPress={() => handleSelectDhikr(d as any)}
@@ -479,7 +508,7 @@ export default function TasbihScreen() {
 
           {/* Active Dhikr Card */}
           <LinearGradient
-            colors={activeDhikr.colorScheme}
+            colors={activeColors as any}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.activeDhikrCard}
@@ -578,7 +607,7 @@ export default function TasbihScreen() {
                 styles.progressFill,
                 {
                   width: `${progressPercent}%`,
-                  backgroundColor: activeDhikr.colorScheme[0],
+                  backgroundColor: activePrimaryColor,
                 },
               ]}
             />
@@ -591,7 +620,7 @@ export default function TasbihScreen() {
                 style={[
                   styles.bigTapButton,
                   {
-                    shadowColor: activeDhikr.colorScheme[0],
+                    shadowColor: activePrimaryColor,
                     borderColor: 'rgba(255, 255, 255, 0.45)',
                   },
                 ]}
@@ -601,7 +630,7 @@ export default function TasbihScreen() {
                 accessibilityLabel="تسبيح"
               >
                 <LinearGradient
-                  colors={activeDhikr.colorScheme}
+                  colors={activeColors as any}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.bigTapGradient}
@@ -1009,4 +1038,106 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.text,
   },
+  errorSafe: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  errorContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    alignItems: 'center',
+    maxWidth: 420,
+    width: '100%',
+    ...SHADOWS.medium,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: COLORS.text,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorSub: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: SPACING.lg,
+  },
+  errorActions: {
+    flexDirection: 'column',
+    width: '100%',
+    gap: 10,
+  },
+  retryBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  retryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  backBtn: {
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 14,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  backBtnText: {
+    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: '700',
+  },
 });
+
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  const router = useRouter();
+  return (
+    <SafeAreaView style={styles.errorSafe}>
+      <View style={styles.errorContent}>
+        <Text style={{ fontSize: 52, marginBottom: 16 }}>📿</Text>
+        <Text style={styles.errorTitle}>المسبحة المباركة</Text>
+        <Text style={styles.errorSub}>
+          حدث أمر غير متوقع أثناء تشغيل المسبحة. اضغط أدناه لإعادة المحاولة أو العودة.
+        </Text>
+        <View style={styles.errorActions}>
+          <TouchableOpacity
+            style={styles.retryBtn}
+            onPress={retry}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="إعادة المحاولة"
+          >
+            <Text style={styles.retryBtnText}>إعادة المحاولة</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace('/');
+              }
+            }}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="العودة للصفحة الرئيسية"
+          >
+            <Text style={styles.backBtnText}>العودة للرئيسية</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}

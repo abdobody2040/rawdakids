@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Rewards Room (Section 5.5 - غرفة المكافآت)
 import { useState } from "react";
 import {
@@ -35,6 +36,7 @@ const STICKER_IMAGES: Record<string, any> = {
 };
 
 export default function RewardsRoomScreen() {
+  useDocumentTitle('غرفة المكافآت والأوسمة', 'Rewards Room');
   const {
     language,
     profiles,
@@ -389,7 +391,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: SPACING.md,
-    paddingBottom: SPACING.xxl,
+    paddingBottom: 110,
   },
   balanceBanner: {
     borderRadius: RADIUS.xl,

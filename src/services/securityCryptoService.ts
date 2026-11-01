@@ -319,13 +319,52 @@ export class SecurityCryptoService {
 
   /**
    * Calculates new lockout timestamp when an attempt fails.
+   * Lock for 30s after 3 failures, doubling each time (30s, 60s, 120s, 240s...).
    */
   public calculateNextLockout(newFailedCount: number): number | null {
+    if (newFailedCount < 3) return null;
     const now = Date.now();
-    if (newFailedCount >= 5) {
-      return now + 60 * 1000; // 60 seconds lockout after 5 wrong attempts
+    const multiplier = Math.pow(2, newFailedCount - 3);
+    const durationSeconds = Math.min(30 * multiplier, 86400);
+    return now + durationSeconds * 1000;
+  }
+
+  /**
+   * Generates a secure, unambiguous 8-character recovery code.
+   */
+  public generateRecoveryCode(): string {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const bytes = generateRandomBytes(8);
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars[bytes[i] % chars.length];
     }
-    return null;
+    return code;
+  }
+
+  /**
+   * Hashes a recovery code with salted SHA-256 (normalized uppercase, whitespace removed).
+   */
+  public hashRecoveryCode(code: string, existingSalt?: string): { hash: string; salt: string } {
+    const cleanCode = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    const salt = existingSalt || bytesToHex(generateRandomBytes(16));
+    const hash = bytesToHex(sha256Bytes(utf8ToBytes(`${salt}:${cleanCode}`)));
+    return { hash, salt };
+  }
+
+  /**
+   * Constant-time verification for recovery code.
+   */
+  public verifyRecoveryCode(inputCode: string, storedHash: string, storedSalt: string): boolean {
+    if (!inputCode || !storedHash || !storedSalt) return false;
+    const cleanCode = inputCode.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    const computedHash = bytesToHex(sha256Bytes(utf8ToBytes(`${storedSalt}:${cleanCode}`)));
+    if (computedHash.length !== storedHash.length) return false;
+    let diff = 0;
+    for (let i = 0; i < computedHash.length; i++) {
+      diff |= computedHash.charCodeAt(i) ^ storedHash.charCodeAt(i);
+    }
+    return diff === 0;
   }
 
   /**

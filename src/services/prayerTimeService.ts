@@ -169,8 +169,9 @@ export function formatTime12h(hours: number, minutes: number, isArabic: boolean)
   const hStr = h12 < 10 ? `0${h12}` : `${h12}`;
 
   if (isArabic) {
-    // Convert to eastern digits if helpful or keep clean Arabic format
-    return `${hStr}:${mStr} ${periodAr}`;
+    const raw = `${hStr}:${mStr} ${periodAr}`;
+    const digits = '٠١٢٣٤٥٦٧٨٩';
+    return raw.replace(/[0-9]/g, (d) => digits[parseInt(d, 10)]);
   }
   return `${hStr}:${mStr} ${periodEn}`;
 }

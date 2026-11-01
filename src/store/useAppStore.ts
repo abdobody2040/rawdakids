@@ -12,6 +12,7 @@ export interface ChildProfile {
   name: string;
   ageBand: AgeBand;
   avatar: string;
+  gender?: 'male' | 'female';
 }
 
 export type HifzStatus = 'new' | 'learning' | 'memorized';
@@ -41,6 +42,7 @@ export interface ChildProgressData {
   storyProgress: Record<string, { completed: boolean; quizScore: number; lessonCardUnlocked: boolean }>;
   scenarioProgress: Record<string, { completed: boolean }>;
   dailyHabitsDone: Record<string, boolean>;
+  dailyStepsDone?: Record<string, ('listen' | 'learn' | 'practice')[]>;
   stars: number;
   gems: number;
   streakCount: number;
@@ -127,6 +129,9 @@ export interface AppState {
 
   // Daily Habits
   dailyHabitsDone: Record<string, boolean>;
+  dailyStepsDone: Record<string, Record<string, ('listen' | 'learn' | 'practice')[]>>;
+  markDailyStepDone: (profileId: string, stepId: 'listen' | 'learn' | 'practice') => void;
+  getDailyStepsDone: (profileId?: string) => ('listen' | 'learn' | 'practice')[];
   toggleDailyHabit: (habitId: string) => void;
 
   // Weekly Manners Challenges (E3, PA4)
@@ -166,9 +171,12 @@ export interface AppState {
     bedtimeLockEnabled: boolean;
     bedtimeStart: string;
     bedtimeEnd: string;
+    hasCustomPin?: boolean;
     pin: string;
     pinHash?: string;
     pinSalt?: string;
+    recoveryCodeHash?: string;
+    recoveryCodeSalt?: string;
     pinFailedAttempts?: number;
     pinLockoutUntil?: number | null;
     audioStorageLimitMB?: number;
@@ -176,10 +184,12 @@ export interface AppState {
     soundEffectsEnabled?: boolean;
   };
   updateParentSettings: (settings: Partial<AppState['parentSettings']>) => void;
-  setParentPin: (pin: string) => boolean;
+  setParentPin: (pin: string) => { success: boolean; recoveryCode?: string; errorAr?: string; errorEn?: string };
   verifyParentPin: (pin: string) => boolean;
+  verifyRecoveryCode: (code: string) => boolean;
   recordFailedPinAttempt: () => { isLocked: boolean; remainingSeconds: number };
   resetPinAttempts: () => void;
+  resetAllAppData: () => Promise<void>;
 
   // Time Limit & Safety
   timeSpentTodaySec: number;
@@ -227,6 +237,7 @@ const executeSave = async (state: AppState) => {
       storyProgress: state.storyProgress,
       scenarioProgress: state.scenarioProgress,
       dailyHabitsDone: state.dailyHabitsDone,
+      dailyStepsDone: state.activeProfileId ? (state.dailyStepsDone[state.activeProfileId] || {}) : {},
       stars: state.stars,
       gems: state.gems,
       streakCount: state.streakCount,
@@ -266,6 +277,7 @@ const executeSave = async (state: AppState) => {
       lastActiveDate: state.lastActiveDate,
       freezesLeft: state.freezesLeft,
       parentSettings: state.parentSettings,
+      dailyStepsDone: state.dailyStepsDone,
       downloadedSurahs: state.downloadedSurahs,
       lastReadMushafPage: state.lastReadMushafPage,
       mushafBookmarks: state.mushafBookmarks,
@@ -317,22 +329,46 @@ export const useAppStore = create<AppState>((set, get) => ({
     const state = get();
     if (id && state.activeProfileId === id) {
       return {
-        surahProgress: state.surahProgress,
-        hadithProgress: state.hadithProgress,
-        storyProgress: state.storyProgress,
-        scenarioProgress: state.scenarioProgress,
-        dailyHabitsDone: state.dailyHabitsDone,
-        stars: state.stars,
-        gems: state.gems,
-        streakCount: state.streakCount,
-        lastActiveDate: state.lastActiveDate,
-        unlockedStickers: state.unlockedStickers,
-        unlockedBadges: state.unlockedBadges,
-        selectedAvatarId: state.selectedAvatarId,
-        gratitudeEntries: state.gratitudeEntries,
+        surahProgress: state.surahProgress || {},
+        hadithProgress: state.hadithProgress || {},
+        storyProgress: state.storyProgress || {},
+        scenarioProgress: state.scenarioProgress || {},
+        dailyHabitsDone: state.dailyHabitsDone || {},
+        dailyStepsDone: id ? (state.dailyStepsDone[id] || {}) : {},
+        stars: state.stars ?? 0,
+        gems: state.gems ?? 0,
+        streakCount: state.streakCount ?? 0,
+        lastActiveDate: state.lastActiveDate || '',
+        unlockedStickers: state.unlockedStickers || [],
+        unlockedBadges: state.unlockedBadges || [],
+        selectedAvatarId: state.selectedAvatarId || 'av-boy1',
+        gratitudeEntries: state.gratitudeEntries || [],
+        lastReadMushafPage: state.lastReadMushafPage ?? 1,
+        mushafBookmarks: state.mushafBookmarks ?? [1],
       };
     }
-    return state.profilesProgress[id] || createDefaultChildProgress('av-boy1');
+    const prof = state.profiles.find((p) => p.id === id);
+    const existing = state.profilesProgress[id];
+    if (existing) {
+      return {
+        ...existing,
+        stars: existing.stars ?? 0,
+        gems: existing.gems ?? 0,
+        streakCount: existing.streakCount ?? 0,
+        surahProgress: existing.surahProgress || {},
+        hadithProgress: existing.hadithProgress || {},
+        storyProgress: existing.storyProgress || {},
+        scenarioProgress: existing.scenarioProgress || {},
+        dailyHabitsDone: existing.dailyHabitsDone || {},
+        dailyStepsDone: state.dailyStepsDone[id] || existing.dailyStepsDone || {},
+        unlockedStickers: existing.unlockedStickers || [],
+        unlockedBadges: existing.unlockedBadges || [],
+        gratitudeEntries: existing.gratitudeEntries || [],
+        lastReadMushafPage: existing.lastReadMushafPage ?? 1,
+        mushafBookmarks: existing.mushafBookmarks ?? [1],
+      };
+    }
+    return createDefaultChildProgress(prof?.avatar || 'av-boy1');
   },
 
   setActiveProfile: (nextId) => {
@@ -346,6 +382,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       storyProgress: state.storyProgress,
       scenarioProgress: state.scenarioProgress,
       dailyHabitsDone: state.dailyHabitsDone,
+      dailyStepsDone: state.activeProfileId ? (state.dailyStepsDone[state.activeProfileId] || {}) : {},
       stars: state.stars,
       gems: state.gems,
       streakCount: state.streakCount,
@@ -368,22 +405,28 @@ export const useAppStore = create<AppState>((set, get) => ({
       updatedProgressMap[nextId] ||
       createDefaultChildProgress(targetChild?.avatar || 'av-boy1');
 
+    const updatedDailySteps = { ...state.dailyStepsDone };
+    if (targetProgress.dailyStepsDone && !updatedDailySteps[nextId]) {
+      updatedDailySteps[nextId] = targetProgress.dailyStepsDone;
+    }
+
     set({
       activeProfileId: nextId,
       profilesProgress: updatedProgressMap,
-      surahProgress: targetProgress.surahProgress,
-      hadithProgress: targetProgress.hadithProgress,
-      storyProgress: targetProgress.storyProgress,
-      scenarioProgress: targetProgress.scenarioProgress,
-      dailyHabitsDone: targetProgress.dailyHabitsDone,
-      stars: targetProgress.stars,
-      gems: targetProgress.gems,
-      streakCount: targetProgress.streakCount,
-      lastActiveDate: targetProgress.lastActiveDate,
-      unlockedStickers: targetProgress.unlockedStickers,
-      unlockedBadges: targetProgress.unlockedBadges,
-      selectedAvatarId: targetProgress.selectedAvatarId,
-      gratitudeEntries: targetProgress.gratitudeEntries,
+      dailyStepsDone: updatedDailySteps,
+      surahProgress: targetProgress.surahProgress || {},
+      hadithProgress: targetProgress.hadithProgress || {},
+      storyProgress: targetProgress.storyProgress || {},
+      scenarioProgress: targetProgress.scenarioProgress || {},
+      dailyHabitsDone: targetProgress.dailyHabitsDone || {},
+      stars: targetProgress.stars ?? 0,
+      gems: targetProgress.gems ?? 0,
+      streakCount: targetProgress.streakCount ?? 0,
+      lastActiveDate: targetProgress.lastActiveDate || '',
+      unlockedStickers: targetProgress.unlockedStickers || [],
+      unlockedBadges: targetProgress.unlockedBadges || [],
+      selectedAvatarId: targetProgress.selectedAvatarId || targetChild?.avatar || 'av-boy1',
+      gratitudeEntries: targetProgress.gratitudeEntries || [],
       lastReadMushafPage: targetProgress.lastReadMushafPage ?? 1,
       mushafBookmarks: targetProgress.mushafBookmarks ?? [1],
     });
@@ -402,6 +445,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       storyProgress: state.storyProgress,
       scenarioProgress: state.scenarioProgress,
       dailyHabitsDone: state.dailyHabitsDone,
+      dailyStepsDone: state.activeProfileId ? (state.dailyStepsDone[state.activeProfileId] || {}) : {},
       stars: state.stars,
       gems: state.gems,
       streakCount: state.streakCount,
@@ -426,6 +470,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       profiles: [...state.profiles, profile],
       activeProfileId: id,
       profilesProgress: updatedProgressMap,
+      dailyStepsDone: { ...state.dailyStepsDone, [id]: {} },
       surahProgress: newChildProgress.surahProgress,
       hadithProgress: newChildProgress.hadithProgress,
       storyProgress: newChildProgress.storyProgress,
@@ -454,6 +499,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updatedProgressMap = { ...profilesProgress };
     delete updatedProgressMap[id];
 
+    const updatedDailySteps = { ...get().dailyStepsDone };
+    delete updatedDailySteps[id];
+
     if (activeProfileId === id) {
       const nextActiveId = remaining[0].id;
       const targetProgress =
@@ -464,24 +512,28 @@ export const useAppStore = create<AppState>((set, get) => ({
         profiles: remaining,
         activeProfileId: nextActiveId,
         profilesProgress: updatedProgressMap,
-        surahProgress: targetProgress.surahProgress,
-        hadithProgress: targetProgress.hadithProgress,
-        storyProgress: targetProgress.storyProgress,
-        scenarioProgress: targetProgress.scenarioProgress,
-        dailyHabitsDone: targetProgress.dailyHabitsDone,
-        stars: targetProgress.stars,
-        gems: targetProgress.gems,
-        streakCount: targetProgress.streakCount,
-        lastActiveDate: targetProgress.lastActiveDate,
-        unlockedStickers: targetProgress.unlockedStickers,
-        unlockedBadges: targetProgress.unlockedBadges,
-        selectedAvatarId: targetProgress.selectedAvatarId,
-        gratitudeEntries: targetProgress.gratitudeEntries,
+        dailyStepsDone: updatedDailySteps,
+        surahProgress: targetProgress.surahProgress || {},
+        hadithProgress: targetProgress.hadithProgress || {},
+        storyProgress: targetProgress.storyProgress || {},
+        scenarioProgress: targetProgress.scenarioProgress || {},
+        dailyHabitsDone: targetProgress.dailyHabitsDone || {},
+        stars: targetProgress.stars ?? 0,
+        gems: targetProgress.gems ?? 0,
+        streakCount: targetProgress.streakCount ?? 0,
+        lastActiveDate: targetProgress.lastActiveDate || '',
+        unlockedStickers: targetProgress.unlockedStickers || [],
+        unlockedBadges: targetProgress.unlockedBadges || [],
+        selectedAvatarId: targetProgress.selectedAvatarId || remaining[0].avatar || 'av-boy1',
+        gratitudeEntries: targetProgress.gratitudeEntries || [],
+        lastReadMushafPage: targetProgress.lastReadMushafPage ?? 1,
+        mushafBookmarks: targetProgress.mushafBookmarks ?? [1],
       });
     } else {
       set({
         profiles: remaining,
         profilesProgress: updatedProgressMap,
+        dailyStepsDone: updatedDailySteps,
       });
     }
 
@@ -535,9 +587,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       [idToReset]: cleanProgress,
     };
 
+    const updatedDailySteps = { ...get().dailyStepsDone };
+    delete updatedDailySteps[idToReset];
+
     if (idToReset === activeProfileId) {
       set({
         profilesProgress: updatedProgressMap,
+        dailyStepsDone: updatedDailySteps,
         surahProgress: cleanProgress.surahProgress,
         hadithProgress: cleanProgress.hadithProgress,
         storyProgress: cleanProgress.storyProgress,
@@ -549,6 +605,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         lastActiveDate: '',
         unlockedStickers: [],
         unlockedBadges: [],
+        selectedAvatarId: cleanProgress.selectedAvatarId,
         gratitudeEntries: [],
         lastReadMushafPage: 1,
         mushafBookmarks: [1],
@@ -556,6 +613,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     } else {
       set({
         profilesProgress: updatedProgressMap,
+        dailyStepsDone: updatedDailySteps,
       });
     }
 
@@ -625,6 +683,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         gems: state.gems + 10,
       };
     });
+    get().markDailyStepDone(get().activeProfileId, 'listen');
     persistState(get());
   },
 
@@ -685,6 +744,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       stars: state.stars + 3,
       gems: state.gems + 5,
     }));
+    get().markDailyStepDone(get().activeProfileId, 'learn');
     persistState(get());
   },
 
@@ -699,6 +759,47 @@ export const useAppStore = create<AppState>((set, get) => ({
       gems: state.gems + 4,
     }));
     persistState(get());
+  },
+
+  dailyStepsDone: {},
+  markDailyStepDone: (profileId, stepId) => {
+    const today = (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+    const pid = profileId || get().activeProfileId || (get().profiles?.[0]?.id ?? 'default');
+    const allProfileSteps = get().dailyStepsDone[pid] || {};
+    const todayList = allProfileSteps[today] || [];
+
+    if (todayList.includes(stepId)) return;
+
+    const newTodayList = [...todayList, stepId];
+    const updated = {
+      ...get().dailyStepsDone,
+      [pid]: {
+        ...allProfileSteps,
+        [today]: newTodayList,
+      },
+    };
+
+    const isAllThree = newTodayList.length === 3;
+    const bonusStars = isAllThree ? 10 : 3;
+    const bonusGems = isAllThree ? 3 : 1;
+
+    set((state) => ({
+      dailyStepsDone: updated,
+      stars: state.stars + bonusStars,
+      gems: state.gems + bonusGems,
+    }));
+    persistState(get());
+  },
+  getDailyStepsDone: (profileId) => {
+    const today = (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+    const pid = profileId || get().activeProfileId || (get().profiles?.[0]?.id ?? 'default');
+    return get().dailyStepsDone[pid]?.[today] || [];
   },
 
   dailyHabitsDone: {},
@@ -815,47 +916,76 @@ export const useAppStore = create<AppState>((set, get) => ({
     persistState(get());
   },
 
-  streakCount: 3,
-  lastActiveDate: new Date().toISOString().split('T')[0],
+  streakCount: 0,
+  lastActiveDate: '',
   freezesLeft: 2,
   recordDailyActivity: () => {
     const today = new Date().toISOString().split('T')[0];
-    const { lastActiveDate, streakCount } = get();
-    if (lastActiveDate !== today) {
+    const { lastActiveDate, streakCount, freezesLeft } = get();
+    if (lastActiveDate === today) return;
+
+    if (!lastActiveDate) {
+      set({
+        lastActiveDate: today,
+        streakCount: 1,
+        gems: get().gems + 5,
+      });
+      persistState(get());
+      return;
+    }
+
+    const last = new Date(lastActiveDate);
+    const curr = new Date(today);
+    const diffDays = Math.round((curr.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
       set({
         lastActiveDate: today,
         streakCount: streakCount + 1,
         gems: get().gems + 5,
       });
-      persistState(get());
+    } else if (diffDays === 2 && freezesLeft > 0) {
+      set({
+        lastActiveDate: today,
+        freezesLeft: freezesLeft - 1,
+        streakCount: streakCount + 1,
+        gems: get().gems + 5,
+      });
+    } else {
+      set({
+        lastActiveDate: today,
+        streakCount: 1,
+        gems: get().gems + 5,
+      });
     }
+    persistState(get());
   },
 
-  parentSettings: (() => {
-    const defaultCrypto = securityCryptoService.hashPin('1234', 'noor_kids_default_salt_v1');
-    return {
-      dailyLimitMin: 0,
-      quietHoursEnabled: false,
-      reciterId: 'alafasy',
-      showEnglishTranslation: false,
-      showSimpleTafsir: true,
-      translationSource: 'sahih' as const,
-      madhhab: 'shafii' as const,
-      prayerCity: 'cairo',
-      adhanAudioEnabled: false,
-      bedtimeLockEnabled: false,
-      bedtimeStart: '20:30',
-      bedtimeEnd: '06:00',
-      pin: '••••',
-      pinHash: defaultCrypto.hash,
-      pinSalt: defaultCrypto.salt,
-      pinFailedAttempts: 0,
-      pinLockoutUntil: null,
-      audioStorageLimitMB: 200,
-      analyticsEnabled: true,
-      soundEffectsEnabled: true,
-    };
-  })(),
+  parentSettings: {
+    dailyLimitMin: 0,
+    quietHoursEnabled: false,
+    reciterId: 'alafasy',
+    showEnglishTranslation: false,
+    showSimpleTafsir: true,
+    translationSource: 'sahih' as const,
+    madhhab: 'shafii' as const,
+    prayerCity: 'cairo',
+    adhanAudioEnabled: false,
+    bedtimeLockEnabled: false,
+    bedtimeStart: '20:30',
+    bedtimeEnd: '06:00',
+    hasCustomPin: false,
+    pin: '',
+    pinHash: '',
+    pinSalt: '',
+    recoveryCodeHash: '',
+    recoveryCodeSalt: '',
+    pinFailedAttempts: 0,
+    pinLockoutUntil: null,
+    audioStorageLimitMB: 200,
+    analyticsEnabled: true,
+    soundEffectsEnabled: true,
+  },
   updateParentSettings: (settings) => {
     set((state) => ({
       parentSettings: { ...state.parentSettings, ...settings },
@@ -864,20 +994,32 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setParentPin: (newPin: string) => {
     const check = securityCryptoService.validatePinFormat(newPin);
-    if (!check.valid) return false;
+    if (!check.valid) {
+      return {
+        success: false,
+        errorAr: check.errorAr,
+        errorEn: check.errorEn,
+      };
+    }
     const { hash, salt } = securityCryptoService.hashPin(newPin);
+    const recoveryCode = securityCryptoService.generateRecoveryCode();
+    const recCrypto = securityCryptoService.hashRecoveryCode(recoveryCode);
+
     set((state) => ({
       parentSettings: {
         ...state.parentSettings,
+        hasCustomPin: true,
         pin: '••••',
         pinHash: hash,
         pinSalt: salt,
+        recoveryCodeHash: recCrypto.hash,
+        recoveryCodeSalt: recCrypto.salt,
         pinFailedAttempts: 0,
         pinLockoutUntil: null,
       },
     }));
     persistState(get());
-    return true;
+    return { success: true, recoveryCode };
   },
   verifyParentPin: (inputPin: string) => {
     const { parentSettings } = get();
@@ -886,17 +1028,28 @@ export const useAppStore = create<AppState>((set, get) => ({
       parentSettings.pinLockoutUntil || null
     );
     if (lockout.isLocked) return false;
+    if (!parentSettings.pinHash || !parentSettings.pinSalt) return false;
 
-    let isCorrect = false;
-    if (parentSettings.pinHash && parentSettings.pinSalt) {
-      isCorrect = securityCryptoService.verifyPin(inputPin, parentSettings.pinHash, parentSettings.pinSalt);
-    } else if (parentSettings.pin && parentSettings.pin !== '••••') {
-      isCorrect = inputPin.trim() === parentSettings.pin;
-      if (isCorrect) {
-        get().setParentPin(inputPin);
-      }
+    const isCorrect = securityCryptoService.verifyPin(inputPin, parentSettings.pinHash, parentSettings.pinSalt);
+    if (isCorrect) {
+      get().resetPinAttempts();
     }
+    return isCorrect;
+  },
+  verifyRecoveryCode: (inputCode: string) => {
+    const { parentSettings } = get();
+    const lockout = securityCryptoService.checkLockout(
+      parentSettings.pinFailedAttempts || 0,
+      parentSettings.pinLockoutUntil || null
+    );
+    if (lockout.isLocked) return false;
+    if (!parentSettings.recoveryCodeHash || !parentSettings.recoveryCodeSalt) return false;
 
+    const isCorrect = securityCryptoService.verifyRecoveryCode(
+      inputCode,
+      parentSettings.recoveryCodeHash,
+      parentSettings.recoveryCodeSalt
+    );
     if (isCorrect) {
       get().resetPinAttempts();
     }
@@ -926,8 +1079,69 @@ export const useAppStore = create<AppState>((set, get) => ({
     }));
     persistState(get());
   },
+  resetAllAppData: async () => {
+    try {
+      await AsyncStorage.clear();
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.clear();
+      }
+    } catch {
+      // ignore
+    }
+    set({
+      hasCompletedOnboarding: false,
+      isGuestMode: false,
+      profiles: [],
+      activeProfileId: '',
+      profilesProgress: {},
+      surahProgress: {},
+      hadithProgress: {},
+      storyProgress: {},
+      scenarioProgress: {},
+      dailyHabitsDone: {},
+      dailyStepsDone: {},
+      downloadedSurahs: {},
+      lastReadMushafPage: 1,
+      mushafBookmarks: [1],
+      unlockedStickers: [],
+      unlockedBadges: [],
+      selectedAvatarId: 'av-boy1',
+      timeSpentTodaySec: 0,
+      dailyLimitDismissed: false,
+      stars: 0,
+      gems: 0,
+      streakCount: 0,
+      lastActiveDate: '',
+      parentSettings: {
+        dailyLimitMin: 0,
+        quietHoursEnabled: false,
+        reciterId: 'alafasy',
+        showEnglishTranslation: false,
+        showSimpleTafsir: true,
+        translationSource: 'sahih',
+        madhhab: 'shafii',
+        prayerCity: 'cairo',
+        adhanAudioEnabled: false,
+        bedtimeLockEnabled: false,
+        bedtimeStart: '20:30',
+        bedtimeEnd: '06:00',
+        hasCustomPin: false,
+        pin: '',
+        pinHash: '',
+        pinSalt: '',
+        recoveryCodeHash: '',
+        recoveryCodeSalt: '',
+        pinFailedAttempts: 0,
+        pinLockoutUntil: null,
+        audioStorageLimitMB: 200,
+        analyticsEnabled: true,
+        soundEffectsEnabled: true,
+      },
+      gratitudeEntries: [],
+    });
+  },
 
-  timeSpentTodaySec: 180,
+  timeSpentTodaySec: 0,
   dailyLimitDismissed: false,
   incrementTimeSpent: (sec) => {
     set((state) => ({ timeSpentTodaySec: state.timeSpentTodaySec + sec }));
@@ -994,9 +1208,10 @@ export const useAppStore = create<AppState>((set, get) => ({
             mushafBookmarks: parsed.mushafBookmarks ?? [1],
           };
         }
+        const dailyStepsDone = parsed.dailyStepsDone || {};
         const lastReadMushafPage = parsed.lastReadMushafPage ?? 1;
         const mushafBookmarks = parsed.mushafBookmarks ?? [1];
-        set({ ...parsed, profilesProgress, lastReadMushafPage, mushafBookmarks, isHydrated: true });
+        set({ ...parsed, profilesProgress, dailyStepsDone, lastReadMushafPage, mushafBookmarks, isHydrated: true });
         return;
       }
     } catch {
@@ -1027,9 +1242,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         bedtimeLockEnabled: state.parentSettings.bedtimeLockEnabled,
         bedtimeStart: state.parentSettings.bedtimeStart,
         bedtimeEnd: state.parentSettings.bedtimeEnd,
+        hasCustomPin: state.parentSettings.hasCustomPin ?? Boolean(state.parentSettings.pinHash),
         pin: '••••',
-        pinHash: state.parentSettings.pinHash,
-        pinSalt: state.parentSettings.pinSalt,
+        pinHash: state.parentSettings.pinHash || '',
+        pinSalt: state.parentSettings.pinSalt || '',
+        recoveryCodeHash: state.parentSettings.recoveryCodeHash || '',
+        recoveryCodeSalt: state.parentSettings.recoveryCodeSalt || '',
       },
       gratitudeEntries: state.gratitudeEntries,
     };
@@ -1070,6 +1288,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       profiles: data.profiles,
       activeProfileId: data.activeProfileId,
       profilesProgress: data.profilesProgress,
+      surahProgress: activeProg.surahProgress || {},
+      hadithProgress: activeProg.hadithProgress || {},
+      storyProgress: activeProg.storyProgress || {},
+      scenarioProgress: activeProg.scenarioProgress || {},
+      dailyHabitsDone: activeProg.dailyHabitsDone || {},
+      unlockedStickers: activeProg.unlockedStickers || [],
+      unlockedBadges: activeProg.unlockedBadges || [],
+      selectedAvatarId: activeProg.selectedAvatarId || data.profiles[0]?.avatar || 'av-boy1',
       parentSettings: {
         ...state.parentSettings,
         ...data.parentSettings,

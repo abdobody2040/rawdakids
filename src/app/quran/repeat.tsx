@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Listen & Repeat: Advanced Memorization & Recitation Mode (وضع التسميع والحفظ المتقدم)
 // Full Surah Mode & Single Ayah Mode · Proper RTL Arabic word ordering · Progressive hiding · Surah switcher
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -29,11 +30,12 @@ type HidePercentage = 0 | 25 | 50 | 100;
 type ViewMode = 'full_surah' | 'single_ayah';
 
 export default function ListenAndRepeatScreen() {
+  useDocumentTitle('استمع وردد', 'Listen & Repeat');
   const router = useRouter();
   const params = useLocalSearchParams();
   const initialSurahNumber = parseInt(String(params.surahId || '112'), 10);
 
-  const { language, setAyahStatus, addSurahStars, parentSettings, addStars } = useAppStore();
+  const { language, setAyahStatus, addSurahStars, parentSettings, addStars, activeProfileId, markDailyStepDone } = useAppStore();
   const isAr = language === 'ar';
   const t = TRANSLATIONS[language];
 
@@ -224,6 +226,7 @@ export default function ListenAndRepeatScreen() {
         setCurrentAyahIdx(currentAyahIdx + 1);
       } else {
         addSurahStars(surah.number, 3);
+        markDailyStepDone(activeProfileId, 'listen');
         setShowCelebration(true);
       }
     } else {
@@ -233,6 +236,7 @@ export default function ListenAndRepeatScreen() {
       });
       addSurahStars(surah.number, 5);
       addStars(5);
+      markDailyStepDone(activeProfileId, 'listen');
       setShowCelebration(true);
     }
   };

@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Seerah of Prophet Muhammad ﷺ (السيرة النبوية المبسّطة: رحلة نور)
 import { useState } from 'react';
 import {
@@ -47,6 +48,7 @@ const SEERAH_IMAGES: Record<string, any> = {
 };
 
 export default function SeerahHubScreen() {
+  useDocumentTitle('السيرة النبوية العطرة', 'Prophetic Seerah');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';

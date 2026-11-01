@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Good Manners Scenario Player & Value Pledge (E2, E3)
 import { useState } from "react";
 import {
@@ -37,6 +38,7 @@ const MANNER_SCENARIO_IMAGES: Record<string, any> = {
 };
 
 export default function MannersScenarioPlayerScreen() {
+  useDocumentTitle('خلق إسلامي', 'Islamic Value');
   const router = useRouter();
   const { valueId } = useLocalSearchParams();
   const { language, completeScenario, unlockBadge, parentSettings } = useAppStore();

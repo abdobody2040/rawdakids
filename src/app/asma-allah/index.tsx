@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Asma Allah Al-Husna Sanctuary (روضة أسماء الله الحسنى للأطفال)
 import { useState, useMemo } from 'react';
 import {
@@ -35,6 +36,7 @@ type TabFilter = 'all' | 'days1to50' | 'days51to99' | 'completed';
 type ViewMode = 'grid' | 'card';
 
 export default function AsmaAllahScreen() {
+  useDocumentTitle('أسماء الله الحسنى', 'Names of Allah');
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;

@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Animals in the Quran and Sunnah Hub (حديقة الحيوان في القرآن والسنة)
 import { useState } from 'react';
 import {
@@ -88,6 +89,7 @@ const ANIMAL_CATALOG_IMAGES: Record<string, any> = {
 type AnimalHubTab = 'miracles' | 'sunnah' | 'cards' | 'game';
 
 export default function AnimalsHubScreen() {
+  useDocumentTitle('قصص الحيوان في القرآن', 'Animals in the Quran');
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const { language, addStars, addGems, unlockSticker, unlockedStickers } = useAppStore();
@@ -754,7 +756,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   scrollContent: {
-    paddingBottom: 80,
+    paddingBottom: 110,
   },
   heroBanner: {
     marginHorizontal: SPACING.md,

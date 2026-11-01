@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Pillar Detail & Interactive Learning Screen (تفاصيل الركن والأنشطة التفاعلية)
 import { useState } from "react";
 import {
@@ -40,9 +41,10 @@ const PRAYERS_LIST = [
 ];
 
 export default function PillarDetailScreen() {
+  useDocumentTitle('ركن مبارك', 'Islamic Pillar');
   const router = useRouter();
   const { pillarId, mode } = useLocalSearchParams();
-  const { language, addStars, addGems } = useAppStore();
+  const { language, addStars, addGems, activeProfileId, markDailyStepDone } = useAppStore();
   const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
@@ -117,6 +119,9 @@ export default function PillarDetailScreen() {
       setHasClaimedReward(true);
     }
     setShowCelebration(true);
+    if (pillarId === 'salah' || pillarId === 'wudu' || mode === 'wudu' || mode === 'prayer' || mode === 'salah') {
+      markDailyStepDone(activeProfileId, 'practice');
+    }
   };
 
   return (

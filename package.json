@@ -37,7 +37,7 @@
   "scripts": {
     "start": "expo start",
     "verify-quran": "node scripts/verifyQuranData.js",
-    "build": "node scripts/verifyQuranData.js && expo export --platform web",
+    "build": "node scripts/verifyQuranData.js && expo export --platform web && node scripts/fix-vercel-assets.js",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",

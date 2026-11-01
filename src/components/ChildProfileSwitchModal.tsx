@@ -213,9 +213,9 @@ export default function ChildProfileSwitchModal({
 
                       {/* Mini stats row */}
                       <View style={[styles.miniStatsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-                        <Text style={styles.miniStatBadge}>⭐ {childProg.stars}</Text>
-                        <Text style={styles.miniStatBadge}>💎 {childProg.gems}</Text>
-                        <Text style={styles.miniStatBadge}>📖 {surahsCount} {isAr ? 'سور' : 'surahs'}</Text>
+                        <Text style={styles.miniStatBadge}>⭐ {childProg?.stars ?? 0}</Text>
+                        <Text style={styles.miniStatBadge}>💎 {childProg?.gems ?? 0}</Text>
+                        <Text style={styles.miniStatBadge}>📖 {surahsCount ?? 0} {isAr ? 'سور' : 'surahs'}</Text>
                       </View>
                     </View>
 

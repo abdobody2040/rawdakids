@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Cosmic Tafakkur Journey (رحلة التفكّر في الكون: تأمّل وتعجّب)
 import { useState } from 'react';
 import {
@@ -42,6 +43,7 @@ const TAFAKKUR_IMAGES: Record<string, any> = {
 };
 
 export default function TafakkurHubScreen() {
+  useDocumentTitle('التفكر في خلق الله', 'Tafakkur & Wonder');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
   const isAr = language === 'ar';

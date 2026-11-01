@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Sunnah Path Hub (طريق السنة - S1, S4, S7)
 import { useState } from "react";
 import {
@@ -20,6 +21,7 @@ import AppBottomNav from '@/components/AppBottomNav';
 import SunnahHeroHeader, { SunnahTab } from '@/components/SunnahHeroHeader';
 
 export default function SunnahPathScreen() {
+  useDocumentTitle('طريق السنة النبوية', 'Sunnah Path');
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const { language, hadithProgress, dailyHabitsDone, toggleDailyHabit } = useAppStore();
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: SPACING.md,
-    paddingBottom: SPACING.xxl,
+    paddingBottom: 110,
   },
   listArea: {
     gap: SPACING.md,

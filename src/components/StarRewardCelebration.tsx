@@ -1,6 +1,6 @@
 // Star & Reward Celebration Modal
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { useAppStore } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
@@ -51,7 +51,7 @@ export default function StarRewardCelebration({
 
             {/* Gems */}
             <View style={styles.rewardPill}>
-              <FontAwesome5 name="gem" size={20} color={COLORS.gem} />
+              <Ionicons name="diamond" size={20} color={COLORS.gem} />
               <Text style={styles.rewardNumber}>+{gemsEarned}</Text>
               <Text style={styles.rewardLabel}>{t.gems}</Text>
             </View>

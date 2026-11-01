@@ -1,3 +1,4 @@
+import { formatAyahsCount } from '@/utils/arabicCount';
 // src/components/parents/OfflineStorageCard.tsx
 // Offline Audio Storage & Cache Manager (PRD §10 - OFF-1 & §16)
 // Provides parent-managed audio caching, storage quota caps, and one-tap Juz Amma downloads.
@@ -338,7 +339,7 @@ export default function OfflineStorageCard({
                       </Text>
                       <Text style={styles.surahAyahCountText}>
                         {isAr
-                          ? `${surah.ayahCount} آيات • ~${(surah.ayahCount * 0.055).toFixed(1)} ميغابايت`
+                          ? `${formatAyahsCount(surah.ayahCount, true)} • ~${(surah.ayahCount * 0.055).toFixed(1)} ميغابايت`
                           : `${surah.ayahCount} verses • ~${(surah.ayahCount * 0.055).toFixed(1)} MB`}
                       </Text>
                     </View>

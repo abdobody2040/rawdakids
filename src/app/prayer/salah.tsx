@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // src/app/prayer/salah.tsx
 // Comprehensive 10-Step Interactive Salah Simulator with 3D Visual Assets
 // Built according to authentic Sunnah instructions, 10 clear positions, audio recitation, and rich feedback.
@@ -222,9 +223,10 @@ const PRAYERS_LIST = [
 ];
 
 export default function SalahScreen() {
+  useDocumentTitle('الصلاة نور', 'Prayer (Salah)');
   const router = useRouter();
   const params = useLocalSearchParams<{ step?: string; prayer?: string }>();
-  const { language, addStars, addGems } = useAppStore();
+  const { language, addStars, addGems, activeProfileId, markDailyStepDone } = useAppStore();
   const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
@@ -268,6 +270,7 @@ export default function SalahScreen() {
       audioService.playCelebrationFanfare();
       addStars(10);
       addGems(3);
+      markDailyStepDone(activeProfileId, 'practice');
       setShowCelebration(true);
       setTimeout(() => {
         setShowCelebration(false);

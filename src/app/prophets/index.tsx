@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useEffect, useState } from 'react';
 import {
   View,
@@ -25,6 +26,7 @@ const PROPHETS_CARAVAN_IMG = require('../../../assets/images/prophets-caravan.jp
 const NAV_PROPHETS_IMG = require('../../../assets/images/nav-prophets-3d.jpg');
 
 export default function ProphetsTimelineScreen() {
+  useDocumentTitle('قصص الأنبياء', 'Stories of the Prophets');
   const router = useRouter();
   const { language, activeProfileId, profiles } = useAppStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0];
@@ -330,7 +332,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: SPACING.md,
-    paddingBottom: SPACING.xxl,
+    paddingBottom: 110,
   },
   heroBannerContainer: {
     borderRadius: RADIUS.xl,

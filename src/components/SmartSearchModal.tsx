@@ -77,6 +77,7 @@ export default function SmartSearchModal({
   const [query, setQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>(initialCategory);
   const [isListeningVoice, setIsListeningVoice] = useState(false);
+  const [lockedNotice, setLockedNotice] = useState<string | null>(null);
 
   // Pre-index items once
   const allSearchableItems: SearchResultItem[] = useMemo(() => {
@@ -313,9 +314,23 @@ export default function SmartSearchModal({
     });
   }, [allSearchableItems, isUnder9, query, selectedCategory]);
 
-  const handleSelectResult = (route: string) => {
+  const handleSelectResult = (item: SearchResultItem) => {
+    const isSurahLocked = isUnder9 && item.id.startsWith('quran-') && (() => {
+      const num = parseInt(item.id.replace('quran-', ''), 10);
+      return num > 1 && num < 78;
+    })();
+
+    if (isSurahLocked) {
+      setLockedNotice(
+        isAr
+          ? 'هذه السورة تُفتح لاحقًا لأبطالنا في المستوى المتقدم (١٠-١٣ سنة) 🌟'
+          : 'This surah unlocks later in the advanced level (10-13 years) 🌟'
+      );
+      return;
+    }
+
     onDismiss();
-    router.push(route as Parameters<typeof router.push>[0]);
+    router.push(item.route as Parameters<typeof router.push>[0]);
   };
 
   const categoriesList: { id: SearchCategory; labelAr: string; labelEn: string; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -419,6 +434,24 @@ export default function SmartSearchModal({
             </View>
           )}
 
+          {/* Locked Content Notice Banner */}
+          {lockedNotice && (
+            <View style={[styles.lockedNoticeBanner, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <Ionicons name="sparkles" size={16} color="#D97706" />
+              <Text style={[styles.lockedNoticeText, { textAlign: isAr ? 'right' : 'left' }]}>
+                {lockedNotice}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setLockedNotice(null)}
+                style={styles.lockedNoticeDismiss}
+                accessibilityRole="button"
+                accessibilityLabel="إغلاق التنبيه"
+              >
+                <Ionicons name="close" size={16} color="#92400E" />
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Category Filter Chips */}
           <View style={styles.categoriesBar}>
             <ScrollView
@@ -510,88 +543,106 @@ export default function SmartSearchModal({
                 </Text>
               </View>
             ) : (
-              searchResults.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.resultItemCard}
-                  onPress={() => handleSelectResult(item.route)}
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={[
-                      styles.resultItemRow,
-                      { flexDirection: isAr ? 'row-reverse' : 'row' },
-                    ]}
-                  >
-                    {/* Category Icon Badge */}
-                    <View
-                      style={[
-                        styles.resultIconCircle,
-                        { backgroundColor: item.categoryColor + '18' },
-                      ]}
-                    >
-                      <Ionicons
-                        name={item.categoryIcon}
-                        size={20}
-                        color={item.categoryColor}
-                      />
-                    </View>
+              searchResults.map((item) => {
+                const isSurahLocked = isUnder9 && item.id.startsWith('quran-') && (() => {
+                  const num = parseInt(item.id.replace('quran-', ''), 10);
+                  return num > 1 && num < 78;
+                })();
 
-                    {/* Texts */}
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.resultItemCard}
+                    onPress={() => handleSelectResult(item)}
+                    activeOpacity={0.8}
+                  >
                     <View
                       style={[
-                        styles.resultTextCol,
-                        { alignItems: isAr ? 'flex-end' : 'flex-start' },
+                        styles.resultItemRow,
+                        { flexDirection: isAr ? 'row-reverse' : 'row' },
                       ]}
                     >
+                      {/* Category Icon Badge */}
                       <View
                         style={[
-                          styles.resultCategoryPill,
-                          {
-                            backgroundColor: item.categoryColor + '15',
-                            borderColor: item.categoryColor + '40',
-                          },
+                          styles.resultIconCircle,
+                          { backgroundColor: item.categoryColor + '18' },
                         ]}
                       >
+                        <Ionicons
+                          name={item.categoryIcon}
+                          size={20}
+                          color={item.categoryColor}
+                        />
+                      </View>
+
+                      {/* Texts */}
+                      <View
+                        style={[
+                          styles.resultTextCol,
+                          { alignItems: isAr ? 'flex-end' : 'flex-start' },
+                        ]}
+                      >
+                        <View style={{ flexDirection: isAr ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                          <View
+                            style={[
+                              styles.resultCategoryPill,
+                              {
+                                backgroundColor: item.categoryColor + '15',
+                                borderColor: item.categoryColor + '40',
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.resultCategoryPillText,
+                                { color: item.categoryColor },
+                              ]}
+                            >
+                              {isAr ? item.categoryLabelAr : item.categoryLabelEn}
+                            </Text>
+                          </View>
+
+                          {isSurahLocked && (
+                            <View style={styles.lockedPill}>
+                              <Ionicons name="lock-closed" size={11} color="#B45309" />
+                              <Text style={styles.lockedPillText}>
+                                {isAr ? 'تُفتح لاحقًا' : 'Unlocks later'}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+
                         <Text
                           style={[
-                            styles.resultCategoryPillText,
-                            { color: item.categoryColor },
+                            styles.resultTitle,
+                            { textAlign: isAr ? 'right' : 'left' },
                           ]}
                         >
-                          {isAr ? item.categoryLabelAr : item.categoryLabelEn}
+                          {isAr ? item.titleAr : item.titleEn}
+                        </Text>
+
+                        <Text
+                          style={[
+                            styles.resultSubtitle,
+                            { textAlign: isAr ? 'right' : 'left' },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {isAr ? item.subtitleAr : item.subtitleEn}
                         </Text>
                       </View>
 
-                      <Text
-                        style={[
-                          styles.resultTitle,
-                          { textAlign: isAr ? 'right' : 'left' },
-                        ]}
-                      >
-                        {isAr ? item.titleAr : item.titleEn}
-                      </Text>
-
-                      <Text
-                        style={[
-                          styles.resultSubtitle,
-                          { textAlign: isAr ? 'right' : 'left' },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {isAr ? item.subtitleAr : item.subtitleEn}
-                      </Text>
+                      {/* Navigation Arrow */}
+                      <Ionicons
+                        name={isSurahLocked ? 'lock-closed-outline' : isAr ? 'chevron-back' : 'chevron-forward'}
+                        size={18}
+                        color={isSurahLocked ? '#D97706' : '#94A3B8'}
+                      />
                     </View>
-
-                    {/* Navigation Arrow */}
-                    <Ionicons
-                      name={isAr ? 'chevron-back' : 'chevron-forward'}
-                      size={18}
-                      color="#94A3B8"
-                    />
-                  </View>
-                </TouchableOpacity>
-              ))
+                  </TouchableOpacity>
+                );
+              })
             )}
           </ScrollView>
         </View>
@@ -608,6 +659,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: SPACING.xl,
     paddingHorizontal: SPACING.md,
+    zIndex: 9999,
   },
   searchModalCard: {
     width: '100%',
@@ -808,5 +860,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#64748B',
     fontWeight: '600',
+  },
+  lockedNoticeBanner: {
+    backgroundColor: '#FEF3C7',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE68A',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 10,
+    alignItems: 'center',
+    gap: 8,
+  },
+  lockedNoticeText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#92400E',
+    lineHeight: 18,
+  },
+  lockedNoticeDismiss: {
+    padding: 4,
+  },
+  lockedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  lockedPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#B45309',
   },
 });

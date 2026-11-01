@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Prophet Story Player (P2, P3, P4, P5, P6)
 import { useState, useEffect } from "react";
 import {
@@ -329,6 +330,7 @@ const getProphetSceneArtwork = (prophetId: string, sceneIdx: number, scene: any)
 };
 
 export default function ProphetStoryPlayerScreen() {
+  useDocumentTitle('قصة نبي', 'Prophet Story');
   const router = useRouter();
   const { prophetId } = useLocalSearchParams();
   const { language, completeStory, addStars, parentSettings, activeProfileId, profiles } = useAppStore();
