@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Switch,
   Platform,
   Image,
 } from 'react-native';
@@ -17,6 +16,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { isRTL } from '@/constants/i18n';
 import Header from '@/components/Header';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import AppBottomNav from '@/components/AppBottomNav';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
@@ -178,12 +178,14 @@ export default function PrayerScreen() {
                   <Text style={styles.countdownAdhanLabel}>
                     {isAr ? 'الأذان' : 'Adhan'}
                   </Text>
-                  <Switch
+                  <ToggleSwitch
                     value={adhanEnabled}
                     onValueChange={setAdhanEnabled}
-                    trackColor={{ false: '#0369A1', true: '#38BDF8' }}
-                    thumbColor="#FFFFFF"
-                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+                    activeTrackColor="#38BDF8"
+                    inactiveTrackColor="#0369A1"
+                    trackWidth={46}
+                    trackHeight={26}
+                    accessibilityLabel={isAr ? 'الأذان' : 'Adhan'}
                   />
                 </View>
               </View>

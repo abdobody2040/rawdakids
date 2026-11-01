@@ -2,7 +2,8 @@
 // Screen time daily limits and Bedtime Lock Window (PRD §8 - PAR-2 & PAR-3)
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 
@@ -112,11 +113,11 @@ export default function ScreenTimeCard({
                 : 'Locks games during night hours and presents soothing Quran recitation & bedtime dua.'}
             </Text>
           </View>
-          <Switch
+          <ToggleSwitch
             value={bedtimeLockEnabled}
             onValueChange={onToggleBedtimeLock}
-            trackColor={{ false: COLORS.border, true: '#C7D2FE' }}
-            thumbColor={bedtimeLockEnabled ? '#4F46E5' : COLORS.cardAlt}
+            activeTrackColor="#6366F1"
+            accessibilityLabel={isAr ? 'قفل النوم الهادئ' : 'Bedtime quiet lock'}
           />
         </View>
 

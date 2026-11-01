@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Switch,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +17,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { isRTL } from '@/constants/i18n';
 import Header from '@/components/Header';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar, { PRESET_AVATARS } from '@/components/KidAvatar';
 import { ASMA_ALLAH_DATA } from '@/data/asmaAllahData';
@@ -494,15 +494,11 @@ export default function MeScreen() {
                   {isAr ? 'أصوات التفاعل والتشجيع' : 'Sound Effects'}
                 </Text>
               </View>
-              <Switch
+              <ToggleSwitch
                 value={soundEffects}
                 onValueChange={setSoundEffects}
-                trackColor={{ false: '#CBD5E1', true: '#10B981' }}
-                thumbColor="#FFFFFF"
-                accessibilityRole="switch"
+                activeTrackColor="#10B981"
                 accessibilityLabel={isAr ? 'أصوات التفاعل والتشجيع' : 'Sound Effects'}
-                accessibilityState={{ checked: soundEffects }}
-                aria-labelledby="label-sound-effects"
               />
             </View>
 
@@ -518,15 +514,11 @@ export default function MeScreen() {
                   {isAr ? 'أناشيد هادئة بدون إيقاع' : 'Calm Nasheeds (Vocal)'}
                 </Text>
               </View>
-              <Switch
+              <ToggleSwitch
                 value={calmAudio}
                 onValueChange={setCalmAudio}
-                trackColor={{ false: '#CBD5E1', true: '#0284C7' }}
-                thumbColor="#FFFFFF"
-                accessibilityRole="switch"
+                activeTrackColor="#0284C7"
                 accessibilityLabel={isAr ? 'أناشيد هادئة بدون إيقاع' : 'Calm Nasheeds (Vocal)'}
-                accessibilityState={{ checked: calmAudio }}
-                aria-labelledby="label-calm-audio"
               />
             </View>
 
@@ -542,15 +534,11 @@ export default function MeScreen() {
                   {isAr ? 'وضع ما قبل النوم الهادئ' : 'Bedtime Night Mode'}
                 </Text>
               </View>
-              <Switch
+              <ToggleSwitch
                 value={nightMode}
                 onValueChange={setNightMode}
-                trackColor={{ false: '#CBD5E1', true: '#7C3AED' }}
-                thumbColor="#FFFFFF"
-                accessibilityRole="switch"
+                activeTrackColor="#7C3AED"
                 accessibilityLabel={isAr ? 'وضع ما قبل النوم الهادئ' : 'Bedtime Night Mode'}
-                accessibilityState={{ checked: nightMode }}
-                aria-labelledby="label-night-mode"
               />
             </View>
           </View>

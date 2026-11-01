@@ -2,7 +2,8 @@
 // Fiqh Madhhab selector, city prayer calculation, and Adhan audio controls (PRD §8 - PRY-3 & PRY-4)
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { SUPPORTED_CITIES } from '@/services/prayerTimeService';
@@ -201,11 +202,11 @@ export default function WorshipSettingsCard({
               : 'Play melodious Adhan call at prayer times to encourage young champions to pray.'}
           </Text>
         </View>
-        <Switch
+        <ToggleSwitch
           value={adhanAudioEnabled}
           onValueChange={onToggleAdhan}
-          trackColor={{ false: COLORS.border, true: '#86EFAC' }}
-          thumbColor={adhanAudioEnabled ? '#059669' : COLORS.cardAlt}
+          activeTrackColor="#059669"
+          accessibilityLabel={isAr ? 'صوت الأذان العذب' : 'Adhan audio'}
         />
       </View>
     </View>

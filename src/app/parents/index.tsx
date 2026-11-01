@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Switch,
   Platform,
   Modal,
   Image,
@@ -20,6 +19,7 @@ import ParentGateView from '@/components/ParentGateView';
 import { parentReportsService, ParentDashboardData } from '@/services/parentReportsService';
 import { StoreName } from '@/services/localDbService';
 import UnitCertificateModal from '@/components/UnitCertificateModal';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import { COLORS, RADIUS, SPACING } from '@/constants/theme';
 
 const AVATAR_BOY = require('../../../assets/images/avatar-boy-1.jpg');
@@ -361,11 +361,10 @@ export default function ParentsScreen() {
                   {isAr ? 'من ٨:٣٠ مساءً إلى ٦:٣٠ صباحًا' : 'From 8:30 PM to 6:30 AM'}
                 </Text>
               </View>
-              <Switch
+              <ToggleSwitch
                 value={Boolean(parentSettings.bedtimeLockEnabled)}
                 onValueChange={(val) => updateParentSettings({ bedtimeLockEnabled: val })}
-                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-                thumbColor="#FFFFFF"
+                accessibilityLabel={isAr ? 'قفل وقت النوم' : 'Bedtime Lock'}
               />
             </View>
           </View>
@@ -636,11 +635,10 @@ export default function ParentsScreen() {
               <Text style={styles.settingsRowLabel}>
                 {isAr ? 'عرض النجوم والمكافآت' : 'Show stars & rewards'}
               </Text>
-              <Switch
+              <ToggleSwitch
                 value={showRewards}
                 onValueChange={setShowRewards}
-                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-                thumbColor="#FFFFFF"
+                accessibilityLabel={isAr ? 'عرض النجوم والمكافآت' : 'Show stars & rewards'}
               />
             </View>
 
@@ -654,11 +652,10 @@ export default function ParentsScreen() {
                   {isAr ? 'الأناشيد بالصوت فقط افتراضيًا' : 'Vocals-only by default'}
                 </Text>
               </View>
-              <Switch
+              <ToggleSwitch
                 value={allowMusic}
                 onValueChange={setAllowMusic}
-                trackColor={{ false: '#E2E8F0', true: '#10B981' }}
-                thumbColor="#FFFFFF"
+                accessibilityLabel={isAr ? 'السماح بالموسيقى' : 'Allow background music'}
               />
             </View>
           </View>
