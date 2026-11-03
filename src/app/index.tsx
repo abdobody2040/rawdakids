@@ -1,7 +1,7 @@
-// Home Screen — Rawda Kids (redesign v2)
-// Order: Header · Hero Start · Today's 3 Steps · Quick 2x2 · Hadith · Worlds · Prayer strip · Tools
+// Home Screen — Rawda Kids (روضة كيدز)
+// Order: Header · Banner · Hero Start · Today's 3 Steps · Quick 2x2 · Hadith · Worlds · Prayer strip · Tools
 // Rules: min text 14px, min tap target 56px, one digit system, fewer competing entry points.
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,23 @@ import {
   Image,
   Animated,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Redirect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { useAppStore } from '@/store/useAppStore';
 import { HADITHS_DATA } from '@/data/hadithData';
 import { audioService } from '@/services/audioService';
 import { SHADOWS, RADIUS, SPACING, COLORS } from '@/constants/theme';
+import {
+  UI_BANNER,
+  UI_HADITH,
+  getTileAsset,
+  getStepAsset,
+} from '@/constants/uiAssets';
 import StarRewardCelebration from '@/components/StarRewardCelebration';
 import AppBottomNav from '@/components/AppBottomNav';
 import KidAvatar from '@/components/KidAvatar';
@@ -27,11 +35,16 @@ import ParentGateModal from '@/components/ParentGateModal';
 import ChildProfileSwitchModal from '@/components/ChildProfileSwitchModal';
 import LanguageSelectModal from '@/components/LanguageSelectModal';
 import { AVAILABLE_LANGUAGES, TRANSLATIONS } from '@/constants/i18n';
-import { getLocalizedHadith, formatLocalizedTodayDate } from '@/services/multilingualContentService';
-import { isBedtimeActive, getPrayerTimesForCity } from '@/services/prayerTimeService';
+import {
+  getLocalizedHadith,
+  formatLocalizedTodayDate,
+} from '@/services/multilingualContentService';
+import {
+  isBedtimeActive,
+  getPrayerTimesForCity,
+} from '@/services/prayerTimeService';
 import { formatStreakDays } from '@/utils/arabicCount';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-
 import SmartSearchModal from '@/components/SmartSearchModal';
 
 const MIN_TAP = 56;
@@ -52,24 +65,51 @@ interface DailyStep {
   id: 'listen' | 'learn' | 'practice';
   labelAr: string;
   labelEn: string;
-  icon: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
   bg: string;
   route: string;
 }
 
 const DAILY_STEPS: DailyStep[] = [
-  { id: 'listen', labelAr: 'اِسْتَمِعْ', labelEn: 'Listen', icon: 'headset', color: '#059669', bg: '#D1FAE5', route: '/quran' },
-  { id: 'learn', labelAr: 'تَعَلَّمْ', labelEn: 'Learn', icon: 'book', color: '#7C3AED', bg: '#EDE9FE', route: '/prophets' },
-  { id: 'practice', labelAr: 'طَبِّقْ', labelEn: 'Practice', icon: 'star', color: '#0284C7', bg: '#E0F2FE', route: '/arkan/salah?mode=wudu' },
+  {
+    id: 'listen',
+    labelAr: 'اِسْتَمِعْ',
+    labelEn: 'Listen',
+    color: '#059669',
+    bg: '#D1FAE5',
+    route: '/quran',
+  },
+  {
+    id: 'learn',
+    labelAr: 'تَعَلَّمْ',
+    labelEn: 'Learn',
+    color: '#7C3AED',
+    bg: '#EDE9FE',
+    route: '/prophets',
+  },
+  {
+    id: 'practice',
+    labelAr: 'طَبِّقْ',
+    labelEn: 'Practice',
+    color: '#0284C7',
+    bg: '#E0F2FE',
+    route: '/arkan/salah?mode=wudu',
+  },
 ];
 
 // ── Quick tiles (icon + ONE word, no sub-pills) ───────────────────────────
+/**
+ * TILE_ART_SIDE determines which side the character artwork is anchored on in the 2x2 tiles.
+ * - 'end' (default): art on end/trailing side (left in RTL, right in LTR), label on start side (right in RTL, left in LTR).
+ * - 'start': art on start/leading side (right in RTL, left in LTR), label on end side (left in RTL, right in LTR).
+ * Flip this single constant to 'start' to place art on the right and label on the left in RTL to match mockups.
+ */
+export const TILE_ART_SIDE: 'start' | 'end' = 'end';
+
 interface QuickTile {
-  id: string;
+  id: 'repeat' | 'wudu' | 'salah' | 'discover';
   titleAr: string;
   titleEn: string;
-  icon: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
   bg: string;
   route: string;
@@ -78,10 +118,46 @@ interface QuickTile {
 }
 
 const QUICK_TILES: QuickTile[] = [
-  { id: 'repeat', titleAr: 'استمع وردد', titleEn: 'Repeat', icon: 'headset', color: '#059669', bg: '#D1FAE5', route: '/quran/repeat', labelAr: 'استمع وردد قصار السور', labelEn: 'Listen and repeat short surahs' },
-  { id: 'wudu', titleAr: 'الوضوء', titleEn: 'Wudu', icon: 'water', color: '#0284C7', bg: '#E0F2FE', route: '/prayer/wudu', labelAr: 'تعلم الوضوء', labelEn: 'Learn Wudu' },
-  { id: 'salah', titleAr: 'الصلاة', titleEn: 'Prayer', icon: 'moon', color: '#D97706', bg: '#FEF3C7', route: '/prayer/salah', labelAr: 'تعلم الصلاة', labelEn: 'Learn prayer' },
-  { id: 'discover', titleAr: 'اكتشف', titleEn: 'Discover', icon: 'compass', color: '#7C3AED', bg: '#EDE9FE', route: '/discover', labelAr: 'اكتشف قصصا وأخلاقا', labelEn: 'Discover stories and manners' },
+  {
+    id: 'repeat',
+    titleAr: 'استمع وردد',
+    titleEn: 'Repeat',
+    color: '#059669',
+    bg: '#D1FAE5',
+    route: '/quran/repeat',
+    labelAr: 'استمع وردد قصار السور',
+    labelEn: 'Listen and repeat short surahs',
+  },
+  {
+    id: 'wudu',
+    titleAr: 'الوضوء',
+    titleEn: 'Wudu',
+    color: '#0284C7',
+    bg: '#E0F2FE',
+    route: '/prayer/wudu',
+    labelAr: 'تعلم الوضوء',
+    labelEn: 'Learn Wudu',
+  },
+  {
+    id: 'salah',
+    titleAr: 'الصلاة',
+    titleEn: 'Prayer',
+    color: '#D97706',
+    bg: '#FEF3C7',
+    route: '/prayer/salah',
+    labelAr: 'تعلم الصلاة',
+    labelEn: 'Learn prayer',
+  },
+  {
+    id: 'discover',
+    titleAr: 'اكتشف',
+    titleEn: 'Discover',
+    color: '#7C3AED',
+    bg: '#EDE9FE',
+    route: '/discover',
+    labelAr: 'اكتشف قصصا وأخلاقا',
+    labelEn: 'Discover stories and manners',
+  },
 ];
 
 // ── Worlds ────────────────────────────────────────────────────────────────
@@ -98,16 +174,72 @@ interface World {
 }
 
 const SIX_WORLDS: World[] = [
-  { id: 'quran', titleAr: 'حَدِيقَةُ الْقُرْآنِ', titleEn: 'Quran Garden', subtitleAr: '١١٤ سُورَةً مُبَارَكَةً', subtitleEn: '114 Surahs', route: '/quran', accent: '#059669', bg: '#D1FAE5' },
-  { id: 'worship', titleAr: 'الْعِبَادَةُ', titleEn: 'Worship', subtitleAr: 'الْوُضُوءُ وَالصَّلَاةُ وَالْأَذْكَارُ', subtitleEn: 'Wudu, Prayer & Adhkar', route: '/prayer', accent: '#0284C7', bg: '#E0F2FE' },
-  { id: 'stories', titleAr: 'الْقِصَصُ', titleEn: 'Stories', subtitleAr: 'الْأَنْبِيَاءُ وَالصَّحَابَةُ وَالسِّيرَةُ', subtitleEn: 'Prophets, Companions, Seerah', route: '/prophets', accent: '#7C3AED', bg: '#EDE9FE' },
-  { id: 'akhlaq', titleAr: 'الْأَخْلَاقُ وَالسُّنَّةُ', titleEn: 'Character & Sunnah', subtitleAr: '١٠٠ حَدِيثٍ نَبَوِيٍّ وَأَخْلَاقٍ', subtitleEn: '100 Hadiths & Manners', route: '/manners', accent: '#D97706', bg: '#FEF3C7' },
-  { id: 'asmaAllah', titleAr: 'أَسْمَاءُ اللَّهِ', titleEn: 'Names of Allah', subtitleAr: '٩٩ اسْمًا — وَاحِدٌ كُلَّ يَوْمٍ', subtitleEn: '99 Names — one per day', route: '/asma-allah', accent: '#5B21B6', bg: '#EDE9FE' },
-  { id: 'wonder', titleAr: 'التَّفَكُّرُ', titleEn: 'Wonder', subtitleAr: 'آيَاتُ اللَّهِ فِي الْكَوْنِ', subtitleEn: 'Signs of Allah in creation', route: '/tafakkur', accent: '#0369A1', bg: '#E0F2FE' },
+  {
+    id: 'quran',
+    titleAr: 'حَدِيقَةُ الْقُرْآنِ',
+    titleEn: 'Quran Garden',
+    subtitleAr: '١١٤ سُورَةً مُبَارَكَةً',
+    subtitleEn: '114 Surahs',
+    route: '/quran',
+    accent: '#059669',
+    bg: '#D1FAE5',
+  },
+  {
+    id: 'worship',
+    titleAr: 'الْعِبَادَةُ',
+    titleEn: 'Worship',
+    subtitleAr: 'الْوُضُوءُ وَالصَّلَاةُ وَالْأَذْكَارُ',
+    subtitleEn: 'Wudu, Prayer & Adhkar',
+    route: '/prayer',
+    accent: '#0284C7',
+    bg: '#E0F2FE',
+  },
+  {
+    id: 'stories',
+    titleAr: 'الْقِصَصُ',
+    titleEn: 'Stories',
+    subtitleAr: 'الْأَنْبِيَاءُ وَالصَّحَابَةُ وَالسِّيرَةُ',
+    subtitleEn: 'Prophets, Companions, Seerah',
+    route: '/prophets',
+    accent: '#7C3AED',
+    bg: '#EDE9FE',
+  },
+  {
+    id: 'akhlaq',
+    titleAr: 'الْأَخْلَاقُ وَالسُّنَّةُ',
+    titleEn: 'Character & Sunnah',
+    subtitleAr: '١٠٠ حَدِيثٍ نَبَوِيٍّ وَأَخْلَاقٍ',
+    subtitleEn: '100 Hadiths & Manners',
+    route: '/manners',
+    accent: '#D97706',
+    bg: '#FEF3C7',
+  },
+  {
+    id: 'asmaAllah',
+    titleAr: 'أَسْمَاءُ اللَّهِ',
+    titleEn: 'Names of Allah',
+    subtitleAr: '٩٩ اسْمًا — وَاحِدٌ كُلَّ يَوْمٍ',
+    subtitleEn: '99 Names — one per day',
+    route: '/asma-allah',
+    accent: '#5B21B6',
+    bg: '#EDE9FE',
+  },
+  {
+    id: 'wonder',
+    titleAr: 'التَّفَكُّرُ',
+    titleEn: 'Wonder',
+    subtitleAr: 'آيَاتُ اللَّهِ فِي الْكَوْنِ',
+    subtitleEn: 'Signs of Allah in creation',
+    route: '/tafakkur',
+    accent: '#0369A1',
+    bg: '#E0F2FE',
+  },
 ];
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { width: windowWidth } = useWindowDimensions();
+  const isCompactScreen = windowWidth < 380;
 
   const {
     language,
@@ -124,13 +256,16 @@ export default function HomeScreen() {
     dailyStepsDone,
   } = useAppStore();
 
-  const childProgress = getChildProgress ? getChildProgress(activeProfileId) : null;
+  const childProgress = getChildProgress
+    ? getChildProgress(activeProfileId)
+    : null;
   const totalStars = childProgress?.stars ?? 0;
   const streak = childProgress?.streakCount ?? 0;
   const pageNum = childProgress?.lastReadMushafPage ?? lastReadMushafPage;
-  const resumePercent = (pageNum && pageNum > 1)
-    ? Math.min(100, Math.round((Number(pageNum) / 604) * 100))
-    : 0;
+  const resumePercent =
+    pageNum && pageNum > 1
+      ? Math.min(100, Math.round((Number(pageNum) / 604) * 100))
+      : 0;
 
   const t = TRANSLATIONS[language];
   const isAr = language === 'ar';
@@ -140,7 +275,9 @@ export default function HomeScreen() {
 
   // One digit system everywhere: Eastern Arabic in Arabic, Western otherwise.
   const n = (val: number | string) =>
-    isAr ? String(val).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d, 10)]) : String(val);
+    isAr
+      ? String(val).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d, 10)])
+      : String(val);
 
   useDocumentTitle(isAr ? 'الرئيسية' : 'Home');
 
@@ -158,10 +295,10 @@ export default function HomeScreen() {
   const [isPrayerStripDismissed, setIsPrayerStripDismissed] = useState(false);
   const [isPlayingMascot, setIsPlayingMascot] = useState(false);
   const [hasCelebratedDaily, setHasCelebratedDaily] = useState<boolean>(false);
-  const [showDailyCelebrationModal, setShowDailyCelebrationModal] = useState<boolean>(false);
+  const [showDailyCelebrationModal, setShowDailyCelebrationModal] =
+    useState<boolean>(false);
 
   // Client-only flag + minute ticker: avoids hydration mismatch (React #418)
-  // and keeps "next prayer" fresh while the app stays open.
   const [mounted, setMounted] = useState(false);
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -189,9 +326,17 @@ export default function HomeScreen() {
   useEffect(() => {
     if (!showBismillah) return;
     Animated.sequence([
-      Animated.timing(bismillahOpacity, { toValue: 1, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(bismillahOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
       Animated.delay(2800),
-      Animated.timing(bismillahOpacity, { toValue: 0, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(bismillahOpacity, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
     ]).start(() => setShowBismillah(false));
   }, [bismillahOpacity, showBismillah]);
 
@@ -200,8 +345,16 @@ export default function HomeScreen() {
   useEffect(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
-    const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86400000);
-    setTimeout(() => setHadithOfTheDay(HADITHS_DATA[dayOfYear % HADITHS_DATA.length] || HADITHS_DATA[0]), 0);
+    const dayOfYear = Math.floor(
+      (now.getTime() - start.getTime()) / 86400000
+    );
+    setTimeout(
+      () =>
+        setHadithOfTheDay(
+          HADITHS_DATA[dayOfYear % HADITHS_DATA.length] || HADITHS_DATA[0]
+        ),
+      0
+    );
   }, []);
 
   const isFriday = mounted && new Date().getDay() === 5;
@@ -225,18 +378,27 @@ export default function HomeScreen() {
     });
   };
 
-  const todayDateStr = useMemo(() => formatLocalizedTodayDate(language), [language]);
+  const todayDateStr = useMemo(
+    () => formatLocalizedTodayDate(language),
+    [language]
+  );
 
   useEffect(() => {
     if (isHydrated && hasCompletedOnboarding) recordDailyActivity();
   }, [isHydrated, hasCompletedOnboarding, recordDailyActivity]);
 
-    const todayKey = useMemo(() => {
+  const todayKey = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }, []);
-  const todayStepsList = useMemo(() => (activeProfileId && dailyStepsDone[activeProfileId]?.[todayKey]) || [], [activeProfileId, dailyStepsDone, todayKey]);
-  const completedSteps = useMemo(() => new Set(todayStepsList), [todayStepsList]);
+  const todayStepsList = useMemo(
+    () => (activeProfileId && dailyStepsDone[activeProfileId]?.[todayKey]) || [],
+    [activeProfileId, dailyStepsDone, todayKey]
+  );
+  const completedSteps = useMemo(
+    () => new Set(todayStepsList),
+    [todayStepsList]
+  );
   const completedCount = completedSteps.size;
 
   useEffect(() => {
@@ -291,8 +453,12 @@ export default function HomeScreen() {
   const displayName = isValidNickname(activeProfile?.name)
     ? activeProfile.name
     : isAr
-      ? isGirl ? 'يَا بَطَلَةُ 🌸' : isBoy ? 'يَا بَطَلُ 🌿' : 'يَا بَطَلَنَا ✨'
-      : 'Friend';
+    ? isGirl
+      ? 'يَا بَطَلَةُ 🌸'
+      : isBoy
+      ? 'يَا بَطَلُ 🌿'
+      : 'يَا بَطَلَنَا ✨'
+    : 'Friend';
 
   const ageBand = activeProfile?.ageBand || '7-9';
   const isYoung = ageBand === '4-6';
@@ -321,19 +487,26 @@ export default function HomeScreen() {
     if (w.id === 'quran') {
       return {
         ...w,
-        subtitleAr: canSeeAgedContent ? '١١٤ سُورَةً مُبَارَكَةً' : 'سُوَرُ جُزْءِ عَمَّ (٣٨ سُورَةً)',
-        subtitleEn: canSeeAgedContent ? '114 Surahs' : 'Juz Amma (38 Surahs)',
+        subtitleAr: canSeeAgedContent
+          ? '١١٤ سُورَةً مُبَارَكَةً'
+          : 'سُوَرُ جُزْءِ عَمَّ (٣٨ سُورَةً)',
+        subtitleEn: canSeeAgedContent
+          ? '114 Surahs'
+          : 'Juz Amma (38 Surahs)',
       };
     }
     return w;
   }).filter((w) => !w.ageGate || canSeeAgedContent);
-  
+
   const handleStepTap = (step: DailyStep) => {
     router.push(step.route as any);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+    <SafeAreaView
+      style={styles.safeArea}
+      edges={['top', 'bottom', 'left', 'right']}
+    >
       <View style={styles.appContainer}>
         <ScrollView
           style={styles.mainCanvas}
@@ -342,13 +515,18 @@ export default function HomeScreen() {
           role="main"
         >
           {/* ── 1. HEADER: avatar · greeting · streak · parent lock ─────── */}
-          <View style={[styles.headerRow, { flexDirection: rowDir }]} role="banner">
+          <View
+            style={[styles.headerRow, { flexDirection: rowDir }]}
+            role="banner"
+          >
             <TouchableOpacity
               style={[styles.headerLeft, { flexDirection: rowDir }]}
               onPress={() => router.push('/progress')}
               activeOpacity={0.85}
               accessibilityRole="button"
-              accessibilityLabel={isAr ? 'ملف الطفل والتقدم' : 'Profile & Progress'}
+              accessibilityLabel={
+                isAr ? 'ملف الطفل والتقدم' : 'Profile & Progress'
+              }
             >
               <View style={styles.avatarWrapper}>
                 <KidAvatar avatar={activeProfile.avatar} size={52} />
@@ -357,7 +535,12 @@ export default function HomeScreen() {
                 <Text style={[styles.greetingSub, { textAlign: txtAlign }]}>
                   {isAr ? 'السَّلَامُ عَلَيْكُمْ' : 'As-salamu alaykum 🌿'}
                 </Text>
-                <Text style={[styles.greetingMain, { textAlign: txtAlign }]} role="heading" aria-level={1} numberOfLines={1}>
+                <Text
+                  style={[styles.greetingMain, { textAlign: txtAlign }]}
+                  role="heading"
+                  aria-level={1}
+                  numberOfLines={1}
+                >
                   {isAr ? `أَهْلًا ${displayName}` : `Welcome, ${displayName}`}
                 </Text>
               </View>
@@ -368,7 +551,11 @@ export default function HomeScreen() {
               onPress={() => router.push('/progress')}
               activeOpacity={0.8}
               accessibilityRole="button"
-              accessibilityLabel={isAr ? `مسيرة الاستمرار: ${formatStreakDays(streak, true)}` : `Streak: ${formatStreakDays(streak, false)}`}
+              accessibilityLabel={
+                isAr
+                  ? `مسيرة الاستمرار: ${formatStreakDays(streak, true)}`
+                  : `Streak: ${formatStreakDays(streak, false)}`
+              }
             >
               <Ionicons name="leaf" size={18} color="#0F6E56" />
               <Text style={styles.streakCount}>{n(streak)}</Text>
@@ -382,13 +569,80 @@ export default function HomeScreen() {
               accessibilityLabel={isAr ? 'منطقة أولياء الأمور' : 'Parents Area'}
             >
               <Ionicons name="lock-closed" size={20} color="#5F5E5A" />
-              <Text style={styles.parentLockLabel}>{isAr ? 'الأهل' : 'Parents'}</Text>
+              <Text style={styles.parentLockLabel}>
+                {isAr ? 'الأهل' : 'Parents'}
+              </Text>
             </TouchableOpacity>
           </View>
 
+          {/* ── 1.b. HEADER BANNER: illustration + overlaid title on empty side ─ */}
+          <View style={styles.headerBannerWrap}>
+            <ExpoImage
+              source={UI_BANNER.header}
+              style={[
+                styles.headerBannerImg,
+                isAr
+                  ? {
+                      position: 'absolute',
+                      right: 0,
+                      width: Math.min(windowWidth * 0.9, 440),
+                      height: 170,
+                      transform: [{ scaleX: -1 }],
+                    }
+                  : {
+                      position: 'absolute',
+                      left: 0,
+                      width: Math.min(windowWidth * 0.9, 440),
+                      height: 170,
+                    },
+              ]}
+              contentFit="contain"
+              accessible={false}
+            />
+            <View
+              style={[
+                styles.headerBannerTextWrap,
+                isAr
+                  ? {
+                      left: windowWidth < 600 ? 8 : 40,
+                      maxWidth: windowWidth < 600 ? 150 : 420,
+                      alignItems: 'flex-start',
+                    }
+                  : {
+                      right: windowWidth < 600 ? 8 : 40,
+                      maxWidth: windowWidth < 600 ? 150 : 420,
+                      alignItems: 'flex-end',
+                    },
+              ]}
+              pointerEvents="none"
+            >
+              <Text
+                style={[
+                  styles.headerBannerTitle,
+                  {
+                    fontSize: windowWidth < 600 ? 22 : 28,
+                    lineHeight: windowWidth < 600 ? 32 : 40,
+                    textAlign: isAr ? 'right' : 'left',
+                  },
+                ]}
+              >
+                {isAr
+                  ? 'تَعَلَّمِ الْقُرْآنَ مَعَ أَصْدِقَائِكَ'
+                  : 'Learn the Quran with friends'}
+              </Text>
+            </View>
+          </View>
+
           {showBismillah && (
-            <Animated.View style={[styles.bismillahBanner, { opacity: bismillahOpacity }]}>
-              <Text style={styles.bismillahText}>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</Text>
+            <Animated.View
+              style={[
+                styles.bismillahBanner,
+                { opacity: bismillahOpacity },
+              ]}
+            >
+              <Text style={styles.bismillahText}>
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+              </Text>
             </Animated.View>
           )}
 
@@ -403,18 +657,49 @@ export default function HomeScreen() {
               >
                 <Ionicons name="moon" size={32} color="#FDE047" />
                 <View style={{ flex: 1, alignItems: align }}>
-                  <Text style={[styles.bannerTitle, { color: '#FDE047', textAlign: txtAlign }]}>
+                  <Text
+                    style={[
+                      styles.bannerTitle,
+                      { color: '#FDE047', textAlign: txtAlign },
+                    ]}
+                  >
                     {isAr ? 'وقت النوم الهادئ 🌙' : 'Peaceful Bedtime 🌙'}
                   </Text>
-                  <Text style={[styles.bannerSub, { color: '#E0E7FF', textAlign: txtAlign }]}>
-                    {isAr ? 'هيا نستمع لأذكار النوم المباركة.' : 'Time for restful sleep and bedtime adhkar.'}
+                  <Text
+                    style={[
+                      styles.bannerSub,
+                      { color: '#E0E7FF', textAlign: txtAlign },
+                    ]}
+                  >
+                    {isAr
+                      ? 'هيا نستمع لأذكار النوم المباركة.'
+                      : 'Time for restful sleep and bedtime adhkar.'}
                   </Text>
-                  <View style={[styles.bannerBtnRow, { flexDirection: rowDir }]}>
-                    <TouchableOpacity style={styles.bedtimeDuaBtn} onPress={() => router.push('/dua' as any)} activeOpacity={0.85}>
-                      <Text style={styles.bannerBtnText}>{isAr ? 'أذكار النوم 🤲' : 'Bedtime Dua'}</Text>
+                  <View
+                    style={[
+                      styles.bannerBtnRow,
+                      { flexDirection: rowDir },
+                    ]}
+                  >
+                    <TouchableOpacity
+                      style={styles.bedtimeDuaBtn}
+                      onPress={() => router.push('/dua' as any)}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.bannerBtnText}>
+                        {isAr ? 'أذكار النوم 🤲' : 'Bedtime Dua'}
+                      </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.bedtimeParentBtn} onPress={() => setParentGateVisible(true)} activeOpacity={0.85}>
-                      <Text style={[styles.bannerBtnText, { color: '#C7D2FE' }]}>{isAr ? 'للأهل 🔑' : 'Parent Unlock'}</Text>
+                    <TouchableOpacity
+                      style={styles.bedtimeParentBtn}
+                      onPress={() => setParentGateVisible(true)}
+                      activeOpacity={0.85}
+                    >
+                      <Text
+                        style={[styles.bannerBtnText, { color: '#C7D2FE' }]}
+                      >
+                        {isAr ? 'للأهل 🔑' : 'Parent Unlock'}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -432,15 +717,33 @@ export default function HomeScreen() {
                 style={[styles.bannerInner, { flexDirection: rowDir }]}
               >
                 <View style={{ flex: 1, alignItems: align }}>
-                  <Text style={[styles.bannerTitle, { color: '#FFFFFF', textAlign: txtAlign }]}>
+                  <Text
+                    style={[
+                      styles.bannerTitle,
+                      { color: '#FFFFFF', textAlign: txtAlign },
+                    ]}
+                  >
                     {isAr ? 'يوم الجمعة المبارك ✨' : 'Blessed Friday ✨'}
                   </Text>
-                  <Text style={[styles.bannerSub, { color: '#D1FAE5', textAlign: txtAlign }]}>
-                    {isAr ? 'صلّوا على النبي ﷺ واقرأوا سورة الكهف' : 'Send blessings on the Prophet ﷺ and read Al-Kahf'}
+                  <Text
+                    style={[
+                      styles.bannerSub,
+                      { color: '#D1FAE5', textAlign: txtAlign },
+                    ]}
+                  >
+                    {isAr
+                      ? 'صلّوا على النبي ﷺ واقرأوا سورة الكهف'
+                      : 'Send blessings on the Prophet ﷺ and read Al-Kahf'}
                   </Text>
                 </View>
-                <TouchableOpacity style={styles.fridayBtn} onPress={() => router.push('/quran/18' as any)} activeOpacity={0.85}>
-                  <Text style={styles.fridayBtnText}>{isAr ? 'الكهف 📖' : 'Al-Kahf 📖'}</Text>
+                <TouchableOpacity
+                  style={styles.fridayBtn}
+                  onPress={() => router.push('/quran/18' as any)}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.fridayBtnText}>
+                    {isAr ? 'الكهف 📖' : 'Al-Kahf 📖'}
+                  </Text>
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -462,9 +765,17 @@ export default function HomeScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={isAr ? 'استمع إلى نور' : 'Listen to Noor'}
                 >
-                  <Image source={MASCOT_NOOR_IMG} style={styles.mascotImg} resizeMode="cover" />
+                  <Image
+                    source={MASCOT_NOOR_IMG}
+                    style={styles.mascotImg}
+                    resizeMode="cover"
+                  />
                   <View style={styles.mascotBadge}>
-                    <Ionicons name={isPlayingMascot ? 'stop' : 'volume-high'} size={16} color="#0F9D6B" />
+                    <Ionicons
+                      name={isPlayingMascot ? 'stop' : 'volume-high'}
+                      size={16}
+                      color="#0F9D6B"
+                    />
                   </View>
                 </TouchableOpacity>
 
@@ -480,29 +791,46 @@ export default function HomeScreen() {
                   </Text>
                   <Text style={[styles.heroSubtitle, { textAlign: txtAlign }]}>
                     {isAr
-                      ? lastReadMushafPage ? `المصحف الشريف، صفحة ${n(lastReadMushafPage)}` : 'سورة الفاتحة، الآية ٢'
-                      : lastReadMushafPage ? `Holy Mushaf, page ${lastReadMushafPage}` : 'Surah Al-Fatihah, Ayah 2'}
+                      ? lastReadMushafPage
+                        ? `المصحف الشريف، صفحة ${n(lastReadMushafPage)}`
+                        : 'سورة الفاتحة، الآية ٢'
+                      : lastReadMushafPage
+                      ? `Holy Mushaf, page ${lastReadMushafPage}`
+                      : 'Surah Al-Fatihah, Ayah 2'}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.heroBarTrack}>
-                <View style={[styles.heroBarFill, { width: `${resumePercent}%` }]} />
+                <View
+                  style={[
+                    styles.heroBarFill,
+                    { width: `${Math.max(3, resumePercent)}%` },
+                  ]}
+                />
               </View>
 
               <View style={[styles.heroBottomRow, { flexDirection: rowDir }]}>
                 <Text style={styles.heroMeta}>
-                  {isAr ? `${n(resumePercent)}٪ مكتمل` : `${resumePercent}% complete`}
+                  {isAr
+                    ? `${n(resumePercent)}٪ مكتمل • صفحة ${n(pageNum && pageNum > 0 ? pageNum : 1)} من ${n(604)}`
+                    : `${resumePercent}% complete • Page ${pageNum && pageNum > 0 ? pageNum : 1} of 604`}
                 </Text>
                 <View style={[styles.heroStars, { flexDirection: rowDir }]}>
                   <Ionicons name="star" size={16} color="#F5B83D" />
-                  <Text style={styles.heroMeta}>{isAr ? `${n(totalStars)} نجوم` : `${totalStars} stars`}</Text>
+                  <Text style={styles.heroMeta}>
+                    {isAr ? `${n(totalStars)} نجوم` : `${totalStars} stars`}
+                  </Text>
                 </View>
               </View>
 
               <TouchableOpacity
                 style={[styles.startBtn, { flexDirection: rowDir }]}
-                onPress={() => router.push(lastReadMushafPage ? ('/quran/mushaf' as any) : '/quran')}
+                onPress={() =>
+                  router.push(
+                    lastReadMushafPage ? ('/quran/mushaf' as any) : '/quran'
+                  )
+                }
                 activeOpacity={0.9}
                 accessibilityRole="button"
                 accessibilityLabel={isAr ? 'ابدأ' : 'Start'}
@@ -513,26 +841,41 @@ export default function HomeScreen() {
                   color="#0B7A53"
                   style={{ transform: [{ scaleX: isAr ? -1 : 1 }] }}
                 />
-                <Text style={styles.startBtnText}>{isAr ? 'هَيَّا نَبْدَأُ' : "Let's start"}</Text>
+                <Text style={styles.startBtnText}>
+                  {isAr ? 'هَيَّا نَبْدَأُ' : "Let's start"}
+                </Text>
               </TouchableOpacity>
             </LinearGradient>
           </View>
 
-          {/* ── 3. TODAY'S 3 STEPS ──────────────────────────────────────── */}
+          {/* ── 3. TODAY'S 3 STEPS (with final UI PNG illustrations) ─────── */}
           <View style={styles.section}>
             <View style={[styles.stepsHeader, { flexDirection: rowDir }]}>
-              <View style={[styles.stepsRing, { borderColor: completedCount === 3 ? '#16A34A' : '#E8D9BF', flexDirection: rowDir }]}>
+              <View
+                style={[
+                  styles.stepsRing,
+                  {
+                    borderColor:
+                      completedCount === 3 ? '#16A34A' : '#E8D9BF',
+                    flexDirection: rowDir,
+                  },
+                ]}
+              >
                 <Text style={styles.stepsRingCount}>{n(completedCount)}</Text>
                 <Text style={styles.stepsRingTotal}>{isAr ? '/٣' : '/3'}</Text>
               </View>
               <View style={{ flex: 1, alignItems: align }}>
                 <Text style={[styles.sectionTitle, { textAlign: txtAlign }]}>
-                  {isAr ? 'خُطُوَاتُ الْيَوْمِ الثَّلَاثُ' : "Today's 3 steps"}
+                  {isAr ? 'أَنْشِطَةُ تَعَلُّمِ الْقُرْآنِ' : "Today's 3 steps"}
                 </Text>
                 <Text style={[styles.sectionSub, { textAlign: txtAlign }]}>
                   {completedCount === 3
-                    ? isAr ? 'ما شاء الله! أكملت خطوات اليوم 🌱' : 'MashaAllah! Day complete 🌱'
-                    : isAr ? `${n(completedCount)} مِنْ ٣ خُطُوَاتٍ` : `${completedCount} of 3 steps`}
+                    ? isAr
+                      ? 'ما شاء الله! أكملت خطوات اليوم 🌱'
+                      : 'MashaAllah! Day complete 🌱'
+                    : isAr
+                    ? `${n(completedCount)} مِنْ ٣ خُطُوَاتٍ`
+                    : `${completedCount} of 3 steps`}
                 </Text>
               </View>
             </View>
@@ -545,18 +888,45 @@ export default function HomeScreen() {
                     key={step.id}
                     style={[
                       styles.stepTile,
-                      { backgroundColor: done ? step.bg : '#FFFFFF', borderColor: done ? step.color + '66' : '#E8D9BF' },
+                      {
+                        backgroundColor: done ? step.bg : '#FFFFFF',
+                        borderColor: done ? step.color + '66' : '#E8D9BF',
+                      },
                     ]}
                     onPress={() => handleStepTap(step)}
                     activeOpacity={0.8}
                     accessibilityRole="button"
                     accessibilityLabel={isAr ? step.labelAr : step.labelEn}
                   >
-                    <Text style={[styles.stepNumber, { color: step.color }]}>{n(i + 1)}</Text>
-                    <View style={[styles.stepIcon, { backgroundColor: step.bg }]}>
-                      <Ionicons name={done ? 'checkmark-circle' : step.icon} size={32} color={done ? '#16A34A' : step.color} />
+                    <View style={styles.stepTopRow}>
+                      <Text
+                        style={[styles.stepNumber, { color: step.color }]}
+                      >
+                        {n(i + 1)}
+                      </Text>
+                      {done && (
+                        <View style={styles.stepDoneBadge}>
+                          <Ionicons
+                            name="checkmark-circle"
+                            size={20}
+                            color="#16A34A"
+                          />
+                        </View>
+                      )}
                     </View>
-                    <Text style={[styles.stepLabel, { color: done ? '#16A34A' : COLORS.ink900 }]}>
+                    <ExpoImage
+                      source={getStepAsset(step.id)}
+                      style={styles.stepImage}
+                      contentFit="contain"
+                      accessible={false}
+                    />
+                    <Text
+                      style={[
+                        styles.stepLabel,
+                        { color: done ? '#16A34A' : COLORS.ink900 },
+                      ]}
+                      numberOfLines={1}
+                    >
                       {isAr ? step.labelAr : step.labelEn}
                     </Text>
                   </TouchableOpacity>
@@ -565,82 +935,245 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* ── 4. QUICK 2x2: icon + one word ───────────────────────────── */}
+          {/* ── 4. QUICK 2x2 TILES (character art anchored per TILE_ART_SIDE) ── */}
           <View style={styles.quickGrid}>
-            {QUICK_TILES.map((tile) => (
-              <TouchableOpacity
-                key={tile.id}
-                style={[styles.quickTile, { backgroundColor: tile.bg, borderColor: tile.color + '40' }]}
-                onPress={() => router.push(tile.route as any)}
-                activeOpacity={0.85}
-                accessibilityRole="button"
-                accessibilityLabel={isAr ? tile.labelAr : tile.labelEn}
-              >
-                <View style={[styles.quickIcon, { backgroundColor: tile.color }]}>
-                  <Ionicons name={tile.icon} size={32} color="#FFFFFF" />
-                </View>
-                <Text style={[styles.quickTitle, { color: tile.color }]}>{isAr ? tile.titleAr : tile.titleEn}</Text>
-              </TouchableOpacity>
-            ))}
+            {QUICK_TILES.map((tile) => {
+              const tileAsset = getTileAsset(
+                tile.id,
+                isGirl ? 'girl' : 'boy'
+              );
+
+              const isArtOnEnd = TILE_ART_SIDE === 'end';
+              // In RTL: start side is right, end side is left.
+              // In LTR: start side is left, end side is right.
+              const artSide = isArtOnEnd
+                ? (isAr ? 'left' : 'right')
+                : (isAr ? 'right' : 'left');
+
+              const labelSide = isArtOnEnd
+                ? (isAr ? 'right' : 'left')
+                : (isAr ? 'left' : 'right');
+
+              return (
+                <TouchableOpacity
+                  key={tile.id}
+                  style={[
+                    styles.quickTile,
+                    {
+                      backgroundColor: tile.bg,
+                      borderColor: tile.color + '40',
+                    },
+                  ]}
+                  onPress={() => router.push(tile.route as any)}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? tile.labelAr : tile.labelEn}
+                >
+                  {/* Label on labelSide */}
+                  <View
+                    style={[
+                      styles.quickTileContent,
+                      labelSide === 'right'
+                        ? { paddingRight: 16, alignItems: 'flex-start', alignSelf: 'flex-end' }
+                        : { paddingLeft: 16, alignItems: 'flex-start', alignSelf: 'flex-start' },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.quickTitle,
+                        {
+                          color: '#064E3B',
+                          textAlign: txtAlign,
+                        },
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {isAr ? tile.titleAr : tile.titleEn}
+                    </Text>
+                  </View>
+
+                  {/* Artwork image anchored to artSide, 58% of tile width, anchored to bottom edge */}
+                  <View
+                    style={[
+                      styles.quickTileImageWrap,
+                      artSide === 'left' ? { left: 0 } : { right: 0 },
+                    ]}
+                    pointerEvents="none"
+                  >
+                    <ExpoImage
+                      source={tileAsset}
+                      style={[
+                        styles.quickTileImage,
+                        // Flip character towards inside if needed
+                        isAr && tile.id !== 'discover'
+                          ? { transform: [{ scaleX: artSide === 'left' ? -1 : 1 }] }
+                          : null,
+                      ]}
+                      contentFit="contain"
+                      contentPosition="bottom center"
+                      accessible={false}
+                    />
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {/* ── 5. HADITH OF THE DAY ────────────────────────────────────── */}
+          {/* ── 5. HADITH OF THE DAY (with UI_HADITH.wudu illustration) ── */}
           <View style={styles.hadithCard}>
-            <LinearGradient colors={['#FFFBF0', '#FFF3D4']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hadithInner}>
-              <View style={[styles.hadithHeader, { flexDirection: rowDir }]}>
-                <View style={styles.hadithLabelPill}>
-                  <Text style={styles.hadithLabel}>{isAr ? 'حَدِيثُ الْيَوْمِ' : 'Hadith of the Day'}</Text>
-                </View>
-                <TouchableOpacity
-                  style={[styles.hadithPlayBtn, isPlayingHadith && styles.hadithPlayBtnActive]}
-                  onPress={handlePlayHadithOfTheDay}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={isAr ? 'استمع للحديث' : 'Listen to hadith'}
-                >
-                  <Ionicons name={isPlayingHadith ? 'stop' : 'volume-high'} size={26} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={[styles.hadithArabic, { textAlign: txtAlign }]}>«{hadithOfTheDay.arabicText}»</Text>
-
-              <Text style={[styles.hadithExplanation, { textAlign: txtAlign }]} numberOfLines={2}>
-                {getLocalizedHadith(hadithOfTheDay, language).explanation}
-              </Text>
-
-              <TouchableOpacity
-                style={[styles.hadithMoreBtn, { flexDirection: rowDir }]}
-                onPress={() => router.push(`/sunnah/${hadithOfTheDay.id}`)}
-                activeOpacity={0.8}
+            <LinearGradient
+              colors={['#FFFBF0', '#FFF3D4']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.hadithInner}
+            >
+              <View
+                style={[
+                  styles.hadithBodyLayout,
+                  {
+                    flexDirection: isCompactScreen ? 'column' : 'row',
+                  },
+                ]}
               >
-                <Text style={styles.hadithMoreText}>{isAr ? 'قِصَّةُ وَعَمَلُ الْيَوْمِ' : 'Story & Action'}</Text>
-                <Ionicons name={isAr ? 'chevron-back' : 'chevron-forward'} size={18} color="#92400E" />
-              </TouchableOpacity>
+                {/* Leading side Hadith illustration when width >= 380 */}
+                {!isCompactScreen && (
+                  <View style={styles.hadithIllustrationWrap}>
+                    <ExpoImage
+                      source={UI_HADITH.wudu}
+                      style={styles.hadithImg}
+                      contentFit="contain"
+                      accessible={false}
+                    />
+                  </View>
+                )}
+
+                {/* Hadith Content (text shown only once) */}
+                <View style={styles.hadithContentWrap}>
+                  <View
+                    style={[
+                      styles.hadithHeader,
+                      { flexDirection: rowDir },
+                    ]}
+                  >
+                    <View style={styles.hadithLabelPill}>
+                      <Text style={styles.hadithLabel}>
+                        {isAr ? 'حَدِيثُ الْيَوْمِ' : 'Hadith of the Day'}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[
+                        styles.hadithPlayBtn,
+                        isPlayingHadith && styles.hadithPlayBtnActive,
+                      ]}
+                      onPress={handlePlayHadithOfTheDay}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityLabel={
+                        isAr ? 'استمع للحديث' : 'Listen to hadith'
+                      }
+                    >
+                      <Ionicons
+                        name={isPlayingHadith ? 'stop' : 'volume-high'}
+                        size={24}
+                        color="#FFFFFF"
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text
+                    style={[styles.hadithArabic, { textAlign: txtAlign }]}
+                  >
+                    «{hadithOfTheDay.arabicText}»
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.hadithExplanation,
+                      { textAlign: txtAlign },
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {
+                      getLocalizedHadith(hadithOfTheDay, language).explanation
+                    }
+                  </Text>
+
+                  <TouchableOpacity
+                    style={[styles.hadithMoreBtn, { flexDirection: rowDir }]}
+                    onPress={() => router.push(`/sunnah/${hadithOfTheDay.id}`)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.hadithMoreText}>
+                      {isAr ? 'قِصَّةُ وَعَمَلُ الْيَوْمِ' : 'Story & Action'}
+                    </Text>
+                    <Ionicons
+                      name={isAr ? 'chevron-back' : 'chevron-forward'}
+                      size={18}
+                      color="#92400E"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Stack illustration BELOW the text when screen width < 380 */}
+                {isCompactScreen && (
+                  <View
+                    style={[
+                      styles.hadithIllustrationWrap,
+                      { alignSelf: 'center', marginTop: 12 },
+                    ]}
+                  >
+                    <ExpoImage
+                      source={UI_HADITH.wudu}
+                      style={styles.hadithImg}
+                      contentFit="contain"
+                      accessible={false}
+                    />
+                  </View>
+                )}
+              </View>
             </LinearGradient>
           </View>
 
           {/* ── 6. OUR WORLDS ───────────────────────────────────────────── */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { textAlign: txtAlign }]}>{isAr ? 'عَوَالِمُنَا' : 'Our Worlds'}</Text>
+            <Text style={[styles.sectionTitle, { textAlign: txtAlign }]}>
+              {isAr ? 'عَوَالِمُنَا' : 'Our Worlds'}
+            </Text>
             <View style={styles.worldsGrid}>
               {visibleWorlds.map((world) => (
                 <TouchableOpacity
                   key={world.id}
-                  style={[styles.worldCard, { borderColor: world.accent + '55' }]}
+                  style={[
+                    styles.worldCard,
+                    { borderColor: world.accent + '55' },
+                  ]}
                   onPress={() => router.push(world.route as any)}
                   activeOpacity={0.88}
                   accessibilityRole="button"
                   accessibilityLabel={isAr ? world.titleAr : world.titleEn}
                 >
                   <View style={styles.worldImageWrap}>
-                    <Image source={WORLD_IMAGES[world.id]} style={styles.worldImg} resizeMode="cover" />
-                    <LinearGradient colors={['transparent', 'rgba(6,14,10,0.55)']} style={styles.worldImgGradient} />
+                    <Image
+                      source={WORLD_IMAGES[world.id]}
+                      style={styles.worldImg}
+                      resizeMode="cover"
+                    />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(6,14,10,0.55)']}
+                      style={styles.worldImgGradient}
+                    />
                   </View>
                   <View style={styles.worldBody}>
-                    <Text style={[styles.worldTitle, { textAlign: txtAlign }]} numberOfLines={2}>
+                    <Text
+                      style={[styles.worldTitle, { textAlign: txtAlign }]}
+                      numberOfLines={2}
+                    >
                       {isAr ? world.titleAr : world.titleEn}
                     </Text>
-                    <Text style={[styles.worldSubtitle, { textAlign: txtAlign }]} numberOfLines={2}>
+                    <Text
+                      style={[styles.worldSubtitle, { textAlign: txtAlign }]}
+                      numberOfLines={2}
+                    >
                       {isAr ? world.subtitleAr : world.subtitleEn}
                     </Text>
                   </View>
@@ -673,8 +1206,14 @@ export default function HomeScreen() {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.prayerBtn} onPress={() => router.push('/arkan/salah?mode=wudu')} activeOpacity={0.85}>
-                  <Text style={styles.prayerBtnText}>{isAr ? 'الوضوء 💧' : 'Wudu 💧'}</Text>
+                <TouchableOpacity
+                  style={styles.prayerBtn}
+                  onPress={() => router.push('/arkan/salah?mode=wudu')}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.prayerBtnText}>
+                    {isAr ? 'الوضوء 💧' : 'Wudu 💧'}
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -684,30 +1223,59 @@ export default function HomeScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={isAr ? 'إغلاق' : 'Dismiss'}
                 >
-                  <Ionicons name="close" size={22} color="rgba(255,255,255,0.85)" />
+                  <Ionicons
+                    name="close"
+                    size={22}
+                    color="rgba(255,255,255,0.85)"
+                  />
                 </TouchableOpacity>
               </LinearGradient>
             </View>
           )}
 
-          {/* ── TOOLS: moved out of the header (search · language · profile · date) ── */}
+          {/* ── TOOLS: secondary row (search · language · profile · date) ── */}
           {!isYoung && (
             <View style={styles.toolsSection}>
               <View style={[styles.toolsRow, { flexDirection: rowDir }]}>
-                <TouchableOpacity style={styles.toolBtn} onPress={() => setShowSmartSearch(true)} activeOpacity={0.8} accessibilityRole="button">
+                <TouchableOpacity
+                  style={styles.toolBtn}
+                  onPress={() => setShowSmartSearch(true)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAr ? 'البحث في التطبيق' : 'Search app'}
+                >
                   <Ionicons name="search" size={22} color="#064E3B" />
-                  <Text style={styles.toolLabel}>{isAr ? 'بحث' : 'Search'}</Text>
+                  <Text style={styles.toolLabel}>
+                    {isAr ? 'بحث' : 'Search'}
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.toolBtn} onPress={() => setShowProfileSwitcher(true)} activeOpacity={0.8} accessibilityRole="button">
+                <TouchableOpacity
+                  style={styles.toolBtn}
+                  onPress={() => setShowProfileSwitcher(true)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                >
                   <Ionicons name="people" size={22} color="#064E3B" />
                   <Text style={styles.toolLabel}>{t.switchProfile}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.toolBtn} onPress={() => setShowLanguageModal(true)} activeOpacity={0.8} accessibilityRole="button">
-                  <Text style={styles.flagText}>{AVAILABLE_LANGUAGES.find((l) => l.code === language)?.flagEmoji || '🇸🇦'}</Text>
-                  <Text style={styles.toolLabel}>{isAr ? 'اللغة' : 'Language'}</Text>
+                <TouchableOpacity
+                  style={styles.toolBtn}
+                  onPress={() => setShowLanguageModal(true)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.flagText}>
+                    {AVAILABLE_LANGUAGES.find((l) => l.code === language)
+                      ?.flagEmoji || '🇸🇦'}
+                  </Text>
+                  <Text style={styles.toolLabel}>
+                    {isAr ? 'اللغة' : 'Language'}
+                  </Text>
                 </TouchableOpacity>
               </View>
-              {mounted ? <Text style={styles.dateText}>{todayDateStr}</Text> : null}
+              {mounted ? (
+                <Text style={styles.dateText}>{todayDateStr}</Text>
+              ) : null}
             </View>
           )}
         </ScrollView>
@@ -721,7 +1289,11 @@ export default function HomeScreen() {
         starsEarned={1}
         gemsEarned={2}
         title={isAr ? 'أحسنت يا بطل!' : 'MashaAllah!'}
-        subtitle={isAr ? 'استمعت لكلام النبي ﷺ المبارك ونلت أجراً ونوراً!' : 'You listened to the blessed words of the Prophet ﷺ!'}
+        subtitle={
+          isAr
+            ? 'استمعت لكلام النبي ﷺ المبارك ونلت أجراً ونوراً!'
+            : 'You listened to the blessed words of the Prophet ﷺ!'
+        }
         onDismiss={() => setShowHadithReward(false)}
       />
 
@@ -729,8 +1301,16 @@ export default function HomeScreen() {
         visible={showDailyCelebrationModal}
         starsEarned={10}
         gemsEarned={3}
-        title={isAr ? 'مُبَارَكٌ! أَتْمَمْتَ خُطُوَاتِ الْيَوْمِ الثَّلَاثَ 🎉' : 'MashaAllah! All 3 daily steps completed! 🎉'}
-        subtitle={isAr ? 'أحسنت يا بطل! أتممت الاستماع والتعلم والتطبيق ونلت الأجر والنجوم!' : 'You completed listening, learning, and practice!'}
+        title={
+          isAr
+            ? 'مُبَارَكٌ! أَتْمَمْتَ خُطُوَاتِ الْيَوْمِ الثَّلَاثَ 🎉'
+            : 'MashaAllah! All 3 daily steps completed! 🎉'
+        }
+        subtitle={
+          isAr
+            ? 'أحسنت يا بطل! أتممت الاستماع والتعلم والتطبيق ونلت الأجر والنجوم!'
+            : 'You completed listening, learning, and practice!'
+        }
         onDismiss={() => setShowDailyCelebrationModal(false)}
       />
 
@@ -744,18 +1324,37 @@ export default function HomeScreen() {
       />
 
       {showSmartSearch && (
-        <SmartSearchModal visible={showSmartSearch} onDismiss={() => setShowSmartSearch(false)} />
+        <SmartSearchModal
+          visible={showSmartSearch}
+          onDismiss={() => setShowSmartSearch(false)}
+        />
       )}
 
-      <ChildProfileSwitchModal visible={showProfileSwitcher} onClose={() => setShowProfileSwitcher(false)} />
-      <LanguageSelectModal visible={showLanguageModal} onClose={() => setShowLanguageModal(false)} />
+      <ChildProfileSwitchModal
+        visible={showProfileSwitcher}
+        onClose={() => setShowProfileSwitcher(false)}
+      />
+      <LanguageSelectModal
+        visible={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: COLORS.sand50, width: '100%', height: '100%' },
-  appContainer: { flex: 1, width: '100%', backgroundColor: COLORS.sand50, flexDirection: 'column' },
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.sand50,
+    width: '100%',
+    height: '100%',
+  },
+  appContainer: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: COLORS.sand50,
+    flexDirection: 'column',
+  },
   mainCanvas: { flex: 1, width: '100%', backgroundColor: COLORS.sand50 },
   mainCanvasContent: {
     paddingHorizontal: SPACING.md,
@@ -767,8 +1366,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   section: { gap: 12 },
-  sectionTitle: { fontSize: 22, fontWeight: '900', color: COLORS.brandEmerald },
-  sectionSub: { fontSize: 14, color: COLORS.textSecondary, marginTop: 2, fontWeight: '600' },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.brandEmerald,
+  },
+  sectionSub: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    fontWeight: '600',
+  },
 
   // Header
   headerRow: { alignItems: 'center', gap: 8 },
@@ -781,7 +1389,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   greetingSub: { fontSize: 14, color: COLORS.gardenGreen, fontWeight: '700' },
-  greetingMain: { fontSize: 22, fontWeight: '900', color: COLORS.brandEmerald, marginTop: 1 },
+  greetingMain: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.brandEmerald,
+    marginTop: 1,
+  },
   streakChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -807,7 +1420,39 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E8D9BF',
   },
-  parentLockLabel: { fontSize: 14, fontWeight: '700', color: '#5F5E5A', marginTop: 1 },
+  parentLockLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#5F5E5A',
+    marginTop: 1,
+  },
+
+  // 1.b. Header Banner
+  headerBannerWrap: {
+    width: '100%',
+    height: 175,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+  },
+  headerBannerImg: {
+    width: '100%',
+    height: '100%',
+  },
+  headerBannerTextWrap: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  headerBannerTitle: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#064E3B',
+    lineHeight: 38,
+  },
 
   // Bismillah
   bismillahBanner: {
@@ -819,14 +1464,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     ...SHADOWS.medium,
   },
-  bismillahText: { fontSize: 24, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 38 },
+  bismillahText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 38,
+  },
 
   // Banners (bedtime / friday)
   bannerWrap: { borderRadius: RADIUS.xl, overflow: 'hidden', ...SHADOWS.soft },
   bannerInner: { padding: 16, alignItems: 'center', gap: 12 },
   bannerTitle: { fontSize: 17, fontWeight: '800', marginBottom: 2 },
   bannerSub: { fontSize: 14, lineHeight: 20 },
-  bannerBtnRow: { alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 8 },
+  bannerBtnRow: {
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
   bannerBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
   bedtimeDuaBtn: {
     minHeight: 48,
@@ -879,8 +1535,18 @@ const styles = StyleSheet.create({
     ...SHADOWS.soft,
   },
   heroTitle: { fontSize: 20, fontWeight: '900', color: '#FFFFFF' },
-  heroSubtitle: { fontSize: 15, color: 'rgba(255,255,255,0.92)', marginTop: 3, fontWeight: '600' },
-  heroBarTrack: { height: 12, backgroundColor: 'rgba(255,255,255,0.35)', borderRadius: 6, overflow: 'hidden' },
+  heroSubtitle: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.92)',
+    marginTop: 3,
+    fontWeight: '600',
+  },
+  heroBarTrack: {
+    height: 12,
+    backgroundColor: 'rgba(255,255,255,0.35)',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
   heroBarFill: { height: 12, backgroundColor: '#FFFFFF', borderRadius: 6 },
   heroBottomRow: { justifyContent: 'space-between', alignItems: 'center' },
   heroStars: { alignItems: 'center', gap: 5 },
@@ -907,44 +1573,121 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
-  stepsRingCount: { fontSize: 20, fontWeight: '900', color: COLORS.brandEmerald },
-  stepsRingTotal: { fontSize: 14, fontWeight: '700', color: COLORS.textMuted, marginTop: 3 },
+  stepsRingCount: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: COLORS.brandEmerald,
+  },
+  stepsRingTotal: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+    marginTop: 3,
+  },
   stepsTiles: { gap: 10 },
   stepTile: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 6,
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderRadius: RADIUS.xl,
     borderWidth: 2,
-    gap: 8,
-    minHeight: 132,
+    minHeight: 140,
+    minWidth: 90,
     ...SHADOWS.soft,
   },
+  stepTopRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
   stepNumber: { fontSize: 17, fontWeight: '900' },
-  stepIcon: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  stepLabel: { fontSize: 17, fontWeight: '900', textAlign: 'center' },
+  stepDoneBadge: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+  },
+  stepImage: {
+    width: 68,
+    height: 68,
+    marginVertical: 4,
+    flexShrink: 0,
+  },
+  stepLabel: {
+    fontSize: 17,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
 
-  // Quick grid
+  // Quick 2x2 Grid with Character Art
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   quickTile: {
     flexBasis: '47%',
     flexGrow: 1,
-    minHeight: 124,
-    borderRadius: 24,
+    minHeight: 130,
+    borderRadius: 28, // PRD / User requirement: 28px radius
     borderWidth: 2,
-    alignItems: 'center',
+    overflow: 'hidden',
+    position: 'relative',
     justifyContent: 'center',
-    gap: 10,
+    ...SHADOWS.soft,
+  },
+  quickTileContent: {
+    width: '52%',
+    zIndex: 2,
+    justifyContent: 'center',
     paddingVertical: 14,
   },
-  quickIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
-  quickTitle: { fontSize: 19, fontWeight: '900', textAlign: 'center' },
+  quickTitle: {
+    fontSize: 21, // 20-22 px weight 900
+    fontWeight: '900',
+    lineHeight: 28,
+  },
+  quickTileImageWrap: {
+    position: 'absolute',
+    bottom: 0,
+    top: 0,
+    width: '58%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  quickTileImage: {
+    width: '100%',
+    height: '100%',
+  },
 
-  // Hadith
-  hadithCard: { borderRadius: RADIUS.xl, overflow: 'hidden', borderWidth: 1.5, borderColor: '#FCE7B8', ...SHADOWS.soft },
-  hadithInner: { padding: 18, gap: 12 },
+  // Hadith Card
+  hadithCard: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#FCE7B8',
+    ...SHADOWS.soft,
+  },
+  hadithInner: { padding: 18 },
+  hadithBodyLayout: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  hadithIllustrationWrap: {
+    width: 120,
+    height: 110,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  hadithImg: {
+    width: 120,
+    height: 110,
+  },
+  hadithContentWrap: {
+    flex: 1,
+    gap: 10,
+    width: '100%',
+  },
   hadithHeader: { justifyContent: 'space-between', alignItems: 'center' },
   hadithLabelPill: {
     backgroundColor: '#DCFCE7',
@@ -965,8 +1708,18 @@ const styles = StyleSheet.create({
     ...SHADOWS.soft,
   },
   hadithPlayBtnActive: { backgroundColor: '#DC2626' },
-  hadithArabic: { fontSize: 22, fontWeight: '900', color: COLORS.brandEmerald, lineHeight: 40 },
-  hadithExplanation: { fontSize: 15, color: COLORS.textSecondary, lineHeight: 22, fontWeight: '600' },
+  hadithArabic: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.brandEmerald,
+    lineHeight: 40,
+  },
+  hadithExplanation: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
+    fontWeight: '600',
+  },
   hadithMoreBtn: {
     alignSelf: 'flex-start',
     alignItems: 'center',
@@ -977,6 +1730,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#FCE7B8',
+    marginTop: 4,
   },
   hadithMoreText: { fontSize: 15, fontWeight: '800', color: '#92400E' },
 
@@ -991,18 +1745,54 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     ...SHADOWS.soft,
   },
-  worldImageWrap: { width: '100%', height: 130, backgroundColor: '#E6EDE8' },
+  worldImageWrap: {
+    width: '100%',
+    height: 130,
+    backgroundColor: '#E6EDE8',
+  },
   worldImg: { width: '100%', height: '100%' },
-  worldImgGradient: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 50 },
+  worldImgGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 50,
+  },
   worldBody: { padding: 14, gap: 4 },
-  worldTitle: { fontSize: 18, fontWeight: '900', color: COLORS.brandEmerald, lineHeight: 26 },
-  worldSubtitle: { fontSize: 14, color: COLORS.textSecondary, fontWeight: '600', lineHeight: 20 },
+  worldTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.brandEmerald,
+    lineHeight: 26,
+  },
+  worldSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
 
   // Prayer strip
-  prayerStrip: { borderRadius: RADIUS.xl, overflow: 'hidden', borderWidth: 1.5, borderColor: '#BAE6FD', ...SHADOWS.soft },
-  prayerInner: { alignItems: 'center', paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
+  prayerStrip: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+    ...SHADOWS.soft,
+  },
+  prayerInner: {
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 10,
+  },
   prayerTitle: { fontSize: 16, fontWeight: '900', color: '#FFFFFF' },
-  prayerSub: { fontSize: 14, color: '#E0F2FE', fontWeight: '600', marginTop: 2 },
+  prayerSub: {
+    fontSize: 14,
+    color: '#E0F2FE',
+    fontWeight: '600',
+    marginTop: 2,
+  },
   prayerBtn: {
     minHeight: 48,
     justifyContent: 'center',
@@ -1011,7 +1801,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
   },
   prayerBtnText: { fontSize: 15, fontWeight: '900', color: '#0284C7' },
-  prayerDismiss: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  prayerDismiss: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   // Tools (secondary)
   toolsSection: { gap: 10, alignItems: 'center' },

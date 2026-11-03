@@ -1,19 +1,13 @@
-// AppBottomNav — 5 task-based tabs per PRD §5 (NAV-1)
+// AppBottomNav — 5 task-based tabs with Rawda Kids final UI navigation assets
 // Home · Quran · My Prayer · Discover · Me
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image as ExpoImage } from 'expo-image';
 import { useAppStore } from '@/store/useAppStore';
-import { Language } from "@/constants/i18n";
-import { SHADOWS, COLORS } from '@/constants/theme';
-
-// 3D Pixar-style visual assets for bottom navigation menu
-const TAB_IMAGES: Record<string, any> = {
-  home: require('../../assets/images/nav-home-3d.jpg'),
-  quran: require('../../assets/images/nav-quran-3d.jpg'),
-  prayer: require('../../assets/images/salah-takbeer-3d.jpg'),
-  discover: require('../../assets/images/nav-prophets-3d.jpg'),
-  me: require('../../assets/images/nav-rewards-3d.jpg'),
-};
+import { Language } from '@/constants/i18n';
+import { SHADOWS } from '@/constants/theme';
+import { UI_NAV, getNavAvatarAsset } from '@/constants/uiAssets';
 
 // Multilingual labels for each of the 5 tabs
 const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
@@ -79,19 +73,25 @@ const NAV_TAB_LABELS: Record<string, Record<Language, string>> = {
   },
 };
 
-// Tab color accents
-const TAB_COLORS: Record<string, string> = {
-  home: COLORS.gardenGreen,
-  quran: '#059669',
-  prayer: '#0284C7',
-  discover: '#7C3AED',
-  me: '#D97706',
-};
-
 export default function AppBottomNav() {
   const router = useRouter();
   const pathname = usePathname() || '/';
-  const { language } = useAppStore();
+  const insets = useSafeAreaInsets();
+  const { language, profiles, activeProfileId } = useAppStore();
+
+  const activeProfile =
+    profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  const avatarStr = activeProfile?.avatar || '';
+  const isGirl = Boolean(
+    activeProfile?.gender === 'female' ||
+    avatarStr.includes('girl') ||
+    avatarStr.includes('female') ||
+    avatarStr.includes('zahra') ||
+    avatarStr.includes('maryam') ||
+    avatarStr === '👧' ||
+    avatarStr === '🧕' ||
+    avatarStr === '🌸'
+  );
 
   const isHomeActive = pathname === '/';
   const isQuranActive = pathname.startsWith('/quran');
@@ -113,7 +113,9 @@ export default function AppBottomNav() {
     pathname.startsWith('/tafakkur') ||
     pathname.startsWith('/nations') ||
     pathname.startsWith('/animals') ||
-    (pathname.startsWith('/sunnah') && !pathname.startsWith('/sunnah/adhkar') && !pathname.startsWith('/sunnah/tasbih'));
+    (pathname.startsWith('/sunnah') &&
+      !pathname.startsWith('/sunnah/adhkar') &&
+      !pathname.startsWith('/sunnah/tasbih'));
   // Me: me hub, profile, progress, rewards, parents
   const isMeActive =
     pathname.startsWith('/me') ||
@@ -126,29 +128,36 @@ export default function AppBottomNav() {
     {
       id: 'home',
       route: '/',
+      image: UI_NAV.home,
       isActive: isHomeActive,
     },
     {
       id: 'quran',
       route: '/quran',
+      image: UI_NAV.quran,
       isActive: isQuranActive,
     },
     {
       id: 'prayer',
       route: '/prayer',
+      image: UI_NAV.stories,
       isActive: isPrayerActive,
     },
     {
       id: 'discover',
       route: '/discover',
+      image: UI_NAV.discover,
       isActive: isDiscoverActive,
     },
     {
       id: 'me',
       route: '/me',
+      image: getNavAvatarAsset(isGirl ? 'girl' : 'boy'),
       isActive: isMeActive,
     },
   ];
+
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8);
 
   return (
     <View
@@ -157,18 +166,19 @@ export default function AppBottomNav() {
       aria-label={language === 'ar' ? 'شريط التنقل الرئيسي' : 'Main Navigation'}
     >
       <View
-        style={styles.container}
+        style={[styles.container, { paddingBottom: bottomPadding }]}
         role="tablist"
       >
         {tabs.map((tab) => {
-          const color = TAB_COLORS[tab.id] || COLORS.gardenGreen;
-          const imageSrc = TAB_IMAGES[tab.id];
           const label = NAV_TAB_LABELS[tab.id]?.[language] || tab.id;
 
           return (
             <TouchableOpacity
               key={tab.id}
-              style={styles.tabButton}
+              style={[
+                styles.tabButton,
+                tab.isActive && styles.tabButtonActive,
+              ]}
               onPress={() => {
                 if (pathname !== tab.route) {
                   router.push(tab.route as any);
@@ -179,37 +189,24 @@ export default function AppBottomNav() {
               accessibilityRole="tab"
               accessibilityState={{ selected: tab.isActive }}
             >
-              {/* Active indicator bar at top */}
-              {tab.isActive && (
-                <View style={[styles.activeBar, { backgroundColor: color }]} />
-              )}
+              {/* Slim green active indicator at the very top of the tab */}
+              {tab.isActive && <View style={styles.activeBar} />}
 
-              {/* 3D Visual Icon Badge */}
-              <View
-                style={[
-                  styles.iconBadge,
-                  tab.isActive
-                    ? [styles.iconBadgeActive, { borderColor: color }]
-                    : null,
-                ]}
-              >
-                {imageSrc ? (
-                  <Image
-                    source={imageSrc}
-                    style={[
-                      styles.tabImage,
-                      { opacity: tab.isActive ? 1 : 0.72 },
-                    ]}
-                    resizeMode="cover"
-                  />
-                ) : null}
+              {/* Navigation Icon */}
+              <View style={styles.iconWrap}>
+                <ExpoImage
+                  source={tab.image}
+                  style={styles.tabImage}
+                  contentFit="contain"
+                  accessible={false}
+                />
               </View>
 
               {/* Label */}
               <Text
                 style={[
                   styles.tabLabel,
-                  tab.isActive && { color, fontWeight: '800' },
+                  tab.isActive && styles.tabLabelActive,
                 ]}
                 numberOfLines={1}
               >
@@ -239,55 +236,52 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingTop: 4,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-    paddingHorizontal: 4,
+    paddingTop: 6,
+    paddingHorizontal: 8,
     backgroundColor: '#FFFFFF',
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    minHeight: 56, // PRD: 56dp touch target for ages 4-9
-    paddingTop: 2,
+    justifyContent: 'center',
+    minHeight: 56, // PRD: min 56dp touch target for children
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    borderRadius: 20,
     position: 'relative',
+  },
+  tabButtonActive: {
+    backgroundColor: '#D1FAE5', // Active tab pill background
   },
   activeBar: {
     position: 'absolute',
     top: 0,
-    left: '20%',
-    right: '20%',
+    left: '25%',
+    right: '25%',
     height: 3,
+    backgroundColor: '#059669', // Slim green top indicator
     borderRadius: 2,
   },
-  iconBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  iconWrap: {
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
     marginBottom: 2,
-    overflow: 'hidden',
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  iconBadgeActive: {
-    transform: [{ scale: 1.1 }],
-    borderWidth: 2,
-    ...SHADOWS.soft,
   },
   tabImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 17,
+    width: 38,
+    height: 38,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#6B7280',
     textAlign: 'center',
     letterSpacing: 0.1,
+  },
+  tabLabelActive: {
+    color: '#064E3B',
+    fontWeight: '900',
   },
 });

@@ -1730,6 +1730,26 @@
   - Web Build: `npx expo export --platform web` built all 37 routes cleanly to `dist/`.
   - Full E2E Test Suite (`node scripts/test-e2e.js`): **106 / 106 passed (100%)**.
 
+### Milestone 34: Storybook Illustration Suite, Blended Banner, 2x2 Feature Tiles & Responsive Hadith Card
+- **Custom UI Illustration Suite ([`src/constants/uiAssets.ts`](file:///g:/quran%20app%20for%20kids/src/constants/uiAssets.ts) & `assets/images/ui/`):**
+  - Generated and processed 9 WebP transparent illustration assets with edge-tolerance flood-fill and 1px feathering: `header-banner.webp`, `tile-wudu-boy.webp`, `tile-wudu-girl.webp`, `tile-repeat-boy.webp`, `tile-repeat-girl.webp`, `tile-salah-boy.webp`, `tile-salah-girl.webp`, `tile-discover.webp`, and `hadith-wudu.webp`.
+  - Produced 3 step icons (`step-listen.png`, `step-learn.png`, `step-practice.png`) and 6 nav icons (`nav-home.png`, `nav-quran.png`, `nav-stories.png`, `nav-discover.png`, `nav-me.png`, `nav-me-girl.png`).
+  - Helper functions `getTileAsset()`, `getStepAsset()`, and `getNavAvatarAsset()` dynamically map active child profile (`isGirl`) and step state.
+- **Home Screen Modernization ([`src/app/index.tsx`](file:///g:/quran%20app%20for%20kids/src/app/index.tsx)):**
+  - Blended header banner seamlessly into page background without harsh borders, characters scaled to ~75% banner height, title text overlaid cleanly without collision.
+  - Learning activities step cards updated with 68px custom step illustrations, 17px typography, and store persistence.
+  - 2x2 interactive feature tiles with gender-adaptive character illustrations, 58% width anchored to the bottom edge, with customizable `TILE_ART_SIDE = 'end'` layout.
+  - Responsive Hadith card with `hadith-wudu.webp` placed on the leading side for viewports >= 380px and stacked below on narrower screens (< 380px), deduplicated text rendering.
+  - Progress card updated with min 3% visual fill and `صفحة X من ٦٠٤` page count label.
+  - Typography baseline enforced to >= 14px across all elements.
+- **Bottom Navigation Modernization ([`src/components/AppBottomNav.tsx`](file:///g:/quran%20app%20for%20kids/src/components/AppBottomNav.tsx)):**
+  - 38px custom illustrations replacing generic vector icons, with gender-adaptive avatar (`meBoy` / `meGirl`).
+  - Active pill indicator (#D1FAE5), green top border line, 14px labels, 56px minimum touch targets, and safe area scrolling clearance.
+- **Verification:**
+  - TypeScript: `npx tsc --noEmit` exited code 0 (zero errors).
+  - Production Web Build: `npm run build` exported all 37 routes cleanly to `dist/`.
+  - Automated CDP Testing: Tested in mobile (390x844) and desktop (1280x800) emulations, confirming 0 console errors, 0 broken images (22/22 loaded), correct RTL orientation, and step store persistence.
+
 ## 3. Strict Rules & Constraints for Future AI Agents
 
 1. **Theological Integrity & Respect:**
