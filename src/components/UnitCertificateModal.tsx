@@ -2,7 +2,6 @@
 // Client-side A4 landscape certificate with real Arabic text, Gregorian & Hijri dates
 // No child photo, school, or location. First name only (or "بَطَلُ رَوْضَةِ كِيدْز")
 
-import React from 'react';
 import {
   View,
   Text,

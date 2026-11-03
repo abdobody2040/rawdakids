@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 import { Modal, View, StyleSheet, Platform } from 'react-native';
 import ParentGateView from './ParentGateView';
 

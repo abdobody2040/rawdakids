@@ -4,7 +4,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Progress ring: role="img" aria-label="أَنْجَزْتَ N دُرُوسٍ مِنْ M"
 // Certificate card at bottom unlocking client-side certificate
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,

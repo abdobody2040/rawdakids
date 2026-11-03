@@ -38,7 +38,7 @@ function splitText(text, maxLen = 140) {
 }
 
 function fetchGoogleTTSChunk(chunk, lang = 'ar') {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const safeLang = encodeURIComponent(lang || 'ar');
     const safeText = encodeURIComponent(chunk);
     const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${safeLang}&client=tw-ob&q=${safeText}`;
@@ -152,7 +152,7 @@ module.exports = async function handler(req, res) {
     res.setHeader('Accept-Ranges', 'bytes');
 
     res.end(combined);
-  } catch (err) {
+  } catch (_err) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ error: 'Internal server error processing TTS request' }));

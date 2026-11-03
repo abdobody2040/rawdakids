@@ -5,7 +5,7 @@
 // Basmala header rules: verse 1 in Al-Fatihah, header line in others, omitted in At-Tawbah
 // Supports font sizing (A-/A+), recitation highlighting, and gradual fade memorization
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,

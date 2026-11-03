@@ -1,15 +1,14 @@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
+  TouchableOpacity,Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { hadithService } from '@/services/hadithService';
@@ -167,7 +166,7 @@ export default function HadithDetailScreen() {
   const [activeStoryScene, setActiveStoryScene] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
-  const [imageError, setImageError] = useState<boolean>(false);
+  const [_imageError, setImageError] = useState<boolean>(false);
 
   
   const currentScene = localized.miniStory[activeStoryScene];

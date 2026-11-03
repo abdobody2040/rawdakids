@@ -1,7 +1,7 @@
 // src/app/prayer/wudu.tsx
 // Interactive Wudu Step Screen (Mockup Page 3: Step 6 of 10 - غَسْلُ الْوَجْهِ)
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
 import { audioService } from '@/services/audioService';

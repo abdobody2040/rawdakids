@@ -179,7 +179,7 @@ export function formatTime12h(hours: number, minutes: number, isArabic: boolean)
 export function getPrayerTimesForCity(
   cityKey = 'cairo',
   madhhab: 'hanafi' | 'maliki' | 'shafii' | 'hanbali' = 'shafii',
-  isArabic = true
+  _isArabic = true
 ): {
   city: CityPrayerConfig;
   slots: PrayerTimeSlot[];

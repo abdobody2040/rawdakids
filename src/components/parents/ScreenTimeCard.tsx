@@ -1,7 +1,6 @@
 // src/components/parents/ScreenTimeCard.tsx
 // Screen time daily limits and Bedtime Lock Window (PRD §8 - PAR-2 & PAR-3)
 
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { Ionicons } from '@expo/vector-icons';

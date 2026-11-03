@@ -1,5 +1,5 @@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -97,7 +97,7 @@ export default function ParentsScreen() {
   const [report, setReport] = useState<ParentDashboardData | null>(null);
   const [selectedCertUnit, setSelectedCertUnit] = useState<string | null>(null);
   const [resetTarget, setResetTarget] = useState<{ store: StoreName; titleAr: string } | null>(null);
-  const [isOffline, setIsOffline] = useState<boolean>(() => (typeof window !== 'undefined' ? !window.navigator.onLine : false));
+  const [_isOffline, setIsOffline] = useState<boolean>(() => (typeof window !== 'undefined' ? !window.navigator.onLine : false));
 
   // Listen to offline/online events
   useEffect(() => {

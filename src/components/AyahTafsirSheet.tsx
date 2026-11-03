@@ -2,7 +2,7 @@
 // Displays Tafsir Al-Muyassar and Tafsir As-Sa'di with offline caching
 // Navigation: "السَّابِقَةُ / التَّالِيَةُ", Recitation listen button, accessible text >=18px
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,

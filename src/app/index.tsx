@@ -1,7 +1,7 @@
 // Home Screen — Rawda Kids (redesign v2)
 // Order: Header · Hero Start · Today's 3 Steps · Quick 2x2 · Hadith · Worlds · Prayer strip · Tools
 // Rules: min text 14px, min tap target 56px, one digit system, fewer competing entry points.
-import { useEffect, useState, useMemo, Suspense, lazy } from 'react';
+import { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -106,7 +106,6 @@ const SIX_WORLDS: World[] = [
   { id: 'wonder', titleAr: 'التَّفَكُّرُ', titleEn: 'Wonder', subtitleAr: 'آيَاتُ اللَّهِ فِي الْكَوْنِ', subtitleEn: 'Signs of Allah in creation', route: '/tafakkur', accent: '#0369A1', bg: '#E0F2FE' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────
 export default function HomeScreen() {
   const router = useRouter();
 
@@ -754,7 +753,6 @@ export default function HomeScreen() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.sand50, width: '100%', height: '100%' },
   appContainer: { flex: 1, width: '100%', backgroundColor: COLORS.sand50, flexDirection: 'column' },

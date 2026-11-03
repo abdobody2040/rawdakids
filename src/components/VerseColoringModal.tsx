@@ -2,7 +2,6 @@
 // 4 choices: حَفِظْتُهَا (green check), مُتْقَنَةٌ (gold star), أُرَاجِعُهَا (rose refresh), بِدُونِ لَوْنٍ
 // Accessible buttons >=48px with Arabic labels
 
-import React from 'react';
 import {
   View,
   Text,
@@ -26,7 +25,7 @@ interface VerseColoringModalProps {
 
 export default function VerseColoringModal({
   visible,
-  surahNumber,
+  surahNumber: _surahNumber,
   verseNumber,
   currentColor,
   onSelectColor,

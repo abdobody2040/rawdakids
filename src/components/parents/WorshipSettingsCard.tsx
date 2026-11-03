@@ -1,7 +1,6 @@
 // src/components/parents/WorshipSettingsCard.tsx
 // Fiqh Madhhab selector, city prayer calculation, and Adhan audio controls (PRD §8 - PRY-3 & PRY-4)
 
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { Ionicons } from '@expo/vector-icons';

@@ -3,7 +3,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useAppStore } from '@/store/useAppStore';
-import { Language, isRTL } from '@/constants/i18n';
+import { Language } from "@/constants/i18n";
 import { SHADOWS, COLORS } from '@/constants/theme';
 
 // 3D Pixar-style visual assets for bottom navigation menu

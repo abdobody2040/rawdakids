@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
@@ -23,11 +23,11 @@ interface AudioPlayerBarProps {
 
 export default function AudioPlayerBar({
   isPlaying,
-  activeAyahNumber,
-  totalAyahs,
+  activeAyahNumber: _activeAyahNumber,
+  totalAyahs: _totalAyahs,
   speed,
   repeatCount,
-  currentRepeatCycle = 1,
+  currentRepeatCycle: _currentRepeatCycle = 1,
   onPlayPause,
   onNextAyah,
   onPrevAyah,

@@ -17,12 +17,7 @@ import { quranService } from '@/services/quranService';
 import { audioService } from '@/services/audioService';
 import { useAppStore, HifzStatus } from '@/store/useAppStore';
 import { TRANSLATIONS } from '@/constants/i18n';
-import {
-  getQuranSaveBtnLabel,
-  getQuranStoryShowcaseTitle,
-  getQuranGoldenLessonTag,
-} from '@/services/multilingualContentService';
-import { COLORS, SPACING, RADIUS, SHADOWS, TYPOGRAPHY } from '@/constants/theme';
+import { COLORS, SPACING, RADIUS, SHADOWS } from "@/constants/theme";
 import { Ayah } from '@/data/quranData';
 import Header from '@/components/Header';
 import AudioPlayerBar from '@/components/AudioPlayerBar';
@@ -79,7 +74,7 @@ export default function SurahDetailScreen() {
   const [wordsPerStep, setWordsPerStep] = useState<number>(3);
   const [hiddenWordsMap, setHiddenWordsMap] = useState<Record<number, number[]>>({});
   const [versesColorMap, setVersesColorMap] = useState<Record<number, VerseColor>>({});
-  const [allHiddenSuccess, setAllHiddenSuccess] = useState<boolean>(false);
+  const [_allHiddenSuccess, setAllHiddenSuccess] = useState<boolean>(false);
   const [showUnreviewedNotice, setShowUnreviewedNotice] = useState<boolean>(false);
 
   // Tafsir Bottom Sheet (A4)

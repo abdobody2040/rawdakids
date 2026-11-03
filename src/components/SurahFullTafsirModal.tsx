@@ -1,5 +1,5 @@
 // Full Surah Tafsir Modal (قائمة تفسير السورة كاملة)
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,9 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Platform,
   useWindowDimensions,
-} from 'react-native';
+} from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { tafsirService, TafsirSource, TAFSIR_SOURCES } from '@/services/tafsirService';
@@ -31,7 +30,7 @@ export default function SurahFullTafsirModal({
   surah,
   language,
   onDismiss,
-  onPlayAyah,
+  onPlayAyah: _onPlayAyah,
 }: SurahFullTafsirModalProps) {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;

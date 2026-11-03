@@ -3,7 +3,7 @@ import { formatAyahsCount } from '@/utils/arabicCount';
 // Offline Audio Storage & Cache Manager (PRD §10 - OFF-1 & §16)
 // Provides parent-managed audio caching, storage quota caps, and one-tap Juz Amma downloads.
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   View,
   Text,

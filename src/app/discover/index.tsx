@@ -1,6 +1,6 @@
 // Discover Hub (اكتشف) — PRD §7.5
 // Stories · Character & Sunnah · Names of Allah · Wonder & Universe
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

@@ -34,7 +34,7 @@ const AGE_SCHOLAR_IMG = require('../../assets/images/age-scholar-3d.jpg');
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { language, setLanguage, profiles, addProfile, deleteProfile, completeOnboarding } = useAppStore();
+  const { language, setLanguage, profiles: _profiles, addProfile, deleteProfile: _deleteProfile, completeOnboarding } = useAppStore();
   const t = TRANSLATIONS[language];
 
   const isAr = language === 'ar';

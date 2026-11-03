@@ -3,7 +3,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Comprehensive 10-Step Interactive Salah Simulator with 3D Visual Assets
 // Built according to authentic Sunnah instructions, 10 clear positions, audio recitation, and rich feedback.
 
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,

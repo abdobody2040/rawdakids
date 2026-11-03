@@ -1,7 +1,7 @@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 // Listen & Repeat: Advanced Memorization & Recitation Mode (وضع التسميع والحفظ المتقدم)
 // Full Surah Mode & Single Ayah Mode · Proper RTL Arabic word ordering · Progressive hiding · Surah switcher
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -1131,9 +1131,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  // -------------------------------------------------------------
-  // FULL SURAH STYLES
-  // -------------------------------------------------------------
   fullSurahContainer: {
     marginBottom: SPACING.md,
   },
@@ -1239,9 +1236,6 @@ const styles = StyleSheet.create({
     color: '#047857',
   },
 
-  // -------------------------------------------------------------
-  // STRICT RTL WORDS CONTAINER (Fix for words written backwards!)
-  // -------------------------------------------------------------
   wordsContainerRTL: {
     flexDirection: Platform.OS === 'web' ? 'row' : (I18nManager.isRTL ? 'row' : 'row-reverse'),
     flexWrap: 'wrap',
@@ -1305,9 +1299,6 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
 
-  // -------------------------------------------------------------
-  // SINGLE AYAH MODE STYLES
-  // -------------------------------------------------------------
   singleAyahContainer: {
     marginBottom: SPACING.md,
   },
@@ -1500,9 +1491,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // -------------------------------------------------------------
-  // SURAH PICKER MODAL STYLES
-  // -------------------------------------------------------------
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

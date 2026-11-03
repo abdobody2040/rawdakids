@@ -1,7 +1,6 @@
 // src/components/TajweedLegendModal.tsx
 // Tajweed Color Coding Legend & Guide (PRD §7.3.5 & QUR-4)
 
-import React from 'react';
 import {
   View,
   Text,
