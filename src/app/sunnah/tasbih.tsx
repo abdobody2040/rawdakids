@@ -216,7 +216,7 @@ function getSharedAudioCtx(): any {
       sharedAudioCtx = new AudioCtx();
     }
     if (sharedAudioCtx.state === 'suspended') {
-      sharedAudioCtx.resume().catch(() => {});
+      sharedAudioCtx.resume().catch(() => { });
     }
     return sharedAudioCtx;
   } catch {
@@ -313,7 +313,7 @@ export default function TasbihScreen() {
       ? activeDhikr.colorScheme
       : (['#047857', '#065F46'] as const);
   const activePrimaryColor = activeColors[0];
-  const activeSecondaryColor = activeColors[1];
+  const _activeSecondaryColor = activeColors[1];
 
   // Restore session from localDbService
   useEffect(() => {
@@ -327,8 +327,8 @@ export default function TasbihScreen() {
           if (typeof record.lastSession.count === 'number') setCount(record.lastSession.count);
         }
       }
-    }).catch(() => {});
-  }, [childId]);
+    }).catch(() => { });
+  }, [childId, availableAzkar]);
 
   useEffect(() => {
     return () => {
@@ -345,13 +345,13 @@ export default function TasbihScreen() {
     // 2. Audio & Haptic feedback (10ms light haptic)
     if (Platform.OS === 'web') {
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        try { navigator.vibrate(10); } catch {}
+        try { navigator.vibrate(10); } catch { }
       }
       if (parentSettings?.soundEffectsEnabled ?? false) {
         playBeadClickSound();
       }
     } else {
-      try { Vibration.vibrate(10); } catch {}
+      try { Vibration.vibrate(10); } catch { }
     }
 
     // 3. Tactile button bounce
@@ -385,19 +385,19 @@ export default function TasbihScreen() {
       setShowCelebration(true);
     } else {
       setCount(nextCount);
-      tasbihService.saveSession(childId, activeDhikr.id, customTarget, nextCount).catch(() => {});
+      tasbihService.saveSession(childId, activeDhikr.id, customTarget, nextCount).catch(() => { });
     }
   };
 
   const handleResetRequest = () => {
     if (count === 0) {
       setCount(0);
-      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => {});
+      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => { });
       return;
     }
     setPendingAction(() => () => {
       setCount(0);
-      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => {});
+      tasbihService.resetSession(childId, activeDhikr.id, customTarget).catch(() => { });
     });
     setShowResetConfirm(true);
   };
@@ -410,7 +410,7 @@ export default function TasbihScreen() {
     setPendingAction(() => () => {
       setActiveDhikr(dhikr);
       setCount(0);
-      tasbihService.resetSession(childId, dhikr.id, customTarget).catch(() => {});
+      tasbihService.resetSession(childId, dhikr.id, customTarget).catch(() => { });
     });
     setShowResetConfirm(true);
   };
@@ -423,7 +423,7 @@ export default function TasbihScreen() {
     setPendingAction(() => () => {
       setCustomTarget(tVal);
       setCount(0);
-      tasbihService.resetSession(childId, activeDhikr.id, tVal).catch(() => {});
+      tasbihService.resetSession(childId, activeDhikr.id, tVal).catch(() => { });
     });
     setShowResetConfirm(true);
   };
@@ -515,7 +515,7 @@ export default function TasbihScreen() {
             <View style={styles.dhikrHeaderRow}>
               <TouchableOpacity
                 style={styles.audioSpeakerBtn}
-                onPress={() => audioService.playDua(activeDhikr.textArabic).catch(() => {})}
+                onPress={() => audioService.playDua(activeDhikr.textArabic).catch(() => { })}
                 activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel="استمع للذكر"

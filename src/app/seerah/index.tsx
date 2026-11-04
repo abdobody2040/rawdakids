@@ -51,7 +51,6 @@ export default function SeerahHubScreen() {
   useDocumentTitle('السيرة النبوية العطرة', 'Prophetic Seerah');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
-  const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
   const [selectedStationId, setSelectedStationId] = useState<string>('seerah-1');

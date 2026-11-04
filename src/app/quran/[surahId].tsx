@@ -60,7 +60,7 @@ export default function SurahDetailScreen() {
   } = useAppStore();
 
   const currentChild = profiles?.find((p) => p.id === activeProfileId);
-  const isAge4to6 = currentChild?.ageBand === '4-6';
+  const _isAge4to6 = currentChild?.ageBand === '4-6';
 
   // Modes & View Formatting (Part A & B1)
   const [quranMode, setQuranMode] = useState<'listen' | 'fade'>('listen');
@@ -345,7 +345,7 @@ export default function SurahDetailScreen() {
     };
   }, [activeProfileId, surahNumber]);
 
-  const handleSelectMode = (mode: 'listen' | 'fade') => {
+  const _handleSelectMode = (mode: 'listen' | 'fade') => {
     if (mode === 'fade') {
       if (!isReviewedForFade) {
         setShowUnreviewedNotice(true);
@@ -386,7 +386,7 @@ export default function SurahDetailScreen() {
     }
   };
 
-  const handleFadeMore = () => {
+  const _handleFadeMore = () => {
     if (!hifzRecord || !surah?.ayahs) return;
     const verseWordCounts: Record<number, number> = {};
     surah.ayahs.forEach((a) => {
@@ -404,7 +404,7 @@ export default function SurahDetailScreen() {
     }
   };
 
-  const handleUndo = () => {
+  const _handleUndo = () => {
     if (!hifzRecord) return;
     const copy = cloneHifzRecord(hifzRecord);
     const restored = hifzFadeService.undoLastAction(copy);
@@ -416,7 +416,7 @@ export default function SurahDetailScreen() {
     }
   };
 
-  const handleResetHidden = () => {
+  const _handleResetHidden = () => {
     if (!hifzRecord) return;
     const copy = cloneHifzRecord(hifzRecord);
     hifzFadeService.resetHiddenWords(copy);
@@ -426,7 +426,7 @@ export default function SurahDetailScreen() {
     setAllHiddenSuccess(false);
   };
 
-  const handleChangeWordsPerStep = (delta: number) => {
+  const _handleChangeWordsPerStep = (delta: number) => {
     const next = Math.max(1, Math.min(6, wordsPerStep + delta));
     setWordsPerStep(next);
     if (hifzRecord) {
@@ -453,7 +453,7 @@ export default function SurahDetailScreen() {
     setTafsirSheetAyahNo(verseNo);
   };
 
-  const hifzProgress = hifzRecord
+  const _hifzProgress = hifzRecord
     ? hifzFadeService.calculateProgress(hifzRecord, surah?.ayahs?.length || 1)
     : { memorizedCount: 0, masteredCount: 0, reviewCount: 0, percent: 0 };
 

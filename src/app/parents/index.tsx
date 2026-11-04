@@ -1,5 +1,5 @@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 import { useAppStore } from '@/store/useAppStore';
 import { isRTL } from '@/constants/i18n';
 import ParentGateView from '@/components/ParentGateView';
@@ -65,6 +66,8 @@ export default function ParentsScreen() {
     profiles,
     activeProfileId,
     setActiveProfile,
+    deleteProfile,
+    resetAllAppData,
     parentSettings,
     updateParentSettings,
     timeSpentTodaySec,
@@ -94,6 +97,42 @@ export default function ParentsScreen() {
   const [showSourcesModal, setShowSourcesModal] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
+  const [showEraseModal, setShowEraseModal] = useState<boolean>(false);
+  const [eraseConfirmStep, setEraseConfirmStep] = useState<1 | 2>(1);
+  const [isErasing, setIsErasing] = useState<boolean>(false);
+  const [childToDelete, setChildToDelete] = useState<{ id: string; name: string } | null>(null);
+
+  const handleOpenPrivacyPolicy = async () => {
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined') {
+        window.open('/privacy.html', '_blank', 'noopener,noreferrer');
+      }
+    } else {
+      try {
+        await WebBrowser.openBrowserAsync('https://rawdakids.vercel.app/privacy.html');
+      } catch {
+        // fallback
+      }
+    }
+  };
+
+  const handleConfirmDeleteChild = () => {
+    if (!childToDelete) return;
+    deleteProfile(childToDelete.id);
+    setChildToDelete(null);
+  };
+
+  const handleExecuteEraseAppData = async () => {
+    setIsErasing(true);
+    try {
+      await resetAllAppData();
+      setShowEraseModal(false);
+      setShowExportModal(false);
+      router.replace('/onboarding');
+    } catch {
+      setIsErasing(false);
+    }
+  };
   const [report, setReport] = useState<ParentDashboardData | null>(null);
   const [selectedCertUnit, setSelectedCertUnit] = useState<string | null>(null);
   const [resetTarget, setResetTarget] = useState<{ store: StoreName; titleAr: string } | null>(null);
@@ -113,15 +152,15 @@ export default function ParentsScreen() {
     }
   }, []);
 
-  const refreshReport = () => {
+  const refreshReport = useCallback(() => {
     parentReportsService.getChildReport(activeProfile.id).then(setReport).catch(() => {});
-  };
+  }, [activeProfile.id]);
 
   useEffect(() => {
     if (isUnlocked) {
       refreshReport();
     }
-  }, [isUnlocked, activeProfile.id]);
+  }, [isUnlocked, refreshReport]);
 
   // Settings values with defaults
   const [showRewards, setShowRewards] = useState<boolean>(true);
@@ -700,7 +739,7 @@ export default function ParentsScreen() {
 
             {/* Row 3: Export or delete */}
             <TouchableOpacity
-              style={[styles.settingsRowLast, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
               onPress={() => setShowExportModal(true)}
               activeOpacity={0.7}
             >
@@ -711,6 +750,51 @@ export default function ParentsScreen() {
                 name={isRtl ? 'chevron-back' : 'chevron-forward'}
                 size={16}
                 color="#94A3B8"
+              />
+            </TouchableOpacity>
+
+            {/* Row 4: Privacy Policy */}
+            <TouchableOpacity
+              style={[styles.settingsRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={handleOpenPrivacyPolicy}
+              activeOpacity={0.7}
+              accessibilityRole="link"
+              accessibilityLabel={isAr ? 'سياسة الخصوصية وأمان الأطفال' : 'Privacy Policy'}
+            >
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="shield-checkmark-outline" size={18} color="#059669" />
+                <Text style={[styles.settingsRowLabel, { color: '#059669', fontWeight: '800' }]}>
+                  {isAr ? 'سياسة الخصوصية وأمان الأطفال' : 'Privacy Policy & Child Safety'}
+                </Text>
+              </View>
+              <Ionicons
+                name="open-outline"
+                size={16}
+                color="#059669"
+              />
+            </TouchableOpacity>
+
+            {/* Row 5: Erase App Data (PRD §7 Deletion Controls) */}
+            <TouchableOpacity
+              style={[styles.settingsRowLast, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}
+              onPress={() => {
+                setEraseConfirmStep(1);
+                setShowEraseModal(true);
+              }}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={isAr ? 'مسح بيانات التطبيق بالكامل' : 'Erase all app data'}
+            >
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="trash-outline" size={18} color="#E11D48" />
+                <Text style={[styles.settingsRowLabel, { color: '#E11D48', fontWeight: '800' }]}>
+                  {isAr ? 'مسح بيانات التطبيق (Erase app data)' : 'Erase All App Data'}
+                </Text>
+              </View>
+              <Ionicons
+                name={isRtl ? 'chevron-back' : 'chevron-forward'}
+                size={16}
+                color="#E11D48"
               />
             </TouchableOpacity>
           </View>
@@ -910,22 +994,40 @@ export default function ParentsScreen() {
                 {isAr ? 'الملفات الشخصية للأطفال' : 'Child Profiles'}
               </Text>
               {profiles.map((p) => (
-                <TouchableOpacity
+                <View
                   key={p.id}
                   style={[
                     styles.pickerOptionRow,
                     activeProfileId === p.id && styles.pickerOptionRowSelected,
+                    { flexDirection: isRtl ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' },
                   ]}
-                  onPress={() => {
-                    setActiveProfile(p.id);
-                    setShowChildPicker(false);
-                  }}
                 >
-                  <Text style={styles.pickerOptionText}>{p.name}</Text>
-                  {activeProfileId === p.id && (
-                    <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                  <TouchableOpacity
+                    style={{ flex: 1, flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}
+                    onPress={() => {
+                      setActiveProfile(p.id);
+                      setShowChildPicker(false);
+                    }}
+                  >
+                    <Text style={styles.pickerOptionText}>{p.name}</Text>
+                    {activeProfileId === p.id && (
+                      <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                    )}
+                  </TouchableOpacity>
+
+                  {profiles.length > 1 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setShowChildPicker(false);
+                        setChildToDelete({ id: p.id, name: p.name });
+                      }}
+                      style={{ padding: 6 }}
+                      accessibilityLabel={isAr ? `حذف ملف ${p.name}` : `Delete ${p.name}`}
+                    >
+                      <Ionicons name="trash-outline" size={18} color="#E11D48" />
+                    </TouchableOpacity>
                   )}
-                </TouchableOpacity>
+                </View>
               ))}
               <TouchableOpacity
                 style={styles.pickerCloseBtn}
@@ -933,6 +1035,109 @@ export default function ParentsScreen() {
               >
                 <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
               </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Delete Single Child Profile Confirmation Modal */}
+        <Modal
+          visible={childToDelete !== null}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setChildToDelete(null)}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="alert-circle-outline" size={36} color="#E11D48" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={styles.pickerModalTitle}>
+                {isAr ? 'حذف ملف الطفل' : 'Delete Child Profile'}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: 'center', marginVertical: 12 }]}>
+                {isAr
+                  ? `هل أنت متأكد من حذف ملف "${childToDelete?.name || ''}" وجميع إنجازاته وتقدمه المحفوظ على هذا الجهاز نهائياً؟`
+                  : `Are you sure you want to permanently delete "${childToDelete?.name || ''}" and all progress saved on this device?`}
+              </Text>
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', gap: 10, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#E11D48', flex: 1 }]}
+                  onPress={handleConfirmDeleteChild}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#FFFFFF' }]}>
+                    {isAr ? 'حذف نهائي' : 'Delete'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#F3F4F6', flex: 1 }]}
+                  onPress={() => setChildToDelete(null)}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#374151' }]}>
+                    {isAr ? 'إلغاء' : 'Cancel'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Erase All App Data Modal (Double Confirmation - PRD §7) */}
+        <Modal
+          visible={showEraseModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => {
+            if (!isErasing) setShowEraseModal(false);
+          }}
+        >
+          <View style={styles.pickerModalOverlay}>
+            <View style={styles.pickerModalCard}>
+              <Ionicons name="warning-outline" size={40} color="#E11D48" style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <Text style={[styles.pickerModalTitle, { color: '#E11D48' }]}>
+                {eraseConfirmStep === 1
+                  ? (isAr ? 'مسح بيانات التطبيق بالكامل' : 'Erase All App Data')
+                  : (isAr ? 'تأكيد نهائي وأخير ⚠️' : 'Final Warning ⚠️')}
+              </Text>
+              <Text style={[styles.sourcesModalBody, { textAlign: 'center', marginVertical: 12 }]}>
+                {eraseConfirmStep === 1
+                  ? (isAr
+                      ? 'سيتم مسح جميع الملفات الشخصية للأطفال، وسجل الحفظ، وجميع البيانات المخزنة محلياً، والتسجيلات الصوتية وذاكرة التخزين المؤقت بالكامل.'
+                      : 'This will erase all child profiles, recitation progress, local database records, voice recordings, and cached files completely.')
+                  : (isAr
+                      ? 'هل أنت متأكد تماماً؟ لا يمكن التراجع عن هذا الإجراء بعد تنفيذه وسيتم إعادة فتح التطبيق كأول مرة.'
+                      : 'Are you completely sure? This action cannot be undone and will restart the app from onboarding.')}
+              </Text>
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', gap: 10, width: '100%', marginTop: 8 }}>
+                {eraseConfirmStep === 1 ? (
+                  <TouchableOpacity
+                    style={[styles.pickerCloseBtn, { backgroundColor: '#E11D48', flex: 1 }]}
+                    onPress={() => setEraseConfirmStep(2)}
+                  >
+                    <Text style={[styles.pickerCloseText, { color: '#FFFFFF' }]}>
+                      {isAr ? 'متابعة ⬅' : 'Continue ➡'}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.pickerCloseBtn, { backgroundColor: '#DC2626', flex: 1 }]}
+                    disabled={isErasing}
+                    onPress={handleExecuteEraseAppData}
+                  >
+                    <Text style={[styles.pickerCloseText, { color: '#FFFFFF', fontWeight: '900' }]}>
+                      {isErasing
+                        ? (isAr ? 'جاري المسح...' : 'Erasing...')
+                        : (isAr ? 'مسح كل شيء الآن' : 'Erase Everything')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#F3F4F6', flex: 1 }]}
+                  disabled={isErasing}
+                  onPress={() => setShowEraseModal(false)}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#374151' }]}>
+                    {isAr ? 'إلغاء' : 'Cancel'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -1017,12 +1222,26 @@ export default function ParentsScreen() {
                   ? 'بيانات طفلك محفوظة محلياً بالكامل على هذا الهاتف لحمايتها. يمكنك تصدير نسخة احتياطية مشفرة محلياً، أو مسح التقدم لإعادة البدء من جديد.'
                   : 'All child data is stored strictly on this device. You can export an encrypted backup file or reset progress.'}
               </Text>
-              <TouchableOpacity
-                style={styles.pickerCloseBtn}
-                onPress={() => setShowExportModal(false)}
-              >
-                <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', gap: 10, width: '100%', marginTop: 14 }}>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#FCA5A5', flex: 1 }]}
+                  onPress={() => {
+                    setShowExportModal(false);
+                    setEraseConfirmStep(1);
+                    setShowEraseModal(true);
+                  }}
+                >
+                  <Text style={[styles.pickerCloseText, { color: '#E11D48', fontWeight: '800' }]}>
+                    {isAr ? 'مسح بيانات التطبيق 🗑️' : 'Erase App Data 🗑️'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.pickerCloseBtn, { flex: 1 }]}
+                  onPress={() => setShowExportModal(false)}
+                >
+                  <Text style={styles.pickerCloseText}>{isAr ? 'إغلاق' : 'Close'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>

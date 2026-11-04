@@ -1531,9 +1531,7 @@ export function getLocalizedPillarStep(
   };
 }
 
-export function formatLocalizedTodayDate(lang: Language): string {
-  return formatHijriTodayDate(lang);
-}
+export const formatLocalizedTodayDate = formatHijriTodayDate;
 export function getPillarHeroBadge(lang: Language): string {
   const map: Record<Language, string> = {
     ar: '🌟 رحلة الإيمان والعمل',

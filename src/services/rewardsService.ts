@@ -54,7 +54,7 @@ class RewardsService {
     if (store.parentSettings?.soundEffectsEnabled ?? true) {
       try {
         audioService.playPositiveChime();
-      } catch {}
+      } catch { /* Audio playback failure can be safely ignored */ }
     }
 
     return { awarded: true, reason, amount };

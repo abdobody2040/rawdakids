@@ -22,25 +22,21 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="icon" href="/favicon.ico" />
 
         {/* Global Web Accessibility Focus Rings and resets */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              :focus-visible {
-                outline: 3px solid #0F9D6B !important;
-                outline-offset: 2px !important;
-              }
-              button:focus-visible,
-              [role="button"]:focus-visible,
-              [role="radio"]:focus-visible,
-              [role="switch"]:focus-visible,
-              input:focus-visible,
-              a:focus-visible {
-                outline: 3px solid #0F9D6B !important;
-                outline-offset: 2px !important;
-              }
-            `,
-          }}
-        />
+        <style>{`
+          :focus-visible {
+            outline: 3px solid #0F9D6B !important;
+            outline-offset: 2px !important;
+          }
+          button:focus-visible,
+          [role="button"]:focus-visible,
+          [role="radio"]:focus-visible,
+          [role="switch"]:focus-visible,
+          input:focus-visible,
+          a:focus-visible {
+            outline: 3px solid #0F9D6B !important;
+            outline-offset: 2px !important;
+          }
+        `}</style>
 
         <ScrollViewStyleReset />
       </head>

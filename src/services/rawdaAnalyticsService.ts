@@ -1,8 +1,5 @@
-// Privacy-preserving Analytics Service (B0.3)
-// Strictly anonymous: no personal data, only age band and anonymous IDs
-// Respects parent's analytics toggle
-
-import { useAppStore } from '@/store/useAppStore';
+// Privacy-preserving no-op analytics service (Strict Zero-Tracking Policy)
+// Rawdakids does not collect, record, or transmit analytics of any kind.
 
 export type RawdaAnalyticsEvent =
   | 'hifz_word_hidden'
@@ -16,25 +13,8 @@ export type RawdaAnalyticsEvent =
   | 'tafsir_opened';
 
 class RawdaAnalyticsService {
-  logEvent(event: RawdaAnalyticsEvent, params: Record<string, any> = {}) {
-    const store = useAppStore.getState();
-    if (store.parentSettings?.analyticsEnabled === false) {
-      return; // Respect parent's privacy opt-out
-    }
-
-    const activeChild = store.profiles?.find((p) => p.id === store.activeProfileId);
-    const payload = {
-      event,
-      timestamp: new Date().toISOString(),
-      ageBand: activeChild?.ageBand || '7-9',
-      activeChildId: store.activeProfileId || 'default_child',
-      ...params,
-    };
-
-    // Keep console trace for development and offline queue
-    if (__DEV__) {
-      console.log('[RawdaAnalytics]', payload);
-    }
+  logEvent(_event: RawdaAnalyticsEvent, _params: Record<string, any> = {}): void {
+    // No-op: Strictly zero tracking and zero telemetry
   }
 }
 

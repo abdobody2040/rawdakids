@@ -219,6 +219,33 @@ class LocalDbService {
       }
     });
   }
+
+  /**
+   * Complete database wipe for Erase App Data (Privacy Policy Section 7)
+   */
+  async wipeAllData(): Promise<void> {
+    this.memoryStore.clear();
+    const db = await this.initDb();
+    if (!db || this.isFallbackMode) return;
+
+    return new Promise((resolve) => {
+      try {
+        const storeNames: StoreName[] = ['hifz', 'tasbih', 'units', 'stories', 'rewards'];
+        const tx = db.transaction(storeNames as any, 'readwrite');
+        for (const store of storeNames) {
+          try {
+            tx.objectStore(store).clear();
+          } catch {
+            // ignore individual store clear error
+          }
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      } catch {
+        resolve();
+      }
+    });
+  }
 }
 
 export const localDbService = new LocalDbService();

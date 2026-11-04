@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سياسة الخصوصية | Privacy Policy - Rawdakids</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>سياسة الخصوصية وأمان الأطفال | Privacy Policy - Rawdakids</title>
   <style>
     :root {
       --primary: #064E3B;
@@ -19,6 +16,7 @@
       --text-muted: #475569;
       --border: #E2E8F0;
       --badge-safe: #10B981;
+      --danger: #E11D48;
     }
 
     * {
@@ -28,7 +26,7 @@
     }
 
     body {
-      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
       background-color: var(--bg);
       color: var(--text-main);
       line-height: 1.8;
@@ -36,7 +34,7 @@
     }
 
     body[dir="ltr"] {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
     }
 
     .container {
@@ -101,107 +99,86 @@
       border-radius: 20px;
       font-size: 13px;
       font-weight: 700;
-      cursor: pointer;
       color: var(--text-muted);
+      cursor: pointer;
       transition: all 0.2s ease;
-      font-family: inherit;
+      text-decoration: none;
     }
 
     .lang-btn.active {
-      background: var(--primary);
-      color: #FFFFFF;
-      box-shadow: 0 2px 6px rgba(6, 78, 59, 0.2);
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    /* Hero Card */
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    }
+
     .hero-card {
       background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
       color: #FFFFFF;
-      padding: 32px 28px;
-      border-radius: 24px;
+      border: none;
+      padding: 32px 24px;
+      border-radius: 22px;
+      box-shadow: 0 10px 25px rgba(6, 78, 59, 0.25);
       margin-bottom: 24px;
-      box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.25);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-card::after {
-      content: '🕌';
-      position: absolute;
-      top: -20px;
-      left: -20px;
-      font-size: 120px;
-      opacity: 0.12;
-      pointer-events: none;
-    }
-
-    body[dir="ltr"] .hero-card::after {
-      left: auto;
-      right: -20px;
     }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(8px);
-      padding: 4px 14px;
+      padding: 4px 12px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       margin-bottom: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .hero-title {
       font-size: 26px;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       line-height: 1.3;
     }
 
     .hero-desc {
       font-size: 15px;
-      opacity: 0.92;
-      max-width: 680px;
+      line-height: 1.7;
+      opacity: 0.95;
     }
 
     .compliance-badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       margin-top: 18px;
     }
 
     .compliance-pill {
-      background: #FFFFFF;
-      color: var(--primary);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 5px 12px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Content Cards */
-    .card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
     }
 
     .card-title {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 19px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 800;
       color: var(--primary);
       margin-bottom: 16px;
       padding-bottom: 12px;
@@ -209,9 +186,9 @@
     }
 
     .card-title .icon {
-      font-size: 22px;
-      width: 38px;
-      height: 38px;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
       background: var(--accent-soft);
       border-radius: 10px;
       display: flex;
@@ -243,6 +220,16 @@
       margin-bottom: 14px;
     }
 
+    .placeholder-tag {
+      background-color: #FEF08A;
+      color: #854D0E;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px dashed #CA8A04;
+    }
+
     /* Highlight Box */
     .highlight-box {
       background: #ECFDF5;
@@ -255,7 +242,7 @@
     .highlight-box h4 {
       color: #065F46;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 800;
       margin-bottom: 6px;
       display: flex;
       align-items: center;
@@ -291,10 +278,47 @@
 
     .meta-value {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-main);
       margin-top: 4px;
       word-break: break-all;
+    }
+
+    /* Data Table */
+    .data-table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    body[dir="ltr"] table.data-table {
+      text-align: left;
+    }
+
+    table.data-table th {
+      background: #F1F5F9;
+      color: var(--text-main);
+      padding: 10px 14px;
+      font-weight: 800;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    table.data-table tr:last-child td {
+      border-bottom: none;
     }
 
     /* Footer */
@@ -331,7 +355,7 @@
         font-size: 22px;
       }
       .card {
-        padding: 20px;
+        padding: 18px;
       }
     }
   </style>
@@ -349,25 +373,25 @@
         </div>
       </div>
       <div class="lang-switcher">
-        <button class="lang-btn active" id="btn-ar" onclick="switchLang('ar')">العربية</button>
-        <button class="lang-btn" id="btn-en" onclick="switchLang('en')">English</button>
+        <a href="#ar" class="lang-btn active" id="btn-ar" onclick="switchLang('ar'); return false;">العربية</a>
+        <a href="#en" class="lang-btn" id="btn-en" onclick="switchLang('en'); return false;">English</a>
       </div>
     </header>
 
-    <!-- ARABIC CONTENT -->
-    <div id="content-ar">
+    <!-- ARABIC CONTENT (#ar) -->
+    <main id="content-ar">
       <!-- Hero -->
       <section class="hero-card">
-        <span class="hero-badge">🛡️ وثيقة رسمية معتمدة</span>
+        <span class="hero-badge">🛡️ وثيقة الخصوصية المعتمدة</span>
         <h2 class="hero-title">سياسة الخصوصية وأمان الأطفال</h2>
         <p class="hero-desc">
-          نحن في "روضة كيدز" نلتزم بأعلى معايير الأمان وحماية خصوصية الأسرة والطفل. لا نجمع أي بيانات شخصية، ولا نقدم إعلانات تجارية إطلاقاً.
+          نحن في "روضة كيدز" نلتزم بأعلى معايير الأمان وحماية خصوصية الأسرة والطفل. التطبيق يعمل وفق مبدأ <strong>"الخصوصية في جوهر التصميم" (Privacy by Design)</strong>: لا حسابات، لا خوادم لتخزين بيانات الأطفال، لا إعلانات، ولا تتبع على الإطلاق.
         </p>
         <div class="compliance-badges">
           <div class="compliance-pill">✓ Google Play Families Policy</div>
-          <div class="compliance-pill">✓ COPPA Compliant</div>
-          <div class="compliance-pill">✓ GDPR-K Compliant</div>
-          <div class="compliance-pill">✓ 100% بدون إعلانات</div>
+          <div class="compliance-pill">✓ Apple Kids Category Compliant</div>
+          <div class="compliance-pill">✓ COPPA Compliant (Children's Online Privacy)</div>
+          <div class="compliance-pill">✓ 100% بدون إعلانات أو تتبع</div>
         </div>
       </section>
 
@@ -375,7 +399,7 @@
       <div class="card">
         <div class="card-title">
           <span class="icon">ℹ️</span>
-          <span>معلومات التطبيق والناشر</span>
+          <span>معلومات التطبيق والجهة المطوّرة</span>
         </div>
         <div class="meta-grid">
           <div class="meta-item">
@@ -383,118 +407,271 @@
             <div class="meta-value">روضة كيدز (Rawdakids)</div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">حزمة التطبيق (Package ID)</div>
+            <div class="meta-label">معرّف الحزمة (Package ID)</div>
             <div class="meta-value">com.rawdakids.app</div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">المطور / المالك</div>
-            <div class="meta-value">Rawdakids Team (abdobody2040)</div>
+            <div class="meta-label">المطوّر / الجهة المالكة</div>
+            <div class="meta-value"><span class="placeholder-tag">[اسم المطوّر / الجهة]</span></div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">تاريخ السريان</div>
-            <div class="meta-value">أكتوبر 2026</div>
+            <div class="meta-label">البريد الإلكتروني المباشر</div>
+            <div class="meta-value"><span class="placeholder-tag">[البريد الإلكتروني للتواصل]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">تاريخ السريان والتحديث</div>
+            <div class="meta-value">نوفمبر 2026</div>
           </div>
         </div>
       </div>
 
-      <!-- Zero Data Collection -->
+      <!-- 1. Zero Data Collection & No Accounts -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🚫</span>
-          <span>1. عدم جمع أي بيانات شخصية (Zero Personal Data)</span>
+          <span>1. عدم وجود حسابات وعدم جمع البيانات (No Accounts & Zero PII)</span>
         </div>
-        <p>تطبيق روضة كيدز صُمم وفق مبدأ <strong>"الخصوصية في جوهر التصميم" (Privacy by Design)</strong>:</p>
+        <p>تطبيق روضة كيدز صُمم ليعمل بشكل مستقل وآمن دون الحاجة إلى إنشاء أي حساب:</p>
         <ul>
-          <li><strong>بدون تسجيل حساب:</strong> لا يطلب التطبيق أي تسجيل دخول، أو إنشاء حساب، أو إدخال بريد إلكتروني.</li>
-          <li><strong>لا جمع للمعلومات الشخصية (PII):</strong> لا نجمع الأسماء، العناوين، أرقام الهواتف، صور الطفل، أو موقعه الجغرافي.</li>
-          <li><strong>لا تتبع إعلاني:</strong> لا نقرأ ولا نستخدم أي معرّفات إعلانية (Advertising ID) أو معرّفات أجهزة دائمة.</li>
+          <li><strong>بدون تسجيل حساب أو تسجيل دخول:</strong> لا يطلب التطبيق بريداً إلكترونياً، أو كلمة مرور، أو رقم هاتف، أو تسجيل دخول عبر وسائل التواصل الاجتماعي.</li>
+          <li><strong>عدم جمع المعلومات الشخصية المحددة للهوية (PII):</strong> لا نجمع الأسماء الحقيقية، العناوين الجغرافية، أرقام الهواتف، أو صور الأطفال الشخصية.</li>
+          <li><strong>الأسماء المستعارة والصور الرمزية:</strong> الاسم الذي يختاره الطفل أو ولي الأمر أثناء الإعداد هو مجرد لقب تشجيعي محلي، وتُستخدم شخصيات كرتونية مرسومة مسبقاً كأيقونات رمزية (Avatars) ولا توجد أي إمكانية لرفع صور شخصية.</li>
         </ul>
         <div class="highlight-box">
-          <h4>✓ ضمانة كاملة للأولياء</h4>
-          <p>أطفالكم في أمان تام بنسبة 100% أثناء استخدام التطبيق، ولن تُطلب منهم أي معلومة تخص هويتهم.</p>
+          <h4>✓ ضمانة الخصوصية الصارمة للأولياء</h4>
+          <p>كافة ملفات الأطفال وتقدمهم في حفظ القرآن الكريم وسجل الأنشطة تبقى بالكامل داخل الذاكرة المحلية لجهازكم الشخصي ولا تُرسل إلى أي خادم خارجي.</p>
         </div>
       </div>
 
-      <!-- Microphone & Permissions -->
+      <!-- 2. Device Permissions & Microphone -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🎙️</span>
-          <span>2. الأذونات واستخدام الميكروفون الحصري</span>
+          <span>2. صلاحيات الجهاز واستخدام الميكروفون المحلي</span>
         </div>
-        <p>يطلب التطبيق الحد الأدنى فقط من الصلاحيات لتقديم تجربة تعليمية متميزة:</p>
+        <p>يطلب التطبيق الحد الأدنى الضروري فقط من الصلاحيات لتقديم تجربة الحفظ التفاعلية:</p>
         <ul>
           <li>
             <strong>إذن الميكروفون (RECORD_AUDIO):</strong>
-            يُستخدم <em>حصرياً ومحلياً على جهاز الطفل</em> لتسجيل صوته أثناء مراجعة حفظ القرآن الكريم وترديد الآيات خلف القارئ.
+            يُطلب هذا الإذن فقط وحصرياً عندما يضغط الطفل على زر "تسجيل التلاوة" في شاشة التدريب على الحفظ، مع إشعار توضيحي مسبق.
             <br>
-            <strong>هام جداً:</strong> المعالجة الصوتية تتم <strong>بالكامل داخل الجهاز دون إرسال أي تسجيلات صوتية عبر الإنترنت أو تخزينها على خوادم خارجية</strong>.
+            <strong>المعالجة الصوتية محلية 100%:</strong> يُعالج الصوت محلياً ومؤقتاً داخل الجهاز لتمكين الطفل من الاستماع لتلاوته ومقارنتها بالشيخ القارئ. <em>لا يتم أبداً إرسال التسجيلات الصوتية عبر الإنترنت، ولا رفعها إلى أي خادم سحابي، ولا تحليلها بمحركات صوت خارجية، ويتم مسح التسجيل المؤقت فور إغلاق الشاشة.</em>
           </li>
           <li>
-            <strong>إذن الاتصال بالإنترنت (INTERNET):</strong>
-            يُستخدم فقط لتحميل وبث التلاوات القرآنية الصوتية من مصادر موثوقة ومفتوحة (مثل خوادم EveryAyah ومكتبات التلاوة المعتمدة).
+            <strong>إذن الوصول إلى الشبكة (INTERNET & ACCESS_NETWORK_STATE):</strong>
+            يُستخدم حصرياً لبث التلاوات القرآنية الصوتية المعتمدة من شبكة التوزيع المفتوحة EveryAyah وصور صفحات المصحف الشريف.
           </li>
           <li>
             <strong>إذن تشغيل الصوت بالخلفية (FOREGROUND_SERVICE):</strong>
-            لتمكين مشغل القرآن الكريم وأذكار النوم من الاستمرار بهدوء في الخلفية عند قفل الشاشة.
+            يُستخدم فقط لتمكين الاستماع إلى المصحف المرتل وأذكار النوم الهادئة أثناء قفل الشاشة دون انقطاع.
           </li>
         </ul>
       </div>
 
-      <!-- Ads & Safety -->
+      <!-- 3. Zero Ads, Tracking & Analytics -->
       <div class="card">
         <div class="card-title">
           <span class="icon">✨</span>
-          <span>3. بيئة نقية خالية تماماً من الإعلانات (Zero Ads)</span>
+          <span>3. خلو تام من الإعلانات والتتبع وأدوات التحليل (Zero Ads & Zero Tracking)</span>
         </div>
         <p>
-          انطلاقاً من قدسية تعليم القرآن الكريم وحماية براءة الأطفال، فإن تطبيق روضة كيدز <strong>خالٍ تماماً من أي إعلانات تجارية</strong> (لا وجود لـ AdMob أو Unity Ads أو غيرها). لا توجد نوافذ منبثقة، ولا مقاطع فيديو تسويقية، ولا محتوى يشتت انتباه طفلك.
+          التزاماً بقدسية كتاب الله وحمايةً لنقاء تفكير الأطفال:
         </p>
+        <ul>
+          <li><strong>خالٍ تماماً من الإعلانات التجارية:</strong> لا يتضمن التطبيق أي حزم إعلانية (مثل Google AdMob، أو Unity Ads، أو غيرها). لن يشاهد طفلك أي نوافذ منبثقة أو مقاطع ترويجية.</li>
+          <li><strong>بدون حزم تتبع أو تحليلات طرف ثالث:</strong> لا يحتوي الكود البرمجي على أي مكتبات تتبع سلوكي أو تحليلات تجارية (مثل Firebase Analytics، أو AppsFlyer، أو Adjust، أو Facebook SDK، أو Sentry، أو Mixpanel).</li>
+          <li><strong>عدم قراءة المعرّفات الإعلانية:</strong> لا يقرأ التطبيق معرّف الإعلانات (Advertising ID / IDFA) ولا معرّف العتاد الثابت للجهاز.</li>
+        </ul>
       </div>
 
-      <!-- Local Storage & Parental Gate -->
+      <!-- 4. External Network Calls -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🌐</span>
+          <span>4. الاتصالات الخارجية المحدودة بالشبكة (External Network Calls)</span>
+        </div>
+        <p>التطبيق يتصل حصرياً بالوجهات الموثوقة التالية لتقديم المحتوى القرآني والخدمي:</p>
+        <ul>
+          <li>
+            <strong>مكتبة تلاوات القرآن الكريم (EveryAyah.com):</strong>
+            خدمة إسلامية عامة مفتوحة المصدر لبث التلاوات الصوتية بأصوات 27 قارئاً معتمداً. لا يُرسل أي معرّف مستخدم لهذه الخدمة سوى طلب ملف الصوت (mp3).
+          </li>
+          <li>
+            <strong>صور صفحات المصحف الشريف (Files.Quran.app / King Fahd Complex):</strong>
+            شبكة توزيع محتوى معتمدة لعرض صفحات المصحف الشريف بدقة عالية (رسم مجمع الملك فهد لطباعة المصحف الشريف).
+          </li>
+          <li>
+            <strong>مولد النطق الصوتي للأذكار (/api/tts):</strong>
+            دالة برمجية تعمل على خوادمنا في Vercel لبث الصوت التعليمي لأذكار وأدعية الأطفال. الدالة عديمة الحالة (Stateless)، لا تقوم بتسجيل نصوص الطلبات، لا تسجل عناوين IP، لا تستخدم ملفات تعريف الارتباط (Cookies)، ولا تخزن أي بيانات.
+          </li>
+          <li>
+            <strong>استضافة التطبيق (Vercel):</strong>
+            استضافة ملفات الويب الثابتة للتطبيق عبر شبكة Vercel العالمية المشفرة (HTTPS/TLS).
+          </li>
+        </ul>
+        <div class="highlight-box">
+          <h4>✓ سياسة الخطوط والملفات الثابتة</h4>
+          <p>جميع خطوط الأيقونات والخطوط العربية مستضافة ذاتياً محلياً داخل التطبيق (Self-hosted) ولا يتم استدعاء خطوط خارجية من أطراف ثالثة تجنباً لكشف عنوان IP الخاص بالمستخدم.</p>
+        </div>
+      </div>
+
+      <!-- 5. Local Storage & Salted SHA-256 PIN -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🔒</span>
-          <span>4. التخزين المحلي وبوابة الوالدين (Parental Gate)</span>
+          <span>5. التخزين المحلي المشفر وبوابة الوالدين برمز PIN</span>
         </div>
         <ul>
           <li>
-            <strong>التخزين المحلي الآمن:</strong> كافة نقاط التقدم، وعدد السور المحفوظة، ونجوم المكافآت تُحفظ <em>محلياً فقط على الهاتف</em>. ويمكن حذفها بمسح بيانات التطبيق أو إلغاء تثبيته.
+            <strong>التخزين المحلي بالكامل (On-Device Storage):</strong>
+            تُحفظ سجلات الحفظ، وعدد النجوم والجواهر، والأذكار المنجزة في مساحة التخزين المحلية للجهاز (AsyncStorage و IndexedDB). الجدول التالي يوضح البيانات المحفوظة محلياً:
+          </li>
+        </ul>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>المفتاح البرمجي</th>
+                <th>طبيعة المحتوى المخزن</th>
+                <th>هل يتضمن بيانات شخصية؟</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@rawda_kids_store</code></td>
+                <td>ملفات الأطفال (اللقب، الفئة العمرية، الأيقونة الرمزية)، نقاط النجوم والجواهر، سجل الحفظ، رمز PIN المشفر المملح</td>
+                <td><strong>لا</strong> (لقب كرتوني فقط، بدون هوية حقيقية)</td>
+              </tr>
+              <tr>
+                <td><code>@rawda_wudu_last_step</code></td>
+                <td>رقم الخطوة التي توقف عندها الطفل في مسار الوضوء والصلاة</td>
+                <td><strong>لا</strong></td>
+              </tr>
+              <tr>
+                <td><code>@rawdakids_tafsir_*</code></td>
+                <td>نسخة مؤقتة محلية لنصوص التفسير الميسر لتسريع العرض بدون اتصال</td>
+                <td><strong>لا</strong></td>
+              </tr>
+              <tr>
+                <td><code>RawdaKidsLocalDb</code></td>
+                <td>قاعدة بيانات محلية لحفظ بطاقات تدبر الآيات وعدادات التسبيح</td>
+                <td><strong>لا</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ul>
+          <li>
+            <strong>بوابة الوالدين وحماية رمز PIN:</strong>
+            منطقة الوالدين محمية برمز أمان PIN (مكوّن من 4 إلى 6 أرقام). الرمز يُحفظ <em>مشفراً ومملحاً بتقنية SHA-256 مع ملح عشوائي فريد</em>، ولا يتم حفظه بصيغته الأصلية إطلاقاً.
           </li>
           <li>
-            <strong>بوابة الوالدين (Parental Gate):</strong> الإعدادات وروابط التواصل (إن وجدت) محمية بمسألة حسابية مخصصة للبالغين لضمان عدم خروج الطفل من محيط التطبيق الآمن.
+            <strong>الحماية من التخمين المتكرر:</strong>
+            يتم تفعيل قفل زمني تصاعدي مؤقت (Lockout) عند تكرار إدخال رمز خاطئ 3 مرات لمنع عبث الأطفال.
+          </li>
+          <li>
+            <strong>استرداد الرمز بدون ثغرات:</strong>
+            لا توجد أي وسيلة لتجاوز الرمز بمسائل رياضية أو أسئلة سرية. يتم استرداد التحكم إما بكود الاسترداد الاحتياطي الممنوح للأب عند إنشاء الرمز، أو عبر إجراء "مسح بيانات التطبيق" المزدوج.
           </li>
         </ul>
       </div>
 
-      <!-- Contact -->
+      <!-- 6. No Third-Party Data Sharing -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🤝</span>
+          <span>6. عدم بيع أو مشاركة أي بيانات إطلاقاً</span>
+        </div>
+        <p>
+          نحن لا نبيع، ولا نؤجر، ولا نتاجر، ولا نشارك أي معلومات تخص الأطفال أو أولياء الأمور مع أي طرف ثالث أو شركة تجارية أو شبكة إعلانية تحت أي ظرف من الظروف.
+        </p>
+      </div>
+
+      <!-- 7. Deletion Controls & Erase App Data -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🗑️</span>
+          <span>7. أدوات التحكم وحذف البيانات بالكامل (Deletion Controls)</span>
+        </div>
+        <p>يتمتع ولي الأمر بالسيطرة التامة والمطلقة على كافة البيانات المخزنة محلياً من داخل منطقة الوالدين:</p>
+        <ul>
+          <li>
+            <strong>حذف ملف طفل محدد:</strong>
+            من خلال شاشة الملفات الشخصية للأطفال، يمكن لولي الأمر حذف أي ملف طفل بنقرة واحدة، وسيتم فوراً مسح كافة إنجازاته وسجل حفظه وسجل أنشطته من الجهاز بشكل نهائي بعد تأكيد الحذف.
+          </li>
+          <li>
+            <strong>مسح بيانات التطبيق بالكامل (Erase App Data):</strong>
+            يتيح زر "مسح بيانات التطبيق" لولي الأمر محو كافة بيانات AsyncStorage، وقاعدة بيانات IndexedDB، والملفات المؤقتة، والتسجيلات الصوتية، وإلغاء تسجيل مشغل الخدمة (Service Worker)، وإعادة التطبيق إلى وضع التثبيت الأولي الجديد، وذلك بعد خطوتين متتاليتين للتأكيد لضمان عدم حدوث ذلك بالخطأ.
+          </li>
+          <li>
+            <strong>الحذف اليدوي من نظام التشغيل:</strong>
+            يمكن حذف جميع البيانات فوراً وبشكل لا رجعة فيه في أي لحظة عبر خيار "مسح بيانات التطبيق" (Clear Data) من إعدادات نظام Android/iOS أو عبر إلغاء تثبيت التطبيق.
+          </li>
+        </ul>
+      </div>
+
+      <!-- 8. Child Safety Regulations Compliance -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⚖️</span>
+          <span>8. الامتثال للوائح حماية خصوصية الأطفال الدولية</span>
+        </div>
+        <ul>
+          <li>
+            <strong>قانون حماية خصوصية الأطفال عبر الإنترنت (COPPA):</strong>
+            يلتزم التطبيق التزاماً تاماً بمتطلبات قانون COPPA الأمريكي، ولا يجمع أي معلومات شخصية من الأطفال دون سن 13 عاماً.
+          </li>
+          <li>
+            <strong>اللائحة العامة لحماية البيانات للأطفال في الاتحاد الأوروبي (GDPR-K):</strong>
+            يلتزم التطبيق بمبدأ تقليل البيانات إلى الصفر، ولا يقوم بأي معالجة لبيانات الأطفال خارج نطاق أجهزتهم الشخصية.
+          </li>
+          <li>
+            <strong>سياسات برنامج العائلة في Google Play و Apple App Store:</strong>
+            تطبيق روضة كيدز مُصمم بالكامل ليتوافق مع اشتراطات قسم العائلة والأطفال، بما في ذلك خلوه التام من الإعلانات ومنصات التتبع وتوفير بوابة حماية متينة للبالغين.
+          </li>
+        </ul>
+      </div>
+
+      <!-- 9. Contact Info -->
       <div class="card">
         <div class="card-title">
           <span class="icon">✉️</span>
-          <span>5. التواصل مع فريق التطوير</span>
+          <span>9. التواصل والاستفسارات</span>
         </div>
-        <p>نرحب بأي استفسار أو اقتراح من أولياء الأمور حول سياسة الخصوصية وأمان أطفالكم:</p>
-        <p>
-          البريد الإلكتروني المباشر: <strong>abdobody2020@gmail.com</strong><br>
-          مستودع المشروع: <a href="https://github.com/abdobody2040/quran-app-for-kids" target="_blank">github.com/abdobody2040/quran-app-for-kids</a>
-        </p>
+        <p>نرحب بجميع استفسارات أولياء الأمور واقتراحاتكم حول أمان وخصوصية أطفالكم في روضة كيدز:</p>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">الجهة المطوّرة</div>
+            <div class="meta-value"><span class="placeholder-tag">[اسم المطوّر / الجهة]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">البريد الإلكتروني الرسمي</div>
+            <div class="meta-value"><span class="placeholder-tag">[البريد الإلكتروني للتواصل]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">الموقع الرسمي</div>
+            <div class="meta-value"><a href="https://rawdakids.vercel.app" target="_blank">rawdakids.vercel.app</a></div>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
 
-    <!-- ENGLISH CONTENT -->
-    <div id="content-en" class="hidden">
+    <!-- ENGLISH CONTENT (#en) -->
+    <main id="content-en" class="hidden">
       <!-- Hero -->
       <section class="hero-card">
-        <span class="hero-badge">🛡️ Official Policy</span>
+        <span class="hero-badge">🛡️ Official Certified Policy</span>
         <h2 class="hero-title">Privacy Policy & Child Safety</h2>
         <p class="hero-desc">
-          At Rawdakids, we are deeply committed to protecting children and family privacy. We collect zero personal data and serve zero commercial ads.
+          At "Rawdakids", we are deeply committed to maintaining the highest standards of safety and privacy for children and families. The application is built under the <strong>"Privacy by Design"</strong> architecture: zero accounts, zero cloud database storage for child data, zero commercial ads, and zero third-party tracking.
         </p>
         <div class="compliance-badges">
           <div class="compliance-pill">✓ Google Play Families Policy</div>
-          <div class="compliance-pill">✓ COPPA Compliant</div>
-          <div class="compliance-pill">✓ GDPR-K Compliant</div>
-          <div class="compliance-pill">✓ 100% Ad-Free</div>
+          <div class="compliance-pill">✓ Apple Kids Category Compliant</div>
+          <div class="compliance-pill">✓ COPPA Compliant (Children's Online Privacy)</div>
+          <div class="compliance-pill">✓ 100% Ad-Free & Tracker-Free</div>
         </div>
       </section>
 
@@ -502,7 +679,7 @@
       <div class="card">
         <div class="card-title">
           <span class="icon">ℹ️</span>
-          <span>Application & Publisher Details</span>
+          <span>Application & Publisher Information</span>
         </div>
         <div class="meta-grid">
           <div class="meta-item">
@@ -510,103 +687,256 @@
             <div class="meta-value">Rawdakids (روضة كيدز)</div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Package Name</div>
+            <div class="meta-label">Package Identifier</div>
             <div class="meta-value">com.rawdakids.app</div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Developer / Team</div>
-            <div class="meta-value">Rawdakids Team (abdobody2040)</div>
+            <div class="meta-label">Publisher / Developer</div>
+            <div class="meta-value"><span class="placeholder-tag">[Developer / organization name]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Direct Contact Email</div>
+            <div class="meta-value"><span class="placeholder-tag">[contact email]</span></div>
           </div>
           <div class="meta-item">
             <div class="meta-label">Effective Date</div>
-            <div class="meta-value">October 2026</div>
+            <div class="meta-value">November 2026</div>
           </div>
         </div>
       </div>
 
-      <!-- Zero Data Collection -->
+      <!-- 1. Zero Data Collection & No Accounts -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🚫</span>
-          <span>1. Zero Personal Data Collected</span>
+          <span>1. No Accounts & Zero Personal Data Collection</span>
         </div>
-        <p>Rawdakids is built under the <strong>"Privacy by Design"</strong> framework for children:</p>
+        <p>Rawdakids is architected to function entirely standalone without account creation:</p>
         <ul>
-          <li><strong>No Registration or Account Required:</strong> Children and parents can use all features without logging in or providing an email address.</li>
-          <li><strong>No Personally Identifiable Information (PII):</strong> We do not ask for or collect names, physical addresses, phone numbers, child photos, or precise location data.</li>
-          <li><strong>No Ad Identifiers or Trackers:</strong> We do not track or store mobile Advertising IDs (AAID/IDFA) or unique hardware IDs.</li>
+          <li><strong>No Registration or Login:</strong> We never ask for an email address, password, phone number, or social media sign-in.</li>
+          <li><strong>Zero Personally Identifiable Information (PII):</strong> We do not collect real names, physical street addresses, phone numbers, child photos, or GPS locations.</li>
+          <li><strong>Child Nicknames and Avatars:</strong> Any name entered during onboarding is stored locally as an encouraging nickname. Profile pictures are chosen exclusively from predefined cartoon avatar illustrations with no camera or photo library upload capability.</li>
         </ul>
         <div class="highlight-box">
-          <h4>✓ Parent Guarantee</h4>
-          <p>Children are 100% safe. No personal data ever leaves the local device.</p>
+          <h4>✓ Complete Parent Guarantee</h4>
+          <p>All child profiles, recitation records, and learning activities reside strictly inside your local device storage and are never sent to any remote server.</p>
         </div>
       </div>
 
-      <!-- Microphone & Permissions -->
+      <!-- 2. Device Permissions & Microphone -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🎙️</span>
-          <span>2. Device Permissions & Microphone Usage</span>
+          <span>2. Device Permissions & On-Device Microphone Practice</span>
         </div>
-        <p>The app requests strictly necessary permissions required for its interactive educational features:</p>
+        <p>The app requests the bare minimum permissions needed to deliver an interactive educational experience:</p>
         <ul>
           <li>
             <strong>Microphone Permission (RECORD_AUDIO):</strong>
-            Used <em>strictly on-device</em> to allow children to practice recitation by repeating Quranic verses and listening back to their own voice.
+            Requested only when the child explicitly taps the "Record Recitation" button on the memorization practice screen, preceded by a clear prompt.
             <br>
-            <strong>Strict Guarantee:</strong> Audio processing is performed <strong>100% locally on the device. No audio recordings are ever transmitted across the internet, uploaded to remote cloud servers, or shared with third parties.</strong>
+            <strong>100% On-Device Processing:</strong> Audio processing is executed locally and ephemerally in-memory so the child can listen back and compare their pronunciation with the reciter. <em>Audio recordings are never transmitted across the internet, never uploaded to any cloud storage, and never analyzed by external speech engines. Temporary audio is immediately purged when the recording view is dismissed.</em>
           </li>
           <li>
-            <strong>Internet Access (INTERNET, ACCESS_NETWORK_STATE):</strong>
-            Used exclusively to stream high-quality Quran recitation tracks from verified open-source Islamic content delivery networks (e.g. EveryAyah / Quran.com API).
+            <strong>Internet Access (INTERNET & ACCESS_NETWORK_STATE):</strong>
+            Used exclusively to stream authentic Quran recitation tracks from the open EveryAyah repository and high-resolution Mushaf page images.
           </li>
           <li>
             <strong>Foreground Media Playback (FOREGROUND_SERVICE):</strong>
-            Allows continuous Quran recitation and sleep Azkar playback while the screen is locked.
+            Used only to keep Quran audio recitation and gentle bedtime Adhkar playing peacefully while the screen is locked.
           </li>
         </ul>
       </div>
 
-      <!-- Ads & Safety -->
+      <!-- 3. Zero Ads, Tracking & Analytics -->
       <div class="card">
         <div class="card-title">
           <span class="icon">✨</span>
-          <span>3. Completely Ad-Free (Zero Third-Party Ads)</span>
+          <span>3. Completely Ad-Free & Tracker-Free</span>
         </div>
         <p>
-          To maintain a pure spiritual and safe educational environment, Rawdakids is <strong>completely free of commercial advertising</strong> (no Google AdMob, Unity Ads, etc.). No popups, no promotional interruptions, and no third-party ad SDKs exist in the application.
+          Dedicated to maintaining a sacred, distraction-free environment for children:
         </p>
+        <ul>
+          <li><strong>Completely Free of Commercial Advertising:</strong> The app contains no third-party ad networks (no Google AdMob, Unity Ads, etc.). Your child will never encounter popups, banners, or commercial video interstitials.</li>
+          <li><strong>No Third-Party Analytics or Tracking SDKs:</strong> The application codebase contains no behavioral tracking frameworks (no Firebase Analytics, AppsFlyer, Adjust, Facebook SDK, Sentry, or Mixpanel).</li>
+          <li><strong>No Advertising Identifiers:</strong> We do not access, read, or track Advertising IDs (AAID / IDFA) or persistent device fingerprints.</li>
+        </ul>
       </div>
 
-      <!-- Local Storage & Parental Gate -->
+      <!-- 4. External Network Calls -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🌐</span>
+          <span>4. Limited External Network Calls</span>
+        </div>
+        <p>The application connects strictly to the following trusted endpoints to deliver educational content:</p>
+        <ul>
+          <li>
+            <strong>EveryAyah Recitation Repository (EveryAyah.com):</strong>
+            A verified, open-source Islamic content delivery network streaming audio recitation for 27 certified Qaris. No user telemetry is sent with audio chunk requests.
+          </li>
+          <li>
+            <strong>Mushaf Page Visual Assets (Files.Quran.app / King Fahd Complex):</strong>
+            High-resolution visual page images of the Medina Mushaf (King Fahd Glorious Quran Printing Complex).
+          </li>
+          <li>
+            <strong>Voice Synthesis Gateway (/api/tts):</strong>
+            A stateless serverless function hosted on our Vercel infrastructure to stream pronunciation audio for child Duas. It logs no request text, logs no IP addresses, sets no cookies, and stores nothing.
+          </li>
+          <li>
+            <strong>Application Hosting (Vercel):</strong>
+            Delivers the static web application bundle over encrypted HTTPS/TLS.
+          </li>
+        </ul>
+        <div class="highlight-box">
+          <h4>✓ Font Privacy Guarantee</h4>
+          <p>All icon fonts and Arabic typography are self-hosted within the application bundle. No external Google Fonts CDN or third-party style hubs are loaded, protecting the user's IP address from third-party observation.</p>
+        </div>
+      </div>
+
+      <!-- 5. Local Storage & Salted SHA-256 PIN -->
       <div class="card">
         <div class="card-title">
           <span class="icon">🔒</span>
-          <span>4. Local Storage & Parental Gate</span>
+          <span>5. Encrypted Local Storage & Salted SHA-256 Parent PIN</span>
         </div>
         <ul>
           <li>
-            <strong>Offline Local Storage:</strong> Progress metrics (memorized verses, streak days, and star rewards) are saved <em>locally on the device only</em> via AsyncStorage. You can delete all progress anytime by clearing app data in Android settings.
+            <strong>Strict Local Storage (On-Device Storage):</strong>
+            Progress indicators, stars, gems, and daily habit marks are stored solely in on-device storage (AsyncStorage and IndexedDB). Below is a complete ledger of stored keys:
+          </li>
+        </ul>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Storage Key</th>
+                <th>Content Description</th>
+                <th>Contains Personal Data?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@rawda_kids_store</code></td>
+                <td>Child profile nicknames, avatars, star & gem tallies, recitation progress, and salted SHA-256 PIN hash</td>
+                <td><strong>No</strong> (Cartoon nickname only, zero real identity)</td>
+              </tr>
+              <tr>
+                <td><code>@rawda_wudu_last_step</code></td>
+                <td>Integer index indicating last active step in Wudu/Salah simulator</td>
+                <td><strong>No</strong></td>
+              </tr>
+              <tr>
+                <td><code>@rawdakids_tafsir_*</code></td>
+                <td>Cached Tafsir text to enable rapid offline reading</td>
+                <td><strong>No</strong></td>
+              </tr>
+              <tr>
+                <td><code>RawdaKidsLocalDb</code></td>
+                <td>Local IndexedDB database storing Tafsir reflections and Tasbih counters</td>
+                <td><strong>No</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ul>
+          <li>
+            <strong>Parent Gate & Salted SHA-256 PIN Security:</strong>
+            Parent settings are secured by a 4-to-6 digit PIN. The PIN is stored exclusively as a <em>salted SHA-256 cryptographic hash with a unique random salt</em> and is never stored in plain text.
           </li>
           <li>
-            <strong>Parental Gate:</strong> Adult-oriented screens and external links are locked behind an adult math verification challenge to keep young children safely within the learning experience.
+            <strong>Brute-Force Lockout Defense:</strong>
+            An exponential time lockout is triggered after 3 consecutive incorrect PIN attempts to prevent unauthorized tampering.
+          </li>
+          <li>
+            <strong>No Math Equation Bypass:</strong>
+            Parental access cannot be bypassed with math questions. Recovery is handled strictly via a one-time alphanumeric recovery code generated upon PIN setup, or via the double-confirmed "Erase App Data" action.
           </li>
         </ul>
       </div>
 
-      <!-- Contact -->
+      <!-- 6. No Third-Party Data Sharing -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🤝</span>
+          <span>6. Zero Data Sharing or Commercialization</span>
+        </div>
+        <p>
+          We do not sell, rent, monetize, or disclose any user data, child progress metrics, or identifiers to any third party under any circumstances.
+        </p>
+      </div>
+
+      <!-- 7. Deletion Controls & Erase App Data -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🗑️</span>
+          <span>7. Complete Data Deletion Controls</span>
+        </div>
+        <p>Parents retain total sovereign control over all data stored on the device from within the Parent Zone:</p>
+        <ul>
+          <li>
+            <strong>Delete Individual Child Profile:</strong>
+            From the family profiles picker, parents can permanently delete any child profile with one tap (following confirmation), instantly erasing that child's recitation history and badges.
+          </li>
+          <li>
+            <strong>Erase All App Data:</strong>
+            An "Erase App Data" feature located in the Parent Zone wipes all AsyncStorage keys, clears the IndexedDB database, purges all local cache stores, and unregisters service workers, resetting the app to a fresh onboarding state following a two-step confirmation safeguard.
+          </li>
+          <li>
+            <strong>Operating System Clearing:</strong>
+            Parents can instantly and irreversibly delete all stored app data at any time via Android/iOS Settings ("Clear Storage") or by uninstalling the application.
+          </li>
+        </ul>
+      </div>
+
+      <!-- 8. Child Safety Regulations Compliance -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⚖️</span>
+          <span>8. Global Child Online Privacy Compliance</span>
+        </div>
+        <ul>
+          <li>
+            <strong>Children’s Online Privacy Protection Act (COPPA):</strong>
+            Full compliance with US COPPA regulations. We do not collect or solicit any personal data from children under 13.
+          </li>
+          <li>
+            <strong>General Data Protection Regulation for Children (GDPR-K):</strong>
+            Strict adherence to zero-data collection and local processing requirements within the European Union.
+          </li>
+          <li>
+            <strong>Google Play Families Program & Apple Kids Category:</strong>
+            Fully compliant with platform safety guidelines, requiring an ad-free environment, lack of third-party trackers, and a robust adult-gated parent area.
+          </li>
+        </ul>
+      </div>
+
+      <!-- 9. Contact Info -->
       <div class="card">
         <div class="card-title">
           <span class="icon">✉️</span>
-          <span>5. Contact & Support</span>
+          <span>9. Contact & Support</span>
         </div>
-        <p>If you have any questions or concerns regarding our privacy practices, please contact us:</p>
-        <p>
-          Direct Email: <strong>abdobody2020@gmail.com</strong><br>
-          Official Repository: <a href="https://github.com/abdobody2040/quran-app-for-kids" target="_blank">github.com/abdobody2040/quran-app-for-kids</a>
-        </p>
+        <p>We welcome any inquiries, questions, or verification requests from parents regarding child privacy in Rawdakids:</p>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Publisher / Developer</div>
+            <div class="meta-value"><span class="placeholder-tag">[Developer / organization name]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Direct Contact Email</div>
+            <div class="meta-value"><span class="placeholder-tag">[contact email]</span></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Official Website</div>
+            <div class="meta-value"><a href="https://rawdakids.vercel.app" target="_blank">rawdakids.vercel.app</a></div>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer>
@@ -632,7 +962,32 @@
 
       document.getElementById('brand-title').innerText = isAr ? 'روضة كيدز (Rawdakids)' : 'Rawdakids (روضة كيدز)';
       document.getElementById('brand-subtitle').innerText = isAr ? 'بيئة قرآنية وتربوية آمنة للأطفال' : 'Safe Islamic learning environment for children';
+
+      if (history.replaceState) {
+        history.replaceState(null, '', '#' + lang);
+      } else {
+        window.location.hash = lang;
+      }
     }
+
+    // Auto-detect anchor #ar or #en on load
+    window.addEventListener('DOMContentLoaded', function() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#en') {
+        switchLang('en');
+      } else {
+        switchLang('ar');
+      }
+    });
+
+    window.addEventListener('hashchange', function() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#en') {
+        switchLang('en');
+      } else {
+        switchLang('ar');
+      }
+    });
   </script>
 </body>
 </html>

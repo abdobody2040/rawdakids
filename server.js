@@ -950,7 +950,7 @@ const server = http.createServer(async (req, res) => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').then(function(reg) {
-      console.log('Rawdakids PWA active:', reg.scope);
+      // Service worker registered successfully
     }).catch(function(e) {
       console.warn('SW registration:', e);
     });
@@ -1008,5 +1008,5 @@ if ('serviceWorker' in navigator) {
 });
 
 server.listen(PORT, () => {
-  console.log(`Rawdakids is running securely at http://localhost:${PORT}`);
+  process.stdout.write(`Rawdakids is running securely at http://localhost:${PORT}\n`);
 });

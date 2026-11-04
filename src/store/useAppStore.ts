@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '@/constants/i18n';
 import { securityCryptoService, EncryptedBackupEnvelope } from '@/services/securityCryptoService';
 import { backupValidationService, ValidatedBackupData } from '@/services/backupValidationService';
+import { localDbService } from '@/services/localDbService';
+import { voiceRecordService } from '@/services/voiceRecordService';
 
 export type AgeBand = '4-6' | '7-9' | '10-13';
 
@@ -1082,8 +1084,31 @@ export const useAppStore = create<AppState>((set, get) => ({
   resetAllAppData: async () => {
     try {
       await AsyncStorage.clear();
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.clear();
+      await localDbService.wipeAllData();
+      voiceRecordService.clearRecording();
+      if (typeof window !== 'undefined') {
+        if (window.localStorage) {
+          window.localStorage.clear();
+        }
+        if (window.sessionStorage) {
+          window.sessionStorage.clear();
+        }
+        if ('caches' in window) {
+          try {
+            const cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map((k) => caches.delete(k)));
+          } catch {
+            // ignore cache clear error
+          }
+        }
+        if ('serviceWorker' in navigator) {
+          try {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map((r) => r.unregister()));
+          } catch {
+            // ignore sw unregister error
+          }
+        }
       }
     } catch {
       // ignore

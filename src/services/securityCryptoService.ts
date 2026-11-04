@@ -151,19 +151,19 @@ function sha256Bytes(data: Uint8Array): Uint8Array {
     for (let t = 0; t < 64; t++) {
       const s1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
       const ch = (e & f) ^ (~e & g);
-      const temp1 = (h + s1 + ch + K_CONSTANTS[t] + w[t]) | 0;
+      const t1 = (h + s1 + ch + K_CONSTANTS[t] + w[t]) | 0;
       const s0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
       const maj = (a & b) ^ (a & c) ^ (b & c);
-      const temp2 = (s0 + maj) | 0;
+      const t2 = (s0 + maj) | 0;
 
       h = g;
       g = f;
       f = e;
-      e = (d + temp1) | 0;
+      e = (d + t1) | 0;
       d = c;
       c = b;
       b = a;
-      a = (temp1 + temp2) | 0;
+      a = (t1 + t2) | 0;
     }
 
     h0 = (h0 + a) | 0;

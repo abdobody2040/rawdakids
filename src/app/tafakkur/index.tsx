@@ -46,7 +46,6 @@ export default function TafakkurHubScreen() {
   useDocumentTitle('التفكر في خلق الله', 'Tafakkur & Wonder');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
-  const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
   const [selectedStationId, setSelectedStationId] = useState<string>('tafakkur-1');

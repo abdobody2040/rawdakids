@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { tafsirService, TafsirSource, TAFSIR_SOURCES } from '@/services/tafsirService';
 import { audioService } from '@/services/audioService';
-import { Surah, Ayah } from '@/data/quranData';
+import { Surah } from '@/data/quranData';
 import { Language } from '@/constants/i18n';
 
 interface SurahFullTafsirModalProps {
@@ -30,7 +30,7 @@ export default function SurahFullTafsirModal({
   surah,
   language,
   onDismiss,
-  onPlayAyah: _onPlayAyah,
+  onPlayAyah,
 }: SurahFullTafsirModalProps) {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
@@ -51,35 +51,21 @@ export default function SurahFullTafsirModal({
     }
   }, [visible]);
 
-  // Load tafsir for each ayah in surah
+  // Load tafsir for each ayah in surah when As-Sa'di is selected
   useEffect(() => {
-    if (!visible || !surah?.ayahs) return;
+    if (!visible || !surah?.ayahs || selectedSource !== 'saddi') return;
 
     let isCurrent = true;
 
-    // Pre-populate with bundled simpleTafsir if available
-    const initialMap: Record<number, string> = {};
-    surah.ayahs.forEach((a) => {
-      if (a.simpleTafsir && !a.simpleTafsir.startsWith('آية مباركة')) {
-        initialMap[a.number] = a.simpleTafsir;
-      }
-    });
-    queueMicrotask(() => {
-      if (isCurrent) {
-        setTafsirMap(initialMap);
-      }
-    });
-
-    // Fetch official Tafsir text for all verses asynchronously
     surah.ayahs.forEach(async (ayah) => {
       try {
         setLoadingAyahs((prev) => ({ ...prev, [ayah.number]: true }));
-        const res = await tafsirService.getAyahTafsir(surah.number, ayah.number, selectedSource);
+        const res = await tafsirService.getAyahTafsir(surah.number, ayah.number, 'saddi');
         if (isCurrent && res && res.text) {
           setTafsirMap((prev) => ({ ...prev, [ayah.number]: res.text }));
         }
       } catch {
-        // Fallback remains the bundled simpleTafsir
+        // Fallback remains the bundled authentic simpleTafsir
       } finally {
         if (isCurrent) {
           setLoadingAyahs((prev) => ({ ...prev, [ayah.number]: false }));
@@ -90,7 +76,7 @@ export default function SurahFullTafsirModal({
     return () => {
       isCurrent = false;
     };
-  }, [visible, surah.number, selectedSource]);
+  }, [visible, surah?.number, surah?.ayahs, selectedSource]);
 
   if (!visible) return null;
 
@@ -218,8 +204,12 @@ export default function SurahFullTafsirModal({
             showsVerticalScrollIndicator={true}
           >
             {surah.ayahs.map((ayah) => {
-              const tafsirText = tafsirMap[ayah.number] || ayah.simpleTafsir;
-              const isLoading = loadingAyahs[ayah.number] && !tafsirMap[ayah.number];
+              const tafsirText =
+                selectedSource === 'saddi' && tafsirMap[ayah.number]
+                  ? tafsirMap[ayah.number]
+                  : (ayah.simpleTafsir || '');
+              const isLoading =
+                selectedSource === 'saddi' && loadingAyahs[ayah.number] && !tafsirMap[ayah.number];
               const isPlaying = playingAyahNum === ayah.number;
 
               return (
@@ -255,6 +245,20 @@ export default function SurahFullTafsirModal({
                         {isPlaying ? (isAr ? 'إيقاف' : 'Pause') : (isAr ? 'استمع للتفسير' : 'Listen')}
                       </Text>
                     </TouchableOpacity>
+
+                    {onPlayAyah && (
+                      <TouchableOpacity
+                        style={[styles.reciteBtn, isAr && { flexDirection: 'row-reverse' }]}
+                        onPress={() => onPlayAyah(ayah.number)}
+                        activeOpacity={0.8}
+                        accessibilityLabel={isAr ? `تلاوة الآية ${ayah.number}` : `Recite verse ${ayah.number}`}
+                      >
+                        <Ionicons name="play-circle" size={14} color="#065F46" />
+                        <Text style={styles.reciteBtnText}>
+                          {isAr ? 'تلاوة' : 'Recite'}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
 
                   {/* Quranic Text */}
@@ -479,6 +483,22 @@ const styles = StyleSheet.create({
   },
   listenAudioBtnTextActive: {
     color: '#FFFFFF',
+  },
+  reciteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  reciteBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#047857',
   },
   quranTextBox: {
     backgroundColor: '#FFFFFF',

@@ -2,7 +2,7 @@
 // High-visibility, accessible, RTL-safe toggle switch component for Noor Kids
 // Solves React Native Web RTL transform & shrinking bugs on mobile/web browsers.
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Pressable,
   Animated,
@@ -44,7 +44,7 @@ export default function ToggleSwitch({
   const thumbSize = trackHeight - padding * 2;
   const travelDistance = trackWidth - thumbSize - padding * 2;
 
-  const animValue = useRef(new Animated.Value(value ? 1 : 0)).current;
+  const [animValue] = useState(() => new Animated.Value(value ? 1 : 0));
 
   useEffect(() => {
     Animated.timing(animValue, {

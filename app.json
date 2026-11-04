@@ -10,7 +10,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rawdakids.app",
-      "icon": "./assets/images/icon.png"
+      "icon": "./assets/images/icon.png",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "يُستخدم الميكروفون فقط لتمكين الطفل من تسجيل تلاوته ومراجعتها محلياً على جهازه دون أي مشاركة خارجية. / Used strictly on-device to let children practice and review their Quran recitation."
+      }
     },
     "android": {
       "package": "com.rawdakids.app",
@@ -61,7 +64,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "يسمح هذا الإذن للطفل بتسجيل تلاوته والاستماع إليها للمراجعة والتشجيع",
+          "microphonePermission": "يُستخدم الميكروفون فقط لتمكين الطفل من تسجيل تلاوته ومراجعتها محلياً على جهازه دون أي مشاركة خارجية. / Used strictly on-device to let children practice and review their Quran recitation.",
           "recordAudioAndroid": true,
           "enableBackgroundPlayback": true
         }

@@ -1,5 +1,5 @@
 // Rawdakids - PWA Service Worker for Android Installation & Offline Cache
-const CACHE_NAME = 'rawdakids-v1';
+const CACHE_NAME = 'rawdakids-v2';
 
 const STATIC_PRECACHE = [
   '/',
@@ -45,6 +45,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip cross-origin requests entirely (everyayah.com audio, files.quran.app Mushaf images, etc.)
+  // These return opaque responses that cannot be cached safely and cause console errors if intercepted.
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
+  // Network First for privacy policy so updates are never stale
+  if (requestUrl.pathname === '/privacy.html' || requestUrl.pathname === '/privacy') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   // Network First for HTML navigation requests (so new bundle hashes are loaded immediately)
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -66,31 +88,36 @@ self.addEventListener('fetch', (event) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request).then((networkResponse) => {
-        if (
-          !networkResponse ||
-          networkResponse.status !== 200 ||
-          networkResponse.type !== 'basic'
-        ) {
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (
+            !networkResponse ||
+            networkResponse.status !== 200 ||
+            networkResponse.type !== 'basic'
+          ) {
+            return networkResponse;
+          }
+
+          // Cache images and static files dynamically
+          if (
+            requestUrl.pathname.startsWith('/assets/') ||
+            requestUrl.pathname.endsWith('.png') ||
+            requestUrl.pathname.endsWith('.jpg') ||
+            requestUrl.pathname.endsWith('.js') ||
+            requestUrl.pathname.endsWith('.css')
+          ) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+
           return networkResponse;
-        }
-
-        // Cache images and static files dynamically
-        if (
-          requestUrl.pathname.startsWith('/assets/') ||
-          requestUrl.pathname.endsWith('.png') ||
-          requestUrl.pathname.endsWith('.jpg') ||
-          requestUrl.pathname.endsWith('.js') ||
-          requestUrl.pathname.endsWith('.css')
-        ) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-
-        return networkResponse;
-      });
+        })
+        .catch(() => {
+          // Network failed and no cache — return nothing (browser handles gracefully)
+          return undefined;
+        });
     })
   );
 });

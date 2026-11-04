@@ -327,7 +327,9 @@ export class VoiceRecordService {
         try {
           player.volume = 1.0;
           player.muted = false;
-        } catch {}
+        } catch {
+          // Volume/muted may be unsupported or restricted by player state
+        }
 
         this.isPlaying = true;
         this.nativePlayerSub = player.addListener?.('playbackStatusUpdate', (status: any) => {

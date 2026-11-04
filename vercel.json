@@ -4,7 +4,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|_expo/).*)",
+      "source": "/((?!api/|assets/|_expo/|privacy\\.html|privacy|sw\\.js|manifest\\.json|favicon\\.ico).*)",
       "destination": "/index.html"
     }
   ],

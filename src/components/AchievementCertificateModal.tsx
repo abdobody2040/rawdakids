@@ -242,7 +242,6 @@ export default function AchievementCertificateModal({
   const certRef = useRef<View>(null);
 
   const isRtl = isRTL(language);
-  const isAr = language === 'ar';
   const langKey = (CERTIFICATE_I18N[language as SupportedLanguage] ? language : 'en') as SupportedLanguage;
   const c = CERTIFICATE_I18N[langKey];
 

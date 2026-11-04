@@ -21,14 +21,12 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     style.textContent = `
       @font-face {
         font-family: 'ionicons';
-        src: url('/assets/fonts/Ionicons.ttf') format('truetype'),
-             url('https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf') format('truetype');
+        src: url('/assets/fonts/Ionicons.ttf') format('truetype');
         font-display: swap;
       }
       @font-face {
         font-family: 'MaterialCommunityIcons';
-        src: url('/assets/fonts/MaterialCommunityIcons.ttf') format('truetype'),
-             url('https://cdn.jsdelivr.net/npm/@expo/vector-icons@14.0.0/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf') format('truetype');
+        src: url('/assets/fonts/MaterialCommunityIcons.ttf') format('truetype');
         font-display: swap;
       }
     `;

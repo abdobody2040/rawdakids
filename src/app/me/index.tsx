@@ -103,7 +103,7 @@ export default function MeScreen() {
   const weekDaysAr = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
   const weekDaysEn = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   // Active on current day and recent days
-  const todayIdx = (new Date().getDay() + 1) % 7; // Sat=0, Sun=1 ...
+  const [todayIdx] = useState(() => (new Date().getDay() + 1) % 7); // Sat=0, Sun=1 ...
 
   // Names of Allah Collectible Shelf items (PRD §8 - STO-2)
   const collectedAsmaCards = ASMA_ALLAH_DATA.filter((item) =>

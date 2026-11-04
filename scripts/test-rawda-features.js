@@ -141,7 +141,6 @@ async function main() {
     }
 
     function toggleWord(verseNo, wordPos) {
-      const prev = { ...record.verses[verseNo].hiddenWords };
       pushUndo({ verseNo, prev: [...record.verses[verseNo].hiddenWords] });
       const current = record.verses[verseNo].hiddenWords;
       if (current.includes(wordPos)) {
@@ -345,8 +344,8 @@ async function main() {
   // TEST 7: Story Read Threshold & Badges
   // ----------------------------------------------------
   await runTest('Test 7: Story Read Threshold & Badges (5, 10, 15, 25)', async () => {
-    const db = new InMemoryDb();
-    const childId = 'child_story_1';
+    const _db = new InMemoryDb();
+    const _childId = 'child_story_1';
     let storiesRead = new Set();
     let badgesEarned = [];
 

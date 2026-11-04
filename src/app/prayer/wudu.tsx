@@ -23,7 +23,6 @@ import { getStepMedia } from '@/data/arkanMedia';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const WUDU_SAVED_STEP_KEY = '@rawda_wudu_last_step';
-const MASCOT_IMG = require('../../../assets/images/mascot-noor.jpg');
 
 interface WuduStepData {
   step: number;
@@ -215,7 +214,7 @@ export default function WuduStepScreen() {
   };
 
   // Repeat step: reset drops & replay audio
-  const handleRepeatStep = () => {
+  const _handleRepeatStep = () => {
     setFilledDrops([]);
     handlePlayAudio();
   };

@@ -296,7 +296,7 @@ class AudioService {
           setTimeout(() => {
             try {
               toast.remove();
-            } catch {}
+            } catch { /* Node may have already been removed */ }
           }, 300);
         }, 2500);
       } else if (Platform.OS === 'android' && ToastAndroid) {

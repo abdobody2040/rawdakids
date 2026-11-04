@@ -47,7 +47,6 @@ export default function CompanionsHubScreen() {
   useDocumentTitle('صحابة رسول الله', 'Companions of the Prophet');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
-  const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
   const [activeTab, setActiveTab] = useState<'stories' | 'badges'>('stories');

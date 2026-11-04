@@ -42,7 +42,6 @@ export default function NationsHubScreen() {
   useDocumentTitle('أقوام وقرى القرآن', 'Nations of the Quran');
   const router = useRouter();
   const { language, addStars, addGems } = useAppStore();
-  const isAr = language === 'ar';
   const isRtl = isRTL(language);
 
   const [selectedNationId, setSelectedNationId] = useState<string>('nation-1');

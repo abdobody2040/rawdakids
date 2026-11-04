@@ -550,9 +550,9 @@ async function runSecuritySuite() {
   const serviceCode = fs.readFileSync(path.join(__dirname, '../src/services/voiceRecordService.ts'), 'utf-8');
 
   const maxSecMatch = serviceCode.match(/MAX_RECORDING_SECONDS\s*=\s*(\d+)/);
-  const maxBytesMatch = serviceCode.match(/MAX_RECORDING_BYTES\s*=\s*([0-9\s*]+);/);
+  const _maxBytesMatch = serviceCode.match(/MAX_RECORDING_BYTES\s*=\s*([0-9\s*]+);/);
   const MAX_RECORDING_SECONDS = maxSecMatch ? parseInt(maxSecMatch[1], 10) : 0;
-  const MAX_RECORDING_BYTES = 15 * 1024 * 1024;
+  const _MAX_RECORDING_BYTES = 15 * 1024 * 1024;
 
   function validateAudioUri(uri) {
     if (!uri || typeof uri !== 'string') {

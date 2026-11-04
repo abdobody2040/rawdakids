@@ -155,10 +155,10 @@ export const TRANSLATIONS = {
 
     // Parents Corner
     parentGateTitle: 'بوابة الوالدين',
-    parentGateSub: 'يرجى حل المسألة الرياضية للتأكد من هوية الوالدين',
-    parentQuestion: 'كم حاصل ضرب:',
+    parentGateSub: 'يرجى إدخال رمز الأمان (PIN) للدخول إلى منطقة الوالدين',
+    parentQuestion: 'أدخل رمز الأمان (PIN):',
     submitAnswer: 'تأكيد ودخول',
-    wrongAnswer: 'الإجابة غير صحيحة، حاول مجدداً',
+    wrongAnswer: 'رمز الأمان غير صحيح، حاول مجدداً',
     childProfiles: 'ملفات الأبناء',
     addChild: 'إضافة طفل جديد',
     childName: 'اسم الطفل / اللقب',
@@ -398,10 +398,10 @@ export const TRANSLATIONS = {
 
     // Parents Corner
     parentGateTitle: 'Parents Gate',
-    parentGateSub: 'Please solve this math question to enter the parents area',
-    parentQuestion: 'What is:',
+    parentGateSub: 'Please enter your security PIN to access the parents area',
+    parentQuestion: 'Enter security PIN:',
     submitAnswer: 'Verify and Enter',
-    wrongAnswer: 'Incorrect answer, please try again',
+    wrongAnswer: 'Incorrect PIN, please try again',
     childProfiles: 'Child Profiles',
     addChild: 'Add New Child',
     childName: 'Child Name / Nickname',
