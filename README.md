@@ -1,56 +1,175 @@
-# Welcome to your Expo app 👋
+# روضة كيدز — Rawda Kids 🌟📖
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<div align="center">
 
-## Get started
+![Rawda Kids Banner](assets/images/icon.png)
 
-1. Install dependencies
+**تطبيق إسلامي تفاعلي تعليمي متكامل للأطفال (٤–١٢ سنة)**  
+*An Enchanting, Gamified & 100% Private Islamic Learning App for Muslim Children*
 
-   ```bash
-   npm install
-   ```
+[![Expo SDK 57](https://img.shields.io/badge/Expo-SDK%2057-000020?style=flat-square&logo=expo)](https://expo.dev)
+[![React Native 0.86](https://img.shields.io/badge/React%20Native-0.86-61DAFB?style=flat-square&logo=react)](https://reactnative.dev)
+[![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![Zero Ads / 100% Private](https://img.shields.io/badge/Privacy-100%25%20On--Device-10B981?style=flat-square)](public/privacy.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square)](LICENSE)
 
-2. Start the app
+[تجربة التطبيق عبر الويب (Live Web App)](https://rawdakids.vercel.app/) • [سياسة الخصوصية (Privacy Policy)](https://rawdakids.vercel.app/privacy.html)
 
-   ```bash
-   npx expo start
-   ```
+</div>
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🌟 نظرة عامة | Overview
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+**روضة كيدز (Rawda Kids)** هو عالم إسلامي تفاعلي يجمع بين أصالة المصحف الشريف والسنّة النبوية المطهرة، وتطوير السلوك والأخلاق والعبادات اليومية في إطار تربوي ممتع خالٍ تماماً من الإعلانات ومن التتبع، وموجّه للأطفال من سن ٤ إلى ١٢ عاماً ولأولياء أمورهم.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 🎯 الأركان والعوالم التعليمية الرئيسية | Core Features
 
-```bash
-npm run reset-project
+### 1. 📖 حديقة القرآن والمصحف (Quran Garden)
+* **المصحف الكامل (١١٤ سورة):** تصفح سليم ومراجع بنسبة ١٠٠٪ لنص المصحف الشريف (مصحف المدينة النبوية - ٦٠٤ صفحات) بالرسم العثماني.
+* **٢٧ قارئاً معتمداً:** تلاوات صوتية موثقة ومطابقة لمصادر EveryAyah المعتمدة بجودة عالية وسرعات تشغيل متعددة (0.75x، 1x، 1.25x).
+* **محرّك التحفيظ والتكرار (Hifz Repeater):** تكرار الآيات من مرة حتى ١٠ مرات تلقائياً لدعم الحفظ والتثبيت مع نظام تدرج الحفظ (`جديد` -> `قيد التعلّم` -> `تم الحفظ`).
+* **التفسير الميسر وتفسير السعدي:** تبسيط معاني الآيات بأسلوب تفاعلي وتدبر طفولي هادف مع نطق صوتي للمعاني.
+* **معاني الكلمات بالضغط:** إمكانية النقر على أي كلمة لمعرفة معناها فورياً من خلال فقاعة تعليمية مبسطة.
+* **وضع إخفاء الكلمات التدريجي (Fade Mode):** تدريب ذكي للأطفال على اختبار قوة الحفظ عبر إخفاء الكلمات تدريجياً.
+
+### 2. 🎨 نظام تعلّم التجويد والتحدي الصوتي التفاعلي (Interactive Tajweed)
+* **١٠٠٪ مجاني وبدون ذكاء اصطناعي مكلف (Zero-LLM):** يعمل بالكامل محلياً على المتصفح/الجهاز عبر واجهات Web Speech API و Web Audio API.
+* **٤ تصنيفات مبسطة ومحببة للأطفال:**
+  - **المدّ 🚀 (#FF6B6B):** تمييز حروف المد بمقياس بصري تفاعلي.
+  - **الغنّة 🌿 (#2ECC71):** تمييز حروف الغنة الرنانة لمدة حركتين.
+  - **القلقلة 🏀 (#3498DB):** تمييز حروف القلقلة بالقفزة القوية.
+  - **الإخفاء والإدغام 🔮 (#9B59B6):** تلوين أحكام الإخفاء والإدغام بلطف.
+* **مقياس المدّ المباشر (Madd Meter):** محلل صوتي يقيس مدّة استمرار صوت الطفل في المدّ عبر تحريك صاروخ فضائي 🚀 نحو النجوم.
+* **تحدي التلاوة والمطابقة 🎙️:** قراءة الطفل للآية ومطابقة النطق باللغة العربية مع منح نجوم عند الإتقان.
+* **المقارنة مع الشيخ المعلّم:** تسجيل صوت الطفل ومقارنته المباشرة بنطق فضيلة الشيخ محمود خليل الحصري (المصحف المعلم للأطفال).
+
+### 3. 🕌 صلاتي ووضوئي (Prayer & Wudu)
+* **محاكي الوضوء (٨ خطوات):** عرض مرئي وتفاعلي لخطوات الوضوء الصحيحة بالترتيب والدعاء المأثور.
+* **محاكي الصلاة (١٠ خطوات):** تعليم الصلاة خطوة بخطوة بالصوت والنص والأدعية المأثورة لكل ركعة وسجدة وركوع.
+* **أوقات الصلاة الدقيقة:** حساب تلقائي لمواقيت الصلاة حسب موقع المستخدم مع مراعاة المذاهب الفقهية، وإمكانية الاستماع للأذان وتحديد القبلة.
+
+### 4. 🧭 طريق السنّة والاكتشاف (Sunnah & Discover)
+* **أحاديث نبوية مصورة:** أحاديث صحيحة ومخرجة مع أسئلة تفكير ومناقشة عائلية لغرس القيم.
+* **أذكار وأدعية اليوم والليلة:** أذكار الصباح والمساء ودخول المنزل والخروج وركوب الدابة وغيرها بنطق صوتي مباشر.
+* **مسبحة إلكترونية تفاعلية:** عداد تسبيح محفز للأذكار والاستغفار.
+* **رف بطاقات أسماء الله الحسنى (٩٩ بطاقة):** تجميع وحفظ أسماء الله الحسنى ومعانيها المبسطة.
+* **قصص الأنبياء (٢٥ نبياً):** تسلسل زمني ومسار تفاعلي مشوق مع اختبارات معلومات قصيرة.
+* **قصص الحيوانات في القرآن والأمم السابقة:** استخلاص العبر والدروس القرآنية للأطفال.
+* **مدينة الأخلاق الحميدة:** مواقف وسيناريوهات تربوية لاتخاذ القرارات السليمة.
+
+### 5. 🌱 أنا وحديقتي (Me & My Garden)
+* **حديقة النور النامية:** تمثيل مرئي لتقدم الطفل يتحول من بذرة طيبة 🌱 إلى حديقة فردوسية غناء 🌺 حسب إنجازه للمهام والصلوات.
+* **إدارة ملفات متعددة للأطفال:** تخصيص تجربة كل طفل حسب فئته العمرية (٤–٦، ٧–٩، ١٠–١٢ سنة) مع حفظ شخصي منفصل للتقدم.
+* **ألبوم الملصقات وأوسمة الإنجاز:** أوسمة متجددة تشجع على الاستمرار (مثل: *بطل القلقلة*، *نَفَس البطل*، *حافظ الفاتحة*).
+* **دفتر الامتنان والشكر:** مساحة يومية للطفل لتدوين نعم الله وشكره عليها.
+
+### 6. 🛡️ بوابة أولياء الأمور وحماية الخصوصية (Parent Area & Privacy)
+* **بوابة الوالدين المحمية (Parent Gate):** معادلة حسابية ورمز PIN مشفر لمنع خروج الطفل من بيئة التعلّم.
+* **محدد وقت الشاشة اليومي (Daily Limit):** تحكم الوالدين في مدة استخدام التطبيق بالدقائق لحماية أعين الأطفال.
+* **خصوصية تامة للأطفال (COPPA-Compliant):**
+  - لا توجد حسابات أو تسجيل دخول أو جمع بريد إلكتروني أو أرقام هواتف.
+  - جميع بيانات الطفل (الأسماء، التقدم، التسجيلات الصوتية) تُحفظ محلياً على جهازه فقط (100% On-Device).
+  - لا توجد إعلانات ولا تتبّع ولا تحليلات طرف ثالث نهائياً.
+
+---
+
+## 🛠️ البنية التقنية | Tech Stack
+
+| الطبقة | التقنية المستخدمة |
+|---|---|
+| **بيئة التشغيل** | [Expo SDK 57](https://expo.dev) / React Native 0.86 / React 19 |
+| **إدارة المسارات والتنقل** | [Expo Router v5](https://docs.expo.dev/router/introduction/) (File-based Routing) |
+| **لغة البرمجة** | TypeScript (Strict Typing) |
+| **إدارة الحالة والتخزين** | [Zustand v5](https://github.com/pmndrs/zustand) مع التخزين المحلي عبر `AsyncStorage` |
+| **محرك الصوت** | EveryAyah Audio API + HTML5 Audio / Web Audio API |
+| **التعرف على الصوت محلياً** | Web Speech API (`ar-SA`) + RMS Voice Activity Analysis |
+| **المنصات المدعومة** | Web (PWA أوفلاين كامل مع Service Worker), Android, iOS |
+
+---
+
+## 📂 بنية المجلدات | Directory Structure
+
+```
+quran-app-for-kids/
+├── assets/                     # الأيقونات والصور والخطوط العربية
+├── public/                     # أصول الويب العامة وسياسة الخصوصية وملف PWA Manifest
+│   ├── privacy.html            # سياسة الخصوصية الرسمية ثنائية اللغة
+│   └── sw.js                   # Service Worker للتخزين المؤقت للعمل بدون إنترنت
+├── scripts/                    # أدوات فحص بيانات القرآن والتصدير
+│   ├── verifyQuranData.js      # فحص تدقيق نصوص القرآن الكريم الـ 114 سورة
+│   └── fix-vercel-assets.js    # تحسين مسارات أصول الويب على Vercel
+├── src/
+│   ├── app/                    # صفحات ومسارات التطبيق (Expo Router)
+│   │   ├── _layout.tsx         # المخطط العام وتهيئة الخطوط والاتجاه RTL
+│   │   ├── index.tsx           # الشاشة الرئيسية والعوالم الأربعة
+│   │   ├── quran/              # قارئ القرآن والمصحف الشريف ومكرر الحفظ
+│   │   ├── prayer/             # محاكي الوضوء ومحاكي الصلاة والمواقيت
+│   │   ├── sunnah/             # الأحاديث، الأذكار، الأدعية، والمسبحة
+│   │   ├── me/                 # شاشة الطفل، الحديقة النامية، والأوسمة
+│   │   └── parents/            # بوابة أولياء الأمور وإعدادات الأمان
+│   ├── components/             # مكونات واجهة المستخدم التفاعلية
+│   ├── constants/              # إعدادات المظهر والخطوط واللغات (Theme & i18n)
+│   ├── data/                   # قواعد البيانات المحلية الموثقة
+│   ├── features/               # الميزات المتخصصة والمستقلة
+│   │   └── tajweed/            # محرك وأدوات ومكونات التجويد والتحدي الصوتي
+│   ├── services/               # خدمات الصوت والتخزين المؤقت
+│   └── store/                  # مخزن Zustand لإدارة الحالات وحفظ التقدم
+└── vercel.json                 # إعدادات استضافة Vercel مع معالجة المسارات والـ PWA
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🚀 البدء والتشغيل محلياً | Quick Start
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### المتطلبات الأساسية
+- تثبيت [Node.js](https://nodejs.org) (الإصدار 18 أو أحدث).
+- تثبيت مدير الحزم `npm` أو `bun`.
 
-## Learn more
+### 1. تثبيت الحزم
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 2. التحقق من سلامة نصوص وبيانات المصحف
+```bash
+npm run verify-quran
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. تشغيل التطبيق في وضع التطوير
+```bash
+npm start
+```
+- اضغط `w` لفتح التطبيق على المتصفح (Web).
+- اضغط `a` لتشغيل تطبيق Android على المحاكي أو جهازك عبر Expo Go.
+- اضغط `i` لتشغيل تطبيق iOS على محاكي Xcode.
 
-## Join the community
+### 4. الفحص البرمجي وفحص التنسيق (Lint & Type Check)
+```bash
+npx tsc --noEmit
+npm run lint
+```
 
-Join our community of developers creating universal apps.
+### 5. بناء وتصدير النسخة الإنتاجية للويب (Web Build)
+```bash
+npm run build
+```
+سيتم التحقق من النصوص وإنشاء ملفات التوزيع في مجلد `dist/` المهيأ للاستضافة على منصات مثل Vercel أو Netlify.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🔒 الأمان والخصوصية وحماية الأطفال | Safety & Privacy
+
+نحن نأخذ خصوصية الأطفال وسلامة المحتوى على محمل الجد:
+- **نقاء المحتوى الديني:** تم مراجعة جميع نصوص القرآن الكريم وفق المصحف العثماني المدني، وكافة الأحاديث النبوية تم توثيقها بالرجوع لمصادر السنّة المعتمدة.
+- **صفر خوادم خارجية لبيانات الأطفال:** التطبيق لا يُرسل أي اسم، صوت، صورة، أو تقييم إلى أي خادم خارجي؛ كل شيء مخزن في ذاكرة الجهاز المشفرة.
+- **سياسة خصوصية معتمدة:** يمكن مطالعة النص الكامل لسياسة الخصوصية ثنائية اللغة عبر ملف [`public/privacy.html`](public/privacy.html) أو الرابط [rawdakids.vercel.app/privacy.html](https://rawdakids.vercel.app/privacy.html).
+
+---
+
+## 📄 الترخيص | License
+
+هذا المشروع مطوّر لخدمة أبناء المسلمين ونشر كتاب الله وسنة رسوله ﷺ. مرخص تحت رخصة [MIT License](LICENSE).
