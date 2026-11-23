@@ -1,7 +1,12 @@
 // src/app/quran/tajweed.tsx
 // Dedicated Audio Tajweed Academy (مدرسة التجويد بالصوت)
-// Free, 100% Client-Side, Zero-LLM, Pedagogical & Kid-Friendly
-// Features Sheikh Mahmoud Khalil Al-Husary (Teacher Edition) audio from EveryAyah
+// Styled to perfectly match Rawda Kids 3D Garden aesthetic:
+// - Standard Header & AppBottomNav
+// - 3D Hero banner with Quran Garden art
+// - Noor Mascot analogy callouts
+// - Interactive 3D letter blocks
+// - Live animated Sheikh Al-Husary audio examples
+// - Smart game-show audio quiz with stars rewards
 
 import { useState } from 'react';
 import {
@@ -11,13 +16,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  ImageBackground,
   useWindowDimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, RADIUS, SPACING, SHADOWS } from '@/constants/theme';
 import { useAppStore } from '@/store/useAppStore';
+import Header from '@/components/Header';
+import AppBottomNav from '@/components/AppBottomNav';
 import {
   TAJWEED_SECTIONS,
   TajweedSection,
@@ -27,18 +36,21 @@ import {
 import TajweedAudioPlayer from '@/features/tajweed/components/TajweedAudioPlayer';
 import TajweedVoiceGame from '@/features/tajweed/components/TajweedVoiceGame';
 
+const QURAN_GARDEN_IMG = require('../../../assets/images/quran-garden.jpg');
+const NAV_QURAN_IMG = require('../../../assets/images/nav-quran-3d.jpg');
+const MASCOT_NOOR_IMG = require('../../../assets/images/mascot-noor.jpg');
+
 export default function TajweedAcademyScreen() {
-  const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
 
-  const { language, addStars, stars } = useAppStore();
-  const totalStars = stars ?? 0;
+  const { language, addStars } = useAppStore();
+  const isAr = language === 'ar';
 
   const [selectedSectionId, setSelectedSectionId] = useState<string>('nun_tanween');
   const [selectedLessonId, setSelectedLessonId] = useState<string>('izhar_halqi');
 
-  // Quiz interactive state: map of questionId -> selectedOptionId
+  // Quiz interactive state
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [answeredCorrectly, setAnsweredCorrectly] = useState<Record<string, boolean>>({});
 
@@ -74,653 +86,900 @@ export default function TajweedAcademyScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* ── Top Header ────────────────────────────────────────── */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityLabel="العودة"
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
+      <View style={styles.appContainer}>
+        {/* ── App Top Header with 3D Stats & Profile Switcher ── */}
+        <Header
+          showBack
+          title={isAr ? 'مدرسة التجويد بالصوت 🎨' : 'Tajweed School 🎨'}
+        />
+
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            isDesktop && styles.scrollContentDesktop,
+          ]}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="arrow-forward" size={22} color="#064E3B" />
-        </TouchableOpacity>
-
-        <View style={styles.headerTitleWrap}>
-          <Text style={styles.headerTitle}>مدرسة التجويد بالصوت 🎨🔊</Text>
-          <Text style={styles.headerSubtitle}>مع الشيخ الحصري (المعلم)</Text>
-        </View>
-
-        <View style={styles.starsBadge}>
-          <Ionicons name="star" size={16} color="#F59E0B" />
-          <Text style={styles.starsText}>{totalStars}</Text>
-        </View>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          isDesktop && styles.scrollContentDesktop,
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ── Hero Welcome Banner ────────────────────────────────── */}
-        <LinearGradient
-          colors={['#065F46', '#047857', '#059669']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBanner}
-        >
-          <View style={styles.heroTextContent}>
-            <View style={styles.heroBadge}>
-              <Ionicons name="sparkles" size={14} color="#FDE047" />
-              <Text style={styles.heroBadgeText}>تعلّم التلاوة الصحيحة بسهولة</Text>
-            </View>
-            <Text style={styles.heroTitle}>استمع، تعلّم، ورتّل كالأبطال! 🌟</Text>
-            <Text style={styles.heroDesc}>
-              استمع لأمثلة صوتية واضحة ومتقنة بصوت شيخ المقارئ المصرية الشيخ محمود خليل الحصري
-              (المعلم)، وتدرب على أحكام التجويد بألعاب تفاعلية مسلية.
-            </Text>
-          </View>
-        </LinearGradient>
-
-        {/* ── Section Selector Tabs ──────────────────────────────── */}
-        <View style={styles.sectionTabsWrap}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.sectionTabsScroll}
-          >
-            {TAJWEED_SECTIONS.map((sec) => {
-              const isSelected = sec.id === selectedSectionId;
-              return (
-                <TouchableOpacity
-                  key={sec.id}
-                  style={[
-                    styles.sectionTabPill,
-                    isSelected && {
-                      backgroundColor: sec.color,
-                      borderColor: sec.color,
-                    },
-                  ]}
-                  onPress={() => handleSelectSection(sec.id)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.sectionTabEmoji}>{sec.emoji}</Text>
-                  <Text
-                    style={[
-                      styles.sectionTabTitle,
-                      isSelected && styles.sectionTabTitleActive,
-                    ]}
-                  >
-                    {sec.titleAr}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* ── Lesson Selector Sub-Tabs (within selected section) ──── */}
-        {activeSection.lessons.length > 1 && (
-          <View style={styles.lessonTabsRow}>
-            {activeSection.lessons.map((lesson) => {
-              const isSelected = lesson.id === selectedLessonId;
-              return (
-                <TouchableOpacity
-                  key={lesson.id}
-                  style={[
-                    styles.lessonTabChip,
-                    isSelected && [
-                      styles.lessonTabChipActive,
-                      { borderColor: activeSection.color, backgroundColor: activeSection.bgColor },
-                    ],
-                  ]}
-                  onPress={() => setSelectedLessonId(lesson.id)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.lessonTabEmoji}>{lesson.emoji}</Text>
-                  <Text
-                    style={[
-                      styles.lessonTabChipText,
-                      isSelected && { color: activeSection.color, fontWeight: '700' },
-                    ]}
-                  >
-                    {lesson.titleAr}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-
-        {/* ── Active Lesson Content Card ─────────────────────────── */}
-        <View style={styles.lessonCard}>
-          {/* Lesson Header */}
-          <View style={styles.lessonHeaderRow}>
-            <View
-              style={[
-                styles.lessonIconBox,
-                { backgroundColor: activeLesson.badgeBgColor },
-              ]}
+          {/* ── 3D Hero Banner with Quran Garden Backdrop ─────────── */}
+          <View style={styles.heroBannerContainer}>
+            <ImageBackground
+              source={QURAN_GARDEN_IMG}
+              style={styles.heroBannerImage}
+              imageStyle={{ borderRadius: RADIUS.xl }}
+              resizeMode="cover"
             >
-              <Text style={styles.lessonIconEmoji}>{activeLesson.emoji}</Text>
-            </View>
+              <LinearGradient
+                colors={['rgba(6, 78, 59, 0.90)', 'rgba(5, 150, 105, 0.95)']}
+                style={styles.heroBannerOverlay}
+              >
+                <View style={[styles.heroRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  <View style={styles.hero3dBadgeBox}>
+                    <Image
+                      source={NAV_QURAN_IMG}
+                      style={styles.hero3dBadgeImg}
+                      contentFit="cover"
+                    />
+                  </View>
 
-            <View style={styles.lessonHeaderInfo}>
-              <Text style={styles.lessonMainTitle}>{activeLesson.titleAr}</Text>
-              <Text style={styles.lessonSubTitle}>{activeLesson.shortSummaryAr}</Text>
-            </View>
+                  <View style={[styles.heroTextCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+                    <View style={styles.heroPillBadge}>
+                      <Ionicons name="sparkles" size={13} color="#FDE047" />
+                      <Text style={styles.heroPillText}>
+                        {isAr ? 'مع الشيخ الحصري (المعلم)' : 'Sheikh Al-Husary (Teacher)'}
+                      </Text>
+                    </View>
+                    <Text style={[styles.heroTitle, { textAlign: isAr ? 'right' : 'left' }]}>
+                      {isAr ? 'مدرسة التجويد بالصوت 🎨🔊' : 'Audio Tajweed Academy 🎨🔊'}
+                    </Text>
+                    <Text style={[styles.heroDesc, { textAlign: isAr ? 'right' : 'left' }]}>
+                      {isAr
+                        ? 'استمع لنطق شيخ القراء ببطء وإتقان، وتدرّب بألعاب صوتية ممتعة!'
+                        : 'Listen to slow, clear recitations by Sheikh Al-Husary and practice with fun audio games!'}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Progress Pill */}
+                <View style={[styles.heroStatsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statEmoji}>🌿</Text>
+                    <Text style={styles.statText}>٥ أقسام رئيسية</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statEmoji}>🎧</Text>
+                    <Text style={styles.statText}>أمثلة صوتية نقية</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statEmoji}>⭐</Text>
+                    <Text style={styles.statText}>تحديات ونجوم</Text>
+                  </View>
+                </View>
+              </LinearGradient>
+            </ImageBackground>
           </View>
 
-          {/* Kid-Friendly Analogy Box */}
-          <View
-            style={[
-              styles.analogyBox,
-              { backgroundColor: activeSection.bgColor, borderColor: activeSection.color + '30' },
-            ]}
-          >
-            <View style={styles.analogyHeader}>
-              <Ionicons name="bulb" size={18} color="#D97706" />
-              <Text style={styles.analogyTitle}>التشبيه الذكي للأبطال 💡</Text>
-            </View>
-            <Text style={styles.analogyText}>{activeLesson.kidAnalogyAr}</Text>
-            <Text style={styles.ruleDetailText}>{activeLesson.detailedRuleAr}</Text>
+          {/* ── 5 Main Section Selector Cards ───────────────────── */}
+          <View style={styles.sectionCardsContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.sectionCardsScroll}
+            >
+              {TAJWEED_SECTIONS.map((sec) => {
+                const isSelected = sec.id === selectedSectionId;
+                return (
+                  <TouchableOpacity
+                    key={sec.id}
+                    style={[
+                      styles.sectionCardItem,
+                      isSelected && [
+                        styles.sectionCardItemActive,
+                        { borderColor: sec.color, backgroundColor: sec.bgColor },
+                      ],
+                    ]}
+                    onPress={() => handleSelectSection(sec.id)}
+                    activeOpacity={0.85}
+                  >
+                    <View
+                      style={[
+                        styles.sectionEmojiCircle,
+                        { backgroundColor: isSelected ? sec.color : '#F3F4F6' },
+                      ]}
+                    >
+                      <Text style={styles.sectionEmojiText}>{sec.emoji}</Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.sectionCardTitle,
+                        isSelected && { color: sec.color, fontWeight: '800' },
+                      ]}
+                    >
+                      {isAr ? sec.titleAr : sec.titleEn}
+                    </Text>
+                    <View
+                      style={[
+                        styles.sectionCountTag,
+                        isSelected && { backgroundColor: sec.color + '20' },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.sectionCountText,
+                          isSelected && { color: sec.color },
+                        ]}
+                      >
+                        {sec.lessons.length} {isAr ? 'أحكام' : 'Rules'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </View>
 
-          {/* Letters Pills */}
-          <View style={styles.lettersSection}>
-            <Text style={styles.lettersTitle}>
-              {activeLesson.rulesCountDescAr}
-            </Text>
-            <View style={styles.lettersPillsRow}>
-              {activeLesson.letters.map((char, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.letterPill,
-                    { backgroundColor: activeLesson.badgeBgColor, borderColor: activeLesson.badgeColor },
-                  ]}
-                >
-                  <Text style={[styles.letterChar, { color: activeLesson.badgeColor }]}>
-                    {char}
+          {/* ── Sub-Lessons Chips Row ───────────────────────────── */}
+          {activeSection.lessons.length > 1 && (
+            <View style={styles.subLessonsContainer}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.subLessonsScroll}
+              >
+                {activeSection.lessons.map((lesson) => {
+                  const isSelected = lesson.id === selectedLessonId;
+                  return (
+                    <TouchableOpacity
+                      key={lesson.id}
+                      style={[
+                        styles.subLessonPill,
+                        isSelected && [
+                          styles.subLessonPillActive,
+                          {
+                            borderColor: activeSection.color,
+                            backgroundColor: activeSection.color,
+                          },
+                        ],
+                      ]}
+                      onPress={() => setSelectedLessonId(lesson.id)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.subLessonEmoji}>{lesson.emoji}</Text>
+                      <Text
+                        style={[
+                          styles.subLessonText,
+                          isSelected && styles.subLessonTextActive,
+                        ]}
+                      >
+                        {isAr ? lesson.titleAr : lesson.titleEn}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* ── Active Lesson Showcase Card ─────────────────────── */}
+          <View style={styles.showcaseCard}>
+            {/* Lesson Title Header */}
+            <View style={[styles.showcaseHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <View
+                style={[
+                  styles.showcaseIconBox,
+                  { backgroundColor: activeLesson.badgeBgColor, borderColor: activeLesson.badgeColor },
+                ]}
+              >
+                <Text style={styles.showcaseEmoji}>{activeLesson.emoji}</Text>
+              </View>
+
+              <View style={[styles.showcaseTitleCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+                <View style={[styles.ruleTypePill, { backgroundColor: activeLesson.badgeBgColor }]}>
+                  <Text style={[styles.ruleTypePillText, { color: activeLesson.badgeColor }]}>
+                    {activeSection.titleAr}
                   </Text>
                 </View>
-              ))}
+                <Text style={styles.showcaseMainTitle}>{activeLesson.titleAr}</Text>
+                <Text style={styles.showcaseSummary}>{activeLesson.shortSummaryAr}</Text>
+              </View>
             </View>
-          </View>
 
-          {/* ── Audio Examples Section ───────────────────────────── */}
-          <View style={styles.examplesContainer}>
-            <View style={styles.examplesHeaderRow}>
-              <Ionicons name="volume-high" size={20} color={activeSection.color} />
-              <Text style={[styles.examplesHeading, { color: activeSection.color }]}>
-                أمثلة استماع بصوت الشيخ الحصري المعلم 🎧
+            {/* ── Noor Mascot Thought Card ("💡 همسة نور للأبطال") ── */}
+            <View style={[styles.noorMascotCard, { borderColor: activeSection.color + '35' }]}>
+              <View style={[styles.noorMascotRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Image
+                  source={MASCOT_NOOR_IMG}
+                  style={styles.noorMascotImg}
+                  contentFit="cover"
+                />
+                <View style={styles.noorSpeechCol}>
+                  <View style={[styles.noorBadge, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <Ionicons name="sparkles" size={13} color="#D97706" />
+                    <Text style={styles.noorBadgeText}>همسة نور الذكية للأبطال</Text>
+                  </View>
+                  <Text style={[styles.noorAnalogyText, { textAlign: isAr ? 'right' : 'left' }]}>
+                    {activeLesson.kidAnalogyAr}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.ruleExplainDivider} />
+              <Text style={[styles.ruleDetailExplanation, { textAlign: isAr ? 'right' : 'left' }]}>
+                {activeLesson.detailedRuleAr}
               </Text>
             </View>
 
-            {activeLesson.examples.map((ex) => (
-              <TajweedAudioPlayer
-                key={ex.id}
-                example={ex}
-                accentColor={activeLesson.badgeColor}
-                onVoicePractice={() => handleOpenVoiceChallenge(ex)}
-              />
-            ))}
-          </View>
-
-          {/* ── Smart Audio Quiz (تحدي الأذن الذكية) ─────────────── */}
-          {activeLesson.quiz.length > 0 && (
-            <View style={styles.quizSection}>
-              <View style={styles.quizHeaderRow}>
-                <Ionicons name="ribbon" size={20} color="#D97706" />
-                <Text style={styles.quizHeading}>تحدي الأذن الذكية 🎯 (اكسب ٥ نجوم!)</Text>
+            {/* ── Tactile 3D Letter Blocks Grid ─────────────────── */}
+            <View style={styles.letterBlocksArea}>
+              <View style={[styles.letterBlocksHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="shapes" size={16} color={activeSection.color} />
+                <Text style={[styles.letterBlocksTitle, { color: activeSection.color }]}>
+                  {activeLesson.rulesCountDescAr}
+                </Text>
               </View>
 
-              {activeLesson.quiz.map((q) => {
-                const selectedOptId = quizAnswers[q.id];
-                const isCorrect = answeredCorrectly[q.id];
+              <View style={[styles.letterBlocksGrid, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                {activeLesson.letters.map((char, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.letterBlockItem,
+                      {
+                        backgroundColor: activeLesson.badgeBgColor,
+                        borderColor: activeLesson.badgeColor,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.letterBlockChar,
+                        { color: activeLesson.badgeColor },
+                      ]}
+                    >
+                      {char}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
 
-                return (
-                  <View key={q.id} style={styles.quizCard}>
-                    <Text style={styles.quizQuestionText}>{q.questionAr}</Text>
+            {/* ── Interactive Audio Examples List ───────────────── */}
+            <View style={styles.audioExamplesSection}>
+              <View style={[styles.audioSectionHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.audioHeaderIconCircle, { backgroundColor: activeSection.bgColor }]}>
+                  <Ionicons name="volume-high" size={18} color={activeSection.color} />
+                </View>
+                <View style={{ flex: 1, alignItems: isAr ? 'flex-end' : 'flex-start' }}>
+                  <Text style={[styles.audioSectionTitle, { color: activeSection.color }]}>
+                    أمثلة الاستماع بصوت الشيخ الحصري (المعلم) 🎧
+                  </Text>
+                  <Text style={styles.audioSectionSub}>
+                    استمع للنطق الصحيح ثم اضغط على «ردد الآن» للتجربة
+                  </Text>
+                </View>
+              </View>
 
-                    {q.sampleText && (
-                      <View style={styles.quizSampleBox}>
-                        <Text style={styles.quizSampleText}>{q.sampleText}</Text>
-                      </View>
-                    )}
+              {activeLesson.examples.map((ex) => (
+                <TajweedAudioPlayer
+                  key={ex.id}
+                  example={ex}
+                  accentColor={activeLesson.badgeColor}
+                  onVoicePractice={() => handleOpenVoiceChallenge(ex)}
+                />
+              ))}
+            </View>
 
-                    <View style={styles.quizOptionsList}>
-                      {q.options.map((opt) => {
-                        const isThisSelected = selectedOptId === opt.id;
-                        return (
-                          <TouchableOpacity
-                            key={opt.id}
+            {/* ── Smart Audio Quiz Game ("تحدي الأذن الذكية") ────── */}
+            {activeLesson.quiz.length > 0 && (
+              <View style={styles.quizGameCard}>
+                <LinearGradient
+                  colors={['#FEF3C7', '#FFFBEB']}
+                  style={styles.quizGameGradient}
+                >
+                  <View style={[styles.quizGameHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+                    <View style={styles.quizTrophyBox}>
+                      <Ionicons name="trophy" size={20} color="#D97706" />
+                    </View>
+                    <View style={{ flex: 1, alignItems: isAr ? 'flex-end' : 'flex-start' }}>
+                      <Text style={styles.quizGameHeading}>تحدي الأذن الذكية 🎯</Text>
+                      <Text style={styles.quizGameSub}>اختر الإجابة الصحيحة واكسب ٥ نجوم ذهبية!</Text>
+                    </View>
+                  </View>
+
+                  {activeLesson.quiz.map((q) => {
+                    const selectedOptId = quizAnswers[q.id];
+                    const isCorrect = answeredCorrectly[q.id];
+
+                    return (
+                      <View key={q.id} style={styles.quizInnerBox}>
+                        <Text style={[styles.quizQuestionLabel, { textAlign: isAr ? 'right' : 'left' }]}>
+                          {q.questionAr}
+                        </Text>
+
+                        {q.sampleText && (
+                          <View style={styles.quizSampleCallout}>
+                            <Text style={styles.quizSampleCalloutText}>
+                              {`﴿ ${q.sampleText} ﴾`}
+                            </Text>
+                          </View>
+                        )}
+
+                        <View style={styles.quizChoicesStack}>
+                          {q.options.map((opt) => {
+                            const isChosen = selectedOptId === opt.id;
+                            return (
+                              <TouchableOpacity
+                                key={opt.id}
+                                style={[
+                                  styles.quizChoiceBtn,
+                                  isChosen &&
+                                    (opt.isCorrect
+                                      ? styles.quizChoiceCorrect
+                                      : styles.quizChoiceWrong),
+                                ]}
+                                onPress={() => handleAnswerQuiz(q.id, opt.id, opt.isCorrect)}
+                                activeOpacity={0.85}
+                              >
+                                <Ionicons
+                                  name={
+                                    isChosen
+                                      ? opt.isCorrect
+                                        ? 'checkmark-circle'
+                                        : 'close-circle'
+                                      : 'radio-button-off'
+                                  }
+                                  size={20}
+                                  color={
+                                    isChosen
+                                      ? opt.isCorrect
+                                        ? '#059669'
+                                        : '#DC2626'
+                                      : '#9CA3AF'
+                                  }
+                                />
+                                <Text
+                                  style={[
+                                    styles.quizChoiceText,
+                                    isChosen &&
+                                      (opt.isCorrect
+                                        ? styles.quizChoiceTextCorrect
+                                        : styles.quizChoiceTextWrong),
+                                    { textAlign: isAr ? 'right' : 'left' },
+                                  ]}
+                                >
+                                  {opt.labelAr}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+
+                        {selectedOptId && (
+                          <View
                             style={[
-                              styles.quizOptionBtn,
-                              isThisSelected &&
-                                (opt.isCorrect
-                                  ? styles.quizOptionCorrect
-                                  : styles.quizOptionIncorrect),
+                              styles.feedbackBadge,
+                              isCorrect ? styles.feedbackBadgeCorrect : styles.feedbackBadgeWrong,
                             ]}
-                            onPress={() => handleAnswerQuiz(q.id, opt.id, opt.isCorrect)}
-                            activeOpacity={0.8}
                           >
-                            <Ionicons
-                              name={
-                                isThisSelected
-                                  ? opt.isCorrect
-                                    ? 'checkmark-circle'
-                                    : 'close-circle'
-                                  : 'ellipse-outline'
-                              }
-                              size={18}
-                              color={
-                                isThisSelected
-                                  ? opt.isCorrect
-                                    ? '#059669'
-                                    : '#DC2626'
-                                  : COLORS.textMuted
-                              }
-                            />
+                            <Text style={styles.feedbackEmoji}>{isCorrect ? '🌟' : '💡'}</Text>
                             <Text
                               style={[
-                                styles.quizOptionText,
-                                isThisSelected &&
-                                  (opt.isCorrect
-                                    ? styles.quizOptionTextCorrect
-                                    : styles.quizOptionTextIncorrect),
+                                styles.feedbackText,
+                                isCorrect ? styles.feedbackTextCorrect : styles.feedbackTextWrong,
+                                { textAlign: isAr ? 'right' : 'left' },
                               ]}
                             >
-                              {opt.labelAr}
+                              {q.options.find((o) => o.id === selectedOptId)?.explanationAr}
                             </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-
-                    {selectedOptId && (
-                      <View
-                        style={[
-                          styles.quizFeedbackBox,
-                          isCorrect ? styles.quizFeedbackCorrect : styles.quizFeedbackIncorrect,
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.quizFeedbackText,
-                            isCorrect ? styles.quizFeedbackTextCorrect : styles.quizFeedbackTextIncorrect,
-                          ]}
-                        >
-                          {q.options.find((o) => o.id === selectedOptId)?.explanationAr}
-                        </Text>
+                          </View>
+                        )}
                       </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+                    );
+                  })}
+                </LinearGradient>
+              </View>
+            )}
+          </View>
+        </ScrollView>
 
-      {/* ── Interactive Voice Challenge Modal ──────────────────── */}
-      {activeVoiceExample && (
-        <TajweedVoiceGame
-          visible={voiceModalVisible}
-          surahNumber={activeVoiceExample.surahNumber}
-          ayahNumber={activeVoiceExample.ayahNumber}
-          ayahText={activeVoiceExample.ayahText}
-          language={language}
-          onClose={() => {
-            setVoiceModalVisible(false);
-            setActiveVoiceExample(null);
-          }}
-          onStarsAwarded={(count) => {
-            addStars(count);
-          }}
-        />
-      )}
-    </View>
+        {/* ── App Bottom Nav Anchored ─────────────────────────── */}
+        <AppBottomNav />
+
+        {/* ── Interactive Voice Challenge Modal ────────────────── */}
+        {activeVoiceExample && (
+          <TajweedVoiceGame
+            visible={voiceModalVisible}
+            surahNumber={activeVoiceExample.surahNumber}
+            ayahNumber={activeVoiceExample.ayahNumber}
+            ayahText={activeVoiceExample.ayahText}
+            language={language}
+            onClose={() => {
+              setVoiceModalVisible(false);
+              setActiveVoiceExample(null);
+            }}
+            onStarsAwarded={(count) => {
+              addStars(count);
+            }}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAF8',
+    backgroundColor: COLORS.sand50,
   },
-  header: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingTop: Platform.OS === 'web' ? 16 : 48,
-    paddingBottom: 14,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    ...SHADOWS.sm,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0FDF4',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  headerTitleWrap: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#064E3B',
-    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'sans-serif' }),
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#059669',
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  starsBadge: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: '#FEF3C7',
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  starsText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#B45309',
+  appContainer: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 1240,
+    alignSelf: 'center',
+    backgroundColor: COLORS.sand50,
   },
   scrollContent: {
     padding: SPACING.md,
-    paddingBottom: 40,
+    paddingBottom: 90, // Leave space for AppBottomNav
   },
   scrollContentDesktop: {
-    maxWidth: 880,
+    maxWidth: 960,
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: 24,
   },
-  heroBanner: {
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
+
+  // ── Hero Banner ──
+  heroBannerContainer: {
+    borderRadius: RADIUS.xxl,
+    overflow: 'hidden',
     marginBottom: SPACING.md,
     ...Platform.select({
       web: {
-        boxShadow: '0 8px 24px rgba(5, 150, 105, 0.2)',
+        boxShadow: '0 8px 24px rgba(6, 78, 59, 0.16)',
       },
       default: {
         elevation: 4,
       },
     }),
   },
-  heroTextContent: {
-    alignItems: 'flex-end',
+  heroBannerImage: {
+    width: '100%',
   },
-  heroBadge: {
-    flexDirection: 'row-reverse',
+  heroBannerOverlay: {
+    padding: SPACING.lg,
+    borderRadius: RADIUS.xxl,
+  },
+  heroRow: {
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: RADIUS.full,
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: SPACING.md,
   },
-  heroBadgeText: {
-    fontSize: 12,
+  hero3dBadgeBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    borderWidth: 2.5,
+    borderColor: '#A7F3D0',
+    backgroundColor: '#ECFDF5',
+    ...SHADOWS.soft,
+  },
+  hero3dBadgeImg: {
+    width: '100%',
+    height: '100%',
+  },
+  heroTextCol: {
+    flex: 1,
+  },
+  heroPillBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    borderRadius: RADIUS.full,
+    marginBottom: 6,
+  },
+  heroPillText: {
+    fontSize: 11.5,
     color: '#FFFFFF',
     fontWeight: '700',
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 21,
+    fontWeight: '900',
     color: '#FFFFFF',
-    marginBottom: 6,
-    textAlign: 'right',
+    marginBottom: 4,
+    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'Amiri, sans-serif' }),
   },
   heroDesc: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     color: '#D1FAE5',
-    textAlign: 'right',
+    fontWeight: '600',
   },
-  sectionTabsWrap: {
-    marginBottom: SPACING.sm,
+  heroStatsRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(2, 44, 34, 0.35)',
+    borderRadius: RADIUS.full,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    gap: 12,
   },
-  sectionTabsScroll: {
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  statEmoji: {
+    fontSize: 14,
+  },
+  statText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  statDivider: {
+    width: 1,
+    height: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+
+  // ── Section Cards ──
+  sectionCardsContainer: {
+    marginBottom: SPACING.sm + 2,
+  },
+  sectionCardsScroll: {
     flexDirection: 'row-reverse',
-    gap: 8,
+    gap: 10,
     paddingVertical: 4,
   },
-  sectionTabPill: {
+  sectionCardItem: {
+    width: 130,
+    padding: 12,
+    borderRadius: RADIUS.xl,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#EFE7DA',
+    alignItems: 'center',
+    ...SHADOWS.soft,
+  },
+  sectionCardItemActive: {
+    ...Platform.select({
+      web: {
+        boxShadow: '0 6px 18px rgba(0, 0, 0, 0.08)',
+      },
+      default: {
+        elevation: 3,
+      },
+    }),
+  },
+  sectionEmojiCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  sectionEmojiText: {
+    fontSize: 22,
+  },
+  sectionCardTitle: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 6,
+    lineHeight: 16,
+  },
+  sectionCountTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#F3F4F6',
+  },
+  sectionCountText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#6B7280',
+  },
+
+  // ── Sub-Lessons Chips ──
+  subLessonsContainer: {
+    marginBottom: SPACING.md,
+  },
+  subLessonsScroll: {
+    flexDirection: 'row-reverse',
+    gap: 8,
+    paddingVertical: 2,
+  },
+  subLessonPill: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
     borderRadius: RADIUS.full,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-  },
-  sectionTabEmoji: {
-    fontSize: 16,
-  },
-  sectionTabTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#374151',
-  },
-  sectionTabTitleActive: {
-    color: '#FFFFFF',
-  },
-  lessonTabsRow: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: SPACING.md,
-  },
-  lessonTabChip: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
     backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.md,
     borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
-  lessonTabChipActive: {
-    borderColor: '#059669',
+  subLessonPillActive: {
+    ...SHADOWS.soft,
   },
-  lessonTabEmoji: {
+  subLessonEmoji: {
     fontSize: 14,
   },
-  lessonTabChipText: {
+  subLessonText: {
     fontSize: 13,
     color: '#4B5563',
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  lessonCard: {
+  subLessonTextActive: {
+    color: '#FFFFFF',
+  },
+
+  // ── Showcase Card ──
+  showcaseCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.xxl,
     padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    ...SHADOWS.md,
+    borderWidth: 2,
+    borderColor: '#EFE7DA',
+    ...SHADOWS.medium,
   },
-  lessonHeaderRow: {
-    flexDirection: 'row-reverse',
+  showcaseHeader: {
     alignItems: 'center',
     gap: 12,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md + 2,
   },
-  lessonIconBox: {
+  showcaseIconBox: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    ...SHADOWS.soft,
+  },
+  showcaseEmoji: {
+    fontSize: 30,
+  },
+  showcaseTitleCol: {
+    flex: 1,
+  },
+  ruleTypePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
+    marginBottom: 4,
+  },
+  ruleTypePillText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  showcaseMainTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#064E3B',
+    marginBottom: 3,
+    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'Amiri, serif' }),
+  },
+  showcaseSummary: {
+    fontSize: 13.5,
+    color: '#4B5563',
+    lineHeight: 19,
+    fontWeight: '600',
+  },
+
+  // ── Noor Mascot Thought Card ──
+  noorMascotCard: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    borderWidth: 1.5,
+    marginBottom: SPACING.lg,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+      },
+      default: {
+        elevation: 2,
+      },
+    }),
+  },
+  noorMascotRow: {
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  noorMascotImg: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FDE68A',
+    backgroundColor: '#FEF3C7',
   },
-  lessonIconEmoji: {
-    fontSize: 26,
-  },
-  lessonHeaderInfo: {
+  noorSpeechCol: {
     flex: 1,
-    alignItems: 'flex-end',
   },
-  lessonMainTitle: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#064E3B',
-    marginBottom: 2,
-    textAlign: 'right',
-  },
-  lessonSubTitle: {
-    fontSize: 13,
-    color: '#4B5563',
-    textAlign: 'right',
-    lineHeight: 18,
-  },
-  analogyBox: {
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    marginBottom: SPACING.md,
-  },
-  analogyHeader: {
-    flexDirection: 'row-reverse',
+  noorBadge: {
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
+    gap: 5,
+    marginBottom: 4,
   },
-  analogyTitle: {
-    fontSize: 14,
+  noorBadgeText: {
+    fontSize: 12,
     fontWeight: '800',
     color: '#B45309',
   },
-  analogyText: {
+  noorAnalogyText: {
     fontSize: 14,
     lineHeight: 22,
+    fontWeight: '800',
     color: '#064E3B',
-    fontWeight: '600',
-    textAlign: 'right',
-    marginBottom: 6,
   },
-  ruleDetailText: {
+  ruleExplainDivider: {
+    height: 1,
+    backgroundColor: '#F3E8FF',
+    marginVertical: 6,
+  },
+  ruleDetailExplanation: {
     fontSize: 13,
     lineHeight: 20,
-    color: '#374151',
-    textAlign: 'right',
+    color: '#4B5563',
+    fontWeight: '600',
   },
-  lettersSection: {
+
+  // ── 3D Letter Blocks ──
+  letterBlocksArea: {
     marginBottom: SPACING.lg,
   },
-  lettersTitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'right',
+  letterBlocksHeader: {
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
   },
-  lettersPillsRow: {
-    flexDirection: 'row-reverse',
+  letterBlocksTitle: {
+    fontSize: 13.5,
+    fontWeight: '800',
+  },
+  letterBlocksGrid: {
     flexWrap: 'wrap',
     gap: 8,
   },
-  letterPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    borderWidth: 1.5,
+  letterBlockItem: {
+    minWidth: 44,
+    height: 44,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.md,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      web: {
+        boxShadow: '0 3px 6px rgba(0, 0, 0, 0.06)',
+      },
+      default: {
+        elevation: 2,
+      },
+    }),
   },
-  letterChar: {
-    fontSize: 15,
-    fontWeight: '800',
+  letterBlockChar: {
+    fontSize: 17,
+    fontWeight: '900',
+    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'Amiri, serif' }),
   },
-  examplesContainer: {
-    marginTop: SPACING.sm,
+
+  // ── Audio Examples Section ──
+  audioExamplesSection: {
+    marginTop: 4,
     marginBottom: SPACING.lg,
   },
-  examplesHeaderRow: {
-    flexDirection: 'row-reverse',
+  audioSectionHeader: {
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     marginBottom: SPACING.md,
   },
-  examplesHeading: {
+  audioHeaderIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioSectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    textAlign: 'right',
+    marginBottom: 2,
   },
-  quizSection: {
-    backgroundColor: '#FFFBEB',
+  audioSectionSub: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    fontWeight: '600',
+  },
+
+  // ── Quiz Game Card ──
+  quizGameCard: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#FDE68A',
+    marginTop: SPACING.sm,
+  },
+  quizGameGradient: {
+    padding: SPACING.md + 2,
+  },
+  quizGameHeader: {
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: SPACING.md,
+  },
+  quizTrophyBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    ...SHADOWS.soft,
+  },
+  quizGameHeading: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#92400E',
+    marginBottom: 2,
+  },
+  quizGameSub: {
+    fontSize: 12,
+    color: '#B45309',
+    fontWeight: '600',
+  },
+  quizInnerBox: {
+    backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     borderWidth: 1.5,
-    borderColor: '#FDE68A',
+    borderColor: '#FEF3C7',
   },
-  quizHeaderRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: SPACING.md,
-  },
-  quizHeading: {
+  quizQuestionLabel: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#B45309',
-    textAlign: 'right',
-  },
-  quizCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: '#FEF3C7',
-    marginBottom: SPACING.sm,
-  },
-  quizQuestionText: {
-    fontSize: 15,
-    fontWeight: '700',
     color: '#1F2937',
-    textAlign: 'right',
     lineHeight: 22,
     marginBottom: 8,
   },
-  quizSampleBox: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: RADIUS.sm,
-    padding: 10,
-    marginBottom: 10,
+  quizSampleCallout: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: RADIUS.md,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#EFE7DA',
   },
-  quizSampleText: {
-    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'serif' }),
-    fontSize: 18,
+  quizSampleCalloutText: {
+    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'Amiri, serif' }),
+    fontSize: 19,
     color: '#064E3B',
     textAlign: 'center',
     writingDirection: 'rtl',
   },
-  quizOptionsList: {
+  quizChoicesStack: {
     gap: 8,
   },
-  quizOptionBtn: {
+  quizChoiceBtn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 10,
@@ -730,54 +989,58 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
   },
-  quizOptionCorrect: {
+  quizChoiceCorrect: {
     borderColor: '#059669',
     backgroundColor: '#ECFDF5',
   },
-  quizOptionIncorrect: {
+  quizChoiceWrong: {
     borderColor: '#DC2626',
     backgroundColor: '#FEF2F2',
   },
-  quizOptionText: {
-    fontSize: 14,
+  quizChoiceText: {
+    fontSize: 13.5,
     color: '#374151',
-    fontWeight: '600',
+    fontWeight: '700',
     flex: 1,
-    textAlign: 'right',
   },
-  quizOptionTextCorrect: {
+  quizChoiceTextCorrect: {
     color: '#065F46',
-    fontWeight: '700',
+    fontWeight: '800',
   },
-  quizOptionTextIncorrect: {
+  quizChoiceTextWrong: {
     color: '#991B1B',
-    fontWeight: '700',
+    fontWeight: '800',
   },
-  quizFeedbackBox: {
+  feedbackBadge: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 8,
     marginTop: 10,
     padding: 10,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
   },
-  quizFeedbackCorrect: {
+  feedbackBadgeCorrect: {
     backgroundColor: '#D1FAE5',
     borderColor: '#A7F3D0',
   },
-  quizFeedbackIncorrect: {
+  feedbackBadgeWrong: {
     backgroundColor: '#FEE2E2',
     borderColor: '#FECACA',
   },
-  quizFeedbackText: {
-    fontSize: 13,
-    lineHeight: 18,
-    textAlign: 'right',
-    fontWeight: '600',
+  feedbackEmoji: {
+    fontSize: 16,
   },
-  quizFeedbackTextCorrect: {
+  feedbackText: {
+    fontSize: 12.5,
+    lineHeight: 18,
+    flex: 1,
+    fontWeight: '700',
+  },
+  feedbackTextCorrect: {
     color: '#065F46',
   },
-  quizFeedbackTextIncorrect: {
+  feedbackTextWrong: {
     color: '#991B1B',
   },
 });
-

@@ -1,6 +1,7 @@
 // src/features/tajweed/components/TajweedAudioPlayer.tsx
-// Interactive Audio Player for Tajweed Examples featuring Sheikh Mahmoud Khalil Al-Husary
-// Clean, resilient, kid-friendly with live playback indicators and repetition support.
+// Visually rich, Kid-Friendly Audio Player for Tajweed Examples
+// Featuring Sheikh Mahmoud Khalil Al-Husary (Teacher Edition)
+// Styled to match Rawda Kids 3D Garden aesthetic with live equalizer bars & speed toggle.
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
@@ -10,9 +11,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, RADIUS, SPACING } from '@/constants/theme';
+import { COLORS, RADIUS, SPACING, SHADOWS } from '@/constants/theme';
 import { TajweedAudioExample } from '../data/tajweedLessonsData';
 
 interface TajweedAudioPlayerProps {
@@ -29,7 +31,49 @@ export default function TajweedAudioPlayer({
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 5 animated equalizer bars
+  const [bar1] = useState(() => new Animated.Value(6));
+  const [bar2] = useState(() => new Animated.Value(14));
+  const [bar3] = useState(() => new Animated.Value(22));
+  const [bar4] = useState(() => new Animated.Value(12));
+  const [bar5] = useState(() => new Animated.Value(8));
+
+  // Equalizer animation loop
+  useEffect(() => {
+    let animLoop: Animated.CompositeAnimation | null = null;
+    if (isPlaying) {
+      const createBarAnim = (val: Animated.Value, minH: number, maxH: number, duration: number) => {
+        return Animated.sequence([
+          Animated.timing(val, { toValue: maxH, duration, useNativeDriver: false }),
+          Animated.timing(val, { toValue: minH, duration, useNativeDriver: false }),
+        ]);
+      };
+
+      animLoop = Animated.loop(
+        Animated.parallel([
+          createBarAnim(bar1, 4, 18, 250),
+          createBarAnim(bar2, 6, 26, 320),
+          createBarAnim(bar3, 8, 30, 280),
+          createBarAnim(bar4, 5, 22, 350),
+          createBarAnim(bar5, 4, 16, 290),
+        ])
+      );
+      animLoop.start();
+    } else {
+      bar1.setValue(6);
+      bar2.setValue(14);
+      bar3.setValue(20);
+      bar4.setValue(12);
+      bar5.setValue(8);
+    }
+
+    return () => {
+      if (animLoop) animLoop.stop();
+    };
+  }, [isPlaying, bar1, bar2, bar3, bar4, bar5]);
 
   const stopAudio = useCallback(() => {
     if (Platform.OS === 'web' && audioRef.current) {
@@ -65,6 +109,7 @@ export default function TajweedAudioPlayer({
 
         const audio = new Audio(example.audioUrl);
         audioRef.current = audio;
+        audio.playbackRate = playbackSpeed;
 
         audio.oncanplay = () => {
           setIsLoading(false);
@@ -95,105 +140,144 @@ export default function TajweedAudioPlayer({
         setHasError(true);
       }
     } else {
-      // Fallback on native when web Audio is unavailable
       setIsLoading(false);
       setHasError(true);
     }
   };
 
+  const handleToggleSpeed = () => {
+    const nextSpeed = playbackSpeed === 1.0 ? 0.8 : 1.0;
+    setPlaybackSpeed(nextSpeed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = nextSpeed;
+    }
+  };
+
   return (
-    <View style={[styles.card, { borderColor: accentColor + '35' }]}>
-      {/* Top Header: Surah & Ayah Badge */}
+    <View style={[styles.card, { borderColor: accentColor + '40' }]}>
+      {/* ── Top Bar: Ornate Surah Citation & Reciter Badge ──── */}
       <View style={styles.topRow}>
-        <View style={[styles.surahBadge, { backgroundColor: accentColor + '15' }]}>
-          <Ionicons name="book-outline" size={13} color={accentColor} />
-          <Text style={[styles.surahBadgeText, { color: accentColor }]}>
+        <View style={[styles.surahTag, { backgroundColor: accentColor + '15', borderColor: accentColor + '30' }]}>
+          <Ionicons name="bookmark" size={13} color={accentColor} />
+          <Text style={[styles.surahTagText, { color: accentColor }]}>
             سورة {example.surahNameAr} • الآية {example.ayahNumber}
           </Text>
         </View>
 
-        <View style={styles.reciterBadge}>
-          <Ionicons name="mic-circle" size={14} color="#065F46" />
-          <Text style={styles.reciterBadgeText}>الشيخ الحصري (المعلم)</Text>
+        <View style={styles.reciterTag}>
+          <Ionicons name="sparkles" size={13} color="#D97706" />
+          <Text style={styles.reciterTagText}>الشيخ الحصري (المعلم)</Text>
         </View>
       </View>
 
-      {/* Arabic Ayah Text */}
-      <View style={styles.textContainer}>
-        <Text style={styles.ayahText} textBreakStrategy="simple">
-          {example.ayahText}
+      {/* ── Quranic Parchment Card with Arabic Text ────────── */}
+      <View style={styles.parchmentBox}>
+        <View style={styles.ornateCornerTopRight} />
+        <View style={styles.ornateCornerTopLeft} />
+        <View style={styles.ornateCornerBottomRight} />
+        <View style={styles.ornateCornerBottomLeft} />
+
+        <Text style={styles.quranText} textBreakStrategy="simple">
+          {`﴿ ${example.ayahText} ﴾`}
         </Text>
       </View>
 
-      {/* Target Word & Highlighted Rule */}
-      <View style={styles.rulePillRow}>
-        <View style={[styles.targetWordPill, { borderColor: accentColor }]}>
-          <Text style={styles.targetWordLabel}>الكلمة:</Text>
-          <Text style={[styles.targetWordText, { color: accentColor }]}>{example.targetWord}</Text>
+      {/* ── Spotlight Tag: Target Word & Highlighted Rule ──── */}
+      <View style={styles.spotlightRow}>
+        <View style={[styles.wordBadge, { borderColor: accentColor, backgroundColor: accentColor + '10' }]}>
+          <View style={[styles.wordDot, { backgroundColor: accentColor }]} />
+          <Text style={styles.wordLabel}>الكلمة:</Text>
+          <Text style={[styles.wordHighlight, { color: accentColor }]}>
+            {example.targetWord}
+          </Text>
         </View>
 
-        <View style={styles.ruleDescriptionPill}>
-          <Ionicons name="sparkles" size={13} color="#D97706" />
-          <Text style={styles.ruleDescriptionText}>{example.highlightRule}</Text>
+        <View style={[styles.ruleBadge, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
+          <Ionicons name="ribbon" size={14} color="#B45309" />
+          <Text style={styles.ruleBadgeText} numberOfLines={1}>
+            {example.highlightRule}
+          </Text>
         </View>
       </View>
 
-      {/* Teacher / Audio Note */}
-      <View style={styles.noteBox}>
-        <Ionicons name="bulb-outline" size={15} color="#059669" style={{ marginTop: 2 }} />
-        <Text style={styles.noteText}>{example.audioNoteAr}</Text>
+      {/* ── Teacher Audio Note ─────────────────────────────── */}
+      <View style={styles.noteBanner}>
+        <View style={styles.noteIconCircle}>
+          <Ionicons name="headset" size={15} color="#059669" />
+        </View>
+        <Text style={styles.noteBannerText}>{example.audioNoteAr}</Text>
       </View>
 
-      {/* Audio Controls Bar */}
-      <View style={styles.controlsRow}>
-        <TouchableOpacity
-          style={[
-            styles.playButton,
-            { backgroundColor: isPlaying ? '#DC2626' : accentColor },
-          ]}
-          onPress={handleTogglePlay}
-          activeOpacity={0.8}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <Ionicons
-                name={isPlaying ? 'pause' : 'volume-high'}
-                size={18}
-                color="#FFFFFF"
-              />
-              <Text style={styles.playButtonText}>
-                {isPlaying ? 'إيقاف مؤقت' : 'استمع للنطق بالصوت 🔊'}
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        {isPlaying && (
-          <View style={styles.pulsingBadge}>
-            <View style={styles.pulseDot} />
-            <Text style={styles.pulseText}>جاري الاستماع...</Text>
-          </View>
-        )}
-
-        {onVoicePractice && (
+      {/* ── Controls Row: Big Play Button + Equalizer + Practice ── */}
+      <View style={styles.actionRow}>
+        <View style={styles.leftControls}>
+          {/* Tactile Play/Pause Button */}
           <TouchableOpacity
-            style={styles.voicePracticeBtn}
-            onPress={onVoicePractice}
+            style={[
+              styles.playBtn,
+              { backgroundColor: isPlaying ? '#DC2626' : accentColor },
+            ]}
+            onPress={handleTogglePlay}
+            activeOpacity={0.85}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons
+                  name={isPlaying ? 'pause' : 'play'}
+                  size={18}
+                  color="#FFFFFF"
+                />
+                <Text style={styles.playBtnText}>
+                  {isPlaying ? 'إيقاف' : 'استمع للشيخ 🔊'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {/* Slow/Normal Speed Toggle */}
+          <TouchableOpacity
+            style={[styles.speedBtn, playbackSpeed === 0.8 && styles.speedBtnActive]}
+            onPress={handleToggleSpeed}
             activeOpacity={0.8}
           >
-            <Ionicons name="mic" size={16} color="#7C3AED" />
-            <Text style={styles.voicePracticeText}>ردد الآن 🎙️</Text>
+            <Text style={[styles.speedBtnText, playbackSpeed === 0.8 && styles.speedBtnTextActive]}>
+              {playbackSpeed === 0.8 ? '🐢 بطيء 0.8x' : '⚡ 1.0x'}
+            </Text>
           </TouchableOpacity>
-        )}
+        </View>
+
+        {/* Live Animated Equalizer or Voice Practice */}
+        <View style={styles.rightControls}>
+          {isPlaying ? (
+            <View style={styles.equalizerWrap}>
+              <Animated.View style={[styles.eqBar, { height: bar1, backgroundColor: accentColor }]} />
+              <Animated.View style={[styles.eqBar, { height: bar2, backgroundColor: accentColor }]} />
+              <Animated.View style={[styles.eqBar, { height: bar3, backgroundColor: accentColor }]} />
+              <Animated.View style={[styles.eqBar, { height: bar4, backgroundColor: accentColor }]} />
+              <Animated.View style={[styles.eqBar, { height: bar5, backgroundColor: accentColor }]} />
+            </View>
+          ) : (
+            onVoicePractice && (
+              <TouchableOpacity
+                style={styles.voiceBtn}
+                onPress={onVoicePractice}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="mic" size={15} color="#6D28D9" />
+                <Text style={styles.voiceBtnText}>ردد الآن 🎙️</Text>
+              </TouchableOpacity>
+            )
+          )}
+        </View>
       </View>
 
       {hasError && (
-        <View style={styles.errorBox}>
+        <View style={styles.errorAlert}>
           <Ionicons name="alert-circle" size={14} color="#DC2626" />
-          <Text style={styles.errorText}>
-            تعذر تشغيل المقطع الصوتي، يرجى التأكد من اتصال الإنترنت.
+          <Text style={styles.errorAlertText}>
+            تعذر تشغيل التسجيل الصوتي. يرجى التحقق من اتصال الإنترنت.
           </Text>
         </View>
       )}
@@ -204,16 +288,16 @@ export default function TajweedAudioPlayer({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1.5,
-    marginBottom: SPACING.md,
+    borderRadius: RADIUS.xxl,
+    padding: SPACING.md + 2,
+    borderWidth: 2,
+    marginBottom: SPACING.md + 2,
     ...Platform.select({
       web: {
-        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.04)',
+        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.05)',
       },
       default: {
-        elevation: 2,
+        elevation: 3,
       },
     }),
   },
@@ -221,171 +305,249 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm + 2,
+    gap: 8,
     flexWrap: 'wrap',
-    gap: 6,
   },
-  surahBadge: {
+  surahTag: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: RADIUS.full,
+    borderWidth: 1,
   },
-  surahBadgeText: {
+  surahTagText: {
     fontSize: 12,
+    fontWeight: '800',
+  },
+  reciterTag: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#FFFBEB',
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  reciterTagText: {
+    fontSize: 11,
+    color: '#92400E',
     fontWeight: '700',
   },
-  reciterBadge: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    backgroundColor: '#F0FDF4',
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
+  parchmentBox: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.md + 4,
+    paddingHorizontal: SPACING.lg,
+    borderWidth: 1.5,
+    borderColor: '#EFE7DA',
+    marginBottom: SPACING.sm + 4,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  reciterBadgeText: {
-    fontSize: 11,
-    color: '#065F46',
-    fontWeight: '600',
+  ornateCornerTopRight: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 8,
+    height: 8,
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#D4AF37',
   },
-  textContainer: {
-    backgroundColor: '#FAFAF9',
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    marginBottom: SPACING.sm,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
+  ornateCornerTopLeft: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    width: 8,
+    height: 8,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: '#D4AF37',
   },
-  ayahText: {
-    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'serif' }),
-    fontSize: 22,
-    lineHeight: 40,
+  ornateCornerBottomRight: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    width: 8,
+    height: 8,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#D4AF37',
+  },
+  ornateCornerBottomLeft: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    width: 8,
+    height: 8,
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: '#D4AF37',
+  },
+  quranText: {
+    fontFamily: Platform.select({ ios: 'Scheherazade New', android: 'Scheherazade New', default: 'Amiri, serif' }),
+    fontSize: 23,
+    lineHeight: 46,
     color: '#064E3B',
     textAlign: 'center',
     writingDirection: 'rtl',
   },
-  rulePillRow: {
+  spotlightRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm + 2,
   },
-  targetWordPill: {
+  wordBadge: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: '#FFFFFF',
-    borderRadius: RADIUS.sm,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
     borderWidth: 1.5,
   },
-  targetWordLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: '600',
+  wordDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  targetWordText: {
-    fontSize: 14,
+  wordLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+  },
+  wordHighlight: {
+    fontSize: 15,
     fontWeight: '800',
   },
-  ruleDescriptionPill: {
+  ruleBadge: {
+    flex: 1,
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: RADIUS.sm,
-    flex: 1,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    minWidth: 140,
   },
-  ruleDescriptionText: {
+  ruleBadgeText: {
     fontSize: 12,
-    color: '#92400E',
     fontWeight: '700',
+    color: '#92400E',
   },
-  noteBox: {
+  noteBanner: {
     flexDirection: 'row-reverse',
-    alignItems: 'flex-start',
-    gap: 6,
+    alignItems: 'center',
+    gap: 8,
     backgroundColor: '#F0FDF4',
     padding: 10,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.md,
     marginBottom: SPACING.md,
-    borderRightWidth: 3,
-    borderRightColor: '#059669',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
   },
-  noteText: {
-    fontSize: 13,
+  noteIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#DCFCE7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noteBannerText: {
+    fontSize: 12.5,
     color: '#065F46',
-    lineHeight: 20,
+    lineHeight: 18,
     flex: 1,
     textAlign: 'right',
+    fontWeight: '600',
   },
-  controlsRow: {
+  actionRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 10,
   },
-  playButton: {
+  leftControls: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 8,
+  },
+  playBtn: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: RADIUS.full,
-    elevation: 2,
+    ...SHADOWS.soft,
   },
-  playButtonText: {
+  playBtnText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
   },
-  pulsingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  speedBtn: {
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: '#FEF2F2',
+    paddingVertical: 8,
     borderRadius: RADIUS.full,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  pulseDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#DC2626',
+  speedBtnActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
   },
-  pulseText: {
-    fontSize: 12,
-    color: '#DC2626',
-    fontWeight: '600',
+  speedBtnText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#4B5563',
   },
-  voicePracticeBtn: {
+  speedBtnTextActive: {
+    color: '#B45309',
+  },
+  rightControls: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 6,
+  },
+  equalizerWrap: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    height: 32,
+    gap: 4,
+    paddingHorizontal: 12,
+  },
+  eqBar: {
+    width: 4,
+    borderRadius: 2,
+  },
+  voiceBtn: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 5,
     paddingHorizontal: 14,
     paddingVertical: 9,
-    backgroundColor: '#F3E8FF',
+    backgroundColor: '#F5F3FF',
     borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: '#D8B4FE',
+    borderWidth: 1.5,
+    borderColor: '#DDD6FE',
   },
-  voicePracticeText: {
-    color: '#6B21A8',
-    fontSize: 13,
-    fontWeight: '700',
+  voiceBtnText: {
+    color: '#6D28D9',
+    fontSize: 12.5,
+    fontWeight: '800',
   },
-  errorBox: {
+  errorAlert: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 6,
@@ -394,9 +556,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
     borderRadius: RADIUS.sm,
   },
-  errorText: {
-    fontSize: 12,
+  errorAlertText: {
+    fontSize: 11.5,
     color: '#DC2626',
+    fontWeight: '600',
   },
 });
-
