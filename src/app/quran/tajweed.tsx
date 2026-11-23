@@ -40,6 +40,14 @@ const QURAN_GARDEN_IMG = require('../../../assets/images/quran-garden.jpg');
 const NAV_QURAN_IMG = require('../../../assets/images/nav-quran-3d.jpg');
 const MASCOT_NOOR_IMG = require('../../../assets/images/mascot-noor.jpg');
 
+const TAJWEED_SECTION_IMAGES: Record<string, any> = {
+  nun_tanween: require('../../../assets/images/tajweed-nun-3d.jpg'),
+  meem_ghunnah: require('../../../assets/images/tajweed-meem-3d.jpg'),
+  madd: require('../../../assets/images/tajweed-madd-3d.jpg'),
+  qalqalah: require('../../../assets/images/tajweed-qalqalah-3d.jpg'),
+  makharij: require('../../../assets/images/tajweed-makharij-3d.jpg'),
+};
+
 export default function TajweedAcademyScreen() {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
@@ -185,11 +193,15 @@ export default function TajweedAcademyScreen() {
                   >
                     <View
                       style={[
-                        styles.sectionEmojiCircle,
-                        { backgroundColor: isSelected ? sec.color : '#F3F4F6' },
+                        styles.sectionImageBox,
+                        isSelected && { borderColor: sec.color, borderWidth: 2.5 },
                       ]}
                     >
-                      <Text style={styles.sectionEmojiText}>{sec.emoji}</Text>
+                      <Image
+                        source={TAJWEED_SECTION_IMAGES[sec.id]}
+                        style={styles.sectionImg}
+                        contentFit="cover"
+                      />
                     </View>
                     <Text
                       style={[
@@ -268,11 +280,15 @@ export default function TajweedAcademyScreen() {
             <View style={[styles.showcaseHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
               <View
                 style={[
-                  styles.showcaseIconBox,
+                  styles.showcaseImageBox,
                   { backgroundColor: activeLesson.badgeBgColor, borderColor: activeLesson.badgeColor },
                 ]}
               >
-                <Text style={styles.showcaseEmoji}>{activeLesson.emoji}</Text>
+                <Image
+                  source={TAJWEED_SECTION_IMAGES[activeSection.id]}
+                  style={styles.showcaseImg}
+                  contentFit="cover"
+                />
               </View>
 
               <View style={[styles.showcaseTitleCol, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
@@ -642,7 +658,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   sectionCardItem: {
-    width: 130,
+    width: 136,
     padding: 12,
     borderRadius: RADIUS.xl,
     backgroundColor: '#FFFFFF',
@@ -661,16 +677,29 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  sectionEmojiCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  sectionImageBox: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    overflow: 'hidden',
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.08)',
+      },
+      default: {
+        elevation: 2,
+      },
+    }),
   },
-  sectionEmojiText: {
-    fontSize: 22,
+  sectionImg: {
+    width: '100%',
+    height: '100%',
   },
   sectionCardTitle: {
     fontSize: 12.5,
@@ -741,17 +770,19 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: SPACING.md + 2,
   },
-  showcaseIconBox: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+  showcaseImageBox: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    overflow: 'hidden',
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    ...SHADOWS.soft,
+    ...SHADOWS.medium,
   },
-  showcaseEmoji: {
-    fontSize: 30,
+  showcaseImg: {
+    width: '100%',
+    height: '100%',
   },
   showcaseTitleCol: {
     flex: 1,
