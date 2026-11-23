@@ -195,16 +195,27 @@ export default function QuranGardenScreen() {
                 </View>
               </View>
 
-              {/* Action Buttons: 1 Repeat Button + 1 Mushaf Button (Single entry, 1 line each) */}
+              {/* Action Buttons: 1 Repeat Button + 1 Tajweed Academy Button + 1 Mushaf Button */}
               <View style={[styles.heroActionsRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
                 <TouchableOpacity
                   style={styles.memorizeHeroBtn}
                   onPress={() => router.push('/quran/repeat')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="headset" size={16} color="#0F6E56" />
+                  <Ionicons name="headset" size={15} color="#0F6E56" />
                   <Text style={styles.memorizeHeroBtnText}>
                     {language === 'ar' ? 'استمع وردد' : 'Listen & Repeat'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.tajweedHeroBtn}
+                  onPress={() => router.push('/quran/tajweed')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="sparkles" size={15} color="#7C3AED" />
+                  <Text style={styles.tajweedHeroBtnText}>
+                    {language === 'ar' ? 'مدرسة التجويد 🎨' : 'Tajweed School 🎨'}
                   </Text>
                 </TouchableOpacity>
 
@@ -213,7 +224,7 @@ export default function QuranGardenScreen() {
                   onPress={() => router.push('/quran/mushaf')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="book" size={16} color="#92400E" />
+                  <Ionicons name="book" size={15} color="#92400E" />
                   <Text style={styles.mushafHeroBtnText}>
                     {language === 'ar' ? `المصحف (ص ${lastReadMushafPage || 1}) 📖` : `Mushaf (p. ${lastReadMushafPage || 1}) 📖`}
                   </Text>
@@ -489,34 +500,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: '#FFFFFF',
     paddingVertical: SPACING.sm,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     borderRadius: RADIUS.lg,
     ...SHADOWS.soft,
   },
   memorizeHeroBtnText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
     color: COLORS.primaryDark,
+  },
+  tajweedHeroBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: '#F5F3FF',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: 6,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    ...SHADOWS.soft,
+  },
+  tajweedHeroBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#6D28D9',
   },
   mushafHeroBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: '#FEF3C7',
     paddingVertical: SPACING.sm,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: '#FDE68A',
     ...SHADOWS.soft,
   },
   mushafHeroBtnText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '900',
     color: '#92400E',
   },

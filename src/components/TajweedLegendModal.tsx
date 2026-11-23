@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, RADIUS, SPACING, SHADOWS } from '@/constants/theme';
 
@@ -93,6 +94,7 @@ export default function TajweedLegendModal({
   language,
   onClose,
 }: TajweedLegendModalProps) {
+  const router = useRouter();
   const isAr = language === 'ar';
 
   return (
@@ -154,7 +156,21 @@ export default function TajweedLegendModal({
             </View>
           </ScrollView>
 
-          {/* Action Button */}
+          {/* Action Buttons */}
+          <TouchableOpacity
+            style={styles.academyBtn}
+            onPress={() => {
+              onClose();
+              router.push('/quran/tajweed');
+            }}
+            activeOpacity={0.88}
+          >
+            <Ionicons name="sparkles" size={16} color="#FFFFFF" />
+            <Text style={styles.academyBtnText}>
+              {isAr ? 'مدرسة التجويد بالصوت (الشيخ الحصري) 🎨🔊' : 'Audio Tajweed School (Sheikh Al-Husary) 🎨🔊'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.gotItBtn} onPress={onClose} activeOpacity={0.88}>
             <Text style={styles.gotItBtnText}>
               {isAr ? 'فهمت وبإذن الله سأرتل 🌟' : 'Got it, let’s recite! 🌟'}
@@ -281,12 +297,27 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: '600',
   },
+  academyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#7C3AED',
+    paddingVertical: 12,
+    borderRadius: RADIUS.lg,
+    marginTop: SPACING.sm,
+  },
+  academyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
   gotItBtn: {
     backgroundColor: '#059669',
     paddingVertical: 12,
     borderRadius: RADIUS.lg,
     alignItems: 'center',
-    marginTop: SPACING.sm,
+    marginTop: SPACING.xs,
   },
   gotItBtnText: {
     color: '#FFFFFF',

@@ -560,6 +560,19 @@ export default function SurahDetailScreen() {
             </Text>
           </TouchableOpacity>
 
+          {/* Tajweed Audio Academy Direct Button */}
+          {tajweedEnabled && (
+            <TouchableOpacity
+              style={[styles.mockupPillChip, { backgroundColor: '#F5F3FF', borderColor: '#DDD6FE' }]}
+              onPress={() => router.push('/quran/tajweed')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.mockupPillChipText, { color: '#6D28D9', fontWeight: '700' }]}>
+                {language === 'ar' ? '🎓 مدرسة التجويد بالصوت' : '🎓 Audio Tajweed'}
+              </Text>
+            </TouchableOpacity>
+          )}
+
           {/* Desktop Inline Tajweed Legend */}
           {isDesktop && tajweedEnabled && (
             <View style={[styles.desktopLegendInline, language === 'ar' && { flexDirection: 'row-reverse' }]}>

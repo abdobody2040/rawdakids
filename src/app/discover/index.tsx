@@ -31,6 +31,7 @@ const TAFAKKUR_IMG = require('../../../assets/images/tafakkur-world.jpg');
 const ANIMALS_IMG = require('../../../assets/images/animals-world.jpg');
 const NATIONS_IMG = require('../../../assets/images/nations-world.jpg');
 const DISCOVER_HERO_IMG = require('../../../assets/images/nav-prophets-3d.jpg');
+const QURAN_TAJWEED_IMG = require('../../../assets/images/quran-garden.jpg');
 
 interface DiscoverCardItem {
   id: string;
@@ -52,6 +53,24 @@ interface DiscoverCardItem {
 }
 
 const DISCOVER_ITEMS: DiscoverCardItem[] = [
+  // 0. Quran & Tajweed Academy
+  {
+    id: 'tajweed-academy',
+    category: 'stories',
+    titleAr: 'مدرسة التجويد بالصوت 🎨🔊',
+    titleEn: 'Audio Tajweed Academy',
+    subtitleAr: 'مع الشيخ الحصري (المعلم)',
+    subtitleEn: 'With Sheikh Al-Husary',
+    descAr: 'تعلّم أحكام النون والميم والمدود والقلقلة بالأمثلة الصوتية وتحدي الأذن الذكية.',
+    descEn: 'Learn Tajweed rules with authentic audio examples and smart interactive challenges.',
+    route: '/quran/tajweed',
+    icon: 'volume-high',
+    image: QURAN_TAJWEED_IMG,
+    accent: '#059669',
+    bgGradient: ['#D1FAE5', '#A7F3D0'],
+    countLabelAr: '١٥ درساً',
+    countLabelEn: '15 Lessons',
+  },
   // 1. Stories World
   {
     id: 'prophets',
