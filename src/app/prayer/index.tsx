@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -75,7 +75,7 @@ export default function PrayerScreen() {
   };
 
   // Check if today is Friday (Day 5 in JS Date: 0 is Sun, 5 is Fri)
-  const [isFriday] = useState(() => new Date().getDay() === 5);
+  const isFriday = useMemo(() => new Date().getDay() === 5, []);
 
   // City & Madhhab based dynamic prayer times (PRD §8 - PRY-3 & PRY-4)
   const prayerData = getPrayerTimesForCity(

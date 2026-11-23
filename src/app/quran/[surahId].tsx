@@ -28,6 +28,10 @@ import WordMeaningBubbleModal from '@/components/WordMeaningBubbleModal';
 import ChildVoiceRecorderModal from '@/components/ChildVoiceRecorderModal';
 import AchievementCertificateModal from '@/components/AchievementCertificateModal';
 import TajweedLegendModal from '@/components/TajweedLegendModal';
+import TajweedAyahText, { TajweedLegendBar } from '@/features/tajweed/components/TajweedAyahText';
+import TajweedRuleModal from '@/features/tajweed/components/TajweedRuleModal';
+import TajweedVoiceGame from '@/features/tajweed/components/TajweedVoiceGame';
+import type { TajweedToken, TajweedAyah } from '@/features/tajweed/tajweedService';
 import QuranText from '@/components/QuranText';
 import AyahTafsirSheet from '@/components/AyahTafsirSheet';
 import SurahFullTafsirModal from '@/components/SurahFullTafsirModal';
@@ -154,6 +158,9 @@ export default function SurahDetailScreen() {
   );
   const [tajweedEnabled, setTajweedEnabled] = useState<boolean>(false);
   const [showTajweedModal, setShowTajweedModal] = useState<boolean>(false);
+  const [selectedTajweedToken, setSelectedTajweedToken] = useState<TajweedToken | null>(null);
+  const [selectedTajweedAyahForModal, setSelectedTajweedAyahForModal] = useState<TajweedAyah | null>(null);
+  const [voiceGameAyah, setVoiceGameAyah] = useState<Ayah | null>(null);
   const [showEtiquetteHint, setShowEtiquetteHint] = useState<boolean>(() => {
     if (hasShownPurityTipSession) return false;
     hasShownPurityTipSession = true;
@@ -529,6 +536,17 @@ export default function SurahDetailScreen() {
           </Text>
         </View>
 
+        {/* Tajweed Toggle Chip */}
+        <TouchableOpacity
+          style={[styles.mockupPillChip, tajweedEnabled && styles.mockupPillChipActive]}
+          onPress={() => setTajweedEnabled((v) => !v)}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.mockupPillChipText, tajweedEnabled && styles.mockupPillChipTextActive]}>
+            {tajweedEnabled ? '🎨 ' : ''}{language === 'ar' ? 'ألوان التجويد' : 'Tajweed Colors'}
+          </Text>
+        </TouchableOpacity>
+
         {/* Offline Download Chip */}
         <TouchableOpacity
           style={[styles.mockupPillChip, isDownloaded && styles.mockupPillOk]}
@@ -792,6 +810,21 @@ export default function SurahDetailScreen() {
                       {language === 'ar' ? 'سجّل' : 'Record'}
                     </Text>
                   </TouchableOpacity>
+
+                  {/* Tajweed Voice Challenge Button */}
+                  <TouchableOpacity
+                    style={[styles.voiceRecordBtn, { borderColor: '#DDD6FE', backgroundColor: '#F5F3FF' }]}
+                    onPress={(e) => {
+                      e.stopPropagation?.();
+                      setVoiceGameAyah(ayah);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="trophy-outline" size={12} color="#7C3AED" />
+                    <Text style={[styles.voiceRecordBtnText, { color: '#7C3AED' }]}>
+                      {language === 'ar' ? 'تحدي' : 'Challenge'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -807,16 +840,31 @@ export default function SurahDetailScreen() {
                 activeOpacity={0.8}
                 style={{ width: '100%' }}
               >
-                <Text
-                  style={[
-                    styles.uthmaniText,
-                    { fontSize: isActive ? fontSize + 2 : fontSize },
-                    isActive && styles.uthmaniTextActive,
-                    !isActive && isPlaying && styles.uthmaniTextDimmed,
-                  ]}
-                >
-                  {ayah.textUthmani}
-                </Text>
+                {tajweedEnabled ? (
+                  <TajweedAyahText
+                    surahNumber={surahNumber}
+                    ayahNumber={ayah.number}
+                    plainText={ayah.textUthmani}
+                    tajweedEnabled={tajweedEnabled}
+                    fontSize={isActive ? fontSize + 2 : fontSize}
+                    isActive={isActive}
+                    onTokenPress={(token, tajweedAyahData) => {
+                      setSelectedTajweedToken(token);
+                      setSelectedTajweedAyahForModal(tajweedAyahData);
+                    }}
+                  />
+                ) : (
+                  <Text
+                    style={[
+                      styles.uthmaniText,
+                      { fontSize: isActive ? fontSize + 2 : fontSize },
+                      isActive && styles.uthmaniTextActive,
+                      !isActive && isPlaying && styles.uthmaniTextDimmed,
+                    ]}
+                  >
+                    {ayah.textUthmani}
+                  </Text>
+                )}
               </TouchableOpacity>
 
               {/* Simple Tafsir Line */}
@@ -1018,6 +1066,14 @@ export default function SurahDetailScreen() {
         </Text>
       </View>
 
+      {/* Tajweed Legend Bar */}
+      {tajweedEnabled && (
+        <TajweedLegendBar
+          language={language}
+          onRuleTap={() => setShowTajweedModal(true)}
+        />
+      )}
+
       {/* Floating Audio Player Bar */}
       <AudioPlayerBar
         isPlaying={isPlaying}
@@ -1132,6 +1188,33 @@ export default function SurahDetailScreen() {
         visible={showTajweedModal}
         language={language}
         onClose={() => setShowTajweedModal(false)}
+      />
+
+      {/* Tajweed Rule Tap Modal */}
+      <TajweedRuleModal
+        visible={!!selectedTajweedToken}
+        token={selectedTajweedToken}
+        ayah={selectedTajweedAyahForModal}
+        surahNumber={surahNumber}
+        language={language}
+        onClose={() => {
+          setSelectedTajweedToken(null);
+          setSelectedTajweedAyahForModal(null);
+        }}
+      />
+
+      {/* Tajweed Interactive Voice Game Challenge */}
+      <TajweedVoiceGame
+        visible={!!voiceGameAyah}
+        surahNumber={surahNumber}
+        ayahNumber={voiceGameAyah?.number ?? 1}
+        ayahText={voiceGameAyah?.textUthmani ?? ''}
+        language={language}
+        onClose={() => setVoiceGameAyah(null)}
+        onStarsAwarded={(count) => {
+          addStars(count);
+          setShowCelebration(true);
+        }}
       />
 
       {/* Tafsir Bottom Sheet (A4) */}

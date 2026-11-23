@@ -1,6 +1,6 @@
 // Me Hub (أنا) — PRD §7.6 & §10
 // My Garden · Weekly Sprout Calendar · Profile & Avatar · Child Settings · Gated Parent Entry
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -103,7 +103,7 @@ export default function MeScreen() {
   const weekDaysAr = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
   const weekDaysEn = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   // Active on current day and recent days
-  const [todayIdx] = useState(() => (new Date().getDay() + 1) % 7); // Sat=0, Sun=1 ...
+  const todayIdx = useMemo(() => (new Date().getDay() + 1) % 7, []); // Sat=0, Sun=1 ...
 
   // Names of Allah Collectible Shelf items (PRD §8 - STO-2)
   const collectedAsmaCards = ASMA_ALLAH_DATA.filter((item) =>
@@ -475,6 +475,79 @@ export default function MeScreen() {
               </ScrollView>
             )}
           </View>
+
+          {/* TAJWEED ACHIEVEMENTS & BADGES CARD */}
+          {profile && (
+            <View style={styles.tajweedBadgesCard}>
+              <View style={[styles.shelfTopRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                <View style={[styles.shelfCountBadge, { flexDirection: isRtl ? 'row-reverse' : 'row', backgroundColor: '#FDF4FF' }]}>
+                  <Ionicons name="ribbon-outline" size={14} color="#9333EA" />
+                  <Text style={[styles.shelfCountText, { color: '#7E22CE' }]}>
+                    {isAr ? 'أوسمة التجويد والتلاوة' : 'Tajweed & Recitation Badges'}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.tajweedBadgesList}>
+                {[
+                  {
+                    id: 'tajweed_qalqalah_hero',
+                    ar: 'بطل القلقلة 🏀',
+                    en: 'Qalqalah Hero 🏀',
+                    descAr: 'إتقان نطق حروف القلقلة بالقفزة القوية',
+                    descEn: 'Mastered the bouncing Qalqalah letters',
+                    color: '#3498DB',
+                  },
+                  {
+                    id: 'tajweed_madd_champion',
+                    ar: 'نَفَس البطل (المدّ) 🚀',
+                    en: 'Madd Champion 🚀',
+                    descAr: 'مد الصوت بثبات وجمال في مقياس المد',
+                    descEn: 'Held the Madd steady in the Madd Meter',
+                    color: '#FF6B6B',
+                  },
+                  {
+                    id: 'tajweed_ghunnah_star',
+                    ar: 'صوت الغنة الجميل 🌿',
+                    en: 'Ghunnah Star 🌿',
+                    descAr: 'إخراج الغنة الرنانة لمدة حركتين',
+                    descEn: 'Mastered 2-count nasal Ghunnah sound',
+                    color: '#2ECC71',
+                  },
+                ].map((badge) => {
+                  const earned = (unlockedBadges || []).includes(badge.id);
+                  return (
+                    <View
+                      key={badge.id}
+                      style={[
+                        styles.tajweedBadgeRow,
+                        { flexDirection: isRtl ? 'row-reverse' : 'row', opacity: earned ? 1 : 0.45 },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.tajweedBadgeDot,
+                          { backgroundColor: badge.color },
+                        ]}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.tajweedBadgeTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                          {isAr ? badge.ar : badge.en}
+                        </Text>
+                        <Text style={[styles.tajweedBadgeDesc, { textAlign: isRtl ? 'right' : 'left' }]}>
+                          {isAr ? badge.descAr : badge.descEn}
+                        </Text>
+                      </View>
+                      {earned ? (
+                        <Ionicons name="checkmark-circle" size={20} color={badge.color} />
+                      ) : (
+                        <Ionicons name="lock-closed-outline" size={18} color="#9CA3AF" />
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
 
           {/* CHILD-SAFE SETTINGS (PRD §7.6.4) */}
           <Text style={[styles.sectionHeading, { textAlign: isRtl ? 'right' : 'left', marginTop: SPACING.md }]}>
@@ -1242,5 +1315,39 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '700',
     color: '#FDE047',
+  },
+  tajweedBadgesCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginTop: SPACING.md,
+    ...SHADOWS.soft,
+  },
+  tajweedBadgesList: {
+    marginTop: 10,
+    gap: 8,
+  },
+  tajweedBadgeRow: {
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#F9FAFB',
+    borderRadius: RADIUS.md,
+  },
+  tajweedBadgeDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  tajweedBadgeTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  tajweedBadgeDesc: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 2,
   },
 });
