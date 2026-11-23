@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -44,6 +45,8 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 let hasShownPurityTipSession = false;
 
 export default function SurahDetailScreen() {
+  const { width: screenWidth } = useWindowDimensions();
+  const isDesktop = screenWidth >= 768;
   const router = useRouter();
   const { surahId } = useLocalSearchParams();
   const surahNumber = parseInt(String(surahId || '1'), 10);
@@ -507,104 +510,133 @@ export default function SurahDetailScreen() {
         }
       />
 
-      {/* Mockup Chips Row: قصة السورة | التفسير | مكية */}
-      <View style={[styles.mockupChipsRow, language === 'ar' && { flexDirection: 'row-reverse' }]}>
-        <TouchableOpacity
-          style={styles.mockupPillWn}
-          onPress={() => setShowStoryModal(true)}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="book-outline" size={14} color="#854F0B" />
-          <Text style={styles.mockupPillWnText}>
-            {language === 'ar' ? 'قصة السورة' : 'Surah Story'}
-          </Text>
-        </TouchableOpacity>
+      {/* Top Controls & Progress Bar */}
+      <View style={[
+        styles.topBarWrapper,
+        isDesktop && styles.topBarWrapperDesktop,
+        isDesktop && language === 'ar' && { flexDirection: 'row-reverse' },
+      ]}>
+        {/* Mockup Chips Row: قصة السورة | التفسير | مكية */}
+        <View style={[
+          styles.mockupChipsRow,
+          isDesktop && styles.mockupChipsRowDesktop,
+          language === 'ar' && { flexDirection: 'row-reverse' },
+        ]}>
+          <TouchableOpacity
+            style={styles.mockupPillWn}
+            onPress={() => setShowStoryModal(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="book-outline" size={13} color="#854F0B" />
+            <Text style={styles.mockupPillWnText}>
+              {language === 'ar' ? 'قصة السورة' : 'Surah Story'}
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.mockupPillChip, showTafsir && styles.mockupPillChipActive]}
-          onPress={() => setShowFullTafsirModal(true)}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.mockupPillChipText, showTafsir && styles.mockupPillChipTextActive]}>
-            {language === 'ar' ? 'التفسير' : 'Tafsir'}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.mockupPillChip, showTafsir && styles.mockupPillChipActive]}
+            onPress={() => setShowFullTafsirModal(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.mockupPillChipText, showTafsir && styles.mockupPillChipTextActive]}>
+              {language === 'ar' ? 'التفسير' : 'Tafsir'}
+            </Text>
+          </TouchableOpacity>
 
-        <View style={styles.mockupPillChip}>
-          <Text style={styles.mockupPillChipText}>
-            {surah.revelationType === 'Meccan' ? t.meccan : t.medinan}
-          </Text>
+          <View style={styles.mockupPillChip}>
+            <Text style={styles.mockupPillChipText}>
+              {surah.revelationType === 'Meccan' ? t.meccan : t.medinan}
+            </Text>
+          </View>
+
+          {/* Tajweed Toggle Chip */}
+          <TouchableOpacity
+            style={[styles.mockupPillChip, tajweedEnabled && styles.mockupPillChipActive]}
+            onPress={() => setTajweedEnabled((v) => !v)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.mockupPillChipText, tajweedEnabled && styles.mockupPillChipTextActive]}>
+              {tajweedEnabled ? '🎨 ' : ''}{language === 'ar' ? 'ألوان التجويد' : 'Tajweed Colors'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Desktop Inline Tajweed Legend */}
+          {isDesktop && tajweedEnabled && (
+            <View style={[styles.desktopLegendInline, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+              <TouchableOpacity onPress={() => setShowTajweedModal(true)} style={[styles.inlineLegendPill, { backgroundColor: '#FEE2E2' }]}>
+                <Text style={[styles.inlineLegendPillText, { color: '#DC2626' }]}>🚀 المدّ</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowTajweedModal(true)} style={[styles.inlineLegendPill, { backgroundColor: '#DCFCE7' }]}>
+                <Text style={[styles.inlineLegendPillText, { color: '#16A34A' }]}>🌿 الغنة</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowTajweedModal(true)} style={[styles.inlineLegendPill, { backgroundColor: '#E0F2FE' }]}>
+                <Text style={[styles.inlineLegendPillText, { color: '#0284C7' }]}>🏀 القلقلة</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowTajweedModal(true)} style={[styles.inlineLegendPill, { backgroundColor: '#F3E8FF' }]}>
+                <Text style={[styles.inlineLegendPillText, { color: '#9333EA' }]}>🔮 الإخفاء</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Offline Download Chip */}
+          <TouchableOpacity
+            style={[styles.mockupPillChip, isDownloaded && styles.mockupPillOk]}
+            onPress={handleToggleDownload}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
+              size={13}
+              color={isDownloaded ? '#0F6E56' : '#5F5E5A'}
+            />
+            <Text style={[styles.mockupPillChipText, isDownloaded && styles.mockupPillOkText]}>
+              {isDownloading
+                ? `${downloadProgress}%`
+                : isDownloaded
+                ? (language === 'ar' ? 'محفوظ' : 'Saved')
+                : (language === 'ar' ? 'تحميل' : 'Download')}
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Tajweed Toggle Chip */}
-        <TouchableOpacity
-          style={[styles.mockupPillChip, tajweedEnabled && styles.mockupPillChipActive]}
-          onPress={() => setTajweedEnabled((v) => !v)}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.mockupPillChipText, tajweedEnabled && styles.mockupPillChipTextActive]}>
-            {tajweedEnabled ? '🎨 ' : ''}{language === 'ar' ? 'ألوان التجويد' : 'Tajweed Colors'}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Offline Download Chip */}
-        <TouchableOpacity
-          style={[styles.mockupPillChip, isDownloaded && styles.mockupPillOk]}
-          onPress={handleToggleDownload}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name={isDownloading ? 'sync' : isDownloaded ? 'checkmark-circle' : 'cloud-download-outline'}
-            size={13}
-            color={isDownloaded ? '#0F6E56' : '#5F5E5A'}
-          />
-          <Text style={[styles.mockupPillChipText, isDownloaded && styles.mockupPillOkText]}>
-            {isDownloading
-              ? `${downloadProgress}%`
-              : isDownloaded
-              ? (language === 'ar' ? 'محفوظ' : 'Saved')
-              : (language === 'ar' ? 'تحميل' : 'Download')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Mockup Progress Bar: الآية 2 من 7 | 29% */}
-      <View style={styles.mockupProgressSection}>
-        <View style={[styles.mockupProgressHeader, language === 'ar' && { flexDirection: 'row-reverse' }]}>
-          <Text style={styles.mockupProgressAyahText}>
-            {language === 'ar'
-              ? `الآية ${activeAyahNum} من ${surah.ayahs.length}`
-              : `Ayah ${activeAyahNum} of ${surah.ayahs.length}`}
-          </Text>
-          <Text style={styles.mockupProgressPercentText}>
-            {`${Math.round((activeAyahNum / Math.max(1, surah.ayahs.length)) * 100)}%`}
-          </Text>
-        </View>
-        <View style={styles.mockupProgressBarTrack}>
-          <View
-            style={[
-              styles.mockupProgressBarFill,
-              {
-                width: `${Math.round(
-                  (activeAyahNum / Math.max(1, surah.ayahs.length)) * 100
-                )}%`,
-              },
-            ]}
-          />
+        {/* Mockup Progress Bar */}
+        <View style={[styles.mockupProgressSection, isDesktop && styles.mockupProgressSectionDesktop]}>
+          <View style={[styles.mockupProgressHeader, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+            <Text style={styles.mockupProgressAyahText}>
+              {language === 'ar'
+                ? `الآية ${activeAyahNum} من ${surah.ayahs.length}`
+                : `Ayah ${activeAyahNum} of ${surah.ayahs.length}`}
+            </Text>
+            <Text style={styles.mockupProgressPercentText}>
+              {`${Math.round((activeAyahNum / Math.max(1, surah.ayahs.length)) * 100)}%`}
+            </Text>
+          </View>
+          <View style={[styles.mockupProgressBarTrack, isDesktop && { height: 4 }]}>
+            <View
+              style={[
+                styles.mockupProgressBarFill,
+                {
+                  width: `${Math.round(
+                    (activeAyahNum / Math.max(1, surah.ayahs.length)) * 100
+                  )}%`,
+                },
+              ]}
+            />
+          </View>
         </View>
       </View>
 
       {/* Ayahs List */}
       <ScrollView
         ref={scrollViewRef}
-        contentContainerStyle={styles.ayahsContainer}
+        contentContainerStyle={[styles.ayahsContainer, isDesktop && styles.ayahsContainerDesktop]}
         showsVerticalScrollIndicator={false}
         role="main"
         aria-label={language === 'ar' ? `آيات سورة ${surah.nameArabic}` : `Ayahs of Surah ${surah.nameEnglish}`}
       >
         {/* Etiquette Hint (PRD §7.3 Item 7: "تأكد من طهارتك وانتبه" as guidance, never a blocker) */}
         {showEtiquetteHint && (
-          <View style={[styles.etiquetteHintBanner, language === 'ar' && { flexDirection: 'row-reverse' }]}>
+          <View style={[styles.etiquetteHintBanner, isDesktop && styles.etiquetteHintBannerDesktop, language === 'ar' && { flexDirection: 'row-reverse' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
               <Ionicons name="sparkles" size={15} color="#059669" />
               <Text style={styles.etiquetteHintText}>
@@ -828,121 +860,133 @@ export default function SurahDetailScreen() {
                 </View>
               </View>
 
-              {/* Uthmani Quran Text (Tapping plays/pauses the Ayah) */}
-              <TouchableOpacity
-                onPress={() => {
-                  if (isActive && isPlaying) {
-                    handlePlayPause();
-                  } else {
-                    playAyahAudio(ayah.number, 1);
-                  }
-                }}
-                activeOpacity={0.8}
-                style={{ width: '100%' }}
+              <View
+                style={[
+                  isDesktop && showTafsir && styles.desktopAyahBodyRow,
+                  isDesktop && showTafsir && language === 'ar' && { flexDirection: 'row-reverse' },
+                ]}
               >
-                {tajweedEnabled ? (
-                  <TajweedAyahText
-                    surahNumber={surahNumber}
-                    ayahNumber={ayah.number}
-                    plainText={ayah.textUthmani}
-                    tajweedEnabled={tajweedEnabled}
-                    fontSize={isActive ? fontSize + 2 : fontSize}
-                    isActive={isActive}
-                    onTokenPress={(token, tajweedAyahData) => {
-                      setSelectedTajweedToken(token);
-                      setSelectedTajweedAyahForModal(tajweedAyahData);
+                {/* Uthmani Quran Text */}
+                <View style={isDesktop && showTafsir ? styles.desktopAyahTextCol : { width: '100%' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (isActive && isPlaying) {
+                        handlePlayPause();
+                      } else {
+                        playAyahAudio(ayah.number, 1);
+                      }
                     }}
-                  />
-                ) : (
-                  <Text
-                    style={[
-                      styles.uthmaniText,
-                      { fontSize: isActive ? fontSize + 2 : fontSize },
-                      isActive && styles.uthmaniTextActive,
-                      !isActive && isPlaying && styles.uthmaniTextDimmed,
-                    ]}
+                    activeOpacity={0.8}
+                    style={{ width: '100%' }}
                   >
-                    {ayah.textUthmani}
-                  </Text>
-                )}
-              </TouchableOpacity>
+                    {tajweedEnabled ? (
+                      <TajweedAyahText
+                        surahNumber={surahNumber}
+                        ayahNumber={ayah.number}
+                        plainText={ayah.textUthmani}
+                        tajweedEnabled={tajweedEnabled}
+                        fontSize={isActive ? fontSize + 2 : fontSize}
+                        isActive={isActive}
+                        onTokenPress={(token, tajweedAyahData) => {
+                          setSelectedTajweedToken(token);
+                          setSelectedTajweedAyahForModal(tajweedAyahData);
+                        }}
+                      />
+                    ) : (
+                      <Text
+                        style={[
+                          styles.uthmaniText,
+                          { fontSize: isActive ? fontSize + 2 : fontSize },
+                          isActive && styles.uthmaniTextActive,
+                          !isActive && isPlaying && styles.uthmaniTextDimmed,
+                        ]}
+                      >
+                        {ayah.textUthmani}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
 
-              {/* Simple Tafsir Line */}
-              {/* Ayah Meaning / Tafsir Box */}
-              {showTafsir && (
-                <View
-                  style={[
-                    styles.tafsirContainer,
-                    playingTafsirAyahNum === ayah.number && styles.tafsirContainerPlaying,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.tafsirHeaderRow,
-                      language === 'ar' && { flexDirection: 'row-reverse' },
-                    ]}
-                  >
+                {/* Simple Tafsir Line */}
+                {showTafsir && (
+                  <View style={isDesktop ? styles.desktopTafsirCol : { width: '100%' }}>
                     <View
                       style={[
-                        styles.tafsirLabelRow,
-                        language === 'ar' && { flexDirection: 'row-reverse' },
+                        styles.tafsirContainer,
+                        isDesktop && styles.tafsirContainerDesktop,
+                        playingTafsirAyahNum === ayah.number && styles.tafsirContainerPlaying,
                       ]}
                     >
-                      <Text style={{ fontSize: 15 }}>💡</Text>
-                      <Text style={styles.tafsirLabel}>
-                        {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
-                      </Text>
-                    </View>
-
-                    {language === 'ar' && (
-                      <TouchableOpacity
+                      <View
                         style={[
-                          styles.tafsirAudioBtn,
-                          playingTafsirAyahNum === ayah.number && styles.tafsirAudioBtnActive,
-                          { flexDirection: 'row-reverse' },
+                          styles.tafsirHeaderRow,
+                          language === 'ar' && { flexDirection: 'row-reverse' },
                         ]}
-                        onPress={(e) => {
-                          e.stopPropagation?.();
-                          handlePlayTafsir(ayah.number, ayah.simpleTafsir);
-                        }}
-                        activeOpacity={0.8}
                       >
-                        <Ionicons
-                          name={
-                            playingTafsirAyahNum === ayah.number
-                              ? 'pause-circle'
-                              : 'volume-high'
-                          }
-                          size={15}
-                          color={
-                            playingTafsirAyahNum === ayah.number
-                              ? '#ffffff'
-                              : '#b45309'
-                          }
-                        />
-                        <Text
+                        <View
                           style={[
-                            styles.tafsirAudioBtnText,
-                            playingTafsirAyahNum === ayah.number &&
-                              styles.tafsirAudioBtnTextActive,
+                            styles.tafsirLabelRow,
+                            language === 'ar' && { flexDirection: 'row-reverse' },
                           ]}
                         >
-                          {playingTafsirAyahNum === ayah.number ? 'إيقاف' : 'استمع للتفسير'}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
+                          <Text style={{ fontSize: 14 }}>💡</Text>
+                          <Text style={styles.tafsirLabel}>
+                            {language === 'ar' ? 'التفسير الميسر' : 'Meaning & Reflection'}
+                          </Text>
+                        </View>
 
-                  <Text
-                    style={[
-                      styles.tafsirText,
-                      language === 'ar' && { textAlign: 'right' },
-                    ]}
-                  >
-                    {language === 'ar' ? ayah.simpleTafsir : ayah.translationEn}
-                  </Text>
-                </View>
-              )}
+                        {language === 'ar' && (
+                          <TouchableOpacity
+                            style={[
+                              styles.tafsirAudioBtn,
+                              playingTafsirAyahNum === ayah.number && styles.tafsirAudioBtnActive,
+                              { flexDirection: 'row-reverse' },
+                            ]}
+                            onPress={(e) => {
+                              e.stopPropagation?.();
+                              handlePlayTafsir(ayah.number, ayah.simpleTafsir);
+                            }}
+                            activeOpacity={0.8}
+                          >
+                            <Ionicons
+                              name={
+                                playingTafsirAyahNum === ayah.number
+                                  ? 'pause-circle'
+                                  : 'volume-high'
+                              }
+                              size={14}
+                              color={
+                                playingTafsirAyahNum === ayah.number
+                                  ? '#ffffff'
+                                  : '#b45309'
+                              }
+                            />
+                            <Text
+                              style={[
+                                styles.tafsirAudioBtnText,
+                                playingTafsirAyahNum === ayah.number &&
+                                  styles.tafsirAudioBtnTextActive,
+                              ]}
+                            >
+                              {playingTafsirAyahNum === ayah.number ? 'إيقاف' : 'استمع للتفسير'}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
+                      <Text
+                        style={[
+                          styles.tafsirText,
+                          isDesktop && styles.tafsirTextDesktop,
+                          language === 'ar' && { textAlign: 'right' },
+                        ]}
+                      >
+                        {language === 'ar' ? ayah.simpleTafsir : ayah.translationEn}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
           );
         })
@@ -1056,7 +1100,8 @@ export default function SurahDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Noor Encouragement Row (Mockup line 20) */}
+      {/* Noor Encouragement Row */}
+      {!isDesktop && (
       <View style={[styles.mockupNoorBanner, language === 'ar' && { flexDirection: 'row-reverse' }]}>
         <View style={styles.mockupNoorCircWn}>
           <Ionicons name="sparkles" size={18} color="#854F0B" />
@@ -1065,9 +1110,10 @@ export default function SurahDetailScreen() {
           {language === 'ar' ? 'أحسنت! كرر الآية مع نور ✨' : 'Well done! Repeat the verse with Noor ✨'}
         </Text>
       </View>
+      )}
 
-      {/* Tajweed Legend Bar */}
-      {tajweedEnabled && (
+      {/* Tajweed Legend Bar (Mobile only) */}
+      {!isDesktop && tajweedEnabled && (
         <TajweedLegendBar
           language={language}
           onRuleTap={() => setShowTajweedModal(true)}
@@ -2581,5 +2627,90 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '900',
     color: '#FFFFFF',
+  },
+  topBarWrapper: {
+    width: '100%',
+  },
+  topBarWrapperDesktop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+    maxWidth: 1240,
+    alignSelf: 'center',
+  },
+  mockupChipsRowDesktop: {
+    paddingHorizontal: 0,
+    paddingVertical: 2,
+    borderBottomWidth: 0,
+    flex: 1,
+  },
+  mockupProgressSectionDesktop: {
+    width: 220,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginBottom: 0,
+    borderBottomWidth: 0,
+  },
+  desktopLegendInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  inlineLegendPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  inlineLegendPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  ayahsContainerDesktop: {
+    paddingTop: 8,
+    paddingBottom: 75,
+    paddingHorizontal: 20,
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  ayahCardDesktop: {
+    maxWidth: 1160,
+    alignSelf: 'center',
+    width: '100%',
+    padding: 14,
+    marginBottom: 8,
+  },
+  etiquetteHintBannerDesktop: {
+    maxWidth: 1160,
+    alignSelf: 'center',
+    width: '100%',
+    paddingVertical: 5,
+    marginBottom: 6,
+  },
+  desktopAyahBodyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    width: '100%',
+    paddingVertical: 4,
+  },
+  desktopAyahTextCol: {
+    flex: 1.15,
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  desktopTafsirCol: {
+    flex: 0.85,
+    justifyContent: 'center',
+  },
+  tafsirContainerDesktop: {
+    marginTop: 0,
+    padding: 10,
+  },
+  tafsirTextDesktop: {
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

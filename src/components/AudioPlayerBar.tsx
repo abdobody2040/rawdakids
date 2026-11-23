@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/constants/theme';
 import { RECITERS } from '@/data/quranData';
@@ -38,6 +38,8 @@ export default function AudioPlayerBar({
   const { language, parentSettings, updateParentSettings } = useAppStore();
   const [reciterModalOpen, setReciterModalOpen] = useState(false);
   const isAr = language === 'ar';
+  const { width: screenWidth } = useWindowDimensions();
+  const isDesktop = screenWidth >= 768;
 
   const currentReciter =
     RECITERS.find((r) => r.id === parentSettings.reciterId) || RECITERS[0];
@@ -56,104 +58,208 @@ export default function AudioPlayerBar({
   };
 
   return (
-    <View style={styles.container}>
-      {/* Top Bar: Reciter Name on left, Speed Chip on right */}
-      <View style={[styles.infoRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-        <TouchableOpacity
-          style={styles.reciterPickerBtn}
-          onPress={() => setReciterModalOpen(true)}
-          activeOpacity={0.75}
-        >
-          <Ionicons name="mic-outline" size={15} color="#4B5563" />
-          <Text style={styles.reciterPickerText}>
-            {isAr ? currentReciter.nameArabic : currentReciter.nameEnglish}
-          </Text>
-          <Ionicons name="chevron-down" size={12} color="#6B7280" />
-        </TouchableOpacity>
+    <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+      {isDesktop ? (
+        /* Streamlined Desktop Row: [Reciter Picker] ... [Controls Center] ... [Speed Chip] */
+        <View style={[styles.desktopRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+          {/* Reciter on Start Side */}
+          <View style={[styles.desktopSide, { alignItems: isAr ? 'flex-end' : 'flex-start' }]}>
+            <TouchableOpacity
+              style={styles.reciterPickerBtn}
+              onPress={() => setReciterModalOpen(true)}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mic-outline" size={15} color="#4B5563" />
+              <Text style={styles.reciterPickerText}>
+                {isAr ? currentReciter.nameArabic : currentReciter.nameEnglish}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
 
-        <TouchableOpacity
-          style={[styles.speedChip, speed !== 1.0 && styles.speedChipActive]}
-          onPress={toggleSpeed}
-          activeOpacity={0.75}
-        >
-          <Text style={[styles.speedChipText, speed !== 1.0 && styles.speedChipTextActive]}>
-            {isAr ? `السرعة ${speed}x` : `Speed ${speed}x`}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {/* Centered Compact Playback Controls */}
+          <View style={[styles.desktopControlsCenter, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            <TouchableOpacity
+              style={styles.desktopActionBtn}
+              onPress={toggleRepeat}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name="repeat"
+                size={18}
+                color={repeatCount > 1 ? '#0F9D6B' : '#5F5E5A'}
+              />
+              <Text style={[styles.desktopActionText, repeatCount > 1 && { color: '#0F9D6B', fontWeight: '800' }]}>
+                {repeatCount > 1
+                  ? `${repeatCount}x`
+                  : (isAr ? 'تكرار' : 'Repeat')}
+              </Text>
+            </TouchableOpacity>
 
-      {/* Main Controls Row (Mockup: Repeat | Skip Prev | Big Green Play | Skip Next | Repeat After Me) */}
-      <View style={[styles.controlsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-        {/* Labeled Repeat Button */}
-        <TouchableOpacity
-          style={styles.actionColumnBtn}
-          onPress={toggleRepeat}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name="repeat"
-            size={22}
-            color={repeatCount > 1 ? '#0F9D6B' : '#5F5E5A'}
-          />
-          <Text style={[styles.actionColumnText, repeatCount > 1 && { color: '#0F9D6B', fontWeight: '800' }]}>
-            {repeatCount > 1
-              ? `${repeatCount}x ${isAr ? 'تكرار' : 'Repeat'}`
-              : (isAr ? 'تكرار' : 'Repeat')}
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.desktopSkipBtn}
+              onPress={onPrevAyah}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name={isAr ? 'play-skip-forward' : 'play-skip-back'}
+                size={22}
+                color="#475569"
+              />
+            </TouchableOpacity>
 
-        {/* Previous Ayah Button (Clear, never looks disabled) */}
-        <TouchableOpacity
-          style={styles.skipBtn}
-          onPress={onPrevAyah}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name={isAr ? 'play-skip-forward' : 'play-skip-back'}
-            size={26}
-            color="#475569"
-          />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.desktopHeroPlayBtn}
+              onPress={onPlayPause}
+              activeOpacity={0.88}
+            >
+              <Ionicons
+                name={isPlaying ? 'pause' : 'play'}
+                size={24}
+                color="#FFFFFF"
+                style={{ marginLeft: isPlaying ? 0 : 2 }}
+              />
+            </TouchableOpacity>
 
-        {/* Big Green Play / Pause Button (64x64, #0F9D6B) */}
-        <TouchableOpacity
-          style={styles.heroPlayBtn}
-          onPress={onPlayPause}
-          activeOpacity={0.88}
-        >
-          <Ionicons
-            name={isPlaying ? 'pause' : 'play'}
-            size={30}
-            color="#FFFFFF"
-            style={{ marginLeft: isPlaying ? 0 : 3 }}
-          />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.desktopSkipBtn}
+              onPress={onNextAyah}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name={isAr ? 'play-skip-back' : 'play-skip-forward'}
+                size={22}
+                color="#475569"
+              />
+            </TouchableOpacity>
 
-        {/* Next Ayah Button (Clear, never looks disabled) */}
-        <TouchableOpacity
-          style={styles.skipBtn}
-          onPress={onNextAyah}
-          activeOpacity={0.75}
-        >
-          <Ionicons
-            name={isAr ? 'play-skip-back' : 'play-skip-forward'}
-            size={26}
-            color="#475569"
-          />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.desktopActionBtn}
+              onPress={onRecordRepeat}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mic-circle-outline" size={20} color="#0F9D6B" />
+              <Text style={[styles.desktopActionText, { color: '#0F9D6B', fontWeight: '800' }]}>
+                {isAr ? 'رددها' : 'Repeat'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Labeled "رددها" (Repeat after me mic button) */}
-        <TouchableOpacity
-          style={styles.actionColumnBtn}
-          onPress={onRecordRepeat}
-          activeOpacity={0.75}
-        >
-          <Ionicons name="mic-circle-outline" size={24} color="#0F9D6B" />
-          <Text style={[styles.actionColumnText, { color: '#0F9D6B', fontWeight: '800' }]}>
-            {isAr ? 'رددها' : 'Repeat'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {/* Speed Chip on End Side */}
+          <View style={[styles.desktopSide, { alignItems: isAr ? 'flex-start' : 'flex-end' }]}>
+            <TouchableOpacity
+              style={[styles.speedChip, speed !== 1.0 && styles.speedChipActive]}
+              onPress={toggleSpeed}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.speedChipText, speed !== 1.0 && styles.speedChipTextActive]}>
+                {isAr ? `السرعة ${speed}x` : `Speed ${speed}x`}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        /* Mobile: Standard 2-Row Stack */
+        <>
+          {/* Top Bar: Reciter Name on left, Speed Chip on right */}
+          <View style={[styles.infoRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            <TouchableOpacity
+              style={styles.reciterPickerBtn}
+              onPress={() => setReciterModalOpen(true)}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mic-outline" size={15} color="#4B5563" />
+              <Text style={styles.reciterPickerText}>
+                {isAr ? currentReciter.nameArabic : currentReciter.nameEnglish}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="#6B7280" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.speedChip, speed !== 1.0 && styles.speedChipActive]}
+              onPress={toggleSpeed}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.speedChipText, speed !== 1.0 && styles.speedChipTextActive]}>
+                {isAr ? `السرعة ${speed}x` : `Speed ${speed}x`}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Main Controls Row (Mockup: Repeat | Skip Prev | Big Green Play | Skip Next | Repeat After Me) */}
+          <View style={[styles.controlsRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            {/* Labeled Repeat Button */}
+            <TouchableOpacity
+              style={styles.actionColumnBtn}
+              onPress={toggleRepeat}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name="repeat"
+                size={22}
+                color={repeatCount > 1 ? '#0F9D6B' : '#5F5E5A'}
+              />
+              <Text style={[styles.actionColumnText, repeatCount > 1 && { color: '#0F9D6B', fontWeight: '800' }]}>
+                {repeatCount > 1
+                  ? `${repeatCount}x ${isAr ? 'تكرار' : 'Repeat'}`
+                  : (isAr ? 'تكرار' : 'Repeat')}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Previous Ayah Button */}
+            <TouchableOpacity
+              style={styles.skipBtn}
+              onPress={onPrevAyah}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name={isAr ? 'play-skip-forward' : 'play-skip-back'}
+                size={26}
+                color="#475569"
+              />
+            </TouchableOpacity>
+
+            {/* Big Green Play / Pause Button (64x64, #0F9D6B) */}
+            <TouchableOpacity
+              style={styles.heroPlayBtn}
+              onPress={onPlayPause}
+              activeOpacity={0.88}
+            >
+              <Ionicons
+                name={isPlaying ? 'pause' : 'play'}
+                size={30}
+                color="#FFFFFF"
+                style={{ marginLeft: isPlaying ? 0 : 3 }}
+              />
+            </TouchableOpacity>
+
+            {/* Next Ayah Button */}
+            <TouchableOpacity
+              style={styles.skipBtn}
+              onPress={onNextAyah}
+              activeOpacity={0.75}
+            >
+              <Ionicons
+                name={isAr ? 'play-skip-back' : 'play-skip-forward'}
+                size={26}
+                color="#475569"
+              />
+            </TouchableOpacity>
+
+            {/* Labeled "رددها" */}
+            <TouchableOpacity
+              style={styles.actionColumnBtn}
+              onPress={onRecordRepeat}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mic-circle-outline" size={24} color="#0F9D6B" />
+              <Text style={[styles.actionColumnText, { color: '#0F9D6B', fontWeight: '800' }]}>
+                {isAr ? 'رددها' : 'Repeat'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
       {/* Reciter Selection Modal */}
       <Modal
@@ -358,5 +464,56 @@ const styles = StyleSheet.create({
   reciterItemStyle: {
     fontSize: 12,
     color: COLORS.textSecondary,
+  },
+  containerDesktop: {
+    paddingTop: 6,
+    paddingBottom: 8,
+    paddingHorizontal: 20,
+    minHeight: 56,
+  },
+  desktopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  desktopSide: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  desktopControlsCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  desktopActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#F3F4F6',
+  },
+  desktopActionText: {
+    fontSize: 11,
+    color: '#4B5563',
+    fontWeight: '700',
+  },
+  desktopSkipBtn: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  desktopHeroPlayBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#0F9D6B',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.medium,
   },
 });
