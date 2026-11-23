@@ -30,19 +30,19 @@ export const TAJWEED_CATEGORIES: Record<TajweedCategoryId, TajweedCategory> = {
     id: 'madd',
     nameAr: 'المدّ',
     nameEn: 'Madd (Elongation)',
-    color: '#FF6B6B',
-    bgColor: '#FFF0F0',
+    color: '#DC2626',
+    bgColor: '#FEE2E2',
     kidExplanationAr: 'نُطيل الصوت هنا بجمال وهدوء مثل مدّ اليد 🤲',
     kidExplanationEn: 'We stretch our voice here, like reaching out our hand 🤲',
-    emoji: '🎶',
+    emoji: '🚀',
     targetHoldMs: 2000,
   },
   ghunnah: {
     id: 'ghunnah',
     nameAr: 'الغُنّة',
     nameEn: 'Ghunnah (Nasalization)',
-    color: '#2ECC71',
-    bgColor: '#F0FFF6',
+    color: '#16A34A',
+    bgColor: '#DCFCE7',
     kidExplanationAr: 'صوت جميل يخرج من الأنف لمدة حركتين 👃🌿',
     kidExplanationEn: 'A beautiful sound coming from the nose, held for 2 counts 👃🌿',
     emoji: '🌿',
@@ -52,8 +52,8 @@ export const TAJWEED_CATEGORIES: Record<TajweedCategoryId, TajweedCategory> = {
     id: 'qalqalah',
     nameAr: 'القلقلة',
     nameEn: 'Qalqalah (Echo/Bounce)',
-    color: '#3498DB',
-    bgColor: '#F0F8FF',
+    color: '#2563EB',
+    bgColor: '#DBEAFE',
     kidExplanationAr: 'حرف قوي يقفز في النطق (ق ط ب ج د) 🏀',
     kidExplanationEn: 'A strong letter that bounces when it rests (ق ط ب ج د) 🏀',
     emoji: '🏀',
@@ -63,11 +63,11 @@ export const TAJWEED_CATEGORIES: Record<TajweedCategoryId, TajweedCategory> = {
     id: 'ikhfa_idgham',
     nameAr: 'الإخفاء والإدغام',
     nameEn: 'Ikhfa & Idgham (Hiding/Merging)',
-    color: '#9B59B6',
-    bgColor: '#F9F0FF',
+    color: '#9333EA',
+    bgColor: '#F3E8FF',
     kidExplanationAr: 'حرف يختبئ أو يندمج بلطف مع الحرف الذي بعده 🫧',
     kidExplanationEn: 'A letter hides or gently blends with the next letter 🫧',
-    emoji: '🫧',
+    emoji: '🔮',
     targetHoldMs: 0,
   },
 };
@@ -84,23 +84,23 @@ export const TAJWEED_CATEGORIES: Record<TajweedCategoryId, TajweedCategory> = {
  */
 export const RULE_CODE_TO_CATEGORY: Record<string, TajweedCategoryId> = {
   // Madd (elongation) variants
-  m: 'madd',
-  n: 'madd',
-  p: 'madd',
-  o: 'madd',
-  h: 'madd', // madd arid lissukun
-  s: 'madd', // madd badal
+  m: 'madd', // madd lazim
+  n: 'madd', // madd tabi'i
+  p: 'madd', // madd arid
+  o: 'madd', // madd ja'iz
+  s: 'madd', // madd badal / silah
   // Ghunnah
   g: 'ghunnah',
   // Qalqalah
   q: 'qalqalah',
   // Ikhfa & Idgham family
-  i: 'ikhfa_idgham',
-  a: 'ikhfa_idgham',
-  u: 'ikhfa_idgham',
-  w: 'ikhfa_idgham',
-  f: 'ikhfa_idgham',
-  c: 'ikhfa_idgham',
+  i: 'ikhfa_idgham', // ikhfa
+  w: 'ikhfa_idgham', // idgham with ghunnah
+  u: 'ikhfa_idgham', // idgham without ghunnah
+  d: 'ikhfa_idgham', // idgham mutajanisayn
+  f: 'ikhfa_idgham', // idgham mutaqaribayn / ikhfa
+  a: 'ikhfa_idgham', // ikhfa shafawi
+  c: 'ikhfa_idgham', // idgham shafawi
 };
 
 /** Look up a category by its rule code. Returns null for unknown/minor rules. */

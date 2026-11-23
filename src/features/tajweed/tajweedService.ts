@@ -5,7 +5,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCategoryForCode, TajweedCategory } from './tajweedRules';
 
-const CACHE_PREFIX = '@rawda_tajweed_v1_';
+const CACHE_PREFIX = '@rawda_tajweed_v4_';
 const BASE_URL = 'https://api.alquran.cloud/v1';
 
 // ─────────────────────────────────────────────────────────
@@ -46,8 +46,8 @@ export interface TajweedAyah {
  */
 export function parseTajweedText(raw: string): TajweedToken[] {
   const tokens: TajweedToken[] = [];
-  // Regex: matches [<code>[<text>]] with optional :digit suffix on code
-  const tajweedPattern = /\[([a-z])(?::\d+)?\[([^\]]*)\]\]/g;
+  // Regex: matches [<code>[<text>] with optional :digit suffix on code (single closing bracket)
+  const tajweedPattern = /\[([a-z]+)(?::\d+)?\[([^\]]*)\]/g;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -67,7 +67,7 @@ export function parseTajweedText(raw: string): TajweedToken[] {
       text,
       ruleCode,
       category,
-      isTajweed: true,
+      isTajweed: !!category,
     });
 
     lastIndex = match.index + match[0].length;
